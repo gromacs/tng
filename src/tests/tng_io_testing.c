@@ -6,7 +6,7 @@
 
 
 
-static tng_function_status tng_setup_test_molecules(struct tng_trajectory *traj)
+static tng_function_status tng_setup_test_molecules(tng_trajectory_t traj)
 {
     struct tng_molecule *molecule;
     struct tng_chain *chain;
@@ -95,7 +95,7 @@ static tng_function_status tng_setup_test_molecules(struct tng_trajectory *traj)
 }
 
 static tng_function_status tng_test_read_and_write_file
-                (struct tng_trajectory *traj)
+                (tng_trajectory_t traj)
 {
     tng_function_status stat;
 
@@ -124,7 +124,7 @@ static tng_function_status tng_test_read_and_write_file
     return(stat);
 }
 
-static tng_function_status tng_test_write_and_read_traj(struct tng_trajectory *traj)
+static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
 {
     int i, j, k, nr, tot_n_mols, cnt;
     float *data, *molpos;

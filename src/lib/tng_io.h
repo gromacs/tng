@@ -82,6 +82,9 @@ typedef enum {TRG_CHAR_DATA,
 
 
 
+
+typedef struct tng_trajectory *tng_trajectory_t;
+              
 #ifdef __cplusplus
 extern "C"
 {
@@ -346,25 +349,25 @@ struct tng_trajectory {
    *tng_data is a pointer to pre-allocated memory.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_init_trajectory(struct tng_trajectory *tng_data);
+tng_function_status tng_init_trajectory(tng_trajectory_t tng_data);
 
 /* Clean up a trajectory data container.
    *tng_data is a pointer to pre-allocated memory containing trajectory data.
    All allocated memory in the data structure is freed.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_destroy_trajectory(struct tng_trajectory *tng_data);
+tng_function_status tng_destroy_trajectory(tng_trajectory_t tng_data);
 
 /* Set the name of the input file.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_set_input_file(struct tng_trajectory *tng_data,
+tng_function_status tng_set_input_file(tng_trajectory_t tng_data,
                                        const char *file_name);
 
 /* Set the name of the output file.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_set_output_file(struct tng_trajectory *tng_data,
+tng_function_status tng_set_output_file(tng_trajectory_t tng_data,
                                         const char *file_name);
 
 /* Set the program name used when creating the trajectory.
@@ -372,7 +375,7 @@ tng_function_status tng_set_output_file(struct tng_trajectory *tng_data,
    *new_name is a pointer to the string containing the wanted name.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */   
-tng_function_status tng_set_program_name(struct tng_trajectory *tng_data,
+tng_function_status tng_set_program_name(tng_trajectory_t tng_data,
                                          const char *new_name);
 
 /* Set the name of the forcefield used in the trajectory.
@@ -380,7 +383,7 @@ tng_function_status tng_set_program_name(struct tng_trajectory *tng_data,
    *new_name is a pointer to the string containing the wanted name.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_set_forcefield_name(struct tng_trajectory *tng_data,
+tng_function_status tng_set_forcefield_name(tng_trajectory_t tng_data,
                                             const char *new_name);
 
 /* Set the name of the user creating the trajectory.
@@ -388,7 +391,7 @@ tng_function_status tng_set_forcefield_name(struct tng_trajectory *tng_data,
    *new_name is a pointer to the string containing the wanted name.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_set_user_name(struct tng_trajectory *tng_data,
+tng_function_status tng_set_user_name(tng_trajectory_t tng_data,
                                       const char *new_name);
 
 /* Set the name of the computer used when creating the trajectory.
@@ -396,7 +399,7 @@ tng_function_status tng_set_user_name(struct tng_trajectory *tng_data,
    *new_name is a pointer to the string containing the wanted name.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_set_computer_name(struct tng_trajectory *tng_data,
+tng_function_status tng_set_computer_name(tng_trajectory_t tng_data,
                                           const char *new_name);
 
 /* Set the pgp_signature of the trajectory.
@@ -404,7 +407,7 @@ tng_function_status tng_set_computer_name(struct tng_trajectory *tng_data,
    *signature is a pointer to the string containing the pgp_signature.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_set_signature(struct tng_trajectory *tng_data,
+tng_function_status tng_set_signature(tng_trajectory_t tng_data,
                                       const char *signature);
 
 /* Setup a molecule container.
@@ -434,96 +437,96 @@ tng_function_status tng_init_block(struct tng_gen_block *block);
 tng_function_status tng_destroy_block(struct tng_gen_block *block);
 
 /* Set the name of a data block.
-   *tng_data is a pointer to the trajectory containing the block.
+   tng_data is the trajectory data container containing the block.
    *block is a pointer to the block to rename.
    *new_name is a string containing the wanted name.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_set_block_name(struct tng_trajectory *tng_data,
+tng_function_status tng_set_block_name(tng_trajectory_t tng_data,
                                        struct tng_gen_block *block,
                                        const char *new_name);
 
 /* Add a molecule to the trajectory.
-   *tng_data is a pointer to the trajectory containing the block.
+   tng_data is the trajectory data container containing the block.
    *name is a pointer to the string containing the name of the new molecule.
    **molecule is a pointer to a pointer to the newly created molecule.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_add_molecule(struct tng_trajectory *tng_data,
+tng_function_status tng_add_molecule(tng_trajectory_t tng_data,
                                      const char *name,
                                      struct tng_molecule **molecule);
 
 /* Set the name of a molecule.
-   *tng_data is a pointer to the trajectory containing the molecule.
+   tng_data is the trajectory data container containing the molecule.
    *molecule is a pointer to the molecule to rename.
    *new_name is a string containing the wanted name.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_set_molecule_name(struct tng_trajectory *tng_data,
+tng_function_status tng_set_molecule_name(tng_trajectory_t tng_data,
                                           struct tng_molecule *molecule,
                                           const char *new_name);
 
 /* Set the count of a molecule.
-   *tng_data is a pointer to the trajectory containing the molecule.
+   tng_data is the trajectory data container containing the molecule.
    *molecule is a pointer to the molecule to rename.
    *cnt is a pointer to the variable to be populated with the count.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_get_molecule_cnt(struct tng_trajectory *tng_data,
+tng_function_status tng_get_molecule_cnt(tng_trajectory_t tng_data,
                                          struct tng_molecule *molecule,
                                          int64_t *cnt);
 
 /* Set the count of a molecule.
-   *tng_data is a pointer to the trajectory containing the molecule.
+   tng_data is the trajectory data container containing the molecule.
    *molecule is a pointer to the molecule to rename.
    cnt is the number of instances of this molecule.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_set_molecule_cnt(struct tng_trajectory *tng_data,
+tng_function_status tng_set_molecule_cnt(tng_trajectory_t tng_data,
                                          struct tng_molecule *molecule,
                                          int64_t cnt);
 
 /* Add a chain to a molecule.
-   *tng_data is a pointer to the trajectory containing the molecule.
+   tng_data is the trajectory data container containing the molecule.
    *molecule is a pointer to the molecule to add a chain to.
    *name is a pointer to a string containing the name of the chain.
    **chain is a pointer to a pointer to the newly created chain.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_add_chain_to_molecule(struct tng_trajectory *tng_data,
+tng_function_status tng_add_chain_to_molecule(tng_trajectory_t tng_data,
                                               struct tng_molecule *molecule,
                                               const char *name,
                                               struct tng_chain **chain);
 
 /* Set the name of a chain.
-   *tng_data is a pointer to the trajectory containing the atom.
+   tng_data is the trajectory data container containing the atom.
    *chain is a pointer to the chain to rename.
    *new_name is a string containing the wanted name.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_set_chain_name(struct tng_trajectory *tng_data,
+tng_function_status tng_set_chain_name(tng_trajectory_t tng_data,
                                        struct tng_chain *chain,
                                        const char *new_name);
 
 /* Add a residue to a chain.
-   *tng_data is a pointer to the trajectory containing the chain.
+   tng_data is the trajectory data container containing the chain.
    *chain is a pointer to the chain to add a residue to.
    *name is a pointer to a string containing the name of the residue.
    **residue is a pointer to a pointer to the newly created residue.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_add_residue_to_chain(struct tng_trajectory *tng_data,
+tng_function_status tng_add_residue_to_chain(tng_trajectory_t tng_data,
                                              struct tng_chain *chain,
                                              const char *name,
                                              struct tng_residue **residue);
 
 /* Set the name of a residue.
-   *tng_data is a pointer to the trajectory containing the atom.
+   tng_data is the trajectory data container containing the residue.
    *residue is a pointer to the residue to rename.
    *new_name is a string containing the wanted name.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_set_residue_name(struct tng_trajectory *tng_data,
+tng_function_status tng_set_residue_name(tng_trajectory_t tng_data,
                                          struct tng_residue *residue,
                                          const char *new_name);
 
@@ -535,57 +538,57 @@ tng_function_status tng_set_residue_name(struct tng_trajectory *tng_data,
    **atom is a pointer to a pointer to the newly created atom.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_add_atom_to_residue(struct tng_trajectory *tng_data,
+tng_function_status tng_add_atom_to_residue(tng_trajectory_t tng_data,
                                             struct tng_residue *residue,
                                             const char *atom_name,
                                             const char *atom_type,
                                             struct tng_atom **atom);
 
 /* Set the name of an atom.
-   *tng_data is a pointer to the trajectory containing the atom.
+   tng_data is the trajectory data container containing the atom.
    *atom is a pointer to the atom to rename.
    *new_name is a string containing the wanted name.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_set_atom_name(struct tng_trajectory *tng_data,
+tng_function_status tng_set_atom_name(tng_trajectory_t tng_data,
                                       struct tng_atom *atom,
                                       const char *new_name);
 
 /* Set the atom type of an atom.
-   *tng_data is a pointer to the trajectory containing the atom.
+   tng_data is the trajectory data container containing the atom.
    *atom is a pointer to the atom to change.
    *new_name is a string containing the atom type.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_set_atom_type(struct tng_trajectory *tng_data,
+tng_function_status tng_set_atom_type(tng_trajectory_t tng_data,
                                       struct tng_atom *atom,
                                       const char *new_type);
 
 /* Read the header blocks from the input_file of tng_data.
    The trajectory blocks must be read separately and iteratively in chunks
    to fit in memory.
-   *tng_data is a pointer to trajectory data. tng_data->input_file_path specifies which
+   tng_data is a trajectory data container. tng_data->input_file_path specifies which
    file to read from. If the file (input_file) is not open it will be opened.
    If close_file == TRG_CLOSE_FILE (1) the input_file will be closed after reading the data.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_read_file_headers(struct tng_trajectory *tng_data,
+tng_function_status tng_read_file_headers(tng_trajectory_t tng_data,
                                           tng_close_file_flag close_file);
 
 /* Write the header blocks to the output_file of tng_data.
    The trajectory blocks must be written separately and iteratively in chunks
    to fit in memory.
-   *tng_data is a pointer to trajectory data. tng_data->output_file_path specifies which
+   tng_data is a trajectory data container. tng_data->output_file_path specifies which
    file to write to. If the file (output_file) is not open it will be opened.
    If close_file == TRG_CLOSE_FILE (1) the output_file will be closed after writing the data.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_write_file_headers(struct tng_trajectory *tng_data,
+tng_function_status tng_write_file_headers(tng_trajectory_t tng_data,
                                            tng_close_file_flag close_file);
 
 
 /* Read one (the next) block (of any kind) from the input_file of tng_data.
-   *tng_data is a pointer to trajectory data. tng_data->input_file_path specifies which
+   tng_data is a trajectory data container. tng_data->input_file_path specifies which
    file to read from. If the file (input_file) is not open it will be opened.
    *block_data is a pointer to the struct which will be populated with the
    data. If block_data->input_file_pos > 0 it is the position from where the reading
@@ -593,49 +596,36 @@ tng_function_status tng_write_file_headers(struct tng_trajectory *tng_data,
    If close_file == TRG_CLOSE_FILE (1) the input_file will be closed after reading the data.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor
    error has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_read_next_block(struct tng_trajectory *tng_data,
+tng_function_status tng_read_next_block(tng_trajectory_t tng_data,
                                         struct tng_gen_block *block_data,
                                         tng_close_file_flag close_file);
-
-/* Write one block (of any kind) to the output_file of tng_data.
-   *tng_data is a pointer to trajectory data. tng_data->output_file_path specifies which
-   file to read from. If the file (output_file) is not open it will be opened.
-   *block_data is a pointer to the struct containing the
-   data. If block_data->output_file_pos > 0 it is the position from where the writing
-   starts otherwise it starts from the current position.
-   If close_file == TRG_CLOSE_FILE (1) the input_file will be closed after writing the data.
-   Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
-   has occurred or TRG_CRITICAL (2) if a major error has occured. */
-// tng_function_status tng_write_block(struct tng_trajectory *tng_data,
-//                                     struct tng_gen_block *block_data,
-//                                     tng_close_file_flag close_file);
 
 
 /* Read one (the next) frame set, including toc, mapping and related data blocks
    from the input_file of tng_data.
-   *tng_data is a pointer to trajectory data. tng_data->input_file_path specifies which
+   tng_data is a trajectory data container. tng_data->input_file_path specifies which
    file to read from. If the file (input_file) is not open it will be opened.
    If close_file == TRG_CLOSE_FILE (1) the input_file will be closed after reading the data.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_read_next_frame_set(struct tng_trajectory *tng_data,
+tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
                                             tng_close_file_flag close_file);
 
 /* Write one (the next) frame set, including toc, mapping and related data blocks
    to the output_file of tng_data.
-   *tng_data is a pointer to trajectory data. tng_data->output_file_path specifies which
+   tng_data is a trajectory data container. tng_data->output_file_path specifies which
    file to write to. If the file (output_file) is not open it will be opened.
    If close_file == TRG_CLOSE_FILE (1) the output_file will be closed after writing the data.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_write_frame_set(struct tng_trajectory *tng_data,
+tng_function_status tng_write_frame_set(tng_trajectory_t tng_data,
                                         tng_close_file_flag close_file);
 
-tng_function_status tng_new_frame_set(struct tng_trajectory *tng_data,
+tng_function_status tng_new_frame_set(tng_trajectory_t tng_data,
                                       const int64_t first_frame,
                                       const int64_t n_frames);
 
-tng_function_status tng_add_particle_data_block(struct tng_trajectory *tng_data,
+tng_function_status tng_add_particle_data_block(tng_trajectory_t tng_data,
                                         const int64_t id,
                                         const char *block_name,
                                         const char datatype,
@@ -649,109 +639,109 @@ tng_function_status tng_add_particle_data_block(struct tng_trajectory *tng_data,
 
 
 /* Read one (the next) trajectory block from the input_file of tng_data.
-   *tng_data is a pointer to trajectory data. tng_data->input_file_path specifies which
+   tng_data is a trajectory data container. tng_data->input_file_path specifies which
    file to read from. If the file (input_file) is not open it will be opened.
    If close_file == TRG_CLOSE_FILE (1) the input_file will be closed after reading the data.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_read_next_traj_block(struct tng_trajectory *tng_data,
+tng_function_status tng_read_next_traj_block(tng_trajectory_t tng_data,
                                              tng_close_file_flag close_file);
 
 /* Write one (the next) trajectory block to the output_file of tng_data.
-   *tng_data is a pointer to trajectory data. tng_data->output_file_path specifies which
+   tng_data is a trajectory data container. tng_data->output_file_path specifies which
    file to write to. If the file (output_file) is not open it will be opened.
    If close_file == TRG_CLOSE_FILE (1) the output_file will be closed after writing the data.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_write_next_traj_block(struct tng_trajectory *tng_data,
+tng_function_status tng_write_next_traj_block(tng_trajectory_t tng_data,
                                               tng_close_file_flag close_file);
 
 /* Read one trajectory block from the input_file of tng_data.
-   *tng_data is a pointer to trajectory data. tng_data->input_file_path specifies which
+   tng_data is a trajectory data container. tng_data->input_file_path specifies which
    file to read from. If the file (input_file) is not open it will be opened.
    block_id is the ID of the block to read.
    If close_file == TRG_CLOSE_FILE (1) the input_file will be closed after reading the data.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_read_traj_block(struct tng_trajectory *tng_data,
+tng_function_status tng_read_traj_block(tng_trajectory_t tng_data,
                                         int64_t block_id,
                                         tng_close_file_flag close_file);
         
 /* Write one trajectory block to the output_file of tng_data.
-   *tng_data is a pointer to trajectory data. tng_data->output_file_path specifies which
+   tng_data is a trajectory data container. tng_data->output_file_path specifies which
    file to write to. If the file (output_file) is not open it will be opened.
    block_id is the ID of the block to write.
    If close_file == TRG_CLOSE_FILE (1) the output_file will be closed after writing the data.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_write_traj_block(struct tng_trajectory *tng_data,
+tng_function_status tng_write_traj_block(tng_trajectory_t tng_data,
                                          int64_t block_id,
                                          tng_close_file_flag close_file);
 
 /* Read a requested frame set.
-   *tng_data is a pointer to trajectory data. tng_data->current_trajectory_frame_set
+   tng_data is a trajectory data container. tng_data->current_trajectory_frame_set
    will be the read frame set.
    frame_set_nr is the number of the frame set to return (starting from 0).
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_read_frame_set_nr(struct tng_trajectory *tng_data,
+tng_function_status tng_read_frame_set_nr(tng_trajectory_t tng_data,
                                           int64_t frame_set_nr);
 
 /* Read one trajectory frame from the input_file of tng_data.
-   *tng_data is a pointer to trajectory data. tng_data->input_file_path specifies which
+   tng_data is a trajectory data container. tng_data->input_file_path specifies which
    file to read from. If the file (input_file) is not open it will be opened.
    frame_nr is the index number of the frame to read.
    If close_file == TRG_CLOSE_FILE (1) the input_file will be closed after reading the data.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_read_frame_nr(struct tng_trajectory *tng_data,
+tng_function_status tng_read_frame_nr(tng_trajectory_t tng_data,
                                       int64_t frame_nr,
                                       tng_close_file_flag close_file);
         
 /* Write one trajectory frame to the output_file of tng_data.
-   *tng_data is a pointer to trajectory data. tng_data->output_file_path specifies which
+   tng_data is a trajectory data container. tng_data->output_file_path specifies which
    file to write to. If the file (output_file) is not open it will be opened.
    frame_nr is the index number of the frame to write.
    If close_file == TRG_CLOSE_FILE (1) the output_file will be closed after writing the data.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_write_frame_nr(struct tng_trajectory *tng_data,
+tng_function_status tng_write_frame_nr(tng_trajectory_t tng_data,
                                        int64_t frame_nr,
                                        tng_close_file_flag close_file);
 
 /* Read a number of consecutive trajectory frames from the input_file of tng_data.
-   *tng_data is a pointer to trajectory data. tng_data->input_file_path specifies which
+   tng_data is a trajectory data container. tng_data->input_file_path specifies which
    file to read from. If the file (input_file) is not open it will be opened.
    start_frame_nr is the index number of the first frame to read.
    end_frame_nr is the index number of the last frame to read.
    If close_file == TRG_CLOSE_FILE (1) the input_file will be closed after reading the data.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_read_frame_nrs(struct tng_trajectory *tng_data,
+tng_function_status tng_read_frame_nrs(tng_trajectory_t tng_data,
                                        int64_t start_frame_nr,
                                        int64_t end_frame_nr,
                                        tng_close_file_flag close_file);
 
 /* Write a number of consecutive trajectory frames to the output_file of tng_data.
-   *tng_data is a pointer to trajectory data. tng_data->output_file_path specifies which
+   tng_data is a trajectory data container. tng_data->output_file_path specifies which
    file to write to. If the file (input_file) is not open it will be opened.
    start_frame_nr is the index number of the first frame to write.
    end_frame_nr is the index number of the last frame to write.
    If close_file == TRG_CLOSE_FILE (1) the output_file will be closed after writing the data.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_write_frame_nrs(struct tng_trajectory *tng_data,
+tng_function_status tng_write_frame_nrs(tng_trajectory_t tng_data,
                                         int64_t start_frame_nr,
                                         int64_t end_frame_nr,
                                         tng_close_file_flag close_file);
 
 /* Get the date and time of initial file creation in ISO format (string).
-   *tng_data is a pointer to trajectory data.
+   tng_data is a trajectory data container.
    *time is a pointer to the string in which the date will be stored. Memory
    must be reserved beforehand.
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_get_time_str(struct tng_trajectory *tng_data, char *time);
+tng_function_status tng_get_time_str(tng_trajectory_t tng_data, char *time);
 
 #ifdef __cplusplus
 }  /* end extern "C" */
