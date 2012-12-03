@@ -1,2 +1,2 @@
-add_library(trg_io SHARED trg_io.c md5.c)
+add_library(tng_io SHARED tng_io.c md5.c)
 
