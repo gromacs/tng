@@ -12,7 +12,7 @@ static trg_function_status trg_setup_test_molecules(struct trg_trajectory *traj)
     struct trg_chain *chain;
     struct trg_residue *residue;
     struct trg_atom *atom;
-    uint64_t cnt;
+    int64_t cnt;
 //     int i;
 
     trg_add_molecule(traj, "water", &molecule);

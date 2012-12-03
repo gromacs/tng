@@ -37,7 +37,7 @@
 /* This function swaps the byte order of a 32 bit numerical variable.
    It does not only work with integer, but e.g. floats need casting */
 static inline trg_function_status trg_swap_byte_order_32
-                (const struct trg_trajectory *trg_data, uint32_t *v)
+                (const struct trg_trajectory *trg_data, int32_t *v)
 {
     switch(trg_data->endianness_32)
     {
@@ -68,7 +68,7 @@ static inline trg_function_status trg_swap_byte_order_32
    The byte order swapping routine can convert five different byte
    orders to big endian. */
 static inline trg_function_status trg_swap_byte_order_64
-                (const struct trg_trajectory *trg_data, uint64_t *v)
+                (const struct trg_trajectory *trg_data, int64_t *v)
 {
     switch(trg_data->endianness_64)
     {
@@ -444,7 +444,7 @@ static trg_function_status trg_write_block_header
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
         if(trg_swap_byte_order_64(trg_data,
-                                  (uint64_t *)(block->header_contents))
+                                  (int64_t *)(block->header_contents))
             != TRG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -458,7 +458,7 @@ static trg_function_status trg_write_block_header
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
         if(trg_swap_byte_order_64(trg_data,
-                                  (uint64_t *)(block->header_contents+offset))
+                                  (int64_t *)(block->header_contents+offset))
             != TRG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -471,7 +471,7 @@ static trg_function_status trg_write_block_header
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
         if(trg_swap_byte_order_64(trg_data,
-                                  (uint64_t *)(block->header_contents+offset))
+                                  (int64_t *)(block->header_contents+offset))
             != TRG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -491,7 +491,7 @@ static trg_function_status trg_write_block_header
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
         if(trg_swap_byte_order_64(trg_data,
-                                  (uint64_t *)(block->header_contents+offset))
+                                  (int64_t *)(block->header_contents+offset))
             != TRG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -846,7 +846,7 @@ static trg_function_status trg_write_general_info_block
            sizeof(trg_data->time));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents+offset))
             != TRG_SUCCESS)
         {
@@ -872,7 +872,7 @@ static trg_function_status trg_write_general_info_block
            sizeof(trg_data->frame_set_n_frames));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents+offset))
             != TRG_SUCCESS)
         {
@@ -887,7 +887,7 @@ static trg_function_status trg_write_general_info_block
            sizeof(trg_data->first_trajectory_frame_set_input_file_pos));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents+offset))
             != TRG_SUCCESS)
         {
@@ -902,7 +902,7 @@ static trg_function_status trg_write_general_info_block
            sizeof(trg_data->last_trajectory_frame_set_input_file_pos));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents+offset))
             != TRG_SUCCESS)
         {
@@ -917,7 +917,7 @@ static trg_function_status trg_write_general_info_block
            sizeof(trg_data->stride_length));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents+offset))
             != TRG_SUCCESS)
         {
@@ -1041,7 +1041,7 @@ static trg_function_status trg_read_molecules_block
         {
             free(trg_data->molecule_cnt_list);
         }
-        trg_data->molecule_cnt_list = (uint64_t *) malloc(sizeof(uint64_t) *
+        trg_data->molecule_cnt_list = (int64_t *) malloc(sizeof(int64_t) *
                                       trg_data->n_molecules);
         if(!trg_data->molecule_cnt_list)
         {
@@ -1092,7 +1092,7 @@ static trg_function_status trg_read_molecules_block
         {
             memcpy(&trg_data->molecule_cnt_list[i],
                    block->block_contents+offset,
-                   sizeof(uint64_t));
+                   sizeof(int64_t));
             if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
             {
                 if(trg_swap_byte_order_64(trg_data,
@@ -1102,7 +1102,7 @@ static trg_function_status trg_read_molecules_block
                            __FILE__, __LINE__);
                 }
             }
-            offset += sizeof(uint64_t);
+            offset += sizeof(int64_t);
         }
         
 
@@ -1534,7 +1534,7 @@ static trg_function_status trg_write_molecules_block
 
     if(!trg_data->var_num_atoms_flag)
     {
-        block->block_contents_size += trg_data->n_molecules * sizeof(uint64_t);
+        block->block_contents_size += trg_data->n_molecules * sizeof(int64_t);
     }
     
     if(block->block_contents)
@@ -1555,7 +1555,7 @@ static trg_function_status trg_write_molecules_block
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
         if(trg_swap_byte_order_64(trg_data,
-                                  (uint64_t *)(block->block_contents+offset))
+                                  (int64_t *)(block->block_contents+offset))
             != TRG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1573,7 +1573,7 @@ static trg_function_status trg_write_molecules_block
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
             if(trg_swap_byte_order_64(trg_data,
-                                     (uint64_t *)(block->block_contents+offset))
+                                     (int64_t *)(block->block_contents+offset))
                 != TRG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1592,7 +1592,7 @@ static trg_function_status trg_write_molecules_block
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
             if(trg_swap_byte_order_64(trg_data,
-                                     (uint64_t *)(block->block_contents+offset))
+                                     (int64_t *)(block->block_contents+offset))
                 != TRG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1604,18 +1604,18 @@ static trg_function_status trg_write_molecules_block
         if(!trg_data->var_num_atoms_flag)
         {
             memcpy(block->block_contents+offset,
-                   &trg_data->molecule_cnt_list[i], sizeof(uint64_t));
+                   &trg_data->molecule_cnt_list[i], sizeof(int64_t));
             if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
             {
                 if(trg_swap_byte_order_64(trg_data,
-                                     (uint64_t *)(block->block_contents+offset))
+                                     (int64_t *)(block->block_contents+offset))
                     != TRG_SUCCESS)
                 {
                     printf("Cannot swap byte order to get big endian. %s: %d\n",
                            __FILE__, __LINE__);
                 }
             }
-            offset += sizeof(uint64_t);
+            offset += sizeof(int64_t);
         }
 
         memcpy(block->block_contents+offset, &molecule->n_chains,
@@ -1623,7 +1623,7 @@ static trg_function_status trg_write_molecules_block
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
             if(trg_swap_byte_order_64(trg_data,
-                                     (uint64_t *)(block->block_contents+offset))
+                                     (int64_t *)(block->block_contents+offset))
                 != TRG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1637,7 +1637,7 @@ static trg_function_status trg_write_molecules_block
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
             if(trg_swap_byte_order_64(trg_data,
-                                     (uint64_t *)(block->block_contents+offset))
+                                     (int64_t *)(block->block_contents+offset))
                 != TRG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1651,7 +1651,7 @@ static trg_function_status trg_write_molecules_block
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
             if(trg_swap_byte_order_64(trg_data,
-                                     (uint64_t *)(block->block_contents+offset))
+                                     (int64_t *)(block->block_contents+offset))
                 != TRG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1667,7 +1667,7 @@ static trg_function_status trg_write_molecules_block
             if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
             {
                 if(trg_swap_byte_order_64(trg_data,
-                                     (uint64_t *)(block->block_contents+offset))
+                                     (int64_t *)(block->block_contents+offset))
                     != TRG_SUCCESS)
                 {
                     printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1685,7 +1685,7 @@ static trg_function_status trg_write_molecules_block
             if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
             {
                 if(trg_swap_byte_order_64(trg_data,
-                                        (uint64_t *)(block->block_contents+offset))
+                                        (int64_t *)(block->block_contents+offset))
                     != TRG_SUCCESS)
                 {
                     printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1701,7 +1701,7 @@ static trg_function_status trg_write_molecules_block
                 if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
                 {
                     if(trg_swap_byte_order_64(trg_data,
-                                        (uint64_t *)(block->block_contents+offset))
+                                        (int64_t *)(block->block_contents+offset))
                         != TRG_SUCCESS)
                     {
                         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1719,7 +1719,7 @@ static trg_function_status trg_write_molecules_block
                 if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
                 {
                     if(trg_swap_byte_order_64(trg_data,
-                                            (uint64_t *)(block->block_contents+offset))
+                                            (int64_t *)(block->block_contents+offset))
                         != TRG_SUCCESS)
                     {
                         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1736,7 +1736,7 @@ static trg_function_status trg_write_molecules_block
                     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
                     {
                         if(trg_swap_byte_order_64(trg_data,
-                                            (uint64_t *)(block->block_contents+offset))
+                                            (int64_t *)(block->block_contents+offset))
                             != TRG_SUCCESS)
                         {
                             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1764,7 +1764,7 @@ static trg_function_status trg_write_molecules_block
                sizeof(molecule->n_bonds));
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
-            if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+            if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                       (block->block_contents+offset))
                 != TRG_SUCCESS)
             {
@@ -1781,7 +1781,7 @@ static trg_function_status trg_write_molecules_block
                    sizeof(bond->from_atom_id));
             if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
             {
-                if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+                if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                           (block->block_contents+offset))
                     != TRG_SUCCESS)
                 {
@@ -1795,7 +1795,7 @@ static trg_function_status trg_write_molecules_block
                    sizeof(bond->to_atom_id));
             if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
             {
-                if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+                if(trg_swap_byte_order_64(trg_data, (int64_t *)
                     (block->block_contents+offset)) != TRG_SUCCESS)
                 {
                     printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1834,7 +1834,7 @@ static trg_function_status trg_read_frame_set_block
                  struct trg_gen_block *block)
 {
     int i, file_pos, offset = 0;
-    uint64_t prev_n_particles;
+    int64_t prev_n_particles;
     trg_bool same_hash;
     struct trg_trajectory_frame_set *frame_set =
     &trg_data->current_trajectory_frame_set;
@@ -1949,12 +1949,12 @@ static trg_function_status trg_read_frame_set_block
         if(!frame_set->molecule_cnt_list)
         {
                 frame_set->molecule_cnt_list =
-                (uint64_t *) malloc(sizeof(uint64_t) * trg_data->n_molecules);
+                (int64_t *) malloc(sizeof(int64_t) * trg_data->n_molecules);
                 
                 if(!frame_set->molecule_cnt_list)
                 {
                     printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                           sizeof(uint64_t) * trg_data->n_molecules,
+                           sizeof(int64_t) * trg_data->n_molecules,
                            __FILE__, __LINE__);
                     trg_destroy_block(block);
                     return(TRG_CRITICAL);
@@ -1964,7 +1964,7 @@ static trg_function_status trg_read_frame_set_block
         {
             memcpy(&frame_set->molecule_cnt_list[i],
                    block->block_contents + offset,
-                   sizeof(uint64_t));
+                   sizeof(int64_t));
             if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
             {
                 if(trg_swap_byte_order_64(trg_data,
@@ -1975,7 +1975,7 @@ static trg_function_status trg_read_frame_set_block
                            __FILE__, __LINE__);
                 }
             }
-            offset += sizeof(uint64_t);
+            offset += sizeof(int64_t);
             frame_set->n_particles += trg_data->molecules[i].n_atoms *
                                       frame_set->molecule_cnt_list[i];
         }
@@ -2065,7 +2065,7 @@ static trg_function_status trg_write_frame_set_block
                  write_mode mode)
 {
     char *temp_name;
-    uint64_t i;
+    int64_t i;
     int offset = 0, name_len;
     struct trg_trajectory_frame_set *frame_set =
     &trg_data->current_trajectory_frame_set;
@@ -2120,10 +2120,10 @@ static trg_function_status trg_write_frame_set_block
     }
     strcpy(block->name, "TRAJECTORY FRAME SET");
 
-    block->block_contents_size = sizeof(uint64_t) * 6;
+    block->block_contents_size = sizeof(int64_t) * 6;
     if(trg_data->var_num_atoms_flag)
     {
-        block->block_contents_size += sizeof(uint64_t) * trg_data->n_molecules;
+        block->block_contents_size += sizeof(int64_t) * trg_data->n_molecules;
     }
 
     if(block->block_contents)
@@ -2143,7 +2143,7 @@ static trg_function_status trg_write_frame_set_block
            sizeof(frame_set->first_frame));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents)) !=
            TRG_SUCCESS)
         {
@@ -2157,7 +2157,7 @@ static trg_function_status trg_write_frame_set_block
            sizeof(frame_set->n_frames));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents+offset)) !=
            TRG_SUCCESS)
         {
@@ -2173,10 +2173,10 @@ static trg_function_status trg_write_frame_set_block
         {
             memcpy(block->block_contents+offset,
                    &frame_set->molecule_cnt_list[i],
-                   sizeof(uint64_t));
+                   sizeof(int64_t));
             if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
             {
-                if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+                if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                           (block->block_contents+offset)) !=
                    TRG_SUCCESS)
                 {
@@ -2184,7 +2184,7 @@ static trg_function_status trg_write_frame_set_block
                            __FILE__, __LINE__);
                 }
             }
-            offset += sizeof(uint64_t);
+            offset += sizeof(int64_t);
         }
     }
 
@@ -2193,7 +2193,7 @@ static trg_function_status trg_write_frame_set_block
            sizeof(frame_set->next_frame_set_file_pos));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents+offset)) !=
            TRG_SUCCESS)
         {
@@ -2207,7 +2207,7 @@ static trg_function_status trg_write_frame_set_block
            sizeof(frame_set->prev_frame_set_file_pos));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents+offset)) !=
            TRG_SUCCESS)
         {
@@ -2222,7 +2222,7 @@ static trg_function_status trg_write_frame_set_block
            sizeof(frame_set->long_stride_next_frame_set_file_pos));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents+offset)) !=
            TRG_SUCCESS)
         {
@@ -2237,7 +2237,7 @@ static trg_function_status trg_write_frame_set_block
            sizeof(frame_set->long_stride_prev_frame_set_file_pos));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents+offset)) !=
            TRG_SUCCESS)
         {
@@ -2270,7 +2270,7 @@ static trg_function_status trg_read_trajectory_toc_block
                 (struct trg_trajectory *trg_data,
                  struct trg_gen_block *block)
 {
-    uint64_t i, old_n_blocks;
+    int64_t i, old_n_blocks;
     int offset = 0, len;
     trg_bool same_hash;
     struct trg_frame_set_toc *toc =
@@ -2354,7 +2354,7 @@ static trg_function_status trg_read_trajectory_toc_block
         if(!toc->block_names)
         {
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                   toc->n_blocks * sizeof(uint64_t), __FILE__, __LINE__);
+                   toc->n_blocks * sizeof(int64_t), __FILE__, __LINE__);
             trg_destroy_block(block);
             return(TRG_CRITICAL);
         }
@@ -2386,7 +2386,7 @@ static trg_function_status trg_write_trajectory_toc_block
                  write_mode mode)
 {
     char *temp_name;
-    uint64_t i;
+    int64_t i;
     int offset = 0, name_len;
     struct trg_frame_set_toc *toc =
     &trg_data->current_trajectory_frame_set.contents;
@@ -2441,7 +2441,7 @@ static trg_function_status trg_write_trajectory_toc_block
     }
     strcpy(block->name, "BLOCK TABLE OF CONTENTS");
 
-    block->block_contents_size = sizeof(uint64_t);
+    block->block_contents_size = sizeof(int64_t);
 
     for(i = toc->n_blocks; i--;)
     {
@@ -2464,7 +2464,7 @@ static trg_function_status trg_write_trajectory_toc_block
     memcpy(block->block_contents, &toc->n_blocks, sizeof(toc->n_blocks));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents)) !=
            TRG_SUCCESS)
         {
@@ -2506,7 +2506,7 @@ static trg_function_status trg_read_trajectory_mapping_block
                 (struct trg_trajectory *trg_data,
                  struct trg_gen_block *block)
 {
-    uint64_t i, old_n_particles;
+    int64_t i, old_n_particles;
     int offset = 0;
     trg_bool same_hash;
     struct trg_trajectory_frame_set *frame_set =
@@ -2611,11 +2611,11 @@ static trg_function_status trg_read_trajectory_mapping_block
             free(mapping->real_particle_numbers);
         }
         mapping->real_particle_numbers = malloc(mapping->n_particles *
-                                                sizeof(uint64_t));
+                                                sizeof(int64_t));
         if(!mapping->real_particle_numbers)
         {
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                   mapping->n_particles * sizeof(uint64_t), __FILE__, __LINE__);
+                   mapping->n_particles * sizeof(int64_t), __FILE__, __LINE__);
             trg_destroy_block(block);
             return(TRG_CRITICAL);
         }
@@ -2625,7 +2625,7 @@ static trg_function_status trg_read_trajectory_mapping_block
     {
         memcpy(&mapping->real_particle_numbers[i],
                 block->block_contents + offset,
-                sizeof(uint64_t));
+                sizeof(int64_t));
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
             if(trg_swap_byte_order_64(trg_data,
@@ -2636,7 +2636,7 @@ static trg_function_status trg_read_trajectory_mapping_block
                        __FILE__, __LINE__);
             }
         }
-        offset += sizeof(uint64_t);
+        offset += sizeof(int64_t);
     }
 
     return(TRG_SUCCESS);
@@ -2712,7 +2712,7 @@ static trg_function_status trg_write_trajectory_mapping_block
     }
     strcpy(block->name, "PARTICLE MAPPING");
 
-    block->block_contents_size = sizeof(uint64_t) * (2 + mapping->n_particles);
+    block->block_contents_size = sizeof(int64_t) * (2 + mapping->n_particles);
 
     if(block->block_contents)
     {
@@ -2731,7 +2731,7 @@ static trg_function_status trg_write_trajectory_mapping_block
            sizeof(mapping->num_first_particle));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents)) !=
            TRG_SUCCESS)
         {
@@ -2745,7 +2745,7 @@ static trg_function_status trg_write_trajectory_mapping_block
            sizeof(mapping->n_particles));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents+offset)) !=
            TRG_SUCCESS)
         {
@@ -2758,10 +2758,10 @@ static trg_function_status trg_write_trajectory_mapping_block
     for(i = 0; i < mapping->n_particles; i++)
     {
         memcpy(block->block_contents+offset, &mapping->real_particle_numbers[i],
-               sizeof(uint64_t));
+               sizeof(int64_t));
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
-            if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+            if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                       (block->block_contents+offset)) !=
                TRG_SUCCESS)
             {
@@ -2769,7 +2769,7 @@ static trg_function_status trg_write_trajectory_mapping_block
                        __FILE__, __LINE__);
             }
         }
-        offset += sizeof(uint64_t);
+        offset += sizeof(int64_t);
     }
 
 
@@ -2844,12 +2844,12 @@ static trg_function_status trg_create_particle_data_block
 trg_function_status trg_allocate_particle_data_mem
                 (struct trg_trajectory  *trg_data,
                  struct trg_particle_data *data,
-                 uint64_t n_frames,
-                 const uint64_t n_particles,
-                 const uint64_t n_values_per_frame)
+                 int64_t n_frames,
+                 const int64_t n_particles,
+                 const int64_t n_values_per_frame)
 {
     union data_values ***values;
-    uint64_t i, j, k;
+    int64_t i, j, k;
 
     for(i = data->n_frames; i--;)
     {
@@ -2915,16 +2915,16 @@ static trg_function_status trg_read_particle_data
                  struct trg_gen_block *block,
                  int *offset,
                  const char datatype,
-                 const uint64_t first_particle_number,
-                 const uint64_t n_particles,
-                 const uint64_t first_frame_with_data,
-                 const uint64_t stride_length,
-                 uint64_t n_frames,
-                 const uint64_t n_values,
-                 const uint64_t codec_id,
-                 const uint64_t multiplier)
+                 const int64_t first_particle_number,
+                 const int64_t n_particles,
+                 const int64_t first_frame_with_data,
+                 const int64_t stride_length,
+                 int64_t n_frames,
+                 const int64_t n_values,
+                 const int64_t codec_id,
+                 const int64_t multiplier)
 {
-    uint64_t block_index, i, j, k, tot_n_particles;
+    int64_t block_index, i, j, k, tot_n_particles;
     int size, len;
     struct trg_particle_data *data;
     struct trg_trajectory_frame_set *frame_set =
@@ -2937,7 +2937,7 @@ static trg_function_status trg_read_particle_data
         size = 1;
         break;
     case TRG_INT_DATA:
-        size = sizeof(uint64_t);
+        size = sizeof(int64_t);
         break;
     case TRG_FLOAT_DATA:
         size = sizeof(float);
@@ -3067,7 +3067,7 @@ static trg_function_status trg_read_particle_data
                     if(trg_data->endianness_32 != TRG_BIG_ENDIAN_32)
                     {
                         if(trg_swap_byte_order_32(trg_data,
-                        (uint32_t *) &data->values[i][j][k]) != TRG_SUCCESS)
+                        (int32_t *) &data->values[i][j][k]) != TRG_SUCCESS)
                         {
                             printf("Cannot swap byte order to get big endian. "
                                    "%s: %d\n",
@@ -3083,7 +3083,7 @@ static trg_function_status trg_read_particle_data
                     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
                     {
                         if(trg_swap_byte_order_64(trg_data,
-                        (uint64_t *) &data->values[i][j][k].i) != TRG_SUCCESS)
+                        (int64_t *) &data->values[i][j][k].i) != TRG_SUCCESS)
                         {
                             printf("Cannot swap byte order to get big endian. "
                                    "%s: %d\n",
@@ -3118,7 +3118,7 @@ static trg_function_status trg_read_particle_data
                     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
                     {
                         if(trg_swap_byte_order_64(trg_data,
-                        (uint64_t *) &data->values[i][j][k].d) != TRG_SUCCESS)
+                        (int64_t *) &data->values[i][j][k].d) != TRG_SUCCESS)
                         {
                             printf("Cannot swap byte order to get big endian. "
                                    "%s: %d\n",
@@ -3141,7 +3141,7 @@ static trg_function_status trg_write_particle_data_block
                  const struct trg_particle_mapping *mapping,
                  const write_mode mode)
 {
-    uint64_t n_particles, num_first_particle, n_frames;
+    int64_t n_particles, num_first_particle, n_frames;
     int i, j, k, offset = 0, size, len;
     char temp, *temp_name;
     struct trg_trajectory_frame_set *frame_set =
@@ -3170,7 +3170,7 @@ static trg_function_status trg_write_particle_data_block
         size = 1;
         break;
     case TRG_INT_DATA:
-        size = sizeof(uint64_t);
+        size = sizeof(int64_t);
         break;
     case TRG_FLOAT_DATA:
         size = sizeof(float);
@@ -3322,7 +3322,7 @@ static trg_function_status trg_write_particle_data_block
            sizeof(data->n_values_per_frame));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents + offset)) !=
            TRG_SUCCESS)
         {
@@ -3336,7 +3336,7 @@ static trg_function_status trg_write_particle_data_block
            sizeof(data->codec_id));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents + offset)) !=
            TRG_SUCCESS)
         {
@@ -3352,7 +3352,7 @@ static trg_function_status trg_write_particle_data_block
                sizeof(data->compression_multiplier));
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
-            if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+            if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                       (block->block_contents + offset)) !=
                TRG_SUCCESS)
             {
@@ -3369,7 +3369,7 @@ static trg_function_status trg_write_particle_data_block
                sizeof(data->first_frame_with_data));
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
-            if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+            if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                       (block->block_contents + offset)) !=
                TRG_SUCCESS)
             {
@@ -3383,7 +3383,7 @@ static trg_function_status trg_write_particle_data_block
                sizeof(data->stride_length));
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
-            if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+            if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                       (block->block_contents + offset)) !=
                TRG_SUCCESS)
             {
@@ -3399,7 +3399,7 @@ static trg_function_status trg_write_particle_data_block
            sizeof(num_first_particle));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents+offset)) !=
            TRG_SUCCESS)
         {
@@ -3412,7 +3412,7 @@ static trg_function_status trg_write_particle_data_block
     memcpy(block->block_contents+offset, &n_particles, sizeof(n_particles));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents+offset)) !=
            TRG_SUCCESS)
         {
@@ -3458,7 +3458,7 @@ static trg_function_status trg_write_particle_data_block
                     if(trg_data->endianness_32 != TRG_BIG_ENDIAN_32)
                     {
                         if(trg_swap_byte_order_32(trg_data,
-                            (uint32_t *)(block->block_contents+offset))
+                            (int32_t *)(block->block_contents+offset))
                             != TRG_SUCCESS)
                         {
                             printf("Cannot swap byte order to get big endian. "
@@ -3474,7 +3474,7 @@ static trg_function_status trg_write_particle_data_block
                     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
                     {
                         if(trg_swap_byte_order_64(trg_data,
-                            (uint64_t *)(block->block_contents+offset))
+                            (int64_t *)(block->block_contents+offset))
                             != TRG_SUCCESS)
                         {
                             printf("Cannot swap byte order to get big endian. "
@@ -3557,11 +3557,11 @@ static trg_function_status trg_create_data_block
 trg_function_status trg_allocate_data_mem
                 (struct trg_trajectory  *trg_data,
                  struct trg_data *data,
-                 uint64_t n_frames,
-                 const uint64_t n_values_per_frame)
+                 int64_t n_frames,
+                 const int64_t n_values_per_frame)
 {
     union data_values **values;
-    uint64_t i, j;
+    int64_t i, j;
 
     for(i = data->n_frames; i--;)
     {
@@ -3620,14 +3620,14 @@ static trg_function_status trg_read_data(struct trg_trajectory *trg_data,
                                          struct trg_gen_block *block,
                                          int *offset,
                                          const char datatype,
-                                         const uint64_t first_frame_with_data,
-                                         const uint64_t stride_length,
-                                         uint64_t n_frames,
-                                         const uint64_t n_values,
-                                         const uint64_t codec_id,
-                                         const uint64_t multiplier)
+                                         const int64_t first_frame_with_data,
+                                         const int64_t stride_length,
+                                         int64_t n_frames,
+                                         const int64_t n_values,
+                                         const int64_t codec_id,
+                                         const int64_t multiplier)
 {
-    uint64_t block_index, i, j;
+    int64_t block_index, i, j;
     int size, len;
     struct trg_data *data;
     struct trg_trajectory_frame_set *frame_set =
@@ -3651,7 +3651,7 @@ static trg_function_status trg_read_data(struct trg_trajectory *trg_data,
         size = 1;
         break;
     case TRG_INT_DATA:
-        size = sizeof(uint64_t);
+        size = sizeof(int64_t);
         break;
     case TRG_FLOAT_DATA:
         size = sizeof(float);
@@ -3774,7 +3774,7 @@ static trg_function_status trg_read_data(struct trg_trajectory *trg_data,
                 if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
                 {
                     if(trg_swap_byte_order_64(trg_data,
-                       (uint64_t *) &data->values[i][j].i) != TRG_SUCCESS)
+                       (int64_t *) &data->values[i][j].i) != TRG_SUCCESS)
                     {
                         printf("Cannot swap byte order to get big endian. "
                                "%s: %d\n",
@@ -3789,7 +3789,7 @@ static trg_function_status trg_read_data(struct trg_trajectory *trg_data,
                 if(trg_data->endianness_32 != TRG_BIG_ENDIAN_32)
                 {
                     if(trg_swap_byte_order_32(trg_data,
-                    (uint32_t *) &data->values[i][j]) != TRG_SUCCESS)
+                    (int32_t *) &data->values[i][j]) != TRG_SUCCESS)
                     {
                         printf("Cannot swap byte order to get big endian. "
                                "%s: %d\n",
@@ -3805,7 +3805,7 @@ static trg_function_status trg_read_data(struct trg_trajectory *trg_data,
                 if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
                 {
                     if(trg_swap_byte_order_64(trg_data,
-                       (uint64_t *) &data->values[i][j].d) != TRG_SUCCESS)
+                       (int64_t *) &data->values[i][j].d) != TRG_SUCCESS)
                     {
                         printf("Cannot swap byte order to get big endian. "
                                "%s: %d\n",
@@ -3824,7 +3824,7 @@ static trg_function_status trg_write_data_block(struct trg_trajectory *trg_data,
                                                 const int block_index,
                                                 const write_mode mode)
 {
-    uint64_t n_frames;
+    int64_t n_frames;
     int i, j, offset = 0, size, len;
     char temp, *temp_name;
     struct trg_trajectory_frame_set *frame_set =
@@ -3863,7 +3863,7 @@ static trg_function_status trg_write_data_block(struct trg_trajectory *trg_data,
         size = 1;
         break;
     case TRG_INT_DATA:
-        size = sizeof(uint64_t);
+        size = sizeof(int64_t);
         break;
     case TRG_FLOAT_DATA:
         size = sizeof(float);
@@ -3999,7 +3999,7 @@ static trg_function_status trg_write_data_block(struct trg_trajectory *trg_data,
            sizeof(data->n_values_per_frame));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents + offset)) !=
            TRG_SUCCESS)
         {
@@ -4014,7 +4014,7 @@ static trg_function_status trg_write_data_block(struct trg_trajectory *trg_data,
            sizeof(data->codec_id));
     if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
     {
-        if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+        if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                   (block->block_contents + offset)) !=
            TRG_SUCCESS)
         {
@@ -4031,7 +4031,7 @@ static trg_function_status trg_write_data_block(struct trg_trajectory *trg_data,
                sizeof(data->compression_multiplier));
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
-            if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+            if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                       (block->block_contents + offset)) !=
                TRG_SUCCESS)
             {
@@ -4049,7 +4049,7 @@ static trg_function_status trg_write_data_block(struct trg_trajectory *trg_data,
                sizeof(data->first_frame_with_data));
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
-            if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+            if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                       (block->block_contents + offset)) !=
                TRG_SUCCESS)
             {
@@ -4064,7 +4064,7 @@ static trg_function_status trg_write_data_block(struct trg_trajectory *trg_data,
                sizeof(data->stride_length));
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
-            if(trg_swap_byte_order_64(trg_data, (uint64_t *)
+            if(trg_swap_byte_order_64(trg_data, (int64_t *)
                                       (block->block_contents + offset)) !=
                TRG_SUCCESS)
             {
@@ -4106,7 +4106,7 @@ static trg_function_status trg_write_data_block(struct trg_trajectory *trg_data,
                 if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
                 {
                     if(trg_swap_byte_order_64(trg_data,
-                        (uint64_t *)(block->block_contents+offset))
+                        (int64_t *)(block->block_contents+offset))
                         != TRG_SUCCESS)
                     {
                         printf("Cannot swap byte order to get big endian. "
@@ -4143,8 +4143,8 @@ static trg_function_status trg_read_data_block_contents
                 (struct trg_trajectory *trg_data,
                  struct trg_gen_block *block)
 {
-    uint64_t n_values, codec_id, n_frames, first_frame_with_data;
-    uint64_t steps_between_data, block_n_particles, first_particle_number;
+    int64_t n_values, codec_id, n_frames, first_frame_with_data;
+    int64_t steps_between_data, block_n_particles, first_particle_number;
     double multiplier;
     char datatype, dependency, sparse_data;
     int offset = 0;
@@ -4253,7 +4253,7 @@ static trg_function_status trg_read_data_block_contents
             sizeof(multiplier));
         if(trg_data->endianness_64 != TRG_BIG_ENDIAN_64)
         {
-            if(trg_swap_byte_order_64(trg_data, (uint64_t *)&multiplier) !=
+            if(trg_swap_byte_order_64(trg_data, (int64_t *)&multiplier) !=
                TRG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -4364,8 +4364,8 @@ static trg_function_status trg_read_data_block_contents
 
 static trg_function_status trg_update_md5_hash(struct trg_trajectory *trg_data,
                                                struct trg_gen_block *block,
-                                               uint64_t header_start_pos,
-                                               uint64_t contents_start_pos)
+                                               int64_t header_start_pos,
+                                               int64_t contents_start_pos)
 {
     if(block->block_contents)
     {
@@ -4383,7 +4383,7 @@ static trg_function_status trg_update_md5_hash(struct trg_trajectory *trg_data,
 
     trg_generate_block_hash(block);
 
-    fseek(trg_data->output_file, header_start_pos + 3 * sizeof(uint64_t),
+    fseek(trg_data->output_file, header_start_pos + 3 * sizeof(int64_t),
           SEEK_SET);
     fwrite(block->hash, TRG_HASH_LEN, 1, trg_data->output_file);
 
@@ -4396,7 +4396,7 @@ static trg_function_status trg_update_header_pointers
 {
     struct trg_gen_block block;
     FILE *temp = trg_data->input_file;
-    uint64_t pos, contents_start_pos;
+    int64_t pos, contents_start_pos;
 
     if(trg_init_output_file(trg_data, FALSE) != TRG_SUCCESS)
     {
@@ -4424,7 +4424,7 @@ static trg_function_status trg_update_header_pointers
     contents_start_pos = ftell(trg_data->output_file);
 
     fseek(trg_data->output_file, block.block_contents_size - 3 *
-          sizeof(uint64_t), SEEK_CUR);
+          sizeof(int64_t), SEEK_CUR);
 
     trg_data->input_file = temp;
 
@@ -4443,7 +4443,7 @@ static trg_function_status trg_update_header_pointers
         }
     }
         
-    if(fwrite(&pos, sizeof(uint64_t), 1, trg_data->output_file) != 1)
+    if(fwrite(&pos, sizeof(int64_t), 1, trg_data->output_file) != 1)
     {
         trg_destroy_block(&block);
         return(TRG_CRITICAL);
@@ -4464,7 +4464,7 @@ static trg_function_status trg_update_header_pointers
     }
 
     if(fwrite(&pos,
-        sizeof(uint64_t), 1, trg_data->output_file) != 1)
+        sizeof(int64_t), 1, trg_data->output_file) != 1)
     {
         trg_destroy_block(&block);
         return(TRG_CRITICAL);
@@ -4485,7 +4485,7 @@ static trg_function_status trg_update_frame_set_pointers
     struct trg_gen_block block;
     struct trg_trajectory_frame_set *frame_set;
     FILE *temp = trg_data->input_file;
-    uint64_t pos, header_start_pos, contents_start_pos;
+    int64_t pos, header_start_pos, contents_start_pos;
 
     if(trg_init_output_file(trg_data, FALSE) != TRG_SUCCESS)
     {
@@ -4500,7 +4500,7 @@ static trg_function_status trg_update_frame_set_pointers
     trg_data->input_file = trg_data->output_file;
 
     frame_set = &trg_data->current_trajectory_frame_set;
-    if(frame_set->prev_frame_set_file_pos != -1ULL &&
+    if(frame_set->prev_frame_set_file_pos != -1 &&
        frame_set->prev_frame_set_file_pos != 0)
     {
         fseek(trg_data->output_file, frame_set->prev_frame_set_file_pos,
@@ -4520,7 +4520,7 @@ static trg_function_status trg_update_frame_set_pointers
         contents_start_pos = ftell(trg_data->output_file);
 
         fseek(trg_data->output_file, block.block_contents_size - 4 *
-            sizeof(uint64_t), SEEK_CUR);
+            sizeof(int64_t), SEEK_CUR);
 
 //         printf("Updating frame set\n");
 //         printf("%ld: Next frame set %ld\n", ftell(trg_data->output_file),
@@ -4537,7 +4537,7 @@ static trg_function_status trg_update_frame_set_pointers
             }
         }
 
-        if(fwrite(&pos, sizeof(uint64_t), 1, trg_data->output_file) != 1)
+        if(fwrite(&pos, sizeof(int64_t), 1, trg_data->output_file) != 1)
         {
             trg_destroy_block(&block);
             trg_data->input_file = temp;
@@ -4550,7 +4550,7 @@ static trg_function_status trg_update_frame_set_pointers
         fseek(trg_data->output_file, trg_data->output_file_pos, SEEK_SET);
     }
 
-    if(frame_set->long_stride_prev_frame_set_file_pos != -1ULL &&
+    if(frame_set->long_stride_prev_frame_set_file_pos != -1 &&
        frame_set->long_stride_prev_frame_set_file_pos != 0)
     {
         fseek(trg_data->output_file,
@@ -4569,7 +4569,7 @@ static trg_function_status trg_update_frame_set_pointers
         contents_start_pos = ftell(trg_data->output_file);
         
         fseek(trg_data->output_file, block.block_contents_size - 2 *
-            sizeof(uint64_t), SEEK_CUR);
+            sizeof(int64_t), SEEK_CUR);
 
         pos = trg_data->current_trajectory_frame_set_output_file_pos;
 
@@ -4582,7 +4582,7 @@ static trg_function_status trg_update_frame_set_pointers
             }
         }
 
-        if(fwrite(&pos, sizeof(uint64_t), 1, trg_data->output_file) != 1)
+        if(fwrite(&pos, sizeof(int64_t), 1, trg_data->output_file) != 1)
         {
             trg_destroy_block(&block);
             trg_data->input_file = temp;
@@ -4770,7 +4770,7 @@ trg_function_status trg_add_molecule(struct trg_trajectory *trg_data,
                                      struct trg_molecule **molecule)
 {
     struct trg_molecule *new_molecules;
-    uint64_t *new_molecule_cnt_list;
+    int64_t *new_molecule_cnt_list;
     int id, i;
     trg_bool found_id = TRUE;
     
@@ -4786,14 +4786,14 @@ trg_function_status trg_add_molecule(struct trg_trajectory *trg_data,
         return(TRG_CRITICAL);
     }
 
-    new_molecule_cnt_list = (uint64_t *) realloc(trg_data->molecule_cnt_list,
-                                                 sizeof(uint64_t) *
+    new_molecule_cnt_list = (int64_t *) realloc(trg_data->molecule_cnt_list,
+                                                 sizeof(int64_t) *
                                                  (trg_data->n_molecules + 1));
     
     if(!new_molecules)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-               sizeof(uint64_t) * (trg_data->n_molecules + 1),
+               sizeof(int64_t) * (trg_data->n_molecules + 1),
                __FILE__, __LINE__);
         return(TRG_CRITICAL);
     }
@@ -4866,7 +4866,7 @@ trg_function_status trg_set_molecule_name(struct trg_trajectory *trg_data,
 
 trg_function_status trg_get_molecule_cnt(struct trg_trajectory *trg_data,
                                          struct trg_molecule *molecule,
-                                         uint64_t *cnt)
+                                         int64_t *cnt)
 {
     int i, index = -1;
 
@@ -4889,7 +4889,7 @@ trg_function_status trg_get_molecule_cnt(struct trg_trajectory *trg_data,
 
 trg_function_status trg_set_molecule_cnt(struct trg_trajectory *trg_data,
                                          struct trg_molecule *molecule,
-                                         const uint64_t cnt)
+                                         const int64_t cnt)
 {
     int i, index = -1, old_cnt;
 
@@ -5326,7 +5326,7 @@ trg_function_status trg_init_trajectory(struct trg_trajectory *trg_data)
     trg_data->id_name_pairs = 0;
 
     /* Check the endianness of the computer */
-    static uint32_t endianness_32 = 0x01234567;
+    static int32_t endianness_32 = 0x01234567;
     /* 0x01234567 */
     if ( *(const uint8_t*)&endianness_32 == 0x01 )
     {
@@ -5346,7 +5346,7 @@ trg_function_status trg_init_trajectory(struct trg_trajectory *trg_data)
         trg_data->endianness_32 = TRG_BYTE_PAIR_SWAP_32;
     }
 
-    static uint64_t endianness_64 = 0x0123456789ABCDEF;
+    static int64_t endianness_64 = 0x0123456789ABCDEF;
     /* 0x0123456789ABCDEF */
     if ( *(const uint8_t*)&endianness_64 == 0x01 )
     {
@@ -5396,7 +5396,7 @@ trg_function_status trg_init_trajectory(struct trg_trajectory *trg_data)
 
 trg_function_status trg_destroy_trajectory(struct trg_trajectory *trg_data)
 {
-    uint64_t n_frames, n_particles;
+    int64_t n_frames, n_particles;
     int i, j, k, l;
     struct trg_trajectory_frame_set *frame_set =
     &trg_data->current_trajectory_frame_set;
@@ -6343,15 +6343,15 @@ trg_function_status trg_write_frame_set(struct trg_trajectory *trg_data,
 }
 
 trg_function_status trg_new_frame_set(struct trg_trajectory *trg_data,
-                                      const uint64_t first_frame,
-                                      const uint64_t n_frames)
+                                      const int64_t first_frame,
+                                      const int64_t n_frames)
 {
     int i;
     struct trg_gen_block block;
     struct trg_trajectory_frame_set *frame_set;
     struct trg_particle_mapping *mapping;
     FILE *temp = trg_data->input_file;
-    uint64_t curr_pos;
+    int64_t curr_pos;
 
     frame_set = &trg_data->current_trajectory_frame_set;
 
@@ -6399,7 +6399,7 @@ trg_function_status trg_new_frame_set(struct trg_trajectory *trg_data,
     {
         /* FIXME: Currently only working if the previous frame set has its
          * long stride pointer already set. This might need some fixing. */
-        if(frame_set->long_stride_prev_frame_set_file_pos != -1ULL &&
+        if(frame_set->long_stride_prev_frame_set_file_pos != -1 &&
            frame_set->long_stride_prev_frame_set_file_pos != 0)
         {
             trg_init_block(&block);
@@ -6422,7 +6422,7 @@ trg_function_status trg_new_frame_set(struct trg_trajectory *trg_data,
             /* Read the next frame set from the previous frame set and one
              * long stride step back */
             fseek(trg_data->output_file, block.block_contents_size - 4 *
-                sizeof(uint64_t), SEEK_CUR);
+                sizeof(int64_t), SEEK_CUR);
             if(fread(&frame_set->long_stride_prev_frame_set_file_pos,
                   sizeof(frame_set->long_stride_prev_frame_set_file_pos),
                   1, trg_data->output_file) == 0)
@@ -6456,7 +6456,7 @@ trg_function_status trg_new_frame_set(struct trg_trajectory *trg_data,
 //     frame_set->n_particle_data_blocks = 0;
 //     frame_set->n_data_blocks = 0;
 
-    if(trg_data->first_trajectory_frame_set_output_file_pos == -1ULL ||
+    if(trg_data->first_trajectory_frame_set_output_file_pos == -1 ||
        trg_data->first_trajectory_frame_set_output_file_pos == 0)
     {
         trg_data->first_trajectory_frame_set_output_file_pos =
@@ -6464,7 +6464,7 @@ trg_function_status trg_new_frame_set(struct trg_trajectory *trg_data,
     }
     /* FIXME: Should check the frame number instead of the file_pos,
      * in case frame sets are not in order */
-    if(trg_data->last_trajectory_frame_set_output_file_pos == -1ULL ||
+    if(trg_data->last_trajectory_frame_set_output_file_pos == -1 ||
        trg_data->last_trajectory_frame_set_output_file_pos == 0 ||
        trg_data->last_trajectory_frame_set_output_file_pos <
        trg_data->current_trajectory_frame_set_output_file_pos)
@@ -6478,13 +6478,13 @@ trg_function_status trg_new_frame_set(struct trg_trajectory *trg_data,
 
 /* UNTESTED */
 trg_function_status trg_add_data_block(struct trg_trajectory *trg_data,
-                                       const uint64_t id,
+                                       const int64_t id,
                                        const char *block_name,
                                        const char datatype,
-                                       const uint64_t n_frames,
-                                       const uint64_t n_values_per_frame,
-                                       const uint64_t stride_length,
-                                       uint64_t codec_id,
+                                       const int64_t n_frames,
+                                       const int64_t n_values_per_frame,
+                                       const int64_t stride_length,
+                                       int64_t codec_id,
                                        void *new_data)
 {
     int i, j, block_index, size, len;
@@ -6588,7 +6588,7 @@ trg_function_status trg_add_data_block(struct trg_trajectory *trg_data,
         size = sizeof(float);
         break;
     case TRG_INT_DATA:
-        size = sizeof(uint64_t);
+        size = sizeof(int64_t);
         break;
     case TRG_CHAR_DATA:
         size = sizeof(char);
@@ -6652,19 +6652,19 @@ trg_function_status trg_add_data_block(struct trg_trajectory *trg_data,
 
 
 trg_function_status trg_add_particle_data_block(struct trg_trajectory *trg_data,
-                                        const uint64_t id,
+                                        const int64_t id,
                                         const char *block_name,
                                         const char datatype,
-                                        const uint64_t n_frames,
-                                        const uint64_t n_values_per_frame,
-                                        const uint64_t stride_length,
-                                        const uint64_t first_particle_number,
-                                        const uint64_t n_particles,
-                                        uint64_t codec_id,
+                                        const int64_t n_frames,
+                                        const int64_t n_values_per_frame,
+                                        const int64_t stride_length,
+                                        const int64_t first_particle_number,
+                                        const int64_t n_particles,
+                                        int64_t codec_id,
                                         void *new_data)
 {
     int i, j, k, block_index, size, len;
-    uint64_t tot_n_particles;
+    int64_t tot_n_particles;
     struct trg_trajectory_frame_set *frame_set;
     struct trg_particle_data *data;
     void *orig;
@@ -6778,7 +6778,7 @@ trg_function_status trg_add_particle_data_block(struct trg_trajectory *trg_data,
         size = sizeof(float);
         break;
     case TRG_INT_DATA:
-        size = sizeof(uint64_t);
+        size = sizeof(int64_t);
         break;
     case TRG_CHAR_DATA:
         size = sizeof(char);
@@ -6859,7 +6859,7 @@ trg_function_status trg_write_next_traj_block(struct trg_trajectory *trg_data,
 }
 
 trg_function_status trg_read_traj_block(struct trg_trajectory *trg_data,
-                                        uint64_t block_id,
+                                        int64_t block_id,
                                         trg_close_file_flag close_file)
 {
     /* STUB */
@@ -6867,7 +6867,7 @@ trg_function_status trg_read_traj_block(struct trg_trajectory *trg_data,
 }
         
 trg_function_status trg_write_traj_block(struct trg_trajectory *trg_data,
-                                         uint64_t block_id,
+                                         int64_t block_id,
                                          trg_close_file_flag close_file)
 {
     /* STUB */
@@ -6875,7 +6875,7 @@ trg_function_status trg_write_traj_block(struct trg_trajectory *trg_data,
 }
 
 trg_function_status trg_read_frame_nr(struct trg_trajectory *trg_data,
-                                      uint64_t frame_nr,
+                                      int64_t frame_nr,
                                       trg_close_file_flag close_file)
 {
     /* STUB */
@@ -6883,7 +6883,7 @@ trg_function_status trg_read_frame_nr(struct trg_trajectory *trg_data,
 }
         
 trg_function_status trg_write_frame_nr(struct trg_trajectory *trg_data,
-                                       uint64_t frame_nr,
+                                       int64_t frame_nr,
                                        trg_close_file_flag close_file)
 {
     /* STUB */
@@ -6891,8 +6891,8 @@ trg_function_status trg_write_frame_nr(struct trg_trajectory *trg_data,
 }
 
 trg_function_status trg_read_frame_nrs(struct trg_trajectory *trg_data,
-                                       uint64_t start_frame_nr,
-                                       uint64_t end_frame_nr,
+                                       int64_t start_frame_nr,
+                                       int64_t end_frame_nr,
                                        trg_close_file_flag close_file)
 {
     /* STUB */
@@ -6900,8 +6900,8 @@ trg_function_status trg_read_frame_nrs(struct trg_trajectory *trg_data,
 }
 
 trg_function_status trg_write_frame_nrs(struct trg_trajectory *trg_data,
-                                        uint64_t start_frame_nr,
-                                        uint64_t end_frame_nr,
+                                        int64_t start_frame_nr,
+                                        int64_t end_frame_nr,
                                         trg_close_file_flag close_file)
 {
     /* STUB */
@@ -6909,7 +6909,7 @@ trg_function_status trg_write_frame_nrs(struct trg_trajectory *trg_data,
 }
 
 trg_function_status trg_read_frame_set_nr(struct trg_trajectory *trg_data,
-                                          uint64_t frame_set_nr)
+                                          int64_t frame_set_nr)
 {
     return(TRG_SUCCESS);
 }

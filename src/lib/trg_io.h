@@ -88,44 +88,44 @@ extern "C"
 #endif
 
 struct trg_bond {
-    uint64_t from_atom_id;      /* One of the atoms of the bond */
-    uint64_t to_atom_id;        /* The other atom of the bond */
+    int64_t from_atom_id;      /* One of the atoms of the bond */
+    int64_t to_atom_id;        /* The other atom of the bond */
 };
 
 struct trg_atom {
     struct trg_residue *residue;  /* The molecule containing this atom */
-    uint64_t id;                /* A unique (per molecule) ID number of the atom */
+    int64_t id;                /* A unique (per molecule) ID number of the atom */
     char *atom_type;            /* The atom_type (depending on the forcefield) */
     char *name;                 /* The name of the atom */
 };
 
 struct trg_residue {
     struct trg_chain *chain; /* The chain containing this residue */
-    uint64_t id;                /* A unique (per chain) ID number of the residue */
+    int64_t id;                /* A unique (per chain) ID number of the residue */
     char *name;                 /* The name of the residue */
-    uint64_t n_atoms;           /* The number of atoms in the residue */
+    int64_t n_atoms;           /* The number of atoms in the residue */
     struct trg_atom *atoms;     /* A list of atoms in the residue */
 };
 
 struct trg_chain {
     struct trg_molecule *molecule;  /* The molecule containing this chain */
-    uint64_t id;                    /* A unique (per molecule) ID number of the chain */
+    int64_t id;                    /* A unique (per molecule) ID number of the chain */
     char *name;                     /* The name of the chain */
-    uint64_t n_residues;            /* The number of residues in the chain */
+    int64_t n_residues;            /* The number of residues in the chain */
     struct trg_residue *residues;   /* A list of residues in the chain */
 };
 
 struct trg_molecule {
-    uint64_t id;                    /* A unique ID number of the molecule */
-    uint64_t quaternary_str;        /* Quaternary structure of the molecule.
+    int64_t id;                    /* A unique ID number of the molecule */
+    int64_t quaternary_str;        /* Quaternary structure of the molecule.
                                        1 => monomeric
                                        2 => dimeric
                                        3 => trimeric
                                        etc */
-    uint64_t n_chains;              /* The number of chains in the molecule */
-    uint64_t n_residues;            /* The number of residues in the molecule */
-    uint64_t n_atoms;               /* The number of atoms in the molecule */
-    uint64_t n_bonds;               /* The number of bonds in the molecule.
+    int64_t n_chains;              /* The number of chains in the molecule */
+    int64_t n_residues;            /* The number of residues in the molecule */
+    int64_t n_atoms;               /* The number of atoms in the molecule */
+    int64_t n_bonds;               /* The number of bonds in the molecule.
                                        If the bonds are not specified this
                                        value can be 0. */
     char *name;                     /* The name of the molecule */
@@ -136,51 +136,51 @@ struct trg_molecule {
 };
 
 struct trg_gen_block {
-    uint64_t header_contents_size;      /* The size of the block header in bytes */
-    uint64_t block_contents_size;       /* The size of the block contents in bytes */
-    uint64_t id;                        /* The ID of the block to determine its type */
+    int64_t header_contents_size;      /* The size of the block header in bytes */
+    int64_t block_contents_size;       /* The size of the block contents in bytes */
+    int64_t id;                        /* The ID of the block to determine its type */
     char hash[TRG_HASH_LEN];            /* The MD5 hash of the block to verify integrity */
     char *name;                         /* The name of the block */
-    uint64_t block_version;             /* The library version used to write the block */
+    int64_t block_version;             /* The library version used to write the block */
     char *header_contents;              /* The full block header contents */
     char *block_contents;               /* The full block contents */
 };
 
 struct trg_frame_set_toc {
-    uint64_t n_blocks;                  /* The number of blocks listed in this
+    int64_t n_blocks;                  /* The number of blocks listed in this
                                            table of contents */
     char **block_names;             /* A list of block names */
 };
 
 struct trg_particle_mapping {
-    uint64_t num_first_particle;        /* The index number of the first particle
+    int64_t num_first_particle;        /* The index number of the first particle
                                            in this mapping block */
-    uint64_t n_particles;               /* The number of particles list in this
+    int64_t n_particles;               /* The number of particles list in this
                                            mapping block */
-    uint64_t *real_particle_numbers;    /* the mapping of index numbers to the
+    int64_t *real_particle_numbers;    /* the mapping of index numbers to the
                                            real particle numbers in the
                                            trajectory */
 };
 
 struct trg_trajectory_frame_set {
     struct trg_frame_set_toc contents;  /* The table of contents of this frame set */
-    uint64_t n_mapping_blocks;          /* The number of different particle
+    int64_t n_mapping_blocks;          /* The number of different particle
                                            mapping blocks present. */
     struct trg_particle_mapping *mappings; /* The atom mappings of this frame set */
-    uint64_t first_frame;               /* The first frame of this frame set */
-    uint64_t n_frames;                  /* The number of frames in this frame set */
-    uint64_t *molecule_cnt_list;        /* A list of the number of each molecule
+    int64_t first_frame;               /* The first frame of this frame set */
+    int64_t n_frames;                  /* The number of frames in this frame set */
+    int64_t *molecule_cnt_list;        /* A list of the number of each molecule
                                            type - only used when using variable
                                            number of atoms */
-    uint64_t n_particles;               /* The number of particles/atoms - only
+    int64_t n_particles;               /* The number of particles/atoms - only
                                            used when using variable number of
                                            atoms */
-    uint64_t next_frame_set_file_pos;   /* The file position of the next frame set */
-    uint64_t prev_frame_set_file_pos;   /* The file position of the previous
+    int64_t next_frame_set_file_pos;   /* The file position of the next frame set */
+    int64_t prev_frame_set_file_pos;   /* The file position of the previous
                                            frame set */
-    uint64_t long_stride_next_frame_set_file_pos; /* The file position of the frame
+    int64_t long_stride_next_frame_set_file_pos; /* The file position of the frame
                                                      set one stride step ahead */
-    uint64_t long_stride_prev_frame_set_file_pos; /* The file position of the frame
+    int64_t long_stride_prev_frame_set_file_pos; /* The file position of the frame
                                                      set one stride step behind */
 
     /* The data blocks in a frame set are trajectory data blocks */
@@ -203,7 +203,7 @@ union data_values {
 
 /* FIXME: Should there be a pointer to a trg_gen_block from each data block? */
 struct trg_particle_data {
-    uint64_t block_id;                  /* The block ID of the data block
+    int64_t block_id;                  /* The block ID of the data block
                                            containing this particle data.
                                            This is used to determine the
                                            kind of data that is stored */
@@ -211,16 +211,16 @@ struct trg_particle_data {
                                            This is used to determine the
                                            kind of data that is stored */
     trg_data_type datatype;             /* The type of data stored. */
-    uint64_t first_frame_with_data;     /* The first frame number of the
+    int64_t first_frame_with_data;     /* The first frame number of the
                                            first data point */
-    uint64_t n_frames;                  /* The number of frames in this
+    int64_t n_frames;                  /* The number of frames in this
                                            frame set */
-    uint64_t n_values_per_frame;        /* The number of values stored per
+    int64_t n_values_per_frame;        /* The number of values stored per
                                            frame */
-    uint64_t stride_length;             /* The number of frames between
+    int64_t stride_length;             /* The number of frames between
                                            each data point - e.g. when
                                            storing sparse data. */
-    uint64_t codec_id;                  /* ID of the CODEC used for compression
+    int64_t codec_id;                  /* ID of the CODEC used for compression
                                            0 == no compression. */
     double compression_multiplier;      /* The multiplier used for getting
                                            integer values for compression */
@@ -230,16 +230,16 @@ struct trg_particle_data {
 };
 
 struct trg_data {
-    uint64_t block_id;
+    int64_t block_id;
     char *block_name;                   /* The name of the data block.
                                            This is used to determine the
                                            kind of data that is stored */
     trg_data_type datatype;             /* The type of data stored. */
-    uint64_t first_frame_with_data;
-    uint64_t n_frames;
-    uint64_t n_values_per_frame;
-    uint64_t stride_length;
-    uint64_t codec_id;                  /* ID of the CODEC used for compression
+    int64_t first_frame_with_data;
+    int64_t n_frames;
+    int64_t n_values_per_frame;
+    int64_t stride_length;
+    int64_t codec_id;                  /* ID of the CODEC used for compression
                                            0 == no compression. */
     double compression_multiplier;
     union data_values **values;         /* A 2-dimensional array of values,
@@ -267,7 +267,7 @@ struct trg_trajectory {
     char *forcefield_name;              /* The forcefield used in the simulations */
     char *user_name;                    /* The name of the user running the
                                            simulations */
-    uint64_t time;                      /* The time (n seconds since 1970) when
+    int64_t time;                      /* The time (n seconds since 1970) when
                                            the file was created */
     char *computer_name;                /* The name of the computer on which the
                                            simulations were performed */
@@ -276,38 +276,38 @@ struct trg_trajectory {
     char var_num_atoms_flag;            /* A flag indicating if the number of atoms
                                            can vary throughout the simulation, e.g.
                                            using a grand canonical ensemble */
-    uint64_t frame_set_n_frames;        /* The number of frames in a frame set.
+    int64_t frame_set_n_frames;        /* The number of frames in a frame set.
                                            It is allowed to have frame sets with
                                            fewer frames, but this will help searching
                                            for specific frames */
-    uint64_t stride_length;             /* The number of frame sets in a long stride
+    int64_t stride_length;             /* The number of frame sets in a long stride
                                            step */
 
-    uint64_t n_molecules;               /* The number of different kinds of
+    int64_t n_molecules;               /* The number of different kinds of
                                            molecules in the trajectory */
     struct trg_molecule *molecules;     /* A list of molecules in the trajectory */
-    uint64_t *molecule_cnt_list;        /* A list of the count of each molecule -
+    int64_t *molecule_cnt_list;        /* A list of the count of each molecule -
                                            if using variable number of particles
                                            this will be specified in each frame set */
-    uint64_t n_particles;               /* The total number of particles/atoms. If
+    int64_t n_particles;               /* The total number of particles/atoms. If
                                            using variable number of particles this
                                            will be specified in each frame set */
     
-    uint64_t n_id_name_pairs;                           /* The number of ID-name
+    int64_t n_id_name_pairs;                           /* The number of ID-name
                                                            pairs */
     struct trg_block_id_name_pair *id_name_pairs;       /* A list of ID-name
                                                            pairs */
 
-    uint64_t first_trajectory_frame_set_input_file_pos;   /* The pos in the src
+    int64_t first_trajectory_frame_set_input_file_pos;   /* The pos in the src
                                                            file of the first
                                                            frame set */
-    uint64_t first_trajectory_frame_set_output_file_pos;  /* The pos in the dest
+    int64_t first_trajectory_frame_set_output_file_pos;  /* The pos in the dest
                                                            file of the first
                                                            frame set */
-    uint64_t last_trajectory_frame_set_input_file_pos;    /* The pos in the src
+    int64_t last_trajectory_frame_set_input_file_pos;    /* The pos in the src
                                                            file of the last
                                                            frame set */
-    uint64_t last_trajectory_frame_set_output_file_pos;   /* The pos in the dest
+    int64_t last_trajectory_frame_set_output_file_pos;   /* The pos in the dest
                                                            file of the last
                                                            frame set */
     struct trg_trajectory_frame_set current_trajectory_frame_set; /* The currently
@@ -319,12 +319,12 @@ struct trg_trajectory {
     long int current_trajectory_frame_set_output_file_pos;/* The pos in the dest
                                                            file of the current
                                                            frame set */
-    uint64_t n_trajectory_frame_sets;                   /* The number of frame sets
+    int64_t n_trajectory_frame_sets;                   /* The number of frame sets
                                                            in the trajectory */
     
-    uint64_t n_trajectory_blocks;       /* The number of trajectory blocks
+    int64_t n_trajectory_blocks;       /* The number of trajectory blocks
                                            in the file */
-    uint64_t n_non_trajectory_blocks;   /* The number of non-trajectory blocks
+    int64_t n_non_trajectory_blocks;   /* The number of non-trajectory blocks
                                            in the file */
     struct trg_gen_block non_trajectory_blocks[32]; /* A list of non-trajectory
                                                        blocks */
@@ -471,7 +471,7 @@ trg_function_status trg_set_molecule_name(struct trg_trajectory *trg_data,
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
 trg_function_status trg_get_molecule_cnt(struct trg_trajectory *trg_data,
                                          struct trg_molecule *molecule,
-                                         uint64_t *cnt);
+                                         int64_t *cnt);
 
 /* Set the count of a molecule.
    *trg_data is a pointer to the trajectory containing the molecule.
@@ -481,7 +481,7 @@ trg_function_status trg_get_molecule_cnt(struct trg_trajectory *trg_data,
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
 trg_function_status trg_set_molecule_cnt(struct trg_trajectory *trg_data,
                                          struct trg_molecule *molecule,
-                                         uint64_t cnt);
+                                         int64_t cnt);
 
 /* Add a chain to a molecule.
    *trg_data is a pointer to the trajectory containing the molecule.
@@ -632,19 +632,19 @@ trg_function_status trg_write_frame_set(struct trg_trajectory *trg_data,
                                         trg_close_file_flag close_file);
 
 trg_function_status trg_new_frame_set(struct trg_trajectory *trg_data,
-                                      const uint64_t first_frame,
-                                      const uint64_t n_frames);
+                                      const int64_t first_frame,
+                                      const int64_t n_frames);
 
 trg_function_status trg_add_particle_data_block(struct trg_trajectory *trg_data,
-                                        const uint64_t id,
+                                        const int64_t id,
                                         const char *block_name,
                                         const char datatype,
-                                        const uint64_t n_frames,
-                                        const uint64_t n_values_per_frame,
-                                        const uint64_t stride_length,
-                                        const uint64_t first_particle_number,
-                                        const uint64_t n_particles,
-                                        uint64_t codec_id,
+                                        const int64_t n_frames,
+                                        const int64_t n_values_per_frame,
+                                        const int64_t stride_length,
+                                        const int64_t first_particle_number,
+                                        const int64_t n_particles,
+                                        int64_t codec_id,
                                         void *new_data);
 
 
@@ -674,7 +674,7 @@ trg_function_status trg_write_next_traj_block(struct trg_trajectory *trg_data,
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
 trg_function_status trg_read_traj_block(struct trg_trajectory *trg_data,
-                                        uint64_t block_id,
+                                        int64_t block_id,
                                         trg_close_file_flag close_file);
         
 /* Write one trajectory block to the output_file of trg_data.
@@ -685,7 +685,7 @@ trg_function_status trg_read_traj_block(struct trg_trajectory *trg_data,
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
 trg_function_status trg_write_traj_block(struct trg_trajectory *trg_data,
-                                         uint64_t block_id,
+                                         int64_t block_id,
                                          trg_close_file_flag close_file);
 
 /* Read a requested frame set.
@@ -695,7 +695,7 @@ trg_function_status trg_write_traj_block(struct trg_trajectory *trg_data,
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
 trg_function_status trg_read_frame_set_nr(struct trg_trajectory *trg_data,
-                                          uint64_t frame_set_nr);
+                                          int64_t frame_set_nr);
 
 /* Read one trajectory frame from the input_file of trg_data.
    *trg_data is a pointer to trajectory data. trg_data->input_file_path specifies which
@@ -705,7 +705,7 @@ trg_function_status trg_read_frame_set_nr(struct trg_trajectory *trg_data,
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
 trg_function_status trg_read_frame_nr(struct trg_trajectory *trg_data,
-                                      uint64_t frame_nr,
+                                      int64_t frame_nr,
                                       trg_close_file_flag close_file);
         
 /* Write one trajectory frame to the output_file of trg_data.
@@ -716,7 +716,7 @@ trg_function_status trg_read_frame_nr(struct trg_trajectory *trg_data,
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
 trg_function_status trg_write_frame_nr(struct trg_trajectory *trg_data,
-                                       uint64_t frame_nr,
+                                       int64_t frame_nr,
                                        trg_close_file_flag close_file);
 
 /* Read a number of consecutive trajectory frames from the input_file of trg_data.
@@ -728,8 +728,8 @@ trg_function_status trg_write_frame_nr(struct trg_trajectory *trg_data,
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
 trg_function_status trg_read_frame_nrs(struct trg_trajectory *trg_data,
-                                       uint64_t start_frame_nr,
-                                       uint64_t end_frame_nr,
+                                       int64_t start_frame_nr,
+                                       int64_t end_frame_nr,
                                        trg_close_file_flag close_file);
 
 /* Write a number of consecutive trajectory frames to the output_file of trg_data.
@@ -741,8 +741,8 @@ trg_function_status trg_read_frame_nrs(struct trg_trajectory *trg_data,
    Returns TRG_SUCCESS (0) if successful, TRG_FAILURE (1) if a minor error
    has occurred or TRG_CRITICAL (2) if a major error has occured. */
 trg_function_status trg_write_frame_nrs(struct trg_trajectory *trg_data,
-                                        uint64_t start_frame_nr,
-                                        uint64_t end_frame_nr,
+                                        int64_t start_frame_nr,
+                                        int64_t end_frame_nr,
                                         trg_close_file_flag close_file);
 
 /* Get the date and time of initial file creation in ISO format (string).
