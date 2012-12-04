@@ -4423,7 +4423,7 @@ static tng_function_status tng_update_md5_hash(tng_trajectory_t tng_data,
 
 
 static tng_function_status tng_update_header_pointers
-                (tng_trajectory_t tng_data)
+                (tng_trajectory_t tng_data, const tng_hash_mode hash_mode)
 {
     struct tng_gen_block block;
     FILE *temp = tng_data->input_file;
@@ -4501,7 +4501,10 @@ static tng_function_status tng_update_header_pointers
         return(TNG_CRITICAL);
     }
 
-    tng_update_md5_hash(tng_data, &block, 0, contents_start_pos);
+    if(hash_mode == TNG_USE_HASH)
+    {
+        tng_update_md5_hash(tng_data, &block, 0, contents_start_pos);
+    }
     
     fseek(tng_data->output_file, tng_data->output_file_pos, SEEK_SET);
 
@@ -4511,7 +4514,7 @@ static tng_function_status tng_update_header_pointers
 }
 
 static tng_function_status tng_update_frame_set_pointers
-                (tng_trajectory_t tng_data)
+                (tng_trajectory_t tng_data, const tng_hash_mode hash_mode)
 {
     struct tng_gen_block block;
     struct tng_trajectory_frame_set *frame_set;
@@ -4574,9 +4577,12 @@ static tng_function_status tng_update_frame_set_pointers
             tng_data->input_file = temp;
             return(TNG_CRITICAL);
         }
-        
-        tng_update_md5_hash(tng_data, &block, header_start_pos,
-                            contents_start_pos);
+
+        if(hash_mode == TNG_USE_HASH)
+        {
+            tng_update_md5_hash(tng_data, &block, header_start_pos,
+                                contents_start_pos);
+        }
         
         fseek(tng_data->output_file, tng_data->output_file_pos, SEEK_SET);
     }
@@ -4620,9 +4626,12 @@ static tng_function_status tng_update_frame_set_pointers
             return(TNG_CRITICAL);
         }
         
-        tng_update_md5_hash(tng_data, &block,
-                            frame_set->long_stride_prev_frame_set_file_pos,
-                            contents_start_pos);
+        if(hash_mode == TNG_USE_HASH)
+        {
+            tng_update_md5_hash(tng_data, &block,
+                                frame_set->long_stride_prev_frame_set_file_pos,
+                                contents_start_pos);
+        }
     }
 
     fseek(tng_data->output_file, tng_data->output_file_pos, SEEK_SET);
@@ -6364,11 +6373,11 @@ tng_function_status tng_write_frame_set(tng_trajectory_t tng_data,
 
     tng_data->output_file_pos = ftell(tng_data->output_file);
 
-    stat = tng_update_header_pointers(tng_data);
+    stat = tng_update_header_pointers(tng_data, hash_mode);
     
     if(stat == TNG_SUCCESS)
     {
-        stat = tng_update_frame_set_pointers(tng_data);
+        stat = tng_update_frame_set_pointers(tng_data, hash_mode);
     }
     
     tng_destroy_block(&block);
