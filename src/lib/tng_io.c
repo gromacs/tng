@@ -5964,7 +5964,6 @@ tng_function_status tng_set_signature(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_read_file_headers(tng_trajectory_t tng_data,
-                                          tng_close_file_flag close_file,
                                           const tng_hash_mode hash_mode)
 {
     int i, cnt = 0, prev_pos = 0;
@@ -6003,7 +6002,7 @@ tng_function_status tng_read_file_headers(tng_trajectory_t tng_data,
     {
 //         printf("Reading block header %d: %s\n", (int)block->id, block->name);
         if(tng_read_next_block(tng_data, block,
-                               TNG_KEEP_FILE_OPEN, hash_mode) == TNG_SUCCESS)
+                               hash_mode) == TNG_SUCCESS)
         {
 //             printf("Read block %s\n", block->name);
             block++;
@@ -6028,18 +6027,10 @@ tng_function_status tng_read_file_headers(tng_trajectory_t tng_data,
         fseek(tng_data->input_file, prev_pos, SEEK_SET);
     }
     
-    if(close_file)
-    {
-        tng_data->input_file_pos=ftell(tng_data->input_file);
-        fclose(tng_data->input_file);
-        tng_data->input_file = 0;
-    }
-    
     return(TNG_SUCCESS);
 }
 
 tng_function_status tng_write_file_headers(tng_trajectory_t tng_data,
-                                           tng_close_file_flag close_file,
                                            const tng_hash_mode hash_mode)
 {
     int i;
@@ -6104,19 +6095,11 @@ tng_function_status tng_write_file_headers(tng_trajectory_t tng_data,
 
     tng_destroy_block(&data_block);
 
-    if(close_file)
-    {
-        tng_data->output_file_pos=ftell(tng_data->output_file);
-        fclose(tng_data->output_file);
-        tng_data->output_file = 0;
-    }
-
     return(TNG_SUCCESS);
 }
 
 tng_function_status tng_read_next_block(tng_trajectory_t tng_data,
                                         struct tng_gen_block *block,
-                                        const tng_close_file_flag close_file,
                                         const tng_hash_mode hash_mode)
 {
     switch(block->id)
@@ -6142,14 +6125,6 @@ tng_function_status tng_read_next_block(tng_trajectory_t tng_data,
             fseek(tng_data->input_file, block->block_contents_size, SEEK_CUR);
             return(TNG_FAILURE);
         }
-    }
-
-    /* FIXME: Never reached. */
-    if(close_file)
-    {
-        tng_data->input_file_pos=ftell(tng_data->input_file);
-        fclose(tng_data->input_file);
-        tng_data->input_file = 0;
     }
 }
 
@@ -6212,7 +6187,6 @@ tng_function_status tng_read_next_block(tng_trajectory_t tng_data,
 // }
 
 tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
-                                            const tng_close_file_flag close_file,
                                             const tng_hash_mode hash_mode)
 {
     long int file_pos;
@@ -6255,7 +6229,6 @@ tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
     tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
     
     if(tng_read_next_block(tng_data, &block,
-                           TNG_KEEP_FILE_OPEN,
                            hash_mode) == TNG_SUCCESS)
     {
         file_pos = ftell(tng_data->input_file);
@@ -6266,7 +6239,6 @@ tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
               block.id != TNG_TRAJECTORY_FRAME_SET)
         {
             stat = tng_read_next_block(tng_data, &block,
-                                       TNG_KEEP_FILE_OPEN,
                                        hash_mode) == TNG_SUCCESS;
 
             if(stat != TNG_CRITICAL)
@@ -6293,17 +6265,10 @@ tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
 
     tng_destroy_block(&block);
     
-    if(close_file)
-    {
-        fclose(tng_data->input_file);
-        tng_data->input_file = 0;
-    }
-    
     return(TNG_SUCCESS);
 }
 
 tng_function_status tng_write_frame_set(tng_trajectory_t tng_data,
-                                        const tng_close_file_flag close_file,
                                         const tng_hash_mode hash_mode)
 {
     int i, j;
@@ -6382,12 +6347,6 @@ tng_function_status tng_write_frame_set(tng_trajectory_t tng_data,
     
     tng_destroy_block(&block);
     
-    if(close_file)
-    {
-        fclose(tng_data->input_file);
-        tng_data->input_file = 0;
-    }
-
     return(stat);
 }
 
@@ -6893,47 +6852,41 @@ tng_function_status tng_add_particle_data_block(tng_trajectory_t tng_data,
 }
                                                 
 
-tng_function_status tng_read_next_traj_block(tng_trajectory_t tng_data,
-                                             tng_close_file_flag close_file)
+tng_function_status tng_read_next_traj_block(tng_trajectory_t tng_data)
 {
     /* STUB */
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_write_next_traj_block(tng_trajectory_t tng_data,
-                                              tng_close_file_flag close_file)
+tng_function_status tng_write_next_traj_block(tng_trajectory_t tng_data)
 {
     /* STUB */
     return(TNG_SUCCESS);
 }
 
 tng_function_status tng_read_traj_block(tng_trajectory_t tng_data,
-                                        int64_t block_id,
-                                        tng_close_file_flag close_file)
+                                        int64_t block_id)
 {
     /* STUB */
     return(TNG_SUCCESS);
 }
         
 tng_function_status tng_write_traj_block(tng_trajectory_t tng_data,
-                                         int64_t block_id,
-                                         tng_close_file_flag close_file)
+                                         int64_t block_id)
 {
     /* STUB */
     return(TNG_SUCCESS);
 }
 
 tng_function_status tng_read_frame_nr(tng_trajectory_t tng_data,
-                                      int64_t frame_nr,
-                                      tng_close_file_flag close_file)
+                                      int64_t frame_nr)
 {
     /* STUB */
     return(TNG_SUCCESS);
 }
         
 tng_function_status tng_write_frame_nr(tng_trajectory_t tng_data,
-                                       int64_t frame_nr,
-                                       tng_close_file_flag close_file)
+                                       int64_t frame_nr)
 {
     /* STUB */
     return(TNG_SUCCESS);
@@ -6941,8 +6894,7 @@ tng_function_status tng_write_frame_nr(tng_trajectory_t tng_data,
 
 tng_function_status tng_read_frame_nrs(tng_trajectory_t tng_data,
                                        int64_t start_frame_nr,
-                                       int64_t end_frame_nr,
-                                       tng_close_file_flag close_file)
+                                       int64_t end_frame_nr)
 {
     /* STUB */
     return(TNG_SUCCESS);
@@ -6950,8 +6902,7 @@ tng_function_status tng_read_frame_nrs(tng_trajectory_t tng_data,
 
 tng_function_status tng_write_frame_nrs(tng_trajectory_t tng_data,
                                         int64_t start_frame_nr,
-                                        int64_t end_frame_nr,
-                                        tng_close_file_flag close_file)
+                                        int64_t end_frame_nr)
 {
     /* STUB */
     return(TNG_SUCCESS);

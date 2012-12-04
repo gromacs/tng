@@ -99,12 +99,12 @@ static tng_function_status tng_test_read_and_write_file
 {
     tng_function_status stat;
 
-    stat = tng_read_file_headers(traj, TNG_KEEP_FILE_OPEN, TNG_USE_HASH);
+    stat = tng_read_file_headers(traj, TNG_USE_HASH);
     if(stat == TNG_CRITICAL)
     {
         return(stat);
     }
-    stat = tng_write_file_headers(traj, TNG_KEEP_FILE_OPEN, TNG_USE_HASH);
+    stat = tng_write_file_headers(traj, TNG_USE_HASH);
     if(stat == TNG_CRITICAL)
     {
         return(stat);
@@ -113,12 +113,12 @@ static tng_function_status tng_test_read_and_write_file
     while(stat != TNG_CRITICAL && traj->input_file_pos < traj->input_file_len &&
           traj->current_trajectory_frame_set.next_frame_set_file_pos != -1UL)
     {
-        stat = tng_read_next_frame_set(traj, TNG_KEEP_FILE_OPEN, TNG_USE_HASH);
+        stat = tng_read_next_frame_set(traj, TNG_USE_HASH);
         if(stat == TNG_CRITICAL)
         {
             return(stat);
         }
-        stat = tng_write_frame_set(traj, TNG_KEEP_FILE_OPEN, TNG_USE_HASH);
+        stat = tng_write_frame_set(traj, TNG_USE_HASH);
     }
     
     return(stat);
@@ -148,7 +148,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
         return(TNG_CRITICAL);
     }
 
-    if(tng_write_file_headers(traj, TNG_KEEP_FILE_OPEN, TNG_SKIP_HASH) == TNG_CRITICAL)
+    if(tng_write_file_headers(traj, TNG_SKIP_HASH) == TNG_CRITICAL)
     {
         return(TNG_CRITICAL);
     }
@@ -227,7 +227,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
             free(data);
             return(TNG_CRITICAL);
         }
-        if(tng_write_frame_set(traj, TNG_KEEP_FILE_OPEN, TNG_SKIP_HASH) != TNG_SUCCESS)
+        if(tng_write_frame_set(traj, TNG_SKIP_HASH) != TNG_SUCCESS)
         {
             printf("Error writing frame set. %s: %d\n", __FILE__, __LINE__);
             free(molpos);
@@ -248,12 +248,12 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     tng_destroy_trajectory(traj);
     tng_set_input_file(traj, "/tmp/tng_test.tng");
     
-    stat = tng_read_file_headers(traj, TNG_KEEP_FILE_OPEN, TNG_SKIP_HASH);
+    stat = tng_read_file_headers(traj, TNG_SKIP_HASH);
     
     while(stat != TNG_CRITICAL && traj->input_file_pos < traj->input_file_len &&
           traj->current_trajectory_frame_set.next_frame_set_file_pos != -1ULL)
     {
-        stat = tng_read_next_frame_set(traj, TNG_KEEP_FILE_OPEN, TNG_SKIP_HASH);
+        stat = tng_read_next_frame_set(traj, TNG_SKIP_HASH);
         if(stat == TNG_CRITICAL)
         {
             return(stat);
