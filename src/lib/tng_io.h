@@ -6,11 +6,11 @@
 
 #define TNG_VERSION 1
 
-#define TNG_UNCOMPRESSED 0ULL
-#define TNG_XTC 1ULL
-#define TNG_TNG_POSITIONS 2ULL
-#define TNG_TNG_VELOCITIES 3ULL
-#define TNG_TNG_FORCES 4ULL
+#define TNG_UNCOMPRESSED
+#define TNG_XTC
+#define TNG_TNG_POSITIONS
+#define TNG_TNG_VELOCITIES
+#define TNG_TNG_FORCES
 
 #define TNG_PARTICLE_DEPENDENT 1
 #define TNG_FRAME_DEPENDENT 2
@@ -614,7 +614,7 @@ tng_function_status tng_read_next_block(tng_trajectory_t tng_data,
 tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
                                             const tng_hash_mode hash_mode);
 
-/* Write one (the next) frame set, including toc, mapping and related data blocks
+/* Write one frame set, including toc, mapping and related data blocks
    to the output_file of tng_data.
    tng_data is a trajectory data container. tng_data->output_file_path specifies which
    file to write to. If the file (output_file) is not open it will be opened.
@@ -648,7 +648,7 @@ tng_function_status tng_add_particle_data_block(tng_trajectory_t tng_data,
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_read_next_traj_block(tng_trajectory_t tng_data);
 
-/* Write one (the next) trajectory block to the output_file of tng_data.
+/* Write one trajectory block to the output_file of tng_data.
    tng_data is a trajectory data container. tng_data->output_file_path specifies which
    file to write to. If the file (output_file) is not open it will be opened.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
