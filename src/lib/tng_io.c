@@ -42,10 +42,10 @@ static inline tng_function_status tng_swap_byte_order_32
     switch(tng_data->endianness_32)
     {
     case TNG_LITTLE_ENDIAN_32: // Byte order is reversed.
-        *v = (*v << 24) |              // Move first byte to end
-            ((*v & 0x00FF0000) >> 8) | // Move 2nd byte to pos 3
-            ((*v & 0x0000FF00) << 8) | // Move 3rd byte to pos 2
-            (*v >> 24);                // Move last byte to first
+        *v = ((*v & 0xFF000000) >> 24) | // Move first byte to end
+             ((*v & 0x00FF0000) >> 8) |  // Move 2nd byte to pos 3
+             ((*v & 0x0000FF00) << 8) |  // Move 3rd byte to pos 2
+             ((*v & 0x000000FF) << 24);  // Move last byte to first
 
         return(TNG_SUCCESS);
 
@@ -73,32 +73,32 @@ static inline tng_function_status tng_swap_byte_order_64
     switch(tng_data->endianness_64)
     {
     case TNG_LITTLE_ENDIAN_64: // Byte order is reversed.
-        *v = (*v >> 56) |                       // Move first byte to end
-            ((*v & 0x00FF000000000000) >> 40) | // Move 2nd byte to pos 7
-            ((*v & 0x0000FF0000000000) >> 24) | // Move 3rd byte to pos 6
-            ((*v & 0x000000FF00000000) >> 8 ) | // Move 4th byte to pos 5
-            ((*v & 0x00000000FF000000) << 8 ) | // Move 5th byte to pos 4
-            ((*v & 0x0000000000FF0000) << 24) | // Move 6th byte to pos 3
-            ((*v & 0x000000000000FF00) << 40) | // Move 7th byte to pos 2
-            (*v << 56);                         // Move last byte to first
+        *v = ((*v & 0xFF00000000000000) >> 56) | // Move first byte to end
+             ((*v & 0x00FF000000000000) >> 40) | // Move 2nd byte to pos 7
+             ((*v & 0x0000FF0000000000) >> 24) | // Move 3rd byte to pos 6
+             ((*v & 0x000000FF00000000) >> 8 ) | // Move 4th byte to pos 5
+             ((*v & 0x00000000FF000000) << 8 ) | // Move 5th byte to pos 4
+             ((*v & 0x0000000000FF0000) << 24) | // Move 6th byte to pos 3
+             ((*v & 0x000000000000FF00) << 40) | // Move 7th byte to pos 2
+             ((*v & 0x00000000000000FF) << 56);  // Move last byte to first
 
         return(TNG_SUCCESS);
 
     case TNG_QUAD_SWAP_64: // Byte quad swap
         *v = ((*v & 0xFFFFFFFF00000000) >> 32) |
-            ((*v & 0x00000000FFFFFFFF) << 32);
+             ((*v & 0x00000000FFFFFFFF) << 32);
 
         return(TNG_SUCCESS);
 
     case TNG_BYTE_PAIR_SWAP_64: // Byte pair swap
         *v = ((*v & 0xFFFF0000FFFF0000) >> 16) |
-            ((*v & 0x0000FFFF0000FFFF) << 16);
+             ((*v & 0x0000FFFF0000FFFF) << 16);
 
         return(TNG_SUCCESS);
 
     case TNG_BYTE_SWAP_64: // Byte swap
         *v = ((*v & 0xFF00FF00FF00FF00) >> 8) |
-            ((*v & 0x00FF00FF00FF00FF) << 8);
+             ((*v & 0x00FF00FF00FF00FF) << 8);
 
         return(TNG_SUCCESS);
 
