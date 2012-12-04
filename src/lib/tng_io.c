@@ -35,7 +35,7 @@
 
 
 /* This function swaps the byte order of a 32 bit numerical variable.
-   It does not only work with integer, but e.g. floats need casting */
+   It does not only work with integer, but e.g. floats need casting. */
 static inline tng_function_status tng_swap_byte_order_32
                 (const tng_trajectory_t tng_data, int32_t *v)
 {
@@ -64,8 +64,8 @@ static inline tng_function_status tng_swap_byte_order_32
 }
 
 /* This function swaps the byte order of a 64 bit numerical variable.
-   It does not only work with integer, but e.g. floats need casting
-   The byte order swapping routine can convert five different byte
+   It does not only work with integer, but e.g. floats need casting.
+   The byte order swapping routine can convert four different byte
    orders to big endian. */
 static inline tng_function_status tng_swap_byte_order_64
                 (const tng_trajectory_t tng_data, int64_t *v)
