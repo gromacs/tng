@@ -282,7 +282,7 @@ int main()
     printf("Creation time: %s\n", time_str);
     
     tng_set_input_file(&traj, "tng_example.tng");
-    tng_set_output_file(&traj, "/tmp/tng_example_test.tng");
+    tng_set_output_file(&traj, "/tmp/tng_example_out.tng");
 
 //     if(tng_test_endianness(&traj) != TNG_SUCCESS)
 //     {
