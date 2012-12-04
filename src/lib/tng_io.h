@@ -6,12 +6,6 @@
 
 #define TNG_VERSION 1
 
-#define TNG_UNCOMPRESSED
-#define TNG_XTC
-#define TNG_TNG_POSITIONS
-#define TNG_TNG_VELOCITIES
-#define TNG_TNG_FORCES
-
 #define TNG_PARTICLE_DEPENDENT 1
 #define TNG_FRAME_DEPENDENT 2
 
@@ -40,6 +34,10 @@ typedef enum {TNG_BIG_ENDIAN_64,
     ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
        _a > _b ? _a : _b; })
+
+typedef enum {TNG_UNCOMPRESSED,
+              TNG_XTC_COMPRESSION,
+              TNG_TNG_COMPRESSION} tng_compression;
 
 typedef enum {TNG_NON_TRAJECTORY_BLOCK, TNG_TRAJECTORY_BLOCK} tng_block_type;
 
