@@ -73,7 +73,9 @@ typedef enum {TNG_CONSTANT_N_ATOMS, TNG_VARIABLE_N_ATOMS} tng_variable_n_atoms_f
 
 typedef enum {TNG_SUCCESS, TNG_FAILURE, TNG_CRITICAL} tng_function_status;
 
-typedef enum {TNG_NORMAL_WRITE, TNG_COPY_EXISTING} write_mode;
+typedef enum {TNG_NORMAL_WRITE, TNG_COPY_EXISTING} tng_write_mode;
+
+typedef enum {TNG_SKIP_HASH, TNG_USE_HASH} tng_hash_mode;
 
 typedef enum {TNG_CHAR_DATA,
               TNG_INT_DATA,
@@ -570,10 +572,13 @@ tng_function_status tng_set_atom_type(tng_trajectory_t tng_data,
    tng_data is a trajectory data container. tng_data->input_file_path specifies which
    file to read from. If the file (input_file) is not open it will be opened.
    If close_file == TNG_CLOSE_FILE (1) the input_file will be closed after reading the data.
+   If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+   compared to the md5 hash of the read contents to ensure valid data.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_read_file_headers(tng_trajectory_t tng_data,
-                                          tng_close_file_flag close_file);
+                                          const tng_close_file_flag close_file,
+                                          const tng_hash_mode hash_mode);
 
 /* Write the header blocks to the output_file of tng_data.
    The trajectory blocks must be written separately and iteratively in chunks
@@ -581,10 +586,12 @@ tng_function_status tng_read_file_headers(tng_trajectory_t tng_data,
    tng_data is a trajectory data container. tng_data->output_file_path specifies which
    file to write to. If the file (output_file) is not open it will be opened.
    If close_file == TNG_CLOSE_FILE (1) the output_file will be closed after writing the data.
+   If hash_mode == TNG_USE_HASH an md5 hash for each header block will be generated.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_write_file_headers(tng_trajectory_t tng_data,
-                                           tng_close_file_flag close_file);
+                                           const tng_close_file_flag close_file,
+                                           const tng_hash_mode hash_mode);
 
 
 /* Read one (the next) block (of any kind) from the input_file of tng_data.
@@ -594,11 +601,14 @@ tng_function_status tng_write_file_headers(tng_trajectory_t tng_data,
    data. If block_data->input_file_pos > 0 it is the position from where the reading
    starts otherwise it starts from the current position.
    If close_file == TNG_CLOSE_FILE (1) the input_file will be closed after reading the data.
+   If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+   compared to the md5 hash of the read contents to ensure valid data.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor
    error has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_read_next_block(tng_trajectory_t tng_data,
                                         struct tng_gen_block *block_data,
-                                        tng_close_file_flag close_file);
+                                        const tng_close_file_flag close_file,
+                                        const tng_hash_mode hash_mode);
 
 
 /* Read one (the next) frame set, including toc, mapping and related data blocks
@@ -606,20 +616,25 @@ tng_function_status tng_read_next_block(tng_trajectory_t tng_data,
    tng_data is a trajectory data container. tng_data->input_file_path specifies which
    file to read from. If the file (input_file) is not open it will be opened.
    If close_file == TNG_CLOSE_FILE (1) the input_file will be closed after reading the data.
+   If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+   compared to the md5 hash of the read contents to ensure valid data.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
-                                            tng_close_file_flag close_file);
+                                            const tng_close_file_flag close_file,
+                                            const tng_hash_mode hash_mode);
 
 /* Write one (the next) frame set, including toc, mapping and related data blocks
    to the output_file of tng_data.
    tng_data is a trajectory data container. tng_data->output_file_path specifies which
    file to write to. If the file (output_file) is not open it will be opened.
    If close_file == TNG_CLOSE_FILE (1) the output_file will be closed after writing the data.
+   If hash_mode == TNG_USE_HASH an md5 hash for each block will be generated.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_write_frame_set(tng_trajectory_t tng_data,
-                                        tng_close_file_flag close_file);
+                                        const tng_close_file_flag close_file,
+                                        const tng_hash_mode hash_mode);
 
 tng_function_status tng_new_frame_set(tng_trajectory_t tng_data,
                                       const int64_t first_frame,
@@ -696,7 +711,7 @@ tng_function_status tng_read_frame_set_nr(tng_trajectory_t tng_data,
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_read_frame_nr(tng_trajectory_t tng_data,
                                       int64_t frame_nr,
-                                      tng_close_file_flag close_file);
+                                      const tng_close_file_flag close_file);
         
 /* Write one trajectory frame to the output_file of tng_data.
    tng_data is a trajectory data container. tng_data->output_file_path specifies which
@@ -707,7 +722,7 @@ tng_function_status tng_read_frame_nr(tng_trajectory_t tng_data,
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_write_frame_nr(tng_trajectory_t tng_data,
                                        int64_t frame_nr,
-                                       tng_close_file_flag close_file);
+                                       const tng_close_file_flag close_file);
 
 /* Read a number of consecutive trajectory frames from the input_file of tng_data.
    tng_data is a trajectory data container. tng_data->input_file_path specifies which
@@ -720,7 +735,7 @@ tng_function_status tng_write_frame_nr(tng_trajectory_t tng_data,
 tng_function_status tng_read_frame_nrs(tng_trajectory_t tng_data,
                                        int64_t start_frame_nr,
                                        int64_t end_frame_nr,
-                                       tng_close_file_flag close_file);
+                                       const tng_close_file_flag close_file);
 
 /* Write a number of consecutive trajectory frames to the output_file of tng_data.
    tng_data is a trajectory data container. tng_data->output_file_path specifies which
@@ -733,7 +748,7 @@ tng_function_status tng_read_frame_nrs(tng_trajectory_t tng_data,
 tng_function_status tng_write_frame_nrs(tng_trajectory_t tng_data,
                                         int64_t start_frame_nr,
                                         int64_t end_frame_nr,
-                                        tng_close_file_flag close_file);
+                                        const tng_close_file_flag close_file);
 
 /* Get the date and time of initial file creation in ISO format (string).
    tng_data is a trajectory data container.

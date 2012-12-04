@@ -370,7 +370,8 @@ static tng_function_status tng_read_block_header
 
 static tng_function_status tng_write_block_header
                 (tng_trajectory_t tng_data,
-                 struct tng_gen_block *block, write_mode mode)
+                 struct tng_gen_block *block, const tng_write_mode mode,
+                 const tng_hash_mode hash_mode)
 {
     int name_len, offset = 0;
 
@@ -414,7 +415,10 @@ static tng_function_status tng_write_block_header
 
     name_len = min(strlen(block->name) + 1, TNG_MAX_STR_LEN);
 
-    tng_generate_block_hash(block);
+    if(hash_mode == TNG_USE_HASH)
+    {
+        tng_generate_block_hash(block);
+    }
 
     /* Calculate the size of the header to write */
     block->header_contents_size = sizeof(block->header_contents_size) +
@@ -511,7 +515,8 @@ static tng_function_status tng_write_block_header
 
 
 static tng_function_status tng_read_general_info_block
-                (tng_trajectory_t tng_data, struct tng_gen_block *block)
+                (tng_trajectory_t tng_data, struct tng_gen_block *block,
+                 const tng_hash_mode hash_mode)
 {
     int len, offset = 0;
     tng_bool same_hash;
@@ -543,18 +548,20 @@ static tng_function_status tng_read_general_info_block
     /* FIXME: Does not check if the size of the contents matches the expected
      * size or if the contents can be read. */
 
-    
-    if(tng_verify_hash_match(block, &same_hash) != TNG_SUCCESS)
+    if(hash_mode == TNG_USE_HASH)
     {
-        printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
-        return(TNG_FAILURE);
-    }
-    if(same_hash != TRUE)
-    {
-        printf("General info block contents corrupt. Hashes do not match. "
-               "%s: %d\n",
-               __FILE__, __LINE__);
-//         return(TNG_FAILURE);
+        if(tng_verify_hash_match(block, &same_hash) != TNG_SUCCESS)
+        {
+            printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
+            return(TNG_FAILURE);
+        }
+        if(same_hash != TRUE)
+        {
+            printf("General info block contents corrupt. Hashes do not match. "
+                "%s: %d\n",
+                __FILE__, __LINE__);
+    //         return(TNG_FAILURE);
+        }
     }
 
     len = min(strlen(block->block_contents) + 1, TNG_MAX_STR_LEN);
@@ -696,7 +703,8 @@ static tng_function_status tng_read_general_info_block
 static tng_function_status tng_write_general_info_block
                 (tng_trajectory_t tng_data,
                  struct tng_gen_block *block,
-                 write_mode mode)
+                 const tng_write_mode mode,
+                 const tng_hash_mode hash_mode)
 {
     int program_name_len, forcefield_name_len, user_name_len;
     int computer_name_len, pgp_signature_len;
@@ -783,7 +791,7 @@ static tng_function_status tng_write_general_info_block
      * contents are known beforehand (e.g. due to different file versions) */
     if(mode == TNG_COPY_EXISTING)
     {
-        if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+        if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
@@ -927,7 +935,7 @@ static tng_function_status tng_write_general_info_block
     }
 
 
-    if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+    if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
@@ -949,7 +957,8 @@ static tng_function_status tng_write_general_info_block
 /* FIXME: Update this according to the new specs */
 static tng_function_status tng_read_molecules_block
                 (tng_trajectory_t tng_data,
-                 struct tng_gen_block *block)
+                 struct tng_gen_block *block,
+                 const tng_hash_mode hash_mode)
 {
     int i, j, k, l, len, offset = 0;
     struct tng_molecule *molecule;
@@ -990,17 +999,20 @@ static tng_function_status tng_read_molecules_block
     /* FIXME: Does not check if the size of the contents matches the expected
      * size or if the contents can be read. */
 
-    if(tng_verify_hash_match(block, &same_hash) != TNG_SUCCESS)
+    if(hash_mode == TNG_USE_HASH)
     {
-        printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
-        return(TNG_FAILURE);
-    }
-    if(same_hash != TRUE)
-    {
-        printf("Molecules block contents corrupt. Hashes do not match. "
-               "%s: %d\n",
-               __FILE__, __LINE__);
-//         return(TNG_FAILURE);
+        if(tng_verify_hash_match(block, &same_hash) != TNG_SUCCESS)
+        {
+            printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
+            return(TNG_FAILURE);
+        }
+        if(same_hash != TRUE)
+        {
+            printf("Molecules block contents corrupt. Hashes do not match. "
+                "%s: %d\n",
+                __FILE__, __LINE__);
+    //         return(TNG_FAILURE);
+        }
     }
 
     memcpy(&tng_data->n_molecules, block->block_contents,
@@ -1363,7 +1375,8 @@ static tng_function_status tng_read_molecules_block
 static tng_function_status tng_write_molecules_block
                 (tng_trajectory_t tng_data,
                  struct tng_gen_block *block,
-                 write_mode mode)
+                 const tng_write_mode mode,
+                 const tng_hash_mode hash_mode)
 {
     int len = 0;
     int i, j, k, l, offset = 0;
@@ -1498,7 +1511,7 @@ static tng_function_status tng_write_molecules_block
      * contents are known beforehand (e.g. due to different file versions) */
     if(mode == TNG_COPY_EXISTING)
     {
-        if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+        if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
@@ -1808,7 +1821,7 @@ static tng_function_status tng_write_molecules_block
         }
     }
 
-    if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+    if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
@@ -1831,7 +1844,8 @@ static tng_function_status tng_write_molecules_block
 
 static tng_function_status tng_read_frame_set_block
                 (tng_trajectory_t tng_data,
-                 struct tng_gen_block *block)
+                 struct tng_gen_block *block,
+                 const tng_hash_mode hash_mode)
 {
     int i, file_pos, offset = 0;
     int64_t prev_n_particles;
@@ -1873,17 +1887,20 @@ static tng_function_status tng_read_frame_set_block
     /* FIXME: Does not check if the size of the contents matches the expected
      * size or if the contents can be read. */
 
-    if(tng_verify_hash_match(block, &same_hash) != TNG_SUCCESS)
+    if(hash_mode == TNG_USE_HASH)
     {
-        printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
-        return(TNG_FAILURE);
-    }
-    if(same_hash != TRUE)
-    {
-        printf("Frame set block contents corrupt. Hashes do not match. "
-               "%s: %d\n",
-               __FILE__, __LINE__);
-//         return(TNG_FAILURE);
+        if(tng_verify_hash_match(block, &same_hash) != TNG_SUCCESS)
+        {
+            printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
+            return(TNG_FAILURE);
+        }
+        if(same_hash != TRUE)
+        {
+            printf("Frame set block contents corrupt. Hashes do not match. "
+                "%s: %d\n",
+                __FILE__, __LINE__);
+    //         return(TNG_FAILURE);
+        }
     }
 
     file_pos = ftell(tng_data->input_file);
@@ -2062,7 +2079,8 @@ static tng_function_status tng_read_frame_set_block
 static tng_function_status tng_write_frame_set_block
                 (tng_trajectory_t tng_data,
                  struct tng_gen_block *block,
-                 write_mode mode)
+                 const tng_write_mode mode,
+                 const tng_hash_mode hash_mode)
 {
     char *temp_name;
     int64_t i;
@@ -2080,7 +2098,7 @@ static tng_function_status tng_write_frame_set_block
      * contents are known beforehand (e.g. due to different file versions) */
     if(mode == TNG_COPY_EXISTING)
     {
-        if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+        if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
@@ -2247,7 +2265,7 @@ static tng_function_status tng_write_frame_set_block
     }
     offset += sizeof(frame_set->long_stride_prev_frame_set_file_pos);
 
-    if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+    if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
@@ -2268,7 +2286,8 @@ static tng_function_status tng_write_frame_set_block
 
 static tng_function_status tng_read_trajectory_toc_block
                 (tng_trajectory_t tng_data,
-                 struct tng_gen_block *block)
+                 struct tng_gen_block *block,
+                 const tng_hash_mode hash_mode)
 {
     int64_t i, old_n_blocks;
     int offset = 0, len;
@@ -2309,18 +2328,20 @@ static tng_function_status tng_read_trajectory_toc_block
     /* FIXME: Does not check if the size of the contents matches the expected
      * size or if the contents can be read. */
 
-
-    if(tng_verify_hash_match(block, &same_hash) != TNG_SUCCESS)
+    if(hash_mode == TNG_USE_HASH)
     {
-        printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
-        return(TNG_FAILURE);
-    }
-    if(same_hash != TRUE)
-    {
-        printf("Table of contents block contents corrupt. Hashes do not match. "
-               "%s: %d\n",
-               __FILE__, __LINE__);
-//         return(TNG_FAILURE);
+        if(tng_verify_hash_match(block, &same_hash) != TNG_SUCCESS)
+        {
+            printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
+            return(TNG_FAILURE);
+        }
+        if(same_hash != TRUE)
+        {
+            printf("Table of contents block contents corrupt. Hashes do not match. "
+                "%s: %d\n",
+                __FILE__, __LINE__);
+    //         return(TNG_FAILURE);
+        }
     }
 
     old_n_blocks = toc->n_blocks;
@@ -2383,7 +2404,8 @@ static tng_function_status tng_read_trajectory_toc_block
 static tng_function_status tng_write_trajectory_toc_block
                 (tng_trajectory_t tng_data,
                  struct tng_gen_block *block,
-                 write_mode mode)
+                 const tng_write_mode mode,
+                 const tng_hash_mode hash_mode)
 {
     char *temp_name;
     int64_t i;
@@ -2401,7 +2423,7 @@ static tng_function_status tng_write_trajectory_toc_block
      * contents are known beforehand (e.g. due to different file versions) */
     if(mode == TNG_COPY_EXISTING)
     {
-        if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+        if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
@@ -2482,7 +2504,7 @@ static tng_function_status tng_write_trajectory_toc_block
     }
 
 
-    if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+    if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
@@ -2504,7 +2526,8 @@ static tng_function_status tng_write_trajectory_toc_block
 
 static tng_function_status tng_read_trajectory_mapping_block
                 (tng_trajectory_t tng_data,
-                 struct tng_gen_block *block)
+                 struct tng_gen_block *block,
+                 const tng_hash_mode hash_mode)
 {
     int64_t i, old_n_particles;
     int offset = 0;
@@ -2547,18 +2570,20 @@ static tng_function_status tng_read_trajectory_mapping_block
     /* FIXME: Does not check if the size of the contents matches the expected
      * size or if the contents can be read. */
 
-
-    if(tng_verify_hash_match(block, &same_hash) != TNG_SUCCESS)
+    if(hash_mode == TNG_USE_HASH)
     {
-        printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
-        return(TNG_FAILURE);
-    }
-    if(same_hash != TRUE)
-    {
-        printf("Particle mapping block contents corrupt. Hashes do not match. "
-               "%s: %d\n",
-               __FILE__, __LINE__);
-//         return(TNG_FAILURE);
+        if(tng_verify_hash_match(block, &same_hash) != TNG_SUCCESS)
+        {
+            printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
+            return(TNG_FAILURE);
+        }
+        if(same_hash != TRUE)
+        {
+            printf("Particle mapping block contents corrupt. Hashes do not match. "
+                "%s: %d\n",
+                __FILE__, __LINE__);
+    //         return(TNG_FAILURE);
+        }
     }
 
     frame_set->n_mapping_blocks++;
@@ -2646,7 +2671,8 @@ static tng_function_status tng_write_trajectory_mapping_block
                 (tng_trajectory_t tng_data,
                  struct tng_gen_block *block,
                  int mapping_block_nr,
-                 write_mode mode)
+                 const tng_write_mode mode,
+                 const tng_hash_mode hash_mode)
 {
     char *temp_name;
     int i, offset = 0, name_len;
@@ -2672,7 +2698,7 @@ static tng_function_status tng_write_trajectory_mapping_block
      * contents are known beforehand (e.g. due to different file versions) */
     if(mode == TNG_COPY_EXISTING)
     {
-        if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+        if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
@@ -2773,7 +2799,7 @@ static tng_function_status tng_write_trajectory_mapping_block
     }
 
 
-    if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+    if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
@@ -3139,7 +3165,8 @@ static tng_function_status tng_write_particle_data_block
                  struct tng_gen_block *block,
                  const int block_index,
                  const struct tng_particle_mapping *mapping,
-                 const write_mode mode)
+                 const tng_write_mode mode,
+                 const tng_hash_mode hash_mode)
 {
     int64_t n_particles, num_first_particle, n_frames;
     int i, j, k, offset = 0, size, len;
@@ -3186,7 +3213,7 @@ static tng_function_status tng_write_particle_data_block
      * contents are known beforehand (e.g. due to different file versions) */
     if(mode == TNG_COPY_EXISTING)
     {
-        if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+        if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
@@ -3490,7 +3517,7 @@ static tng_function_status tng_write_particle_data_block
 
 
 
-    if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+    if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
@@ -3822,7 +3849,8 @@ static tng_function_status tng_read_data(tng_trajectory_t tng_data,
 static tng_function_status tng_write_data_block(tng_trajectory_t tng_data,
                                                 struct tng_gen_block *block,
                                                 const int block_index,
-                                                const write_mode mode)
+                                                const tng_write_mode mode,
+                                                const tng_hash_mode hash_mode)
 {
     int64_t n_frames;
     int i, j, offset = 0, size, len;
@@ -3877,7 +3905,7 @@ static tng_function_status tng_write_data_block(tng_trajectory_t tng_data,
      * contents are known beforehand (e.g. due to different file versions) */
     if(mode == TNG_COPY_EXISTING)
     {
-        if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+        if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
@@ -4119,7 +4147,7 @@ static tng_function_status tng_write_data_block(tng_trajectory_t tng_data,
         }
     }
 
-    if(tng_write_block_header(tng_data, block, mode) != TNG_SUCCESS)
+    if(tng_write_block_header(tng_data, block, mode, hash_mode) != TNG_SUCCESS)
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
@@ -4141,7 +4169,8 @@ static tng_function_status tng_write_data_block(tng_trajectory_t tng_data,
 
 static tng_function_status tng_read_data_block_contents
                 (tng_trajectory_t tng_data,
-                 struct tng_gen_block *block)
+                 struct tng_gen_block *block,
+                 const tng_hash_mode hash_mode)
 {
     int64_t n_values, codec_id, n_frames, first_frame_with_data;
     int64_t steps_between_data, block_n_particles, first_particle_number;
@@ -4183,18 +4212,20 @@ static tng_function_status tng_read_data_block_contents
     /* FIXME: Does not check if the size of the contents matches the expected
      * size or if the contents can be read. */
 
-
-    if(tng_verify_hash_match(block, &same_hash) != TNG_SUCCESS)
+    if(hash_mode == TNG_USE_HASH)
     {
-        printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
-        return(TNG_FAILURE);
-    }
-    if(same_hash != TRUE)
-    {
-        printf("%s\n", block->hash);
-        printf("Data block contents corrupt. Hashes do not match. %s: %d\n",
-               __FILE__, __LINE__);
-//         return(TNG_FAILURE);
+        if(tng_verify_hash_match(block, &same_hash) != TNG_SUCCESS)
+        {
+            printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
+            return(TNG_FAILURE);
+        }
+        if(same_hash != TRUE)
+        {
+            printf("%s\n", block->hash);
+            printf("Data block contents corrupt. Hashes do not match. %s: %d\n",
+                __FILE__, __LINE__);
+    //         return(TNG_FAILURE);
+        }
     }
 
     memcpy(&datatype, block->block_contents+offset,
@@ -5924,7 +5955,8 @@ tng_function_status tng_set_signature(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_read_file_headers(tng_trajectory_t tng_data,
-                                          tng_close_file_flag close_file)
+                                          tng_close_file_flag close_file,
+                                          const tng_hash_mode hash_mode)
 {
     int i, cnt = 0, prev_pos = 0;
     struct tng_gen_block *block = tng_data->non_trajectory_blocks;
@@ -5962,7 +5994,7 @@ tng_function_status tng_read_file_headers(tng_trajectory_t tng_data,
     {
 //         printf("Reading block header %d: %s\n", (int)block->id, block->name);
         if(tng_read_next_block(tng_data, block,
-                               TNG_KEEP_FILE_OPEN) == TNG_SUCCESS)
+                               TNG_KEEP_FILE_OPEN, hash_mode) == TNG_SUCCESS)
         {
 //             printf("Read block %s\n", block->name);
             block++;
@@ -5998,7 +6030,8 @@ tng_function_status tng_read_file_headers(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_write_file_headers(tng_trajectory_t tng_data,
-                                           tng_close_file_flag close_file)
+                                           tng_close_file_flag close_file,
+                                           const tng_hash_mode hash_mode)
 {
     int i;
     struct tng_gen_block *block, data_block;
@@ -6016,7 +6049,7 @@ tng_function_status tng_write_file_headers(tng_trajectory_t tng_data,
         block = &tng_data->non_trajectory_blocks[i];
         if(block->id == TNG_GENERAL_INFO)
         {
-            if(tng_write_general_info_block(tng_data, block, TNG_NORMAL_WRITE)
+            if(tng_write_general_info_block(tng_data, block, TNG_NORMAL_WRITE, hash_mode)
                 != TNG_SUCCESS)
             {
                 printf("Error writing general info block of file %s. %s: %d\n",
@@ -6032,7 +6065,7 @@ tng_function_status tng_write_file_headers(tng_trajectory_t tng_data,
         block = &tng_data->non_trajectory_blocks[i];
         if(block->id == TNG_MOLECULES)
         {
-            if(tng_write_molecules_block(tng_data, block, TNG_NORMAL_WRITE)
+            if(tng_write_molecules_block(tng_data, block, TNG_NORMAL_WRITE, hash_mode)
                 != TNG_SUCCESS)
             {
                 printf("Error writing atom names block of file %s. %s: %d\n",
@@ -6050,14 +6083,14 @@ tng_function_status tng_write_file_headers(tng_trajectory_t tng_data,
     {
         data_block.id = tng_data->non_tr_data[i].block_id;
         tng_write_data_block(tng_data, &data_block,
-                             i, TNG_NORMAL_WRITE);
+                             i, TNG_NORMAL_WRITE, hash_mode);
     }
 
     for(i = 0; i < tng_data->n_particle_data_blocks; i++)
     {
         data_block.id = tng_data->non_tr_particle_data[i].block_id;
         tng_write_particle_data_block(tng_data, &data_block,
-                                      i, 0, TNG_NORMAL_WRITE);
+                                      i, 0, TNG_NORMAL_WRITE, hash_mode);
     }
 
     tng_destroy_block(&data_block);
@@ -6074,24 +6107,25 @@ tng_function_status tng_write_file_headers(tng_trajectory_t tng_data,
 
 tng_function_status tng_read_next_block(tng_trajectory_t tng_data,
                                         struct tng_gen_block *block,
-                                        tng_close_file_flag close_file)
+                                        const tng_close_file_flag close_file,
+                                        const tng_hash_mode hash_mode)
 {
     switch(block->id)
     {
     case TNG_TRAJECTORY_FRAME_SET:
-        return(tng_read_frame_set_block(tng_data, block));
+        return(tng_read_frame_set_block(tng_data, block, hash_mode));
     case TNG_BLOCK_TABLE_OF_CONTENTS:
-        return(tng_read_trajectory_toc_block(tng_data, block));
+        return(tng_read_trajectory_toc_block(tng_data, block, hash_mode));
     case TNG_PARTICLE_MAPPING:
-        return(tng_read_trajectory_mapping_block(tng_data, block));
+        return(tng_read_trajectory_mapping_block(tng_data, block, hash_mode));
     case TNG_GENERAL_INFO:
-        return(tng_read_general_info_block(tng_data, block));
+        return(tng_read_general_info_block(tng_data, block, hash_mode));
     case TNG_MOLECULES:
-        return(tng_read_molecules_block(tng_data, block));
+        return(tng_read_molecules_block(tng_data, block, hash_mode));
     default:
         if(block->id >= TNG_TRAJ_BOX_SHAPE)
         {
-            return(tng_read_data_block_contents(tng_data, block));
+            return(tng_read_data_block_contents(tng_data, block, hash_mode));
         }
         else
         {
@@ -6169,7 +6203,8 @@ tng_function_status tng_read_next_block(tng_trajectory_t tng_data,
 // }
 
 tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
-                                            tng_close_file_flag close_file)
+                                            const tng_close_file_flag close_file,
+                                            const tng_hash_mode hash_mode)
 {
     long int file_pos;
     struct tng_gen_block block;
@@ -6211,7 +6246,8 @@ tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
     tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
     
     if(tng_read_next_block(tng_data, &block,
-                           TNG_KEEP_FILE_OPEN) == TNG_SUCCESS)
+                           TNG_KEEP_FILE_OPEN,
+                           hash_mode) == TNG_SUCCESS)
     {
         file_pos = ftell(tng_data->input_file);
         /* Read all blocks until next frame set block */
@@ -6221,7 +6257,8 @@ tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
               block.id != TNG_TRAJECTORY_FRAME_SET)
         {
             stat = tng_read_next_block(tng_data, &block,
-                                       TNG_KEEP_FILE_OPEN) == TNG_SUCCESS;
+                                       TNG_KEEP_FILE_OPEN,
+                                       hash_mode) == TNG_SUCCESS;
 
             if(stat != TNG_CRITICAL)
             {
@@ -6257,7 +6294,8 @@ tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_write_frame_set(tng_trajectory_t tng_data,
-                                        tng_close_file_flag close_file)
+                                        const tng_close_file_flag close_file,
+                                        const tng_hash_mode hash_mode)
 {
     int i, j;
     struct tng_gen_block block;
@@ -6281,17 +6319,18 @@ tng_function_status tng_write_frame_set(tng_trajectory_t tng_data,
     tng_init_block(&block);
     block.id = TNG_TRAJECTORY_FRAME_SET;
 
-    tng_write_frame_set_block(tng_data, &block, TNG_NORMAL_WRITE);
+    tng_write_frame_set_block(tng_data, &block, TNG_NORMAL_WRITE, hash_mode);
 
     if(frame_set->contents.n_blocks > 0)
     {
         block.id = TNG_BLOCK_TABLE_OF_CONTENTS;
-        tng_write_trajectory_toc_block(tng_data, &block, TNG_NORMAL_WRITE);
+        tng_write_trajectory_toc_block(tng_data, &block, TNG_NORMAL_WRITE,
+                                       hash_mode);
     }
     for(i = 0; i<frame_set->n_data_blocks; i++)
     {
         block.id = frame_set->tr_data[i].block_id;
-        tng_write_data_block(tng_data, &block, i, TNG_NORMAL_WRITE);
+        tng_write_data_block(tng_data, &block, i, TNG_NORMAL_WRITE, hash_mode);
     }
     if(frame_set->n_mapping_blocks)
     {
@@ -6301,13 +6340,14 @@ tng_function_status tng_write_frame_set(tng_trajectory_t tng_data,
             if(frame_set->mappings[i].n_particles > 0)
             {
                 tng_write_trajectory_mapping_block(tng_data, &block, i,
-                                                   TNG_NORMAL_WRITE);
+                                                   TNG_NORMAL_WRITE, hash_mode);
                 for(j = 0; j<frame_set->n_particle_data_blocks; j++)
                 {
                     block.id = frame_set->tr_particle_data[i].block_id;
                     tng_write_particle_data_block(tng_data, &block,
                                                   j, &frame_set->mappings[i],
-                                                  TNG_NORMAL_WRITE);
+                                                  TNG_NORMAL_WRITE,
+                                                  hash_mode);
                 }
             }
         }
@@ -6318,7 +6358,7 @@ tng_function_status tng_write_frame_set(tng_trajectory_t tng_data,
         {
             block.id = frame_set->tr_particle_data[i].block_id;
             tng_write_particle_data_block(tng_data, &block,
-                                          i, 0, TNG_NORMAL_WRITE);
+                                          i, 0, TNG_NORMAL_WRITE, hash_mode);
         }
     }
 
