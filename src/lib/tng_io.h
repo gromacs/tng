@@ -82,6 +82,11 @@ typedef enum {TNG_CHAR_DATA,
 
 
 typedef struct tng_trajectory *tng_trajectory_t;
+typedef struct tng_molecule *tng_molecule_t;
+typedef struct tng_chain *tng_chain_t;
+typedef struct tng_residue *tng_residue_t;
+typedef struct tng_atom *tng_atom_t;
+typedef struct tng_bond *tng_bond_t;
               
 #ifdef __cplusplus
 extern "C"
@@ -94,26 +99,26 @@ struct tng_bond {
 };
 
 struct tng_atom {
-    struct tng_residue *residue;  /* The molecule containing this atom */
+    tng_residue_t residue;  /* The molecule containing this atom */
     int64_t id;                /* A unique (per molecule) ID number of the atom */
     char *atom_type;            /* The atom_type (depending on the forcefield) */
     char *name;                 /* The name of the atom */
 };
 
 struct tng_residue {
-    struct tng_chain *chain; /* The chain containing this residue */
+    tng_chain_t chain; /* The chain containing this residue */
     int64_t id;                /* A unique (per chain) ID number of the residue */
     char *name;                 /* The name of the residue */
     int64_t n_atoms;           /* The number of atoms in the residue */
-    struct tng_atom *atoms;     /* A list of atoms in the residue */
+    tng_atom_t atoms;     /* A list of atoms in the residue */
 };
 
 struct tng_chain {
-    struct tng_molecule *molecule;  /* The molecule containing this chain */
+    tng_molecule_t molecule;  /* The molecule containing this chain */
     int64_t id;                    /* A unique (per molecule) ID number of the chain */
     char *name;                     /* The name of the chain */
     int64_t n_residues;            /* The number of residues in the chain */
-    struct tng_residue *residues;   /* A list of residues in the chain */
+    tng_residue_t residues;   /* A list of residues in the chain */
 };
 
 struct tng_molecule {
@@ -130,10 +135,10 @@ struct tng_molecule {
                                        If the bonds are not specified this
                                        value can be 0. */
     char *name;                     /* The name of the molecule */
-    struct tng_chain *chains;       /* A list of chains in the molecule */
-    struct tng_residue *residues;   /* A list of residues in the molecule */
-    struct tng_atom *atoms;         /* A list of the atoms in the molecule */
-    struct tng_bond *bonds;         /* A list of the bonds in the molecule */
+    tng_chain_t chains;       /* A list of chains in the molecule */
+    tng_residue_t residues;   /* A list of residues in the molecule */
+    tng_atom_t atoms;         /* A list of the atoms in the molecule */
+    tng_bond_t bonds;         /* A list of the bonds in the molecule */
 };
 
 struct tng_gen_block {
@@ -286,7 +291,7 @@ struct tng_trajectory {
 
     int64_t n_molecules;               /* The number of different kinds of
                                            molecules in the trajectory */
-    struct tng_molecule *molecules;     /* A list of molecules in the trajectory */
+    tng_molecule_t molecules;          /* A list of molecules in the trajectory */
     int64_t *molecule_cnt_list;        /* A list of the count of each molecule -
                                            if using variable number of particles
                                            this will be specified in each frame set */
@@ -412,14 +417,14 @@ tng_function_status tng_set_signature(tng_trajectory_t tng_data,
    *molecule is a pointer to pre-allocated memory.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_init_molecule(struct tng_molecule *molecule);
+tng_function_status tng_init_molecule(tng_molecule_t molecule);
 
 /* Clean up a molecule container.
    *molecule is a pointer to pre-allocated memory containing a molecule.
    All allocated memory in the data structure is freed.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_destroy_molecule(struct tng_molecule *molecule);
+tng_function_status tng_destroy_molecule(tng_molecule_t molecule);
 
 /* Setup a data block.
    *block is a pointer to pre-allocated memory.
@@ -452,7 +457,7 @@ tng_function_status tng_set_block_name(tng_trajectory_t tng_data,
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_add_molecule(tng_trajectory_t tng_data,
                                      const char *name,
-                                     struct tng_molecule **molecule);
+                                     tng_molecule_t *molecule);
 
 /* Set the name of a molecule.
    tng_data is the trajectory data container containing the molecule..
@@ -461,7 +466,7 @@ tng_function_status tng_add_molecule(tng_trajectory_t tng_data,
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_set_molecule_name(tng_trajectory_t tng_data,
-                                          struct tng_molecule *molecule,
+                                          tng_molecule_t molecule,
                                           const char *new_name);
 
 /* Set the count of a molecule.
@@ -471,7 +476,7 @@ tng_function_status tng_set_molecule_name(tng_trajectory_t tng_data,
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_get_molecule_cnt(tng_trajectory_t tng_data,
-                                         struct tng_molecule *molecule,
+                                         tng_molecule_t molecule,
                                          int64_t *cnt);
 
 /* Set the count of a molecule.
@@ -481,7 +486,7 @@ tng_function_status tng_get_molecule_cnt(tng_trajectory_t tng_data,
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_set_molecule_cnt(tng_trajectory_t tng_data,
-                                         struct tng_molecule *molecule,
+                                         tng_molecule_t molecule,
                                          int64_t cnt);
 
 /* Add a chain to a molecule.
@@ -492,9 +497,9 @@ tng_function_status tng_set_molecule_cnt(tng_trajectory_t tng_data,
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_add_chain_to_molecule(tng_trajectory_t tng_data,
-                                              struct tng_molecule *molecule,
+                                              tng_molecule_t molecule,
                                               const char *name,
-                                              struct tng_chain **chain);
+                                              tng_chain_t *chain);
 
 /* Set the name of a chain.
    tng_data is the trajectory data container containing the atom..
@@ -503,7 +508,7 @@ tng_function_status tng_add_chain_to_molecule(tng_trajectory_t tng_data,
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_set_chain_name(tng_trajectory_t tng_data,
-                                       struct tng_chain *chain,
+                                       tng_chain_t chain,
                                        const char *new_name);
 
 /* Add a residue to a chain.
@@ -514,9 +519,9 @@ tng_function_status tng_set_chain_name(tng_trajectory_t tng_data,
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_add_residue_to_chain(tng_trajectory_t tng_data,
-                                             struct tng_chain *chain,
+                                             tng_chain_t chain,
                                              const char *name,
-                                             struct tng_residue **residue);
+                                             tng_residue_t *residue);
 
 /* Set the name of a residue.
    tng_data is the trajectory data container containing the residue.due.
@@ -525,7 +530,7 @@ tng_function_status tng_add_residue_to_chain(tng_trajectory_t tng_data,
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_set_residue_name(tng_trajectory_t tng_data,
-                                         struct tng_residue *residue,
+                                         tng_residue_t residue,
                                          const char *new_name);
 
 /* Add an atom to a residue.
@@ -537,10 +542,10 @@ tng_function_status tng_set_residue_name(tng_trajectory_t tng_data,
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_add_atom_to_residue(tng_trajectory_t tng_data,
-                                            struct tng_residue *residue,
+                                            tng_residue_t residue,
                                             const char *atom_name,
                                             const char *atom_type,
-                                            struct tng_atom **atom);
+                                            tng_atom_t *atom);
 
 /* Set the name of an atom.
    tng_data is the trajectory data container containing the atom..
@@ -549,7 +554,7 @@ tng_function_status tng_add_atom_to_residue(tng_trajectory_t tng_data,
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_set_atom_name(tng_trajectory_t tng_data,
-                                      struct tng_atom *atom,
+                                      tng_atom_t atom,
                                       const char *new_name);
 
 /* Set the atom type of an atom.
@@ -559,7 +564,7 @@ tng_function_status tng_set_atom_name(tng_trajectory_t tng_data,
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_set_atom_type(tng_trajectory_t tng_data,
-                                      struct tng_atom *atom,
+                                      tng_atom_t atom,
                                       const char *new_type);
 
 /* Read the header blocks from the input_file of tng_data.

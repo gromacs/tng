@@ -961,11 +961,11 @@ static tng_function_status tng_read_molecules_block
                  const tng_hash_mode hash_mode)
 {
     int i, j, k, l, len, offset = 0;
-    struct tng_molecule *molecule;
-    struct tng_chain *chain;
-    struct tng_residue *residue;
-    struct tng_atom *atom;
-    struct tng_bond *bond;
+    tng_molecule_t molecule;
+    tng_chain_t chain;
+    tng_residue_t residue;
+    tng_atom_t atom;
+    tng_bond_t bond;
     tng_bool same_hash;
 
     if(tng_init_input_file(tng_data, FALSE) != TNG_SUCCESS)
@@ -1035,7 +1035,7 @@ static tng_function_status tng_read_molecules_block
 
     tng_data->n_particles = 0;
 
-    tng_data->molecules = (struct tng_molecule *)
+    tng_data->molecules = (tng_molecule_t)
                           malloc(tng_data->n_molecules *
                           sizeof(struct tng_molecule));
     if(!tng_data->molecules)
@@ -1160,7 +1160,7 @@ static tng_function_status tng_read_molecules_block
         tng_data->n_particles += molecule->n_atoms *
                                  tng_data->molecule_cnt_list[i];
 
-        molecule->chains = (struct tng_chain *) malloc(molecule->n_chains *
+        molecule->chains = (tng_chain_t ) malloc(molecule->n_chains *
                                                       sizeof(struct tng_chain));
         if(!molecule->chains)
         {
@@ -1173,7 +1173,7 @@ static tng_function_status tng_read_molecules_block
 
         chain = molecule->chains;
 
-        molecule->residues = (struct tng_residue *)
+        molecule->residues = (tng_residue_t )
                              malloc(molecule->n_residues *
                              sizeof(struct tng_residue));
         if(!molecule->residues)
@@ -1187,7 +1187,7 @@ static tng_function_status tng_read_molecules_block
 
         residue = molecule->residues;
 
-        molecule->atoms = (struct tng_atom *) malloc(molecule->n_atoms *
+        molecule->atoms = (tng_atom_t ) malloc(molecule->n_atoms *
                                                      sizeof(struct tng_atom));
         if(!molecule->atoms)
         {
@@ -1323,7 +1323,7 @@ static tng_function_status tng_read_molecules_block
         }
         offset += sizeof(molecule->n_bonds);
         
-        molecule->bonds = (struct tng_bond *) malloc(molecule->n_bonds *
+        molecule->bonds = (tng_bond_t ) malloc(molecule->n_bonds *
                                                      sizeof(struct tng_bond));
         if(!molecule->bonds)
         {
@@ -1371,7 +1371,6 @@ static tng_function_status tng_read_molecules_block
     return(TNG_SUCCESS);
 }
 
-/* FIXME: Update this according to the new specs */
 static tng_function_status tng_write_molecules_block
                 (tng_trajectory_t tng_data,
                  struct tng_gen_block *block,
@@ -1380,11 +1379,11 @@ static tng_function_status tng_write_molecules_block
 {
     int len = 0;
     int i, j, k, l, offset = 0;
-    struct tng_molecule *molecule;
-    struct tng_chain *chain;
-    struct tng_residue *residue;
-    struct tng_atom *atom;
-    struct tng_bond *bond;
+    tng_molecule_t molecule;
+    tng_chain_t chain;
+    tng_residue_t residue;
+    tng_atom_t atom;
+    tng_bond_t bond;
 
     if(tng_init_output_file(tng_data, FALSE) != TNG_SUCCESS)
     {
@@ -4724,7 +4723,7 @@ tng_function_status tng_destroy_block(struct tng_gen_block *block)
 }
 
 tng_function_status tng_set_atom_name(tng_trajectory_t tng_data,
-                                      struct tng_atom *atom,
+                                      tng_atom_t atom,
                                       const char *new_name)
 {
     int len;
@@ -4753,7 +4752,7 @@ tng_function_status tng_set_atom_name(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_set_atom_type(tng_trajectory_t tng_data,
-                                      struct tng_atom *atom,
+                                      tng_atom_t atom,
                                       const char *new_type)
 {
     int len;
@@ -4781,7 +4780,7 @@ tng_function_status tng_set_atom_type(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_init_atom(struct tng_atom *atom)
+tng_function_status tng_init_atom(tng_atom_t atom)
 {
     atom->name = 0;
     atom->atom_type = 0;
@@ -4789,7 +4788,7 @@ tng_function_status tng_init_atom(struct tng_atom *atom)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_destroy_atom(struct tng_atom *atom)
+tng_function_status tng_destroy_atom(tng_atom_t atom)
 {
     if(atom->name)
     {
@@ -4807,14 +4806,14 @@ tng_function_status tng_destroy_atom(struct tng_atom *atom)
 
 tng_function_status tng_add_molecule(tng_trajectory_t tng_data,
                                      const char *name,
-                                     struct tng_molecule **molecule)
+                                     tng_molecule_t *molecule)
 {
-    struct tng_molecule *new_molecules;
+    tng_molecule_t new_molecules;
     int64_t *new_molecule_cnt_list;
     int id, i;
     tng_bool found_id = TRUE;
     
-    new_molecules = (struct tng_molecule *)realloc(tng_data->molecules,
+    new_molecules = (tng_molecule_t)realloc(tng_data->molecules,
                                                    sizeof(struct tng_molecule) *
                                                    (tng_data->n_molecules + 1));
 
@@ -4876,7 +4875,7 @@ tng_function_status tng_add_molecule(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_set_molecule_name(tng_trajectory_t tng_data,
-                                          struct tng_molecule *molecule,
+                                          tng_molecule_t molecule,
                                           const char *new_name)
 {
     int len;
@@ -4905,7 +4904,7 @@ tng_function_status tng_set_molecule_name(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_get_molecule_cnt(tng_trajectory_t tng_data,
-                                         struct tng_molecule *molecule,
+                                         tng_molecule_t molecule,
                                          int64_t *cnt)
 {
     int i, index = -1;
@@ -4928,7 +4927,7 @@ tng_function_status tng_get_molecule_cnt(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_set_molecule_cnt(tng_trajectory_t tng_data,
-                                         struct tng_molecule *molecule,
+                                         tng_molecule_t molecule,
                                          const int64_t cnt)
 {
     int i, index = -1, old_cnt;
@@ -4955,13 +4954,13 @@ tng_function_status tng_set_molecule_cnt(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_add_chain_to_molecule(tng_trajectory_t tng_data,
-                                              struct tng_molecule *molecule,
+                                              tng_molecule_t molecule,
                                               const char *name,
-                                              struct tng_chain **chain)
+                                              tng_chain_t *chain)
 {
-    struct tng_chain *new_chains;
+    tng_chain_t new_chains;
 
-    new_chains = (struct tng_chain *) realloc(molecule->chains,
+    new_chains = (tng_chain_t ) realloc(molecule->chains,
                                               sizeof(struct tng_chain) *
                                               (molecule->n_chains + 1));
 
@@ -4990,7 +4989,7 @@ tng_function_status tng_add_chain_to_molecule(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_set_chain_name(tng_trajectory_t tng_data,
-                                       struct tng_chain *chain,
+                                       tng_chain_t chain,
                                        const char *new_name)
 {
     int len;
@@ -5019,13 +5018,13 @@ tng_function_status tng_set_chain_name(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_add_residue_to_chain(tng_trajectory_t tng_data,
-                                             struct tng_chain *chain,
+                                             tng_chain_t chain,
                                              const char *name,
-                                             struct tng_residue **residue)
+                                             tng_residue_t *residue)
 {
     int curr_index;
-    struct tng_residue *new_residues, *temp_residue, *last_residue;
-    struct tng_molecule *molecule = chain->molecule;
+    tng_residue_t new_residues, temp_residue, last_residue;
+    tng_molecule_t molecule = chain->molecule;
 
     if(chain->n_residues)
     {
@@ -5037,7 +5036,7 @@ tng_function_status tng_add_residue_to_chain(tng_trajectory_t tng_data,
         curr_index = -1;
     }
 
-    new_residues = (struct tng_residue *) realloc(molecule->residues,
+    new_residues = (tng_residue_t ) realloc(molecule->residues,
                                                   sizeof(struct tng_residue) *
                                                   (molecule->n_residues + 1));
 
@@ -5096,7 +5095,7 @@ tng_function_status tng_add_residue_to_chain(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_set_residue_name(tng_trajectory_t tng_data,
-                                         struct tng_residue *residue,
+                                         tng_residue_t residue,
                                          const char *new_name)
 {
     int len;
@@ -5125,14 +5124,14 @@ tng_function_status tng_set_residue_name(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_add_atom_to_residue(tng_trajectory_t tng_data,
-                                            struct tng_residue *residue,
+                                            tng_residue_t residue,
                                             const char *atom_name,
                                             const char *atom_type,
-                                            struct tng_atom **atom)
+                                            tng_atom_t *atom)
 {
     int curr_index;
-    struct tng_atom *new_atoms, *temp_atom, *last_atom;
-    struct tng_molecule *molecule = residue->chain->molecule;
+    tng_atom_t new_atoms, temp_atom, last_atom;
+    tng_molecule_t molecule = residue->chain->molecule;
 
     if(residue->n_atoms)
     {
@@ -5144,7 +5143,7 @@ tng_function_status tng_add_atom_to_residue(tng_trajectory_t tng_data,
         curr_index = -1;
     }
 
-    new_atoms = (struct tng_atom *) realloc(molecule->atoms,
+    new_atoms = (tng_atom_t ) realloc(molecule->atoms,
                                             sizeof(struct tng_atom) *
                                             (molecule->n_atoms + 1));
 
@@ -5202,7 +5201,7 @@ tng_function_status tng_add_atom_to_residue(tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_init_molecule(struct tng_molecule *molecule)
+tng_function_status tng_init_molecule(tng_molecule_t molecule)
 {
     molecule->name = 0;
     molecule->n_chains = 0;
@@ -5217,7 +5216,7 @@ tng_function_status tng_init_molecule(struct tng_molecule *molecule)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_destroy_molecule(struct tng_molecule *molecule)
+tng_function_status tng_destroy_molecule(tng_molecule_t molecule)
 {
     int i;
 
