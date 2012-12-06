@@ -693,7 +693,7 @@ tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
                                         int64_t start_frame_nr,
                                         int64_t end_frame_nr);
 
-/* Read and retrieve non-particle data from the last read frame set.
+/* Retrieve non-particle data from the last read frame set.
    tng_data is a trajectory data container. tng_data->input_file_path specifies which
    file to read from. If the file (input_file) is not open it will be opened.
    block_id is the id number of the data block to read.
@@ -721,7 +721,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
                                           int64_t end_frame_nr,
                                           union data_values ***values);
 
-/* Read and retrieve particle data, in a specific interval, from the last read frame set.
+/* Retrieve particle data, from the last read frame set.
    tng_data is a trajectory data container. tng_data->input_file_path specifies which
    file to read from. If the file (input_file) is not open it will be opened.
    block_id is the id number of the particle data block to read.
