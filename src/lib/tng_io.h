@@ -699,7 +699,7 @@ tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
    must be reserved beforehand.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
-tng_function_status tng_get_time_str(tng_trajectory_t tng_data, char *time);
+tng_function_status tng_time_get_str(tng_trajectory_t tng_data, char *time);
 
 #ifdef __cplusplus
 }  /* end extern "C" */

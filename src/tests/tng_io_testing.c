@@ -277,7 +277,7 @@ int main()
     }
     printf("Test Init trajectory:\t\t\t\tSucceeded.\n");
 
-    tng_get_time_str(&traj, time_str);
+    tng_time_get_str(&traj, time_str);
 
     printf("Creation time: %s\n", time_str);
     

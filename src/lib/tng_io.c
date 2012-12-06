@@ -6887,7 +6887,7 @@ tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_get_time_str(tng_trajectory_t tng_data,
+tng_function_status tng_time_get_str(tng_trajectory_t tng_data,
                                      char *time)
 {
     struct tm *time_data;
