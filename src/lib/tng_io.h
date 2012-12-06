@@ -684,7 +684,7 @@ tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
 
 /* Write a number of consecutive trajectory frames to the output_file of tng_data.
    tng_data is a trajectory data container. tng_data->output_file_path specifies which
-   file to write to. If the file (input_file) is not open it will be opened.
+   file to write to. If the file (output_file) is not open it will be opened.
    start_frame_nr is the index number of the first frame to write.
    end_frame_nr is the index number of the last frame to write.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -692,6 +692,66 @@ tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
 tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
                                         int64_t start_frame_nr,
                                         int64_t end_frame_nr);
+
+/* Read and retrieve non-particle data from the last read frame set.
+   tng_data is a trajectory data container. tng_data->input_file_path specifies which
+   file to read from. If the file (input_file) is not open it will be opened.
+   block_id is the id number of the data block to read.
+   ***values is a pointer to a 2-dimensional array (memory unallocated), which will
+   be filled with data. The array will be sized (n_frames * n_values_per_frame).
+   Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+   has occurred or TNG_CRITICAL (2) if a major error has occured. */
+tng_function_status tng_data_get(tng_trajectory_t tng_data,
+                                 int64_t block_id,
+                                 union data_values ***values);
+
+/* Read and retrieve non-particle data, in a specific interval, from the trajectory.
+   tng_data is a trajectory data container. tng_data->input_file_path specifies which
+   file to read from. If the file (input_file) is not open it will be opened.
+   block_id is the id number of the data block to read.
+   start_frame_nr is the index number of the first frame to read.
+   end_frame_nr is the index number of the last frame to read.
+   ***values is a pointer to a 2-dimensional array (memory unallocated), which will
+   be filled with data. The array will be sized (n_frames * n_values_per_frame).
+   Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+   has occurred or TNG_CRITICAL (2) if a major error has occured. */
+tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
+                                          int64_t block_id,
+                                          int64_t start_frame_nr,
+                                          int64_t end_frame_nr,
+                                          union data_values ***values);
+
+/* Read and retrieve particle data, in a specific interval, from the last read frame set.
+   tng_data is a trajectory data container. tng_data->input_file_path specifies which
+   file to read from. If the file (input_file) is not open it will be opened.
+   block_id is the id number of the particle data block to read.
+   ****values is a pointer to a 3-dimensional array (memory unallocated), which will
+   be filled with data. The array will be sized (n_frames * n_particles * n_values_per_frame).
+   Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+   has occurred or TNG_CRITICAL (2) if a major error has occured. */
+tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
+                                          int64_t block_id,
+                                          union data_values ****values);
+
+/* Read and retrieve particle data, in a specific interval, from the trajectory.
+   tng_data is a trajectory data container. tng_data->input_file_path specifies which
+   file to read from. If the file (input_file) is not open it will be opened.
+   block_id is the id number of the particle data block to read.
+   start_frame_nr is the index number of the first frame to read.
+   end_frame_nr is the index number of the last frame to read.
+   first_particle_number is the number of the first particle, for which to retrive data.
+   last_particle_number is the number of the last particle, for which to retrieve data.
+   ****values is a pointer to a 3-dimensional array (memory unallocated), which will
+   be filled with data. The array will be sized (n_frames * n_particles * n_values_per_frame).
+   Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+   has occurred or TNG_CRITICAL (2) if a major error has occured. */
+tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
+                                                  int64_t block_id,
+                                                  int64_t start_frame_nr,
+                                                  int64_t end_frame_nr,
+                                                  int64_t first_particle_number,
+                                                  int64_t last_particle_number,
+                                                  union data_values ****values);
 
 /* Get the date and time of initial file creation in ISO format (string).
    tng_data is a trajectory data container.

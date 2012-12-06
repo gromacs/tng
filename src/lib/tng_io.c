@@ -6867,6 +6867,7 @@ tng_function_status tng_traj_block_write(tng_trajectory_t tng_data,
 tng_function_status tng_frame_set_read_nr(tng_trajectory_t tng_data,
                                           int64_t frame_set_nr)
 {
+    /* STUB */
     return(TNG_SUCCESS);
 }
 
@@ -6886,6 +6887,44 @@ tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+
+tng_function_status tng_data_get(tng_trajectory_t tng_data,
+                                 int64_t block_id,
+                                 union data_values ***values)
+{
+    /* STUB */
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
+                                          int64_t block_id,
+                                          int64_t start_frame_nr,
+                                          int64_t end_frame_nr,
+                                          union data_values ***values)
+{
+    /* STUB */
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
+                                          int64_t block_id,
+                                          union data_values ****values)
+{
+    /* STUB */
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
+                                                  int64_t block_id,
+                                                  int64_t start_frame_nr,
+                                                  int64_t end_frame_nr,
+                                                  int64_t first_particle_number,
+                                                  int64_t last_particle_number,
+                                                  union data_values ****values)
+{
+    /* STUB */
+    return(TNG_SUCCESS);
+}
 
 tng_function_status tng_time_get_str(tng_trajectory_t tng_data,
                                      char *time)
