@@ -15,28 +15,28 @@ static tng_function_status tng_setup_test_molecules(tng_trajectory_t traj)
     int64_t cnt;
 //     int i;
 
-    tng_add_molecule(traj, "water", &molecule);
-    tng_add_chain_to_molecule(traj, molecule, "W", &chain);
-    tng_add_residue_to_chain(traj, chain, "WAT", &residue);
-    if(tng_add_atom_to_residue(traj, residue, "O", "O", &atom) == TNG_CRITICAL)
+    tng_molecule_add(traj, "water", &molecule);
+    tng_molecule_chain_add(traj, molecule, "W", &chain);
+    tng_chain_residue_add(traj, chain, "WAT", &residue);
+    if(tng_residue_atom_add(traj, residue, "O", "O", &atom) == TNG_CRITICAL)
     {
         return(TNG_CRITICAL);
     }
-    if(tng_add_atom_to_residue(traj, residue, "HO1", "H", &atom) == TNG_CRITICAL)
+    if(tng_residue_atom_add(traj, residue, "HO1", "H", &atom) == TNG_CRITICAL)
     {
         return(TNG_CRITICAL);
     }
-    if(tng_add_atom_to_residue(traj, residue, "HO2", "H", &atom) == TNG_CRITICAL)
+    if(tng_residue_atom_add(traj, residue, "HO2", "H", &atom) == TNG_CRITICAL)
     {
         return(TNG_CRITICAL);
     }
-    tng_set_molecule_cnt(traj, molecule, 200);
-    tng_get_molecule_cnt(traj, molecule, &cnt);
+    tng_molecule_cnt_set(traj, molecule, 200);
+    tng_molecule_cnt_get(traj, molecule, &cnt);
     printf("Created %"PRId64" %s molecules.\n", cnt, molecule->name);
 //     traj->molecule_cnt_list[traj->n_molecules-1] = 5;
-//     tng_set_molecule_name(traj, &traj->molecules[1], "ligand");
-//     tng_set_molecule_name(traj, &traj->molecules[2], "water");
-//     tng_set_molecule_name(traj, &traj->molecules[3], "dummy");
+//     tng_molecule_name_set(traj, &traj->molecules[1], "ligand");
+//     tng_molecule_name_set(traj, &traj->molecules[2], "water");
+//     tng_molecule_name_set(traj, &traj->molecules[3], "dummy");
 //     traj->molecules[0].id = 0;
 //     traj->molecules[1].id = 1;
 //     traj->molecules[2].id = 2;
@@ -99,12 +99,12 @@ static tng_function_status tng_test_read_and_write_file
 {
     tng_function_status stat;
 
-    stat = tng_read_file_headers(traj, TNG_USE_HASH);
+    stat = tng_file_headers_read(traj, TNG_USE_HASH);
     if(stat == TNG_CRITICAL)
     {
         return(stat);
     }
-    stat = tng_write_file_headers(traj, TNG_USE_HASH);
+    stat = tng_file_headers_write(traj, TNG_USE_HASH);
     if(stat == TNG_CRITICAL)
     {
         return(stat);
@@ -113,12 +113,12 @@ static tng_function_status tng_test_read_and_write_file
     while(stat != TNG_CRITICAL && traj->input_file_pos < traj->input_file_len &&
           traj->current_trajectory_frame_set.next_frame_set_file_pos != -1UL)
     {
-        stat = tng_read_next_frame_set(traj, TNG_USE_HASH);
+        stat = tng_frame_set_read_next(traj, TNG_USE_HASH);
         if(stat == TNG_CRITICAL)
         {
             return(stat);
         }
-        stat = tng_write_frame_set(traj, TNG_USE_HASH);
+        stat = tng_frame_set_write(traj, TNG_USE_HASH);
     }
     
     return(stat);
@@ -136,19 +136,19 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
         return(TNG_CRITICAL);
     }
 
-    if(tng_init_block(&traj->non_trajectory_blocks[traj->n_non_trajectory_blocks]) == TNG_CRITICAL)
+    if(tng_block_init(&traj->non_trajectory_blocks[traj->n_non_trajectory_blocks]) == TNG_CRITICAL)
     {
         return(TNG_CRITICAL);
     }
     traj->non_trajectory_blocks[traj->n_non_trajectory_blocks].id = TNG_MOLECULES;
-    if(tng_set_block_name(traj,
+    if(tng_block_name_set(traj,
                           &traj->non_trajectory_blocks[traj->n_non_trajectory_blocks++],
                           "MOLECULES") == TNG_CRITICAL)
     {
         return(TNG_CRITICAL);
     }
 
-    if(tng_write_file_headers(traj, TNG_SKIP_HASH) == TNG_CRITICAL)
+    if(tng_file_headers_write(traj, TNG_SKIP_HASH) == TNG_CRITICAL)
     {
         return(TNG_CRITICAL);
     }
@@ -204,7 +204,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
                 data[cnt++] = molpos[nr + 2] - 1;
             }
         }
-        if(tng_new_frame_set(traj, i * traj->frame_set_n_frames,
+        if(tng_frame_set_new(traj, i * traj->frame_set_n_frames,
             traj->frame_set_n_frames) != TNG_SUCCESS)
         {
             printf("Error creating frame set %d. %s: %d\n",
@@ -214,7 +214,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
             return(TNG_CRITICAL);
         }
 
-        if(tng_add_particle_data_block(traj, TNG_TRAJ_POSITIONS,
+        if(tng_particle_data_block_add(traj, TNG_TRAJ_POSITIONS,
                                        "POSITIONS",
                                        TNG_FLOAT_DATA,
                                        traj->frame_set_n_frames, 3,
@@ -227,7 +227,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
             free(data);
             return(TNG_CRITICAL);
         }
-        if(tng_write_frame_set(traj, TNG_SKIP_HASH) != TNG_SUCCESS)
+        if(tng_frame_set_write(traj, TNG_SKIP_HASH) != TNG_SUCCESS)
         {
             printf("Error writing frame set. %s: %d\n", __FILE__, __LINE__);
             free(molpos);
@@ -245,15 +245,15 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     free(molpos);
     free(data);
 
-    tng_destroy_trajectory(traj);
-    tng_set_input_file(traj, "/tmp/tng_test.tng");
+    tng_trajectory_destroy(traj);
+    tng_input_file_set(traj, "/tmp/tng_test.tng");
     
-    stat = tng_read_file_headers(traj, TNG_SKIP_HASH);
+    stat = tng_file_headers_read(traj, TNG_SKIP_HASH);
     
     while(stat != TNG_CRITICAL && traj->input_file_pos < traj->input_file_len &&
           traj->current_trajectory_frame_set.next_frame_set_file_pos != -1ULL)
     {
-        stat = tng_read_next_frame_set(traj, TNG_SKIP_HASH);
+        stat = tng_frame_set_read_next(traj, TNG_SKIP_HASH);
         if(stat == TNG_CRITICAL)
         {
             return(stat);
@@ -268,9 +268,9 @@ int main()
     struct tng_trajectory traj;
     char time_str[TNG_MAX_DATE_STR_LEN];
     
-    if(tng_init_trajectory(&traj) != TNG_SUCCESS)
+    if(tng_trajectory_init(&traj) != TNG_SUCCESS)
     {
-        tng_destroy_trajectory(&traj);
+        tng_trajectory_destroy(&traj);
         printf("Test Init trajectory:\t\t\t\tFailed. %s: %d.\n",
                __FILE__, __LINE__);
         exit(1);
@@ -281,8 +281,8 @@ int main()
 
     printf("Creation time: %s\n", time_str);
     
-    tng_set_input_file(&traj, "tng_example.tng");
-    tng_set_output_file(&traj, "/tmp/tng_example_out.tng");
+    tng_input_file_set(&traj, "tng_example.tng");
+    tng_output_file_set(&traj, "/tmp/tng_example_out.tng");
 
 //     if(tng_test_endianness(&traj) != TNG_SUCCESS)
 //     {
@@ -299,8 +299,8 @@ int main()
         printf("Test Read and write file:\t\t\tSucceeded.\n");
     }
     
-    if(tng_destroy_trajectory(&traj) == TNG_CRITICAL ||
-       tng_init_trajectory(&traj) == TNG_CRITICAL)
+    if(tng_trajectory_destroy(&traj) == TNG_CRITICAL ||
+       tng_trajectory_init(&traj) == TNG_CRITICAL)
     {
         printf("Test Destroy and init trajectory:\t\tFailed. %s: %d\n",
                __FILE__, __LINE__);
@@ -311,7 +311,7 @@ int main()
     }
     
 
-    tng_set_output_file(&traj, "/tmp/tng_test.tng");
+    tng_output_file_set(&traj, "/tmp/tng_test.tng");
     
     if(tng_test_write_and_read_traj(&traj) == TNG_CRITICAL)
     {
@@ -323,7 +323,7 @@ int main()
         printf("Test Write and read file:\t\t\tSucceeded.\n");
     }
     
-    if(tng_destroy_trajectory(&traj) == TNG_CRITICAL)
+    if(tng_trajectory_destroy(&traj) == TNG_CRITICAL)
     {
         printf("Test Destroy trajectory:\t\t\tFailed. %s: %d.\n",
                __FILE__, __LINE__);

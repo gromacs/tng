@@ -255,7 +255,7 @@ static tng_function_status tng_read_block_header
     {
         printf("Cannot read header size. %s: %d\n",
                __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -285,7 +285,7 @@ static tng_function_status tng_read_block_header
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->header_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -296,7 +296,7 @@ static tng_function_status tng_read_block_header
         tng_data->input_file) == 0)
     {
         printf("Cannot read header. %s: %d\n", __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -345,7 +345,7 @@ static tng_function_status tng_read_block_header
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                     __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         strncpy(block->name, block->header_contents+offset, len);
@@ -531,7 +531,7 @@ static tng_function_status tng_read_general_info_block
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -541,7 +541,7 @@ static tng_function_status tng_read_general_info_block
              tng_data->input_file) == 0)
     {
         printf("Cannot read block. %s: %d\n", __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -570,7 +570,7 @@ static tng_function_status tng_read_general_info_block
     {
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
     strncpy(tng_data->program_name, block->block_contents, len);
@@ -582,7 +582,7 @@ static tng_function_status tng_read_general_info_block
     {
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
     strncpy(tng_data->forcefield_name, block->block_contents+offset, len);
@@ -594,7 +594,7 @@ static tng_function_status tng_read_general_info_block
     {
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
     strncpy(tng_data->user_name, block->block_contents+offset, len);
@@ -722,7 +722,7 @@ static tng_function_status tng_write_general_info_block
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         tng_data->program_name[0] = 0;
@@ -734,7 +734,7 @@ static tng_function_status tng_write_general_info_block
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         tng_data->forcefield_name[0] = 0;
@@ -746,7 +746,7 @@ static tng_function_status tng_write_general_info_block
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         tng_data->user_name[0] = 0;
@@ -758,7 +758,7 @@ static tng_function_status tng_write_general_info_block
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         tng_data->computer_name[0] = 0;
@@ -770,7 +770,7 @@ static tng_function_status tng_write_general_info_block
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         tng_data->pgp_signature[0] = 0;
@@ -795,7 +795,7 @@ static tng_function_status tng_write_general_info_block
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
 
@@ -836,7 +836,7 @@ static tng_function_status tng_write_general_info_block
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -939,7 +939,7 @@ static tng_function_status tng_write_general_info_block
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -947,7 +947,7 @@ static tng_function_status tng_write_general_info_block
         tng_data->output_file) != 1)
     {
         printf("Could not write all block data. %s: %d\n", __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -970,7 +970,7 @@ static tng_function_status tng_read_molecules_block
 
     if(tng_init_input_file(tng_data, FALSE) != TNG_SUCCESS)
     {
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -984,7 +984,7 @@ static tng_function_status tng_read_molecules_block
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -1043,7 +1043,7 @@ static tng_function_status tng_read_molecules_block
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                tng_data->n_molecules * sizeof(struct tng_molecule),
                __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -1060,7 +1060,7 @@ static tng_function_status tng_read_molecules_block
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    tng_data->n_molecules * sizeof(struct tng_molecule),
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
     }
@@ -1167,7 +1167,7 @@ static tng_function_status tng_read_molecules_block
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    molecule->n_chains * sizeof(struct tng_chain),
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
 
@@ -1181,7 +1181,7 @@ static tng_function_status tng_read_molecules_block
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    molecule->n_residues * sizeof(struct tng_residue),
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
 
@@ -1194,7 +1194,7 @@ static tng_function_status tng_read_molecules_block
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    molecule->n_atoms * sizeof(struct tng_atom),
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
 
@@ -1330,7 +1330,7 @@ static tng_function_status tng_read_molecules_block
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    molecule->n_bonds * sizeof(struct tng_bond),
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
 
@@ -1387,7 +1387,7 @@ static tng_function_status tng_write_molecules_block
 
     if(tng_init_output_file(tng_data, FALSE) != TNG_SUCCESS)
     {
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -1409,7 +1409,7 @@ static tng_function_status tng_write_molecules_block
             {
                 printf("Cannot allocate memory (1 byte). %s: %d\n",
                        __FILE__, __LINE__);
-                tng_destroy_block(block);
+                tng_block_destroy(block);
                 return(TNG_CRITICAL);
             }
             molecule->name[0] = 0;
@@ -1428,7 +1428,7 @@ static tng_function_status tng_write_molecules_block
                 {
                     printf("Cannot allocate memory (1 byte). %s: %d\n",
                            __FILE__, __LINE__);
-                    tng_destroy_block(block);
+                    tng_block_destroy(block);
                     return(TNG_CRITICAL);
                 }
                 chain->name[0] = 0;
@@ -1452,7 +1452,7 @@ static tng_function_status tng_write_molecules_block
                 {
                     printf("Cannot allocate memory (1 byte). %s: %d\n",
                            __FILE__, __LINE__);
-                    tng_destroy_block(block);
+                    tng_block_destroy(block);
                     return(TNG_CRITICAL);
                 }
                 residue->name[0] = 0;
@@ -1475,7 +1475,7 @@ static tng_function_status tng_write_molecules_block
                 {
                     printf("Cannot allocate memory (1 byte). %s: %d\n",
                            __FILE__, __LINE__);
-                    tng_destroy_block(block);
+                    tng_block_destroy(block);
                     return(TNG_CRITICAL);
                 }
                 atom->name[0] = 0;
@@ -1489,7 +1489,7 @@ static tng_function_status tng_write_molecules_block
                 {
                     printf("Cannot allocate memory (1 byte). %s: %d\n",
                            __FILE__, __LINE__);
-                    tng_destroy_block(block);
+                    tng_block_destroy(block);
                     return(TNG_CRITICAL);
                 }
                 atom->atom_type[0] = 0;
@@ -1514,7 +1514,7 @@ static tng_function_status tng_write_molecules_block
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
 
@@ -1528,7 +1528,7 @@ static tng_function_status tng_write_molecules_block
         {
             printf("Could not write all block data. %s: %d\n",
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         return(TNG_SUCCESS);
@@ -1558,7 +1558,7 @@ static tng_function_status tng_write_molecules_block
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -1824,7 +1824,7 @@ static tng_function_status tng_write_molecules_block
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -1833,7 +1833,7 @@ static tng_function_status tng_write_molecules_block
     {
         printf("Could not write all block data. %s: %d\n",
                __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -1855,7 +1855,7 @@ static tng_function_status tng_read_frame_set_block
 
     if(tng_init_input_file(tng_data, FALSE) != TNG_SUCCESS)
     {
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -1869,7 +1869,7 @@ static tng_function_status tng_read_frame_set_block
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -1879,7 +1879,7 @@ static tng_function_status tng_read_frame_set_block
              tng_data->input_file) == 0)
     {
         printf("Cannot read block. %s: %d\n", __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -1972,7 +1972,7 @@ static tng_function_status tng_read_frame_set_block
                     printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                            sizeof(int64_t) * tng_data->n_molecules,
                            __FILE__, __LINE__);
-                    tng_destroy_block(block);
+                    tng_block_destroy(block);
                     return(TNG_CRITICAL);
                 }
         }
@@ -2075,7 +2075,7 @@ static tng_function_status tng_read_frame_set_block
     return(TNG_SUCCESS);
 }
 
-static tng_function_status tng_write_frame_set_block
+static tng_function_status tng_frame_set_write_block
                 (tng_trajectory_t tng_data,
                  struct tng_gen_block *block,
                  const tng_write_mode mode,
@@ -2089,7 +2089,7 @@ static tng_function_status tng_write_frame_set_block
 
     if(tng_init_output_file(tng_data, FALSE) != TNG_SUCCESS)
     {
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2101,7 +2101,7 @@ static tng_function_status tng_write_frame_set_block
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
 
@@ -2115,7 +2115,7 @@ static tng_function_status tng_write_frame_set_block
         {
             printf("Could not write all block data. %s: %d\n",
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         return(TNG_SUCCESS);
@@ -2130,7 +2130,7 @@ static tng_function_status tng_write_frame_set_block
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n",
                    name_len+1, __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         block->name = temp_name;
@@ -2152,7 +2152,7 @@ static tng_function_status tng_write_frame_set_block
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2268,7 +2268,7 @@ static tng_function_status tng_write_frame_set_block
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2276,7 +2276,7 @@ static tng_function_status tng_write_frame_set_block
               tng_data->output_file) != 1)
     {
         printf("Could not write all block data. %s: %d\n", __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2296,7 +2296,7 @@ static tng_function_status tng_read_trajectory_toc_block
 
     if(tng_init_input_file(tng_data, FALSE) != TNG_SUCCESS)
     {
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2310,7 +2310,7 @@ static tng_function_status tng_read_trajectory_toc_block
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2320,7 +2320,7 @@ static tng_function_status tng_read_trajectory_toc_block
              tng_data->input_file) == 0)
     {
         printf("Cannot read block. %s: %d\n", __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2375,7 +2375,7 @@ static tng_function_status tng_read_trajectory_toc_block
         {
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    toc->n_blocks * sizeof(int64_t), __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
     }
@@ -2414,7 +2414,7 @@ static tng_function_status tng_write_trajectory_toc_block
 
     if(tng_init_output_file(tng_data, FALSE) != TNG_SUCCESS)
     {
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2426,7 +2426,7 @@ static tng_function_status tng_write_trajectory_toc_block
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
 
@@ -2440,7 +2440,7 @@ static tng_function_status tng_write_trajectory_toc_block
         {
             printf("Could not write all block data. %s: %d\n",
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         return(TNG_SUCCESS);
@@ -2455,7 +2455,7 @@ static tng_function_status tng_write_trajectory_toc_block
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n",
                    name_len+1, __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         block->name = temp_name;
@@ -2478,7 +2478,7 @@ static tng_function_status tng_write_trajectory_toc_block
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2507,7 +2507,7 @@ static tng_function_status tng_write_trajectory_toc_block
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2516,7 +2516,7 @@ static tng_function_status tng_write_trajectory_toc_block
     {
         printf("Could not write all block data. %s: %d\n",
                __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2538,7 +2538,7 @@ static tng_function_status tng_read_trajectory_mapping_block
 
     if(tng_init_input_file(tng_data, FALSE) != TNG_SUCCESS)
     {
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2552,7 +2552,7 @@ static tng_function_status tng_read_trajectory_mapping_block
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2562,7 +2562,7 @@ static tng_function_status tng_read_trajectory_mapping_block
         tng_data->input_file) == 0)
     {
         printf("Cannot read block. %s: %d\n", __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2593,7 +2593,7 @@ static tng_function_status tng_read_trajectory_mapping_block
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
     frame_set->mappings = mappings;
@@ -2640,7 +2640,7 @@ static tng_function_status tng_read_trajectory_mapping_block
         {
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    mapping->n_particles * sizeof(int64_t), __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
     }
@@ -2683,13 +2683,13 @@ static tng_function_status tng_write_trajectory_mapping_block
     {
         printf("Mapping block index out of bounds. %s: %d\n",
                __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
     if(tng_init_output_file(tng_data, FALSE) != TNG_SUCCESS)
     {
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2701,7 +2701,7 @@ static tng_function_status tng_write_trajectory_mapping_block
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
 
@@ -2715,7 +2715,7 @@ static tng_function_status tng_write_trajectory_mapping_block
         {
             printf("Could not write all block data. %s: %d\n",
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         return(TNG_SUCCESS);
@@ -2730,7 +2730,7 @@ static tng_function_status tng_write_trajectory_mapping_block
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n",
                    name_len+1, __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         block->name = temp_name;
@@ -2748,7 +2748,7 @@ static tng_function_status tng_write_trajectory_mapping_block
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2802,7 +2802,7 @@ static tng_function_status tng_write_trajectory_mapping_block
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -2810,7 +2810,7 @@ static tng_function_status tng_write_trajectory_mapping_block
               tng_data->output_file) != 1)
     {
         printf("Could not write all block data. %s: %d\n", __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -3035,7 +3035,7 @@ static tng_function_status tng_read_particle_data
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n",
                    (int)strlen(block->name)+1, __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         strcpy(data->block_name, block->name);
@@ -3177,7 +3177,7 @@ static tng_function_status tng_write_particle_data_block
 
     if(tng_init_output_file(tng_data, FALSE) != TNG_SUCCESS)
     {
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -3216,7 +3216,7 @@ static tng_function_status tng_write_particle_data_block
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
 
@@ -3230,7 +3230,7 @@ static tng_function_status tng_write_particle_data_block
         {
             printf("Could not write all block data. %s: %d\n",
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         return(TNG_SUCCESS);
@@ -3243,7 +3243,7 @@ static tng_function_status tng_write_particle_data_block
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         block->name = temp_name;
@@ -3314,7 +3314,7 @@ static tng_function_status tng_write_particle_data_block
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -3520,7 +3520,7 @@ static tng_function_status tng_write_particle_data_block
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -3528,7 +3528,7 @@ static tng_function_status tng_write_particle_data_block
         tng_data->output_file) != 1)
     {
         printf("Could not write all block data. %s: %d\n", __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -3739,7 +3739,7 @@ static tng_function_status tng_read_data(tng_trajectory_t tng_data,
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n",
                    (int)strlen(block->name)+1, __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         strcpy(data->block_name, block->name);
@@ -3871,7 +3871,7 @@ static tng_function_status tng_write_data_block(tng_trajectory_t tng_data,
 
     if(tng_init_output_file(tng_data, FALSE) != TNG_SUCCESS)
     {
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -3908,7 +3908,7 @@ static tng_function_status tng_write_data_block(tng_trajectory_t tng_data,
         {
             printf("Cannot write header of file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
 
@@ -3922,7 +3922,7 @@ static tng_function_status tng_write_data_block(tng_trajectory_t tng_data,
         {
             printf("Could not write all block data. %s: %d\n",
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         return(TNG_SUCCESS);
@@ -3937,7 +3937,7 @@ static tng_function_status tng_write_data_block(tng_trajectory_t tng_data,
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len+1,
                    __FILE__, __LINE__);
-            tng_destroy_block(block);
+            tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
         block->name = temp_name;
@@ -3989,7 +3989,7 @@ static tng_function_status tng_write_data_block(tng_trajectory_t tng_data,
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -4150,7 +4150,7 @@ static tng_function_status tng_write_data_block(tng_trajectory_t tng_data,
     {
         printf("Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -4159,7 +4159,7 @@ static tng_function_status tng_write_data_block(tng_trajectory_t tng_data,
     {
         printf("Could not write all block data. %s: %d\n",
                __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -4180,7 +4180,7 @@ static tng_function_status tng_read_data_block_contents
 
     if(tng_init_input_file(tng_data, FALSE) != TNG_SUCCESS)
     {
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -4194,7 +4194,7 @@ static tng_function_status tng_read_data_block_contents
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -4204,7 +4204,7 @@ static tng_function_status tng_read_data_block_contents
              tng_data->input_file) == 0)
     {
         printf("Cannot read block. %s: %d\n", __FILE__, __LINE__);
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
 
@@ -4437,7 +4437,7 @@ static tng_function_status tng_update_header_pointers
 
     tng_data->input_file = tng_data->output_file;
     
-    tng_init_block(&block);
+    tng_block_init(&block);
 
     tng_data->output_file_pos = ftell(tng_data->output_file);
     fseek(tng_data->output_file, 0, SEEK_SET);
@@ -4446,7 +4446,7 @@ static tng_function_status tng_update_header_pointers
     {
         printf("Cannot read general info header. %s: %d\n",
                __FILE__, __LINE__);
-        tng_destroy_block(&block);
+        tng_block_destroy(&block);
         tng_data->input_file = temp;
         return(TNG_CRITICAL);
     }
@@ -4475,7 +4475,7 @@ static tng_function_status tng_update_header_pointers
         
     if(fwrite(&pos, sizeof(int64_t), 1, tng_data->output_file) != 1)
     {
-        tng_destroy_block(&block);
+        tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
     
@@ -4496,7 +4496,7 @@ static tng_function_status tng_update_header_pointers
     if(fwrite(&pos,
         sizeof(int64_t), 1, tng_data->output_file) != 1)
     {
-        tng_destroy_block(&block);
+        tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
 
@@ -4507,7 +4507,7 @@ static tng_function_status tng_update_header_pointers
     
     fseek(tng_data->output_file, tng_data->output_file_pos, SEEK_SET);
 
-    tng_destroy_block(&block);
+    tng_block_destroy(&block);
 
     return(TNG_SUCCESS);
 }
@@ -4527,7 +4527,7 @@ static tng_function_status tng_update_frame_set_pointers
         return(TNG_CRITICAL);
     }
 
-    tng_init_block(&block);
+    tng_block_init(&block);
     tng_data->output_file_pos = ftell(tng_data->output_file);
     
     tng_data->input_file = tng_data->output_file;
@@ -4545,7 +4545,7 @@ static tng_function_status tng_update_frame_set_pointers
         {
             printf("Cannot read frame header. %s: %d\n",
                 __FILE__, __LINE__);
-            tng_destroy_block(&block);
+            tng_block_destroy(&block);
             tng_data->input_file = temp;
             return(TNG_CRITICAL);
         }
@@ -4572,7 +4572,7 @@ static tng_function_status tng_update_frame_set_pointers
 
         if(fwrite(&pos, sizeof(int64_t), 1, tng_data->output_file) != 1)
         {
-            tng_destroy_block(&block);
+            tng_block_destroy(&block);
             tng_data->input_file = temp;
             return(TNG_CRITICAL);
         }
@@ -4597,7 +4597,7 @@ static tng_function_status tng_update_frame_set_pointers
         {
             printf("Cannot read frame header. %s: %d\n",
                 __FILE__, __LINE__);
-            tng_destroy_block(&block);
+            tng_block_destroy(&block);
             tng_data->input_file = temp;
             return(TNG_CRITICAL);
         }
@@ -4620,7 +4620,7 @@ static tng_function_status tng_update_frame_set_pointers
 
         if(fwrite(&pos, sizeof(int64_t), 1, tng_data->output_file) != 1)
         {
-            tng_destroy_block(&block);
+            tng_block_destroy(&block);
             tng_data->input_file = temp;
             return(TNG_CRITICAL);
         }
@@ -4636,13 +4636,13 @@ static tng_function_status tng_update_frame_set_pointers
     fseek(tng_data->output_file, tng_data->output_file_pos, SEEK_SET);
     
     tng_data->input_file = temp;
-    tng_destroy_block(&block);
+    tng_block_destroy(&block);
 
     return(TNG_SUCCESS);
 }
 
 
-tng_function_status tng_set_block_name(tng_trajectory_t tng_data,
+tng_function_status tng_block_name_set(tng_trajectory_t tng_data,
                                        struct tng_gen_block *block,
                                        const char *new_name)
 {
@@ -4671,9 +4671,9 @@ tng_function_status tng_set_block_name(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_init_block(struct tng_gen_block *block)
+tng_function_status tng_block_init(struct tng_gen_block *block)
 {
-//     printf("In tng_init_block\n");
+//     printf("In tng_block_init\n");
 
     block->id = -1;
 /*    block->hash_type = TNG_NO_HASH;
@@ -4690,7 +4690,7 @@ tng_function_status tng_init_block(struct tng_gen_block *block)
 }
 
 
-tng_function_status tng_destroy_block(struct tng_gen_block *block)
+tng_function_status tng_block_destroy(struct tng_gen_block *block)
 {
 //     printf("Destroying block\n");
 /*    if(block->hash_name)
@@ -4722,7 +4722,7 @@ tng_function_status tng_destroy_block(struct tng_gen_block *block)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_set_atom_name(tng_trajectory_t tng_data,
+tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
                                       tng_atom_t atom,
                                       const char *new_name)
 {
@@ -4751,7 +4751,7 @@ tng_function_status tng_set_atom_name(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_set_atom_type(tng_trajectory_t tng_data,
+tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
                                       tng_atom_t atom,
                                       const char *new_type)
 {
@@ -4804,7 +4804,7 @@ tng_function_status tng_destroy_atom(tng_atom_t atom)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_add_molecule(tng_trajectory_t tng_data,
+tng_function_status tng_molecule_add(tng_trajectory_t tng_data,
                                      const char *name,
                                      tng_molecule_t *molecule)
 {
@@ -4842,8 +4842,8 @@ tng_function_status tng_add_molecule(tng_trajectory_t tng_data,
 
     *molecule = &new_molecules[tng_data->n_molecules];
 
-    tng_init_molecule(*molecule);
-    tng_set_molecule_name(tng_data, *molecule, name);
+    tng_molecule_init(*molecule);
+    tng_molecule_name_set(tng_data, *molecule, name);
 
     /* FIXME: Should this be a function argument instead? */
     tng_data->molecule_cnt_list[tng_data->n_molecules] = 0;
@@ -4874,7 +4874,7 @@ tng_function_status tng_add_molecule(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_set_molecule_name(tng_trajectory_t tng_data,
+tng_function_status tng_molecule_name_set(tng_trajectory_t tng_data,
                                           tng_molecule_t molecule,
                                           const char *new_name)
 {
@@ -4903,7 +4903,7 @@ tng_function_status tng_set_molecule_name(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_get_molecule_cnt(tng_trajectory_t tng_data,
+tng_function_status tng_molecule_cnt_get(tng_trajectory_t tng_data,
                                          tng_molecule_t molecule,
                                          int64_t *cnt)
 {
@@ -4926,7 +4926,7 @@ tng_function_status tng_get_molecule_cnt(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_set_molecule_cnt(tng_trajectory_t tng_data,
+tng_function_status tng_molecule_cnt_set(tng_trajectory_t tng_data,
                                          tng_molecule_t molecule,
                                          const int64_t cnt)
 {
@@ -4953,7 +4953,7 @@ tng_function_status tng_set_molecule_cnt(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_add_chain_to_molecule(tng_trajectory_t tng_data,
+tng_function_status tng_molecule_chain_add(tng_trajectory_t tng_data,
                                               tng_molecule_t molecule,
                                               const char *name,
                                               tng_chain_t *chain)
@@ -4977,7 +4977,7 @@ tng_function_status tng_add_chain_to_molecule(tng_trajectory_t tng_data,
     *chain = &new_chains[molecule->n_chains];
     (*chain)->name = 0;
 
-    tng_set_chain_name(tng_data, *chain, name);
+    tng_chain_name_set(tng_data, *chain, name);
 
     (*chain)->molecule = molecule;
     (*chain)->id = molecule->n_chains;
@@ -4988,7 +4988,7 @@ tng_function_status tng_add_chain_to_molecule(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_set_chain_name(tng_trajectory_t tng_data,
+tng_function_status tng_chain_name_set(tng_trajectory_t tng_data,
                                        tng_chain_t chain,
                                        const char *new_name)
 {
@@ -5017,7 +5017,7 @@ tng_function_status tng_set_chain_name(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_add_residue_to_chain(tng_trajectory_t tng_data,
+tng_function_status tng_chain_residue_add(tng_trajectory_t tng_data,
                                              tng_chain_t chain,
                                              const char *name,
                                              tng_residue_t *residue)
@@ -5081,7 +5081,7 @@ tng_function_status tng_add_residue_to_chain(tng_trajectory_t tng_data,
     }
     
     (*residue)->name = 0;
-    tng_set_residue_name(tng_data, *residue, name);
+    tng_residue_name_set(tng_data, *residue, name);
 
     (*residue)->chain = chain;
     (*residue)->id = chain->n_residues;
@@ -5094,7 +5094,7 @@ tng_function_status tng_add_residue_to_chain(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_set_residue_name(tng_trajectory_t tng_data,
+tng_function_status tng_residue_name_set(tng_trajectory_t tng_data,
                                          tng_residue_t residue,
                                          const char *new_name)
 {
@@ -5123,7 +5123,7 @@ tng_function_status tng_set_residue_name(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_add_atom_to_residue(tng_trajectory_t tng_data,
+tng_function_status tng_residue_atom_add(tng_trajectory_t tng_data,
                                             tng_residue_t residue,
                                             const char *atom_name,
                                             const char *atom_type,
@@ -5188,8 +5188,8 @@ tng_function_status tng_add_atom_to_residue(tng_trajectory_t tng_data,
     }
 
     tng_init_atom(*atom);
-    tng_set_atom_name(tng_data, *atom, atom_name);
-    tng_set_atom_type(tng_data, *atom, atom_type);
+    tng_atom_name_set(tng_data, *atom, atom_name);
+    tng_atom_type_set(tng_data, *atom, atom_type);
 
     (*atom)->residue = residue;
     (*atom)->id = molecule->n_atoms;
@@ -5201,7 +5201,7 @@ tng_function_status tng_add_atom_to_residue(tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_init_molecule(tng_molecule_t molecule)
+tng_function_status tng_molecule_init(tng_molecule_t molecule)
 {
     molecule->name = 0;
     molecule->n_chains = 0;
@@ -5216,7 +5216,7 @@ tng_function_status tng_init_molecule(tng_molecule_t molecule)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_destroy_molecule(tng_molecule_t molecule)
+tng_function_status tng_molecule_destroy(tng_molecule_t molecule)
 {
     int i;
 
@@ -5277,7 +5277,7 @@ tng_function_status tng_destroy_molecule(tng_molecule_t molecule)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_init_trajectory(tng_trajectory_t tng_data)
+tng_function_status tng_trajectory_init(tng_trajectory_t tng_data)
 {
     time_t seconds;
     struct tng_trajectory_frame_set *frame_set =
@@ -5418,9 +5418,9 @@ tng_function_status tng_init_trajectory(tng_trajectory_t tng_data)
 
     
     
-    tng_init_block(&tng_data->non_trajectory_blocks[0]);
+    tng_block_init(&tng_data->non_trajectory_blocks[0]);
     tng_data->non_trajectory_blocks[0].id = TNG_GENERAL_INFO;
-    tng_set_block_name(tng_data, &tng_data->non_trajectory_blocks[0],
+    tng_block_name_set(tng_data, &tng_data->non_trajectory_blocks[0],
                        "GENERAL INFO");
 
     tng_data->current_trajectory_frame_set.next_frame_set_file_pos = -1;
@@ -5433,7 +5433,7 @@ tng_function_status tng_init_trajectory(tng_trajectory_t tng_data)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_destroy_trajectory(tng_trajectory_t tng_data)
+tng_function_status tng_trajectory_destroy(tng_trajectory_t tng_data)
 {
     int64_t n_frames, n_particles;
     int i, j, k, l;
@@ -5530,7 +5530,7 @@ tng_function_status tng_destroy_trajectory(tng_trajectory_t tng_data)
     
     for(i=tng_data->n_non_trajectory_blocks; i--;)
     {
-        tng_destroy_block(&tng_data->non_trajectory_blocks[i]);
+        tng_block_destroy(&tng_data->non_trajectory_blocks[i]);
     }
     tng_data->n_trajectory_blocks = 0;
 
@@ -5743,7 +5743,7 @@ tng_function_status tng_destroy_trajectory(tng_trajectory_t tng_data)
     {
         for(i=tng_data->n_molecules; i--;)
         {
-            tng_destroy_molecule(&tng_data->molecules[i]);
+            tng_molecule_destroy(&tng_data->molecules[i]);
         }
         free(tng_data->molecules);
         tng_data->molecules = 0;
@@ -5757,7 +5757,7 @@ tng_function_status tng_destroy_trajectory(tng_trajectory_t tng_data)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_set_input_file(tng_trajectory_t tng_data,
+tng_function_status tng_input_file_set(tng_trajectory_t tng_data,
                                        const char *file_name)
 {
     int len;
@@ -5789,7 +5789,7 @@ tng_function_status tng_set_input_file(tng_trajectory_t tng_data,
     return(tng_init_input_file(tng_data, FALSE));
 }
 
-tng_function_status tng_set_output_file(tng_trajectory_t tng_data,
+tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
                                         const char *file_name)
 {
     int len;
@@ -5822,7 +5822,7 @@ tng_function_status tng_set_output_file(tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_set_program_name(tng_trajectory_t tng_data,
+tng_function_status tng_program_name_set(tng_trajectory_t tng_data,
                                          const char *new_name)
 {
     int len;
@@ -5850,7 +5850,7 @@ tng_function_status tng_set_program_name(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_set_forcefield_name(tng_trajectory_t tng_data,
+tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
                                             const char *new_name)
 {
     int len;
@@ -5878,7 +5878,7 @@ tng_function_status tng_set_forcefield_name(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_set_user_name(tng_trajectory_t tng_data,
+tng_function_status tng_user_name_set(tng_trajectory_t tng_data,
                                       const char *new_name)
 {
     int len;
@@ -5906,7 +5906,7 @@ tng_function_status tng_set_user_name(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_set_computer_name(tng_trajectory_t tng_data,
+tng_function_status tng_computer_name_set(tng_trajectory_t tng_data,
                                           const char *new_name)
 {
     int len;
@@ -5934,7 +5934,7 @@ tng_function_status tng_set_computer_name(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_set_signature(tng_trajectory_t tng_data,
+tng_function_status tng_signature_set(tng_trajectory_t tng_data,
                                       const char *signature)
 {
     int len;
@@ -5962,7 +5962,7 @@ tng_function_status tng_set_signature(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_read_file_headers(tng_trajectory_t tng_data,
+tng_function_status tng_file_headers_read(tng_trajectory_t tng_data,
                                           const tng_hash_mode hash_mode)
 {
     int i, cnt = 0, prev_pos = 0;
@@ -5984,13 +5984,13 @@ tng_function_status tng_read_file_headers(tng_trajectory_t tng_data,
     
     for(i = tng_data->n_non_trajectory_blocks; i--;)
     {
-        tng_destroy_block(block++);
+        tng_block_destroy(block++);
     }
     tng_data->n_non_trajectory_blocks = 0;
 
     block = tng_data->non_trajectory_blocks;
     
-    tng_init_block(block);
+    tng_block_init(block);
     /* Non trajectory blocks (they come before the trajectory
      * blocks in the file) */
     while (prev_pos < tng_data->input_file_len &&
@@ -6000,21 +6000,21 @@ tng_function_status tng_read_file_headers(tng_trajectory_t tng_data,
            tng_data->n_non_trajectory_blocks < 32)
     {
 //         printf("Reading block header %d: %s\n", (int)block->id, block->name);
-        if(tng_read_next_block(tng_data, block,
+        if(tng_block_read_next(tng_data, block,
                                hash_mode) == TNG_SUCCESS)
         {
 //             printf("Read block %s\n", block->name);
             block++;
             cnt++;
             tng_data->n_non_trajectory_blocks++;
-            if(tng_init_block(block) != TNG_SUCCESS)
+            if(tng_block_init(block) != TNG_SUCCESS)
             {
                 return(TNG_CRITICAL);
             }
         }
         else
         {
-            tng_destroy_block(block);
+            tng_block_destroy(block);
         }
         prev_pos = ftell(tng_data->input_file);
     }
@@ -6022,14 +6022,14 @@ tng_function_status tng_read_file_headers(tng_trajectory_t tng_data,
     /* Go back if a trajectory block was encountered */
     if(block->id == TNG_TRAJECTORY_FRAME_SET)
     {
-        tng_destroy_block(block);
+        tng_block_destroy(block);
         fseek(tng_data->input_file, prev_pos, SEEK_SET);
     }
     
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_write_file_headers(tng_trajectory_t tng_data,
+tng_function_status tng_file_headers_write(tng_trajectory_t tng_data,
                                            const tng_hash_mode hash_mode)
 {
     int i;
@@ -6077,7 +6077,7 @@ tng_function_status tng_write_file_headers(tng_trajectory_t tng_data,
 
     /* FIXME: Currently writing non-trajectory data blocks here.
      * Should perhaps be moved. */
-    tng_init_block(&data_block);
+    tng_block_init(&data_block);
     for(i = 0; i < tng_data->n_data_blocks; i++)
     {
         data_block.id = tng_data->non_tr_data[i].block_id;
@@ -6092,12 +6092,12 @@ tng_function_status tng_write_file_headers(tng_trajectory_t tng_data,
                                       i, 0, TNG_NORMAL_WRITE, hash_mode);
     }
 
-    tng_destroy_block(&data_block);
+    tng_block_destroy(&data_block);
 
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_read_next_block(tng_trajectory_t tng_data,
+tng_function_status tng_block_read_next(tng_trajectory_t tng_data,
                                         struct tng_gen_block *block,
                                         const tng_hash_mode hash_mode)
 {
@@ -6139,7 +6139,7 @@ tng_function_status tng_read_next_block(tng_trajectory_t tng_data,
 //     switch(block->id)
 //     {
 //     case TNG_TRAJECTORY_FRAME_SET:
-//         return(tng_write_frame_set_block(tng_data, block, TNG_NORMAL_WRITE));
+//         return(tng_frame_set_write_block(tng_data, block, TNG_NORMAL_WRITE));
 //         break;
 //     case TNG_BLOCK_TABLE_OF_CONTENTS:
 //         return(tng_write_trajectory_toc_block(tng_data, block,
@@ -6185,7 +6185,7 @@ tng_function_status tng_read_next_block(tng_trajectory_t tng_data,
 //     return(TNG_SUCCESS);
 // }
 
-tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
+tng_function_status tng_frame_set_read_next(tng_trajectory_t tng_data,
                                             const tng_hash_mode hash_mode)
 {
     long int file_pos;
@@ -6197,7 +6197,7 @@ tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
         return(TNG_CRITICAL);
     }
 
-    tng_init_block(&block);
+    tng_block_init(&block);
 
     file_pos = tng_data->current_trajectory_frame_set.next_frame_set_file_pos;
     
@@ -6227,7 +6227,7 @@ tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
 
     tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
     
-    if(tng_read_next_block(tng_data, &block,
+    if(tng_block_read_next(tng_data, &block,
                            hash_mode) == TNG_SUCCESS)
     {
         file_pos = ftell(tng_data->input_file);
@@ -6237,7 +6237,7 @@ tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
               stat != TNG_CRITICAL &&
               block.id != TNG_TRAJECTORY_FRAME_SET)
         {
-            stat = tng_read_next_block(tng_data, &block,
+            stat = tng_block_read_next(tng_data, &block,
                                        hash_mode) == TNG_SUCCESS;
 
             if(stat != TNG_CRITICAL)
@@ -6262,12 +6262,12 @@ tng_function_status tng_read_next_frame_set(tng_trajectory_t tng_data,
 
     tng_data->input_file_pos=ftell(tng_data->input_file);
 
-    tng_destroy_block(&block);
+    tng_block_destroy(&block);
     
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_write_frame_set(tng_trajectory_t tng_data,
+tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
                                         const tng_hash_mode hash_mode)
 {
     int i, j;
@@ -6289,10 +6289,10 @@ tng_function_status tng_write_frame_set(tng_trajectory_t tng_data,
         tng_data->output_file_pos;
     }
     
-    tng_init_block(&block);
+    tng_block_init(&block);
     block.id = TNG_TRAJECTORY_FRAME_SET;
 
-    tng_write_frame_set_block(tng_data, &block, TNG_NORMAL_WRITE, hash_mode);
+    tng_frame_set_write_block(tng_data, &block, TNG_NORMAL_WRITE, hash_mode);
 
     if(frame_set->contents.n_blocks > 0)
     {
@@ -6344,12 +6344,12 @@ tng_function_status tng_write_frame_set(tng_trajectory_t tng_data,
         stat = tng_update_frame_set_pointers(tng_data, hash_mode);
     }
     
-    tng_destroy_block(&block);
+    tng_block_destroy(&block);
     
     return(stat);
 }
 
-tng_function_status tng_new_frame_set(tng_trajectory_t tng_data,
+tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
                                       const int64_t first_frame,
                                       const int64_t n_frames)
 {
@@ -6409,7 +6409,7 @@ tng_function_status tng_new_frame_set(tng_trajectory_t tng_data,
         if(frame_set->long_stride_prev_frame_set_file_pos != -1 &&
            frame_set->long_stride_prev_frame_set_file_pos != 0)
         {
-            tng_init_block(&block);
+            tng_block_init(&block);
             tng_data->input_file = tng_data->output_file;
             
             curr_pos = ftell(tng_data->output_file);
@@ -6421,7 +6421,7 @@ tng_function_status tng_new_frame_set(tng_trajectory_t tng_data,
             {
                 printf("Cannot read frame header. %s: %d\n",
                     __FILE__, __LINE__);
-                tng_destroy_block(&block);
+                tng_block_destroy(&block);
                 tng_data->input_file = temp;
                 return(TNG_CRITICAL);
             }
@@ -6435,7 +6435,7 @@ tng_function_status tng_new_frame_set(tng_trajectory_t tng_data,
                   1, tng_data->output_file) == 0)
             {
                 printf("Cannot read block. %s: %d\n", __FILE__, __LINE__);
-                tng_destroy_block(&block);
+                tng_block_destroy(&block);
                 tng_data->input_file = temp;
                 return(TNG_CRITICAL);
             }
@@ -6452,7 +6452,7 @@ tng_function_status tng_new_frame_set(tng_trajectory_t tng_data,
                 }
             }
 
-            tng_destroy_block(&block);
+            tng_block_destroy(&block);
             tng_data->input_file = temp;
             fseek(tng_data->output_file, curr_pos, SEEK_SET);
         }
@@ -6658,7 +6658,7 @@ tng_function_status tng_add_data_block(tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_add_particle_data_block(tng_trajectory_t tng_data,
+tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                                         const int64_t id,
                                         const char *block_name,
                                         const char datatype,
@@ -6850,48 +6850,27 @@ tng_function_status tng_add_particle_data_block(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
                                                 
-
-tng_function_status tng_read_next_traj_block(tng_trajectory_t tng_data)
-{
-    /* STUB */
-    return(TNG_SUCCESS);
-}
-
-tng_function_status tng_write_next_traj_block(tng_trajectory_t tng_data)
-{
-    /* STUB */
-    return(TNG_SUCCESS);
-}
-
-tng_function_status tng_read_traj_block(tng_trajectory_t tng_data,
+tng_function_status tng_traj_block_read(tng_trajectory_t tng_data,
                                         int64_t block_id)
 {
     /* STUB */
     return(TNG_SUCCESS);
 }
         
-tng_function_status tng_write_traj_block(tng_trajectory_t tng_data,
+tng_function_status tng_traj_block_write(tng_trajectory_t tng_data,
                                          int64_t block_id)
 {
     /* STUB */
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_read_frame_nr(tng_trajectory_t tng_data,
-                                      int64_t frame_nr)
+tng_function_status tng_frame_set_read_nr(tng_trajectory_t tng_data,
+                                          int64_t frame_set_nr)
 {
-    /* STUB */
-    return(TNG_SUCCESS);
-}
-        
-tng_function_status tng_write_frame_nr(tng_trajectory_t tng_data,
-                                       int64_t frame_nr)
-{
-    /* STUB */
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_read_frame_nrs(tng_trajectory_t tng_data,
+tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
                                        int64_t start_frame_nr,
                                        int64_t end_frame_nr)
 {
@@ -6899,17 +6878,11 @@ tng_function_status tng_read_frame_nrs(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_write_frame_nrs(tng_trajectory_t tng_data,
+tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
                                         int64_t start_frame_nr,
                                         int64_t end_frame_nr)
 {
     /* STUB */
-    return(TNG_SUCCESS);
-}
-
-tng_function_status tng_read_frame_set_nr(tng_trajectory_t tng_data,
-                                          int64_t frame_set_nr)
-{
     return(TNG_SUCCESS);
 }
 
