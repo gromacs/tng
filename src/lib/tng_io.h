@@ -699,6 +699,8 @@ tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
    block_id is the id number of the data block to read.
    ***values is a pointer to a 2-dimensional array (memory unallocated), which will
    be filled with data. The array will be sized (n_frames * n_values_per_frame).
+   Since ***values is allocated in this function it is the callers responsibility
+   to free the memory.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_data_get(tng_trajectory_t tng_data,
@@ -713,6 +715,8 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
    end_frame_nr is the index number of the last frame to read.
    ***values is a pointer to a 2-dimensional array (memory unallocated), which will
    be filled with data. The array will be sized (n_frames * n_values_per_frame).
+   Since ***values is allocated in this function it is the callers responsibility
+   to free the memory.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
@@ -727,6 +731,8 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
    block_id is the id number of the particle data block to read.
    ****values is a pointer to a 3-dimensional array (memory unallocated), which will
    be filled with data. The array will be sized (n_frames * n_particles * n_values_per_frame).
+   Since ****values is allocated in this function it is the callers responsibility
+   to free the memory.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
@@ -743,6 +749,8 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
    last_particle_number is the number of the last particle, for which to retrieve data.
    ****values is a pointer to a 3-dimensional array (memory unallocated), which will
    be filled with data. The array will be sized (n_frames * n_particles * n_values_per_frame).
+   Since ****values is allocated in this function it is the callers responsibility
+   to free the memory.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
