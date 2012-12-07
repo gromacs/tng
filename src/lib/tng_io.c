@@ -6931,6 +6931,9 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
     /* A bit hackish to create a new data struct before returning the data */
     new_data = malloc(sizeof(struct tng_data));
 
+    new_data->n_values_per_frame = 0;
+    new_data->n_frames = 0;
+    new_data->values = 0;
     tng_allocate_data_mem(tng_data, new_data, data->n_frames,
                           data->n_values_per_frame);
 
@@ -6953,7 +6956,7 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
     memcpy(new_data->values, data->values, size * data->n_frames *
            data->n_values_per_frame);
 
-    values = &new_data->values;
+    *values = new_data->values;
     
     return(TNG_SUCCESS);
 }
@@ -7028,7 +7031,6 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
     
     /* A bit hackish to create a new data struct before returning the data */
     new_data = malloc(sizeof(struct tng_particle_data));
-
     
     new_data->n_values_per_frame = 0;
     new_data->n_frames = 0;
