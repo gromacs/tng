@@ -6,7 +6,7 @@
 
 
 
-static tng_function_status tng_setup_test_molecules(tng_trajectory_t traj)
+static tng_function_status tng_test_setup_molecules(tng_trajectory_t traj)
 {
     struct tng_molecule *molecule;
     struct tng_chain *chain;
@@ -131,7 +131,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     tng_function_status stat;
     
     /* Create molecules */
-    if(tng_setup_test_molecules(traj) == TNG_CRITICAL)
+    if(tng_test_setup_molecules(traj) == TNG_CRITICAL)
     {
         return(TNG_CRITICAL);
     }
@@ -251,7 +251,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     stat = tng_file_headers_read(traj, TNG_SKIP_HASH);
     
     while(stat != TNG_CRITICAL && traj->input_file_pos < traj->input_file_len &&
-          traj->current_trajectory_frame_set.next_frame_set_file_pos != -1ULL)
+          traj->current_trajectory_frame_set.next_frame_set_file_pos != -1)
     {
         stat = tng_frame_set_read_next(traj, TNG_SKIP_HASH);
         if(stat == TNG_CRITICAL)
@@ -261,6 +261,37 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     }
 
     return(stat);
+}
+
+/* This test relies on knowing that the positions are stored as float
+ * and that the data is not sparse (i.e. as many frames in the data
+ * as in the frame set */
+tng_function_status tng_test_get_particle_data(tng_trajectory_t traj)
+{
+    union data_values ***values = 0;
+
+    if(tng_particle_data_get(traj, TNG_TRAJ_POSITIONS, &values) !=
+       TNG_SUCCESS)
+    {
+        printf("Failed getting particle data. %s: %d\n", __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+
+/*
+    int64_t i, j;
+    struct tng_trajectory_frame_set *frame_set =
+    &traj->current_trajectory_frame_set;
+    for(i = 0; i<frame_set->n_frames; i++)
+    {
+        printf("Frame %"PRId64"\n", frame_set->first_frame + i);
+        for(j = 0; j<traj->n_particles; j++)
+        {
+            printf("Particle %"PRId64": %f\t%f\t%f\n", j, (values[i][j][0]).f,
+                   (values[i][j][1]).f, (values[i][j][2]).f);
+        }
+    }
+*/    
+    return(TNG_SUCCESS);
 }
 
 int main()
@@ -312,7 +343,7 @@ int main()
     
 
     tng_output_file_set(&traj, "/tmp/tng_test.tng");
-    
+
     if(tng_test_write_and_read_traj(&traj) == TNG_CRITICAL)
     {
         printf("Test Write and read file:\t\t\tFailed. %s: %d\n",
@@ -323,6 +354,16 @@ int main()
         printf("Test Write and read file:\t\t\tSucceeded.\n");
     }
     
+    if(tng_test_get_particle_data(&traj) != TNG_SUCCESS)
+    {
+        printf("Test Get particle data:\t\t\tFailed. %s: %d\n",
+               __FILE__, __LINE__);
+    }
+    else
+    {
+        printf("Test Get particle data:\t\t\tSucceeded.\n");
+    }
+
     if(tng_trajectory_destroy(&traj) == TNG_CRITICAL)
     {
         printf("Test Destroy trajectory:\t\t\tFailed. %s: %d.\n",

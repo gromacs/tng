@@ -954,7 +954,6 @@ static tng_function_status tng_write_general_info_block
     return(TNG_SUCCESS);
 }
 
-/* FIXME: Update this according to the new specs */
 static tng_function_status tng_read_molecules_block
                 (tng_trajectory_t tng_data,
                  struct tng_gen_block *block,
@@ -6995,7 +6994,7 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
         }
     }
 
-    if(block_index <= 0)
+    if(block_index < 0)
     {
         /* If the data block was not found in the frame set
          * look for it in the non-trajectory data (in tng_data). */
@@ -7009,8 +7008,10 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
                 break;
             }
         }
-        if(block_index <= 0)
+        if(block_index < 0)
         {
+            printf("Could not find particle data block with id %"PRId64". %s: %d\n",
+                   block_id, __FILE__, __LINE__);
             return(TNG_FAILURE);
         }
     }
@@ -7028,8 +7029,16 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
     /* A bit hackish to create a new data struct before returning the data */
     new_data = malloc(sizeof(struct tng_particle_data));
 
-    tng_allocate_particle_data_mem(tng_data, new_data, data->n_frames,
-                                   n_particles, data->n_values_per_frame);
+    
+    new_data->n_values_per_frame = 0;
+    new_data->n_frames = 0;
+    new_data->values = 0;
+    if(tng_allocate_particle_data_mem(tng_data, new_data, data->n_frames,
+                                   n_particles, data->n_values_per_frame) !=
+       TNG_SUCCESS)
+    {
+        return(TNG_CRITICAL);
+    }
 
     switch(data->datatype)
     {
@@ -7050,7 +7059,7 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
     memcpy(new_data->values, data->values, size * data->n_frames *
            n_particles * data->n_values_per_frame);
 
-    values = &new_data->values;
+    *values = new_data->values;
 
     return(TNG_SUCCESS);
 }
