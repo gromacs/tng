@@ -3581,7 +3581,7 @@ static tng_function_status tng_create_data_block
 
 /* UNTESTED */
 tng_function_status tng_allocate_data_mem
-                (struct tng_trajectory  *tng_data,
+                (tng_trajectory_t tng_data,
                  struct tng_data *data,
                  int64_t n_frames,
                  const int64_t n_values_per_frame)
@@ -3608,8 +3608,8 @@ tng_function_status tng_allocate_data_mem
     n_frames = max(1, n_frames);
     data->n_values_per_frame = n_values_per_frame;
     values = (union data_values **) realloc(data->values,
-                                             sizeof(union data_values *) *
-                                             n_frames);
+                                            sizeof(union data_values *) *
+                                            n_frames);
     if(!values)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -6892,7 +6892,70 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
                                  int64_t block_id,
                                  union data_values ***values)
 {
-    /* STUB */
+    int i, block_index, size;
+    struct tng_data *data, *new_data;
+    struct tng_trajectory_frame_set *frame_set =
+    &tng_data->current_trajectory_frame_set;
+    
+    block_index = -1;
+    /* See if there is already a data block of this ID.
+     * Start checking the last read frame set */
+    for(i = frame_set->n_data_blocks; i-- ;)
+    {
+        data = &frame_set->tr_data[i];
+        if(data->block_id == block_id)
+        {
+            block_index = i;
+            break;
+        }
+    }
+
+    if(block_index <= 0)
+    {
+        /* If the data block was not found in the frame set
+         * look for it in the non-trajectory data (in tng_data). */
+        for(i = tng_data->n_data_blocks; i-- ;)
+        {
+            data = &tng_data->non_tr_data[i];
+            if(data->block_id == block_id)
+            {
+                block_index = i;
+                break;
+            }
+        }
+        if(block_index <= 0)
+        {
+            return(TNG_FAILURE);
+        }
+    }
+
+    /* A bit hackish to create a new data struct before returning the data */
+    new_data = malloc(sizeof(struct tng_data));
+
+    tng_allocate_data_mem(tng_data, new_data, data->n_frames,
+                          data->n_values_per_frame);
+
+    switch(data->datatype)
+    {
+    case TNG_CHAR_DATA:
+        size = 1;
+        break;
+    case TNG_INT_DATA:
+        size = sizeof(int64_t);
+        break;
+    case TNG_FLOAT_DATA:
+        size = sizeof(float);
+        break;
+    case TNG_DOUBLE_DATA:
+    default:
+        size = sizeof(double);
+    }
+    
+    memcpy(new_data->values, data->values, size * data->n_frames *
+           data->n_values_per_frame);
+
+    values = &new_data->values;
+    
     return(TNG_SUCCESS);
 }
 
@@ -6910,7 +6973,85 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
                                           int64_t block_id,
                                           union data_values ****values)
 {
-    /* STUB */
+    int i, block_index, size;
+    int64_t n_particles;
+    struct tng_particle_data *data, *new_data;
+    struct tng_trajectory_frame_set *frame_set =
+    &tng_data->current_trajectory_frame_set;
+
+    tng_block_type block_type_flag;
+
+    block_index = -1;
+    /* See if there is already a data block of this ID.
+     * Start checking the last read frame set */
+    for(i = frame_set->n_particle_data_blocks; i-- ;)
+    {
+        data = &frame_set->tr_particle_data[i];
+        if(data->block_id == block_id)
+        {
+            block_index = i;
+            block_type_flag = TNG_TRAJECTORY_BLOCK;
+            break;
+        }
+    }
+
+    if(block_index <= 0)
+    {
+        /* If the data block was not found in the frame set
+         * look for it in the non-trajectory data (in tng_data). */
+        for(i = tng_data->n_particle_data_blocks; i-- ;)
+        {
+            data = &tng_data->non_tr_particle_data[i];
+            if(data->block_id == block_id)
+            {
+                block_index = i;
+                block_type_flag = TNG_NON_TRAJECTORY_BLOCK;
+                break;
+            }
+        }
+        if(block_index <= 0)
+        {
+            return(TNG_FAILURE);
+        }
+    }
+
+    if(block_type_flag == TNG_TRAJECTORY_BLOCK &&
+       tng_data->var_num_atoms_flag)
+    {
+        n_particles = frame_set->n_particles;
+    }
+    else
+    {
+        n_particles = tng_data->n_particles;
+    }
+    
+    /* A bit hackish to create a new data struct before returning the data */
+    new_data = malloc(sizeof(struct tng_particle_data));
+
+    tng_allocate_particle_data_mem(tng_data, new_data, data->n_frames,
+                                   n_particles, data->n_values_per_frame);
+
+    switch(data->datatype)
+    {
+    case TNG_CHAR_DATA:
+        size = 1;
+        break;
+    case TNG_INT_DATA:
+        size = sizeof(int64_t);
+        break;
+    case TNG_FLOAT_DATA:
+        size = sizeof(float);
+        break;
+    case TNG_DOUBLE_DATA:
+    default:
+        size = sizeof(double);
+    }
+
+    memcpy(new_data->values, data->values, size * data->n_frames *
+           n_particles * data->n_values_per_frame);
+
+    values = &new_data->values;
+
     return(TNG_SUCCESS);
 }
 
