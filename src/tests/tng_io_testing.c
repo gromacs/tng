@@ -266,25 +266,30 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
 /* This test relies on knowing that the box shape is stored as double */
 tng_function_status tng_test_get_box_data(tng_trajectory_t traj)
 {
+    int64_t n_frames, n_values_per_frame;
     union data_values **values = 0;
+    tng_data_type type;
 
-    if(tng_data_get(traj, TNG_TRAJ_BOX_SHAPE, &values) !=
-       TNG_SUCCESS)
+    if(tng_data_get(traj, TNG_TRAJ_BOX_SHAPE, &values, &n_frames,
+                    &n_values_per_frame, &type) != TNG_SUCCESS)
     {
         printf("Failed getting box shape. %s: %d\n", __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
 
 
-//     int64_t i;
-// 
+//     int64_t i, j;
 //     printf("Box shape:");
-//     
-//     for(i = 0; i<9; i++)
+//     for(i=0; i<n_frames; i++)
 //     {
-//         printf("\t%f", (values[0][i]).d);
+//         for(j=0; j<n_values_per_frame; j++)
+//         {
+//             printf("\t%f", (values[i][j]).d);
+//         }
+//         printf("\n");
 //     }
-//     printf("\n");
+
+    tng_data_values_free(values, n_frames, n_values_per_frame, type);
 
     return(TNG_SUCCESS);
 }
@@ -294,29 +299,39 @@ tng_function_status tng_test_get_box_data(tng_trajectory_t traj)
  * as in the frame set */
 tng_function_status tng_test_get_positions_data(tng_trajectory_t traj)
 {
+    int64_t n_frames, n_particles, n_values_per_frame;
     union data_values ***values = 0;
+    tng_data_type type;
 
-    if(tng_particle_data_get(traj, TNG_TRAJ_POSITIONS, &values) !=
+    if(tng_particle_data_get(traj, TNG_TRAJ_POSITIONS, &values, &n_frames,
+                             &n_particles, &n_values_per_frame, &type) !=
        TNG_SUCCESS)
     {
         printf("Failed getting particle positions. %s: %d\n", __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
 
-/*
-    int64_t i, j;
-    struct tng_trajectory_frame_set *frame_set =
-    &traj->current_trajectory_frame_set;
-    for(i = 0; i<frame_set->n_frames; i++)
-    {
-        printf("Frame %"PRId64"\n", frame_set->first_frame + i);
-        for(j = 0; j<traj->n_particles; j++)
-        {
-            printf("Particle %"PRId64": %f\t%f\t%f\n", j, (values[i][j][0]).f,
-                   (values[i][j][1]).f, (values[i][j][2]).f);
-        }
-    }
-*/    
+
+//     int64_t i, j, k;
+//     struct tng_trajectory_frame_set *frame_set =
+//     &traj->current_trajectory_frame_set;
+//     for(i = 0; i<n_frames; i++)
+//     {
+//         printf("Frame %"PRId64"\n", frame_set->first_frame + i);
+//         for(j = 0; j<n_particles; j++)
+//         {
+//             printf("Particle %"PRId64":", j);
+//             for(k=0; k<n_values_per_frame; k++)
+//             {
+//                 printf("\t%f", (values[i][j][k]).f);
+//             }
+//             printf("\n");
+//         }
+//     }
+
+    tng_particle_data_values_free(values, n_frames, n_particles,
+                                  n_values_per_frame, type);
+
     return(TNG_SUCCESS);
 }
 

@@ -693,6 +693,32 @@ tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
                                         int64_t start_frame_nr,
                                         int64_t end_frame_nr);
 
+/* Free data is an array of values (2D).
+   **values is the array to free and will be set to 0 afterwards.
+   n_frames is the number of frames in the data array.
+   n_values_per_frame is the number of values per frame in the data array.
+   type is the data type of the data in the array.
+   Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+   has occurred or TNG_CRITICAL (2) if a major error has occured. */
+tng_function_status tng_data_values_free(union data_values **values,
+                                         int64_t n_frames,
+                                         int64_t n_values_per_frame,
+                                         tng_data_type type);
+
+/* Free data is an array of values (3D).
+   ***values is the array to free and will be set to 0 afterwards.
+   n_frames is the number of frames in the data array.
+   n_particles is the number of particles in the data array.
+   n_values_per_frame is the number of values per frame in the data array.
+   type is the data type of the data in the array.
+   Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+   has occurred or TNG_CRITICAL (2) if a major error has occured. */
+tng_function_status tng_particle_data_values_free(union data_values ***values,
+                                                  int64_t n_frames,
+                                                  int64_t n_particles,
+                                                  int64_t n_values_per_frame,
+                                                  tng_data_type type);
+
 /* Retrieve non-particle data from the last read frame set.
    tng_data is a trajectory data container. tng_data->input_file_path specifies which
    file to read from. If the file (input_file) is not open it will be opened.
@@ -700,11 +726,20 @@ tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
    ***values is a pointer to a 2-dimensional array (memory unallocated), which will
    point to the data of the requested data block. The array will be sized
    (n_frames * n_values_per_frame).
+   Since ***values is allocated in this function it is the callers responsibility
+   to free the memory.
+   *n_frames is set to the number of frames in the data. This is needed to
+   properly reach and/or free the data.
+   *n_values_per_frame is set to the number of values per frame in the data.
+   This is needed to properly reach and/or free the data.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_data_get(tng_trajectory_t tng_data,
                                  int64_t block_id,
-                                 union data_values ***values);
+                                 union data_values ***values,
+                                 int64_t *n_frames,
+                                 int64_t *n_values_per_frame,
+                                 tng_data_type *type);
 
 /* Read and retrieve non-particle data, in a specific interval, from the trajectory.
    tng_data is a trajectory data container. tng_data->input_file_path specifies which
@@ -716,13 +751,17 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
    be filled with data. The array will be sized (n_frames * n_values_per_frame).
    Since ***values is allocated in this function it is the callers responsibility
    to free the memory.
+   *n_values_per_frame is set to the number of values per frame in the data.
+   This is needed to properly reach and/or free the data.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
                                           int64_t block_id,
                                           int64_t start_frame_nr,
                                           int64_t end_frame_nr,
-                                          union data_values ***values);
+                                          union data_values ***values,
+                                          int64_t *n_values_per_frame,
+                                          tng_data_type *type);
 
 /* Retrieve particle data, from the last read frame set.
    tng_data is a trajectory data container. tng_data->input_file_path specifies which
@@ -731,11 +770,23 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
    ****values is a pointer to a 3-dimensional array (memory unallocated), which will
    point to the data of the requested data block. The array will be sized
    (n_frames * n_particles * n_values_per_frame).
+   Since ****values is allocated in this function it is the callers responsibility
+   to free the memory.
+   *n_frames is set to the number of frames in the data. This is needed to
+   properly reach and/or free the data.
+   *n_particles is set to the number of particles in the returned data. This is
+   needed to properly reach and/or free the data.
+   *n_values_per_frame is set to the number of values per frame in the data.
+   This is needed to properly reach and/or free the data.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
                                           int64_t block_id,
-                                          union data_values ****values);
+                                          union data_values ****values,
+                                          int64_t *n_frames,
+                                          int64_t *n_particles,
+                                          int64_t *n_values_per_frame,
+                                          tng_data_type *type);
 
 /* Read and retrieve particle data, in a specific interval, from the trajectory.
    tng_data is a trajectory data container. tng_data->input_file_path specifies which
@@ -749,6 +800,8 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
    be filled with data. The array will be sized (n_frames * n_particles * n_values_per_frame).
    Since ****values is allocated in this function it is the callers responsibility
    to free the memory.
+   *n_values_per_frame is set to the number of values per frame in the data.
+   This is needed to properly reach and/or free the data.
    Returns TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
    has occurred or TNG_CRITICAL (2) if a major error has occured. */
 tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
@@ -757,7 +810,9 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
                                                   int64_t end_frame_nr,
                                                   int64_t first_particle_number,
                                                   int64_t last_particle_number,
-                                                  union data_values ****values);
+                                                  union data_values ****values,
+                                                  int64_t *n_values_per_frame,
+                                                  tng_data_type *type);
 
 /* Get the date and time of initial file creation in ISO format (string).
    tng_data is a trajectory data container.

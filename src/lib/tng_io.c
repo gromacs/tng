@@ -5435,8 +5435,8 @@ tng_function_status tng_trajectory_init(tng_trajectory_t tng_data)
 
 tng_function_status tng_trajectory_destroy(tng_trajectory_t tng_data)
 {
-    int64_t n_frames, n_particles;
-    int i, j, k, l;
+    int64_t n_particles;
+    int i;
     struct tng_trajectory_frame_set *frame_set =
     &tng_data->current_trajectory_frame_set;
 
@@ -5547,45 +5547,16 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t tng_data)
     {
         for(i = tng_data->n_particle_data_blocks; i--; )
         {
-            if(tng_data->non_tr_particle_data[i].values)
-            {
-                /* Only one frame for non-trajectory data */
-                j = 0;
-                if(tng_data->non_tr_particle_data[i].values[j])
-                {
-                    for(k = n_particles; k--;)
-                    {
-                        if(tng_data->non_tr_particle_data[i].values[j][k])
-                        {
-                            if(tng_data->non_tr_particle_data[i].datatype ==
-                                TNG_CHAR_DATA)
-                            {
-                                for(l = tng_data->non_tr_particle_data[i].
-                                    n_values_per_frame;
-                                    l--;)
-                                {
-                                    if(tng_data->non_tr_particle_data[i].
-                                        values[j][k][l].c)
-                                    {
-                                        free(tng_data->non_tr_particle_data[i].
-                                        values[j][k][l].c);
-                                        tng_data->non_tr_particle_data[i].
-                                        values[j][k][l].c = 0;
-                                    }
-                                }
-                            }
-                            free(tng_data->non_tr_particle_data[i].
-                            values[j][k]);
-                            tng_data->non_tr_particle_data[i].
-                            values[j][k] = 0;
-                        }
-                    }
-                    free(tng_data->non_tr_particle_data[i].values[j]);
-                    tng_data->non_tr_particle_data[i].values[j] = 0;
-                }
-                free(tng_data->non_tr_particle_data[i].values);
-                tng_data->non_tr_particle_data[i].values = 0;
-            }
+            tng_particle_data_values_free(tng_data->non_tr_particle_data[i].
+                                          values,
+                                          tng_data->non_tr_particle_data[i].
+                                          n_frames,
+                                          n_particles,
+                                          tng_data->non_tr_particle_data[i].
+                                          n_values_per_frame,
+                                          tng_data->non_tr_particle_data[i].
+                                          datatype);
+                                          
             if(tng_data->non_tr_particle_data[i].block_name)
             {
                 free(tng_data->non_tr_particle_data[i].block_name);
@@ -5600,30 +5571,10 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t tng_data)
     {
         for(i = tng_data->n_data_blocks; i--;)
         {
-            if(tng_data->non_tr_data[i].values)
-            {
-                /* Only one frame for non-trajectory data */
-                if(tng_data->non_tr_data[i].values[0])
-                {
-                    if(tng_data->non_tr_data[i].datatype ==
-                        TNG_CHAR_DATA)
-                    {
-                        for(k = tng_data->non_tr_data[i].n_values_per_frame;
-                            k--;)
-                        {
-                            if(tng_data->non_tr_data[i].values[0][k].c)
-                            {
-                                free(tng_data->non_tr_data[i].values[0][k].c);
-                                tng_data->non_tr_data[i].values[0][k].c = 0;
-                            }
-                        }
-                    }
-                    free(tng_data->non_tr_data[i].values[0]);
-                    tng_data->non_tr_data[i].values[0] = 0;
-                }
-                free(tng_data->non_tr_data[i].values);
-                tng_data->non_tr_data[i].values = 0;
-            }
+            tng_data_values_free(tng_data->non_tr_data[i].values, 1,
+                                 tng_data->non_tr_data[i].n_values_per_frame,
+                                 tng_data->non_tr_data[i].datatype);
+            
             if(tng_data->non_tr_data[i].block_name)
             {
                 free(tng_data->non_tr_data[i].block_name);
@@ -5641,47 +5592,16 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t tng_data)
     {
         for(i = frame_set->n_particle_data_blocks; i--; )
         {
-            if(frame_set->tr_particle_data[i].values)
-            {
-                n_frames = max(1, frame_set->tr_particle_data[i].n_frames);
-                for(j = n_frames; j--;)
-                {
-                    if(frame_set->tr_particle_data[i].values[j])
-                    {
-                        for(k = n_particles; k--;)
-                        {
-                            if(frame_set->tr_particle_data[i].values[j][k])
-                            {
-                                if(frame_set->tr_particle_data[i].datatype ==
-                                    TNG_CHAR_DATA)
-                                {
-                                    for(l = frame_set->tr_particle_data[i].
-                                        n_values_per_frame;
-                                        l--;)
-                                    {
-                                        if(frame_set->tr_particle_data[i].
-                                            values[j][k][l].c)
-                                        {
-                                            free(frame_set->tr_particle_data[i].
-                                            values[j][k][l].c);
-                                            
-                                            frame_set->tr_particle_data[i].
-                                            values[j][k][l].c = 0;
-                                        }
-                                    }
-                                }
-                                free(frame_set->tr_particle_data[i].
-                                     values[j][k]);
-                                frame_set->tr_particle_data[i].values[j][k] = 0;
-                            }
-                        }
-                        free(frame_set->tr_particle_data[i].values[j]);
-                        frame_set->tr_particle_data[i].values[j] = 0;
-                    }
-                }
-                free(frame_set->tr_particle_data[i].values);
-                frame_set->tr_particle_data[i].values = 0;
-            }
+            tng_particle_data_values_free(frame_set->tr_particle_data[i].
+                                          values,
+                                          frame_set->tr_particle_data[i].
+                                          n_frames,
+                                          n_particles,
+                                          frame_set->tr_particle_data[i].
+                                          n_values_per_frame,
+                                          frame_set->tr_particle_data[i].
+                                          datatype);
+            
             if(frame_set->tr_particle_data[i].block_name)
             {
                 free(frame_set->tr_particle_data[i].block_name);
@@ -5696,36 +5616,10 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t tng_data)
     {
         for(i = frame_set->n_data_blocks; i--;)
         {
-            if(frame_set->tr_data[i].values)
-            {
-                n_frames = max(1, frame_set->tr_data[i].n_frames);
-                for(j = n_frames; j--;)
-                {
-                    if(frame_set->tr_data[i].values[j])
-                    {
-                        if(frame_set->tr_data[i].datatype ==
-                            TNG_CHAR_DATA)
-                        {
-                            for(k = frame_set->tr_data[i].n_values_per_frame;
-                                k--;)
-                            {
-                                if(frame_set->tr_data[i].values[j][k].c)
-                                {
-                                    free(frame_set->tr_data[i].
-                                    values[j][k].c);
-                                    
-                                    frame_set->tr_data[i].
-                                    values[j][k].c = 0;
-                                }
-                            }
-                        }
-                        free(frame_set->tr_data[i].values[j]);
-                        frame_set->tr_data[i].values[j] = 0;
-                    }
-                }
-                free(frame_set->tr_data[i].values);
-                frame_set->tr_data[i].values = 0;
-            }
+            tng_data_values_free(frame_set->tr_data[i].values, 1,
+                                 frame_set->tr_data[i].
+                                 n_values_per_frame,
+                                 frame_set->tr_data[i].datatype);
             if(frame_set->tr_data[i].block_name)
             {
                 free(frame_set->tr_data[i].block_name);
@@ -6887,13 +6781,90 @@ tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_data_values_free(union data_values **values,
+                                         int64_t n_frames,
+                                         int64_t n_values_per_frame,
+                                         tng_data_type type)
+{
+    int i, j;
+    
+    if(values)
+    {
+        for(i = 0; i < n_frames; i++)
+        {
+            if(values[i])
+            {
+                if(type == TNG_CHAR_DATA)
+                {
+                    for(j = n_values_per_frame; j--;)
+                    {
+                        if(values[i][j].c)
+                        {
+                            free(values[i][j].c);
+                            values[i][j].c = 0;
+                        }
+                    }
+                }
+                free(values[i]);
+                values[i] = 0;
+            }
+        }
+        free(values);
+        values = 0;
+    }
 
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_particle_data_values_free(union data_values ***values,
+                                                  int64_t n_frames,
+                                                  int64_t n_particles,
+                                                  int64_t n_values_per_frame,
+                                                  tng_data_type type)
+{
+    int i, j, k;
+
+    if(values)
+    {
+        for(i = 0; i < n_frames; i++)
+        {
+            if(values[i])
+            {
+                for(j = 0; j < n_particles; j++)
+                {
+                    if(type == TNG_CHAR_DATA)
+                    {
+                        for(k = n_values_per_frame; k--;)
+                        {
+                            if(values[i][j][k].c)
+                            {
+                                free(values[i][j][k].c);
+                                values[i][j][k].c = 0;
+                            }
+                        }
+                    }
+                    free(values[i][j]);
+                    values[i][j] = 0;
+                }
+                free(values[i]);
+                values[i] = 0;
+            }
+        }
+        free(values);
+        values = 0;
+    }
+
+    return(TNG_SUCCESS);
+}
 tng_function_status tng_data_get(tng_trajectory_t tng_data,
                                  int64_t block_id,
-                                 union data_values ***values)
+                                 union data_values ***values,
+                                 int64_t *n_frames,
+                                 int64_t *n_values_per_frame,
+                                 tng_data_type *type)
 {
-    int i, block_index;
-    struct tng_data *data;
+    int i, j, block_index, len;
+    struct tng_data *data, *new_data;
     struct tng_trajectory_frame_set *frame_set =
     &tng_data->current_trajectory_frame_set;
     
@@ -6929,7 +6900,67 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
         }
     }
 
-    *values = data->values;
+    /* A bit hackish to create a new data struct before returning the data */
+    new_data = malloc(sizeof(struct tng_data));
+
+    new_data->n_values_per_frame = 0;
+    new_data->n_frames = 0;
+    new_data->values = 0;
+    new_data->datatype = data->datatype;
+    *n_values_per_frame = data->n_values_per_frame;
+    if(tng_allocate_data_mem(tng_data, new_data, data->n_frames,
+                             *n_values_per_frame) != TNG_SUCCESS)
+    {
+        return(TNG_CRITICAL);
+    }
+
+    *n_frames = max(1, data->n_frames);
+
+    *values = new_data->values;
+    *type = data->datatype;
+    switch(*type)
+    {
+    case TNG_CHAR_DATA:
+        for(i=*n_frames; i--;)
+        {
+            for(j=*n_values_per_frame; j--;)
+            {
+                len = strlen(data->values[i][j].c) + 1;
+                (*values)[i][j].c = malloc(len);
+                strncpy((*values)[i][j].c, data->values[i][j].c, len);
+            }
+        }
+        break;
+    case TNG_INT_DATA:
+        for(i=*n_frames; i--;)
+        {
+            for(j=*n_values_per_frame; j--;)
+            {
+                (*values)[i][j].i = data->values[i][j].i;
+            }
+        }
+        break;
+    case TNG_FLOAT_DATA:
+        for(i=*n_frames; i--;)
+        {
+            for(j=*n_values_per_frame; j--;)
+            {
+                (*values)[i][j].f = data->values[i][j].f;
+            }
+        }
+        break;
+    case TNG_DOUBLE_DATA:
+    default:
+        for(i=*n_frames; i--;)
+        {
+            for(j=*n_values_per_frame; j--;)
+            {
+                (*values)[i][j].d = data->values[i][j].d;
+            }
+        }
+    }
+
+    free(new_data);
     
     return(TNG_SUCCESS);
 }
@@ -6938,7 +6969,9 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
                                           int64_t block_id,
                                           int64_t start_frame_nr,
                                           int64_t end_frame_nr,
-                                          union data_values ***values)
+                                          union data_values ***values,
+                                          int64_t *n_values_per_frame,
+                                          tng_data_type *type)
 {
     /* STUB */
     return(TNG_SUCCESS);
@@ -6946,12 +6979,18 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
 
 tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
                                           int64_t block_id,
-                                          union data_values ****values)
+                                          union data_values ****values,
+                                          int64_t *n_frames,
+                                          int64_t *n_particles,
+                                          int64_t *n_values_per_frame,
+                                          tng_data_type *type)
 {
-    int i, block_index;
-    struct tng_particle_data *data;
+    int i, j, k, block_index, len;
+    struct tng_particle_data *data, *new_data;
     struct tng_trajectory_frame_set *frame_set =
     &tng_data->current_trajectory_frame_set;
+
+    tng_block_type block_type_flag;
 
     block_index = -1;
     /* See if there is already a data block of this ID.
@@ -6962,6 +7001,7 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
         if(data->block_id == block_id)
         {
             block_index = i;
+            block_type_flag = TNG_TRAJECTORY_BLOCK;
             break;
         }
     }
@@ -6976,6 +7016,7 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
             if(data->block_id == block_id)
             {
                 block_index = i;
+                block_type_flag = TNG_NON_TRAJECTORY_BLOCK;
                 break;
             }
         }
@@ -6987,7 +7028,90 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
         }
     }
 
-    *values = data->values;
+    if(block_type_flag == TNG_TRAJECTORY_BLOCK &&
+       tng_data->var_num_atoms_flag)
+    {
+        *n_particles = frame_set->n_particles;
+    }
+    else
+    {
+        *n_particles = tng_data->n_particles;
+    }
+
+    /* A bit hackish to create a new data struct before returning the data */
+    new_data = malloc(sizeof(struct tng_particle_data));
+
+    new_data->n_values_per_frame = 0;
+    new_data->n_frames = 0;
+    new_data->values = 0;
+    new_data->datatype = data->datatype;
+    *n_values_per_frame = data->n_values_per_frame;
+    if(tng_allocate_particle_data_mem(tng_data, new_data, data->n_frames,
+                                      *n_particles, data->n_values_per_frame) !=
+       TNG_SUCCESS)
+    {
+        return(TNG_CRITICAL);
+    }
+
+    *n_frames = max(1, data->n_frames);
+
+    *values = new_data->values;
+    *type = data->datatype;
+    switch(*type)
+    {
+    case TNG_CHAR_DATA:
+        for(i=*n_frames; i--;)
+        {
+            for(j=*n_particles; j--;)
+            {
+                for(k=*n_values_per_frame; k--;)
+                {
+                    len = strlen(data->values[i][j][k].c) + 1;
+                    (*values)[i][j][k].c = malloc(len);
+                    strncpy((*values)[i][j][k].c, data->values[i][j][k].c, len);
+                }
+            }
+        }
+        break;
+    case TNG_INT_DATA:
+        for(i=*n_frames; i--;)
+        {
+            for(j=*n_particles; j--;)
+            {
+                for(k=*n_values_per_frame; k--;)
+                {
+                    (*values)[i][j][k].i = data->values[i][j][k].i;
+                }
+            }
+        }
+        break;
+    case TNG_FLOAT_DATA:
+        for(i=*n_frames; i--;)
+        {
+            for(j=*n_particles; j--;)
+            {
+                for(k=*n_values_per_frame; k--;)
+                {
+                    (*values)[i][j][k].f = data->values[i][j][k].f;
+                }
+            }
+        }
+        break;
+    case TNG_DOUBLE_DATA:
+    default:
+        for(i=*n_frames; i--;)
+        {
+            for(j=*n_particles; j--;)
+            {
+                for(k=*n_values_per_frame; k--;)
+                {
+                    (*values)[i][j][k].d = data->values[i][j][k].d;
+                }
+            }
+        }
+    }
+    
+    free(new_data);
 
     return(TNG_SUCCESS);
 }
@@ -6998,7 +7122,9 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
                                                   int64_t end_frame_nr,
                                                   int64_t first_particle_number,
                                                   int64_t last_particle_number,
-                                                  union data_values ****values)
+                                                  union data_values ****values,
+                                                  int64_t *n_values_per_frame,
+                                                  tng_data_type *type)
 {
     /* STUB */
     return(TNG_SUCCESS);
