@@ -4813,8 +4813,8 @@ tng_function_status tng_molecule_add(tng_trajectory_t tng_data,
     tng_bool found_id = TRUE;
     
     new_molecules = (tng_molecule_t)realloc(tng_data->molecules,
-                                                   sizeof(struct tng_molecule) *
-                                                   (tng_data->n_molecules + 1));
+                                            sizeof(struct tng_molecule) *
+                                            (tng_data->n_molecules + 1));
 
     if(!new_molecules)
     {
@@ -5202,6 +5202,7 @@ tng_function_status tng_residue_atom_add(tng_trajectory_t tng_data,
 
 tng_function_status tng_molecule_init(tng_molecule_t molecule)
 {
+    molecule->quaternary_str = 1;
     molecule->name = 0;
     molecule->n_chains = 0;
     molecule->chains = 0;
