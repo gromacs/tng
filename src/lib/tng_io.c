@@ -6891,9 +6891,8 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
                                  int64_t block_id,
                                  union data_values ***values)
 {
-    int64_t n_frames, n_vals_per_frame;
-    int i, j, block_index, size, len;
-    struct tng_data *data, *new_data;
+    int i, block_index;
+    struct tng_data *data;
     struct tng_trajectory_frame_set *frame_set =
     &tng_data->current_trajectory_frame_set;
     
@@ -6929,63 +6928,7 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
         }
     }
 
-    /* A bit hackish to create a new data struct before returning the data */
-    new_data = malloc(sizeof(struct tng_data));
-
-    new_data->n_values_per_frame = 0;
-    new_data->n_frames = 0;
-    new_data->values = 0;
-    n_vals_per_frame = data->n_values_per_frame;
-    if(tng_allocate_data_mem(tng_data, new_data, data->n_frames,
-                             n_vals_per_frame) != TNG_SUCCESS)
-    {
-        return(TNG_CRITICAL);
-    }
-
-    n_frames = max(1, data->n_frames);
-    
-    *values = new_data->values;
-    switch(data->datatype)
-    {
-    case TNG_CHAR_DATA:
-        for(i=n_frames; i--;)
-        {
-            for(j=n_vals_per_frame; j--;)
-            {
-                len = strlen(data->values[i][j].c) + 1;
-                (*values)[i][j].c = malloc(len);
-                strncpy((*values)[i][j].c, data->values[i][j].c, len);
-            }
-        }
-        break;
-    case TNG_INT_DATA:
-        for(i=n_frames; i--;)
-        {
-            for(j=n_vals_per_frame; j--;)
-            {
-                (*values)[i][j].i = data->values[i][j].i;
-            }
-        }
-        break;
-    case TNG_FLOAT_DATA:
-        for(i=n_frames; i--;)
-        {
-            for(j=n_vals_per_frame; j--;)
-            {
-                (*values)[i][j].f = data->values[i][j].f;
-            }
-        }
-        break;
-    case TNG_DOUBLE_DATA:
-    default:
-        for(i=n_frames; i--;)
-        {
-            for(j=n_vals_per_frame; j--;)
-            {
-                (*values)[i][j].d = data->values[i][j].d;
-            }
-        }
-    }
+    *values = data->values;
     
     return(TNG_SUCCESS);
 }
@@ -7004,14 +6947,10 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
                                           int64_t block_id,
                                           union data_values ****values)
 {
-    int64_t n_frames, n_vals_per_frame;
-    int i, j, k, block_index, size, len;
-    int64_t n_particles;
-    struct tng_particle_data *data, *new_data;
+    int i, block_index;
+    struct tng_particle_data *data;
     struct tng_trajectory_frame_set *frame_set =
     &tng_data->current_trajectory_frame_set;
-
-    tng_block_type block_type_flag;
 
     block_index = -1;
     /* See if there is already a data block of this ID.
@@ -7022,7 +6961,6 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
         if(data->block_id == block_id)
         {
             block_index = i;
-            block_type_flag = TNG_TRAJECTORY_BLOCK;
             break;
         }
     }
@@ -7037,7 +6975,6 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
             if(data->block_id == block_id)
             {
                 block_index = i;
-                block_type_flag = TNG_NON_TRAJECTORY_BLOCK;
                 break;
             }
         }
@@ -7049,86 +6986,7 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
         }
     }
 
-    if(block_type_flag == TNG_TRAJECTORY_BLOCK &&
-       tng_data->var_num_atoms_flag)
-    {
-        n_particles = frame_set->n_particles;
-    }
-    else
-    {
-        n_particles = tng_data->n_particles;
-    }
-    
-    /* A bit hackish to create a new data struct before returning the data */
-    new_data = malloc(sizeof(struct tng_particle_data));
-    
-    new_data->n_values_per_frame = 0;
-    new_data->n_frames = 0;
-    new_data->values = 0;
-    n_vals_per_frame = data->n_values_per_frame;
-    if(tng_allocate_particle_data_mem(tng_data, new_data, data->n_frames,
-                                   n_particles, data->n_values_per_frame) !=
-       TNG_SUCCESS)
-    {
-        return(TNG_CRITICAL);
-    }
-
-    n_frames = max(1, data->n_frames);
-    
-    *values = new_data->values;
-    switch(data->datatype)
-    {
-    case TNG_CHAR_DATA:
-        for(i=n_frames; i--;)
-        {
-            for(j=n_particles; j--;)
-            {
-                for(k=n_vals_per_frame; k--;)
-                {
-                    len = strlen(data->values[i][j][k].c) + 1;
-                    (*values)[i][j][k].c = malloc(len);
-                    strncpy((*values)[i][j][k].c, data->values[i][j][k].c, len);
-                }
-            }
-        }
-        break;
-    case TNG_INT_DATA:
-        for(i=n_frames; i--;)
-        {
-            for(j=n_particles; j--;)
-            {
-                for(k=n_vals_per_frame; k--;)
-                {
-                    (*values)[i][j][k].i = data->values[i][j][k].i;
-                }
-            }
-        }
-        break;
-    case TNG_FLOAT_DATA:
-        for(i=n_frames; i--;)
-        {
-            for(j=n_particles; j--;)
-            {
-                for(k=n_vals_per_frame; k--;)
-                {
-                    (*values)[i][j][k].f = data->values[i][j][k].f;
-                }
-            }
-        }
-        break;
-    case TNG_DOUBLE_DATA:
-    default:
-        for(i=n_frames; i--;)
-        {
-            for(j=n_particles; j--;)
-            {
-                for(k=n_vals_per_frame; k--;)
-                {
-                    (*values)[i][j][k].d = data->values[i][j][k].d;
-                }
-            }
-        }
-    }
+    *values = data->values;
 
     return(TNG_SUCCESS);
 }

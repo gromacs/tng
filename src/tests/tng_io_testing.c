@@ -276,15 +276,15 @@ tng_function_status tng_test_get_box_data(tng_trajectory_t traj)
     }
 
 
-    int64_t i;
-
-    printf("Box shape:");
-    
-    for(i = 0; i<9; i++)
-    {
-        printf("\t%f", (values[0][i]).d);
-    }
-    printf("\n");
+//     int64_t i;
+// 
+//     printf("Box shape:");
+//     
+//     for(i = 0; i<9; i++)
+//     {
+//         printf("\t%f", (values[0][i]).d);
+//     }
+//     printf("\n");
 
     return(TNG_SUCCESS);
 }
@@ -358,12 +358,12 @@ int main()
     
     if(tng_test_get_box_data(&traj) != TNG_SUCCESS)
     {
-        printf("Test Get data:\t\t\tFailed. %s: %d\n",
+        printf("Test Get data:\t\t\t\t\tFailed. %s: %d\n",
                __FILE__, __LINE__);
     }
     else
     {
-        printf("Test Get data:\t\t\tSucceeded.\n");
+        printf("Test Get data:\t\t\t\t\tSucceeded.\n");
     }
 
     if(tng_trajectory_destroy(&traj) == TNG_CRITICAL ||
@@ -392,12 +392,12 @@ int main()
     
     if(tng_test_get_positions_data(&traj) != TNG_SUCCESS)
     {
-        printf("Test Get particle data:\t\t\tFailed. %s: %d\n",
+        printf("Test Get particle data:\t\t\t\tFailed. %s: %d\n",
                __FILE__, __LINE__);
     }
     else
     {
-        printf("Test Get particle data:\t\t\tSucceeded.\n");
+        printf("Test Get particle data:\t\t\t\tSucceeded.\n");
     }
 
     if(tng_trajectory_destroy(&traj) == TNG_CRITICAL)
