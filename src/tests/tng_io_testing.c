@@ -263,17 +263,43 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     return(stat);
 }
 
+/* This test relies on knowing that the box shape is stored as double */
+tng_function_status tng_test_get_box_data(tng_trajectory_t traj)
+{
+    union data_values **values = 0;
+
+    if(tng_data_get(traj, TNG_TRAJ_BOX_SHAPE, &values) !=
+       TNG_SUCCESS)
+    {
+        printf("Failed getting box shape. %s: %d\n", __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+
+
+    int64_t i;
+
+    printf("Box shape:");
+    
+    for(i = 0; i<9; i++)
+    {
+        printf("\t%f", (values[0][i]).d);
+    }
+    printf("\n");
+
+    return(TNG_SUCCESS);
+}
+
 /* This test relies on knowing that the positions are stored as float
  * and that the data is not sparse (i.e. as many frames in the data
  * as in the frame set */
-tng_function_status tng_test_get_particle_data(tng_trajectory_t traj)
+tng_function_status tng_test_get_positions_data(tng_trajectory_t traj)
 {
     union data_values ***values = 0;
 
     if(tng_particle_data_get(traj, TNG_TRAJ_POSITIONS, &values) !=
        TNG_SUCCESS)
     {
-        printf("Failed getting particle data. %s: %d\n", __FILE__, __LINE__);
+        printf("Failed getting particle positions. %s: %d\n", __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
 
@@ -330,6 +356,16 @@ int main()
         printf("Test Read and write file:\t\t\tSucceeded.\n");
     }
     
+    if(tng_test_get_box_data(&traj) != TNG_SUCCESS)
+    {
+        printf("Test Get data:\t\t\tFailed. %s: %d\n",
+               __FILE__, __LINE__);
+    }
+    else
+    {
+        printf("Test Get data:\t\t\tSucceeded.\n");
+    }
+
     if(tng_trajectory_destroy(&traj) == TNG_CRITICAL ||
        tng_trajectory_init(&traj) == TNG_CRITICAL)
     {
@@ -354,7 +390,7 @@ int main()
         printf("Test Write and read file:\t\t\tSucceeded.\n");
     }
     
-    if(tng_test_get_particle_data(&traj) != TNG_SUCCESS)
+    if(tng_test_get_positions_data(&traj) != TNG_SUCCESS)
     {
         printf("Test Get particle data:\t\t\tFailed. %s: %d\n",
                __FILE__, __LINE__);
