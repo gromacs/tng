@@ -16,3 +16,8 @@ programs using the library must specify explicitly where to look for it.
  cp ../example_files/tng_example.tng .
 
  )
+
+Useful cmake flags:
+-DBUILD_DOCUMENTATION=ON to build the API documentation (requires doxygen)
+-DCMAKE_BUILD_TYPE=Debug to compile with debug flags (recommended for
+feedback during development)
