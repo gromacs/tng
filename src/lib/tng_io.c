@@ -5361,9 +5361,6 @@ tng_function_status tng_trajectory_init(tng_trajectory_t tng_data)
     tng_data->molecule_cnt_list = 0;
     tng_data->n_particles = 0;
 
-    tng_data->n_id_name_pairs = 0;
-    tng_data->id_name_pairs = 0;
-
     /* Check the endianness of the computer */
     static int32_t endianness_32 = 0x01234567;
     /* 0x01234567 */
