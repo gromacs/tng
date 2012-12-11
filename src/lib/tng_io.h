@@ -8,15 +8,34 @@
 #include <stdio.h>
 #include <inttypes.h>
 
-#define TNG_VERSION 1
+/** The version of this TNG build */
+#define TNG_VERSION 0.9
 
+/** Flag to indicate particle dependent data. */
 #define TNG_PARTICLE_DEPENDENT 1
+/** Flag to indicate frame dependent data. */
 #define TNG_FRAME_DEPENDENT 2
 
-// #define TNG_MAX_BLOCK_PARTICLES 1000
+/** The maximum length of a date string */
 #define TNG_MAX_DATE_STR_LEN 24
+/** The length of an MD5 hash */
 #define TNG_HASH_LEN 16
+/** The maximum allowed length of a string */
 #define TNG_MAX_STR_LEN 1024
+
+
+/** Inline function for finding the lowest of two values */
+#define min(a,b) \
+    ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+       _a < _b ? _a : _b; })
+     
+/** Inline function for finding the highest of two values */
+#define max(a,b) \
+    ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+       _a > _b ? _a : _b; })
+
 
 typedef enum {TNG_BIG_ENDIAN_32,
               TNG_LITTLE_ENDIAN_32,
@@ -28,16 +47,6 @@ typedef enum {TNG_BIG_ENDIAN_64,
               TNG_BYTE_PAIR_SWAP_64,
               TNG_BYTE_SWAP_64} tng_endianness_64;
 
-
-#define min(a,b) \
-    ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-       _a < _b ? _a : _b; })
-     
-#define max(a,b) \
-    ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-       _a > _b ? _a : _b; })
 
 typedef enum {TNG_UNCOMPRESSED,
               TNG_XTC_COMPRESSION,
@@ -782,32 +791,35 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                                         void *new_data);
 
 
-/* Read one trajectory block from the input_file of tng_data.
-   tng_data is a trajectory data container. tng_data->input_file_path specifies
-   which file to read from. If the file (input_file) is not open it will be
-   opened.
-   block_id is the ID of the block to read.
+/**
+ * @brief Read one trajectory block from the input_file of tng_data.
+ * @param tng_data is a trajectory data container. tng_data->input_file_path
+ * specifies which file to read from. If the file (input_file) is not open it
+ * will be opened.
+ * @param block_id is the ID of the block to read.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_traj_block_read(tng_trajectory_t tng_data,
                                         int64_t block_id);
         
-/* Write one trajectory block to the output_file of tng_data.
-   tng_data is a trajectory data container. tng_data->output_file_path specifies
-   which file to write to. If the file (output_file) is not open it will be
-   opened.
-   block_id is the ID of the block to write.
+/**
+ * @brief Write one trajectory block to the output_file of tng_data.
+ * @param tng_data is a trajectory data container. tng_data->output_file_path
+ * specifies which file to write to. If the file (output_file) is not open it
+ * will be opened.
+ * @param block_id is the ID of the block to write.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_traj_block_write(tng_trajectory_t tng_data,
                                          int64_t block_id);
 
-/* Read a requested frame set.
-   tng_data is a trajectory data container.
-   tng_data->current_trajectory_frame_set will be the read frame set.
-   frame_set_nr is the number of the frame set to return (starting from 0).
+/**
+ * @brief Read a requested frame set.
+ * @param tng_data is a trajectory data container.
+ * tng_data->current_trajectory_frame_set will be the read frame set.
+ * @param frame_set_nr is the number of the frame set to return (starting from 0).
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -978,9 +990,9 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
                                                   int64_t *n_values_per_frame,
                                                   tng_data_type *type);
 
-/* Get the date and time of initial file creation in ISO format (string).
-   tng_data is a trajectory data container.
-   *time is a pointer to the string in which the date will be stored. Memory
+/** @brief Get the date and time of initial file creation in ISO format (string).
+ *  @param tng_data is a trajectory data container.
+ *  @param time is a pointer to the string in which the date will be stored. Memory
    must be reserved beforehand.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
