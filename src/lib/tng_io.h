@@ -9,7 +9,7 @@
 #include <inttypes.h>
 
 /** The version of this TNG build */
-#define TNG_VERSION 0.9
+#define TNG_VERSION 1
 
 /** Flag to indicate particle dependent data. */
 #define TNG_PARTICLE_DEPENDENT 1
@@ -238,9 +238,13 @@ struct tng_trajectory_frame_set {
     int64_t next_frame_set_file_pos;
     /** The file position of the previous frame set */
     int64_t prev_frame_set_file_pos;
-    /** The file position of the frame set one stride step ahead */
+    /** The file position of the frame set one long stride step ahead */
+    int64_t medium_stride_next_frame_set_file_pos;
+    /** The file position of the frame set one long stride step behind */
+    int64_t medium_stride_prev_frame_set_file_pos;
+    /** The file position of the frame set one long stride step ahead */
     int64_t long_stride_next_frame_set_file_pos;
-    /** The file position of the frame set one stride step behind */
+    /** The file position of the frame set one long stride step behind */
     int64_t long_stride_prev_frame_set_file_pos;
 
     /* The data blocks in a frame set are trajectory data blocks */
@@ -356,8 +360,10 @@ struct tng_trajectory {
     /** The number of frames in a frame set. It is allowed to have frame sets
      *  with fewer frames, but this will help searching for specific frames */
     int64_t frame_set_n_frames;
+    /** The number of frame sets in a medium stride step */
+    int64_t medium_stride_length;
     /** The number of frame sets in a long stride step */
-    int64_t stride_length;
+    int64_t long_stride_length;
     
     /** The number of different kinds of molecules in the trajectory */
     int64_t n_molecules;
