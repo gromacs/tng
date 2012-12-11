@@ -778,11 +778,65 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
                                       const int64_t first_frame,
                                       const int64_t n_frames);
 
+/**
+ * @brief Add a non-particle dependent data block.
+ * @param tng_data is the trajectory data container in which to add the data
+ * block
+ * @param id is the block ID of the block to add.
+ * @param block_name is a descriptive name of the block to add
+ * @param datatype is the datatype of the data in the block (e.g. int/float)
+ * @param block_type_flag indicates if this is a non-trajectory block (added
+ * directly to tng_data) or if it is a trajectory block (added to the
+ * frame set)
+ * @param n_frames is the number of frames of the data block (automatically
+ * set to 1 if adding a non-trajectory data block)
+ * @param n_values_per_frame is how many values a stored each frame (e.g. 9
+ * for a box shape block)
+ * @param stride_length is how many frames are between each entry in the
+ * data block
+ * @param codec_id is the ID of the codec to compress the data.
+ * @param new_data is an array of data values to add.
+ */
+tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
+                                        const int64_t id,
+                                        const char *block_name,
+                                        const char datatype,
+                                        const tng_block_type block_type_flag,
+                                        int64_t n_frames,
+                                        const int64_t n_values_per_frame,
+                                        const int64_t stride_length,
+                                        int64_t codec_id,
+                                        void *new_data);
+                                       
+
+/**
+ * @brief Add a particle dependent data block.
+ * @param tng_data is the trajectory data container in which to add the data
+ * block
+ * @param id is the block ID of the block to add.
+ * @param block_name is a descriptive name of the block to add
+ * @param datatype is the datatype of the data in the block (e.g. int/float)
+ * @param block_type_flag indicates if this is a non-trajectory block (added
+ * directly to tng_data) or if it is a trajectory block (added to the
+ * frame set)
+ * @param n_frames is the number of frames of the data block (automatically
+ * set to 1 if adding a non-trajectory data block)
+ * @param n_values_per_frame is how many values a stored each frame (e.g. 9
+ * for a box shape block)
+ * @param stride_length is how many frames are between each entry in the
+ * data block
+ * @param first_particle_number is the number of the first particle stored
+ * in this data block
+ * @param n_particles is the number of particles stored in this data block
+ * @param codec_id is the ID of the codec to compress the data.
+ * @param new_data is an array of data values to add.
+ */
 tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                                         const int64_t id,
                                         const char *block_name,
                                         const char datatype,
-                                        const int64_t n_frames,
+                                        const tng_block_type block_type_flag,
+                                        int64_t n_frames,
                                         const int64_t n_values_per_frame,
                                         const int64_t stride_length,
                                         const int64_t first_particle_number,
@@ -826,13 +880,15 @@ tng_function_status tng_traj_block_write(tng_trajectory_t tng_data,
 tng_function_status tng_frame_set_read_nr(tng_trajectory_t tng_data,
                                           int64_t frame_set_nr);
 
-/* Read a number of consecutive trajectory frames from the input_file of
-   tng_data.
-   tng_data is a trajectory data container. tng_data->input_file_path specifies
-   which file to read from. If the file (input_file) is not open it will be
-   opened.
-   start_frame_nr is the index number of the first frame to read.
-   end_frame_nr is the index number of the last frame to read.
+/**
+ * @brief Read a number of consecutive trajectory frames from the input_file of
+ * tng_data.
+ * @param tng_data is a trajectory data container.
+ * tng_data->input_file_path specifies
+ * which file to read from. If the file (input_file) is not open it will be
+ * opened.
+ * @param start_frame_nr is the index number of the first frame to read.
+ * @param end_frame_nr is the index number of the last frame to read.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -840,13 +896,14 @@ tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
                                        int64_t start_frame_nr,
                                        int64_t end_frame_nr);
 
-/* Write a number of consecutive trajectory frames to the output_file of
-   tng_data.
-   tng_data is a trajectory data container. tng_data->output_file_path specifies
-   which file to write to. If the file (output_file) is not open it will be
-   opened.
-   start_frame_nr is the index number of the first frame to write.
-   end_frame_nr is the index number of the last frame to write.
+/**
+ * @brief Write a number of consecutive trajectory frames to the output_file of
+ * tng_data.
+ * @param tng_data is a trajectory data container. tng_data->output_file_path specifies
+ * which file to write to. If the file (output_file) is not open it will be
+ * opened.
+ * @param start_frame_nr is the index number of the first frame to write.
+ * @param end_frame_nr is the index number of the last frame to write.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -854,11 +911,12 @@ tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
                                         int64_t start_frame_nr,
                                         int64_t end_frame_nr);
 
-/* Free data is an array of values (2D).
-   **values is the array to free and will be set to 0 afterwards.
-   n_frames is the number of frames in the data array.
-   n_values_per_frame is the number of values per frame in the data array.
-   type is the data type of the data in the array.
+/**
+ * @brief Free data is an array of values (2D).
+ * @param values is the 2D array to free and will be set to 0 afterwards.
+ * @param n_frames is the number of frames in the data array.
+ * @param n_values_per_frame is the number of values per frame in the data array.
+ * @param type is the data type of the data in the array (e.g. int/float/char).
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -867,12 +925,13 @@ tng_function_status tng_data_values_free(union data_values **values,
                                          int64_t n_values_per_frame,
                                          tng_data_type type);
 
-/* Free data is an array of values (3D).
-   ***values is the array to free and will be set to 0 afterwards.
-   n_frames is the number of frames in the data array.
-   n_particles is the number of particles in the data array.
-   n_values_per_frame is the number of values per frame in the data array.
-   type is the data type of the data in the array.
+/**
+ * @brief Free data is an array of values (3D).
+ * @param values is the array to free and will be set to 0 afterwards.
+ * @param n_frames is the number of frames in the data array.
+ * @param n_particles is the number of particles in the data array.
+ * @param n_values_per_frame is the number of values per frame in the data array.
+ * @param type is the data type of the data in the array (e.g. int/float/char).
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -882,20 +941,21 @@ tng_function_status tng_particle_data_values_free(union data_values ***values,
                                                   int64_t n_values_per_frame,
                                                   tng_data_type type);
 
-/* Retrieve non-particle data from the last read frame set.
-   tng_data is a trajectory data container. tng_data->input_file_path specifies
-   which file to read from. If the file (input_file) is not open it will be
-   opened.
-   block_id is the id number of the data block to read.
-   ***values is a pointer to a 2-dimensional array (memory unallocated), which
-   will point to the data of the requested data block. The array will be sized
-   (n_frames * n_values_per_frame).
-   Since ***values is allocated in this function it is the callers
-   responsibility to free the memory.
-   *n_frames is set to the number of frames in the data. This is needed to
-   properly reach and/or free the data.
-   *n_values_per_frame is set to the number of values per frame in the data.
-   This is needed to properly reach and/or free the data.
+/**
+ * @brief Retrieve non-particle data, from the last read frame set.
+ * @param tng_data is a trajectory data container. tng_data->input_file_path specifies
+ * which file to read from. If the file (input_file) is not open it will be
+ * opened.
+ * @param block_id is the id number of the particle data block to read.
+ * @param values is a pointer to a 2-dimensional array (memory unallocated), which
+ * will be filled with data. The array will be sized
+ * (n_frames * n_values_per_frame).
+ * Since ***values is allocated in this function it is the callers
+ * responsibility to free the memory.
+ * @param n_frames is set to the number of particles in the returned data. This is
+ * needed to properly reach and/or free the data afterwards.
+ * @param n_values_per_frame is set to the number of values per frame in the data.
+ * This is needed to properly reach and/or free the data afterwards.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -906,21 +966,21 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
                                  int64_t *n_values_per_frame,
                                  tng_data_type *type);
 
-/* Read and retrieve non-particle data, in a specific interval, from the
-   trajectory.
-   tng_data is a trajectory data container. tng_data->input_file_path specifies
-   which file to read from. If the file (input_file) is not open it will be
-   opened.
-   block_id is the id number of the data block to read.
-   start_frame_nr is the index number of the first frame to read.
-   end_frame_nr is the index number of the last frame to read.
-   ***values is a pointer to a 2-dimensional array (memory unallocated), which
-   will be filled with data. The array will be sized
-   (n_frames * n_values_per_frame).
-   Since ***values is allocated in this function it is the callers
-   responsibility to free the memory.
-   *n_values_per_frame is set to the number of values per frame in the data.
-   This is needed to properly reach and/or free the data.
+/**
+ * @brief Read and retrieve non-particle data, in a specific interval.
+ * @param tng_data is a trajectory data container. tng_data->input_file_path specifies
+ * which file to read from. If the file (input_file) is not open it will be
+ * opened.
+ * @param block_id is the id number of the particle data block to read.
+ * @param start_frame_nr is the index number of the first frame to read.
+ * @param end_frame_nr is the index number of the last frame to read.
+ * @param values is a pointer to a 2-dimensional array (memory unallocated), which
+ * will be filled with data. The array will be sized
+ * (n_frames * n_values_per_frame).
+ * Since ***values is allocated in this function it is the callers
+ * responsibility to free the memory.
+ * @param n_values_per_frame is set to the number of values per frame in the data.
+ * This is needed to properly reach and/or free the data afterwards.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -932,22 +992,23 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
                                           int64_t *n_values_per_frame,
                                           tng_data_type *type);
 
-/* Retrieve particle data, from the last read frame set.
-   tng_data is a trajectory data container. tng_data->input_file_path specifies
-   which file to read from. If the file (input_file) is not open it will be
-   opened.
-   block_id is the id number of the particle data block to read.
-   ****values is a pointer to a 3-dimensional array (memory unallocated), which
-   will point to the data of the requested data block. The array will be sized
-   (n_frames * n_particles * n_values_per_frame).
-   Since ****values is allocated in this function it is the callers
-   responsibility to free the memory.
-   *n_frames is set to the number of frames in the data. This is needed to
-   properly reach and/or free the data.
-   *n_particles is set to the number of particles in the returned data. This is
-   needed to properly reach and/or free the data.
-   *n_values_per_frame is set to the number of values per frame in the data.
-   This is needed to properly reach and/or free the data.
+/**
+ * @brief Retrieve particle data, from the last read frame set.
+ * @param tng_data is a trajectory data container. tng_data->input_file_path specifies
+ * which file to read from. If the file (input_file) is not open it will be
+ * opened.
+ * @param block_id is the id number of the particle data block to read.
+ * @param values is a pointer to a 3-dimensional array (memory unallocated), which
+ * will be filled with data. The array will be sized
+ * (n_frames * n_particles * n_values_per_frame).
+ * Since ****values is allocated in this function it is the callers
+ * responsibility to free the memory.
+ * @param n_frames is set to the number of particles in the returned data. This is
+ * needed to properly reach and/or free the data afterwards.
+ * @param n_particles is set to the number of particles in the returned data. This is
+ * needed to properly reach and/or free the data afterwards.
+ * @param n_values_per_frame is set to the number of values per frame in the data.
+ * This is needed to properly reach and/or free the data afterwards.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -959,24 +1020,25 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
                                           int64_t *n_values_per_frame,
                                           tng_data_type *type);
 
-/* Read and retrieve particle data, in a specific interval, from the trajectory.
-   tng_data is a trajectory data container. tng_data->input_file_path specifies
-   which file to read from. If the file (input_file) is not open it will be
-   opened.
-   block_id is the id number of the particle data block to read.
-   start_frame_nr is the index number of the first frame to read.
-   end_frame_nr is the index number of the last frame to read.
-   first_particle_number is the number of the first particle, for which to
-   retrive data.
-   last_particle_number is the number of the last particle, for which to
-   retrieve data.
-   ****values is a pointer to a 3-dimensional array (memory unallocated), which
-   will be filled with data. The array will be sized
-   (n_frames * n_particles * n_values_per_frame).
-   Since ****values is allocated in this function it is the callers
-   responsibility to free the memory.
-   *n_values_per_frame is set to the number of values per frame in the data.
-   This is needed to properly reach and/or free the data.
+/**
+ * @brief Read and retrieve particle data, in a specific interval.
+ * @param tng_data is a trajectory data container. tng_data->input_file_path specifies
+ * which file to read from. If the file (input_file) is not open it will be
+ * opened.
+ * @param block_id is the id number of the particle data block to read.
+ * @param start_frame_nr is the index number of the first frame to read.
+ * @param end_frame_nr is the index number of the last frame to read.
+ * @param first_particle_number is the number of the first particle, for which to
+ * retrieve data.
+ * @param last_particle_number is the number of the last particle, for which to
+ * retrieve data.
+ * @param values is a pointer to a 3-dimensional array (memory unallocated), which
+ * will be filled with data. The array will be sized
+ * (n_frames * n_particles * n_values_per_frame).
+ * Since ****values is allocated in this function it is the callers
+ * responsibility to free the memory.
+ * @param n_values_per_frame is set to the number of values per frame in the data.
+ * This is needed to properly reach and/or free the data afterwards.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */

@@ -217,6 +217,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
         if(tng_particle_data_block_add(traj, TNG_TRAJ_POSITIONS,
                                        "POSITIONS",
                                        TNG_FLOAT_DATA,
+                                       TNG_TRAJECTORY_BLOCK,
                                        traj->frame_set_n_frames, 3,
                                        1, 0, traj->n_particles,
                                        TNG_UNCOMPRESSED,

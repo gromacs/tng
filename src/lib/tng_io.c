@@ -6374,33 +6374,25 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/* UNTESTED */
-tng_function_status tng_add_data_block(tng_trajectory_t tng_data,
-                                       const int64_t id,
-                                       const char *block_name,
-                                       const char datatype,
-                                       const int64_t n_frames,
-                                       const int64_t n_values_per_frame,
-                                       const int64_t stride_length,
-                                       int64_t codec_id,
-                                       void *new_data)
+
+
+tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
+                                        const int64_t id,
+                                        const char *block_name,
+                                        const char datatype,
+                                        const tng_block_type block_type_flag,
+                                        int64_t n_frames,
+                                        const int64_t n_values_per_frame,
+                                        const int64_t stride_length,
+                                        int64_t codec_id,
+                                        void *new_data)
 {
     int i, j, block_index, size, len;
     struct tng_trajectory_frame_set *frame_set;
     struct tng_data *data;
     void *orig;
-    tng_block_type block_type_flag;
 
     frame_set = &tng_data->current_trajectory_frame_set;
-
-    if(tng_data->current_trajectory_frame_set_output_file_pos > 0)
-    {
-        block_type_flag = TNG_TRAJECTORY_BLOCK;
-    }
-    else
-    {
-        block_type_flag = TNG_NON_TRAJECTORY_BLOCK;
-    }
 
     block_index = -1;
     /* See if there is already a data block of this ID */
@@ -6418,6 +6410,7 @@ tng_function_status tng_add_data_block(tng_trajectory_t tng_data,
     }
     else
     {
+        n_frames = 1;
         for(i = tng_data->n_data_blocks; i-- ;)
         {
             data = &tng_data->non_tr_data[i];
@@ -6435,7 +6428,8 @@ tng_function_status tng_add_data_block(tng_trajectory_t tng_data,
         if(tng_create_data_block(tng_data, block_type_flag) !=
             TNG_SUCCESS)
         {
-            printf("Cannot create data block. %s: %d\n", __FILE__, __LINE__);
+            printf("Cannot create data block. %s: %d\n",
+                   __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
         if(block_type_flag == TNG_TRAJECTORY_BLOCK)
@@ -6470,8 +6464,7 @@ tng_function_status tng_add_data_block(tng_trajectory_t tng_data,
     if(!data->values || data->n_frames != n_frames ||
        data->n_values_per_frame != n_values_per_frame)
     {
-        if(tng_allocate_data_mem(tng_data, data, n_frames,
-                                 n_values_per_frame) !=
+        if(tng_allocate_data_mem(tng_data, data, n_frames, n_values_per_frame)!=
            TNG_SUCCESS)
         {
             printf("Cannot allocate data memory. %s: %d\n",
@@ -6548,12 +6541,12 @@ tng_function_status tng_add_data_block(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-
 tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                                         const int64_t id,
                                         const char *block_name,
                                         const char datatype,
-                                        const int64_t n_frames,
+                                        const tng_block_type block_type_flag,
+                                        int64_t n_frames,
                                         const int64_t n_values_per_frame,
                                         const int64_t stride_length,
                                         const int64_t first_particle_number,
@@ -6566,19 +6559,9 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
     struct tng_trajectory_frame_set *frame_set;
     struct tng_particle_data *data;
     void *orig;
-    tng_block_type block_type_flag;
-
+    
     frame_set = &tng_data->current_trajectory_frame_set;
     
-    if(tng_data->current_trajectory_frame_set_output_file_pos > 0)
-    {
-        block_type_flag = TNG_TRAJECTORY_BLOCK;
-    }
-    else
-    {
-        block_type_flag = TNG_NON_TRAJECTORY_BLOCK;
-    }
-
     block_index = -1;
     /* See if there is already a data block of this ID */
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
@@ -6595,6 +6578,7 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
     }
     else
     {
+        n_frames = 1;
         for(i = tng_data->n_particle_data_blocks; i-- ;)
         {
             data = &tng_data->non_tr_particle_data[i];
