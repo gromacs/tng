@@ -565,17 +565,97 @@ static tng_function_status tng_read_general_info_block
     }
 
     len = min(strlen(block->block_contents) + 1, TNG_MAX_STR_LEN);
-    tng_data->program_name = (char *) malloc(len);
-    if(!tng_data->program_name)
+    tng_data->first_program_name = (char *) malloc(len);
+    if(!tng_data->first_program_name)
     {
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         tng_block_destroy(block);
         return(TNG_CRITICAL);
     }
-    strncpy(tng_data->program_name, block->block_contents, len);
+    strncpy(tng_data->first_program_name, block->block_contents, len);
     offset += len;
     
+    len = min(strlen(block->block_contents) + 1, TNG_MAX_STR_LEN);
+    tng_data->last_program_name = (char *) malloc(len);
+    if(!tng_data->last_program_name)
+    {
+        printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+               __FILE__, __LINE__);
+        tng_block_destroy(block);
+        return(TNG_CRITICAL);
+    }
+    strncpy(tng_data->last_program_name, block->block_contents, len);
+    offset += len;
+
+    len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    tng_data->first_user_name = (char *) malloc(len);
+    if(!tng_data->first_user_name)
+    {
+        printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+               __FILE__, __LINE__);
+        tng_block_destroy(block);
+        return(TNG_CRITICAL);
+    }
+    strncpy(tng_data->first_user_name, block->block_contents+offset, len);
+    offset += len;
+    
+    len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    tng_data->last_user_name = (char *) malloc(len);
+    if(!tng_data->last_user_name)
+    {
+        printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+               __FILE__, __LINE__);
+        tng_block_destroy(block);
+        return(TNG_CRITICAL);
+    }
+    strncpy(tng_data->last_user_name, block->block_contents+offset, len);
+    offset += len;
+
+    len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    tng_data->first_computer_name = (char *) malloc(len);
+    if(!tng_data->first_computer_name)
+    {
+        printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+               __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+    strncpy(tng_data->first_computer_name, block->block_contents+offset, len);
+    offset += len;
+
+    len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    tng_data->last_computer_name = (char *) malloc(len);
+    if(!tng_data->last_computer_name)
+    {
+        printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+               __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+    strncpy(tng_data->last_computer_name, block->block_contents+offset, len);
+    offset += len;
+
+    len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    tng_data->first_pgp_signature = (char *) malloc(len);
+    if(!tng_data->first_pgp_signature)
+    {
+        printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+               __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+    strncpy(tng_data->first_pgp_signature, block->block_contents+offset, len);
+    offset += len;
+
+    len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    tng_data->last_pgp_signature = (char *) malloc(len);
+    if(!tng_data->last_pgp_signature)
+    {
+        printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+               __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+    strncpy(tng_data->last_pgp_signature, block->block_contents+offset, len);
+    offset += len;
+
     len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     tng_data->forcefield_name = (char *) malloc(len);
     if(!tng_data->forcefield_name)
@@ -587,19 +667,7 @@ static tng_function_status tng_read_general_info_block
     }
     strncpy(tng_data->forcefield_name, block->block_contents+offset, len);
     offset += len;
-    
-    len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
-    tng_data->user_name = (char *) malloc(len);
-    if(!tng_data->user_name)
-    {
-        printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
-               __FILE__, __LINE__);
-        tng_block_destroy(block);
-        return(TNG_CRITICAL);
-    }
-    strncpy(tng_data->user_name, block->block_contents+offset, len);
-    offset += len;
-    
+
     memcpy(&tng_data->time, block->block_contents+offset,
            sizeof(tng_data->time));
     if(tng_data->endianness_64 != TNG_BIG_ENDIAN_64)
@@ -611,28 +679,6 @@ static tng_function_status tng_read_general_info_block
         }
     }
     offset += sizeof(tng_data->time);
-
-    len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
-    tng_data->computer_name = (char *) malloc(len);
-    if(!tng_data->computer_name)
-    {
-        printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
-               __FILE__, __LINE__);
-        return(TNG_CRITICAL);
-    }
-    strncpy(tng_data->computer_name, block->block_contents+offset, len);
-    offset += len;
-
-    len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
-    tng_data->pgp_signature = (char *) malloc(len);
-    if(!tng_data->pgp_signature)
-    {
-        printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
-               __FILE__, __LINE__);
-        return(TNG_CRITICAL);
-    }
-    strncpy(tng_data->pgp_signature, block->block_contents+offset, len);
-    offset += len;
 
     memcpy(&tng_data->var_num_atoms_flag, block->block_contents+offset,
            sizeof(tng_data->var_num_atoms_flag));
@@ -719,26 +765,115 @@ static tng_function_status tng_write_general_info_block
                  const tng_write_mode mode,
                  const tng_hash_mode hash_mode)
 {
-    int program_name_len, forcefield_name_len, user_name_len;
-    int computer_name_len, pgp_signature_len;
+    int first_program_name_len, first_user_name_len;
+    int first_computer_name_len, first_pgp_signature_len;
+    int last_program_name_len, last_user_name_len;
+    int last_computer_name_len, last_pgp_signature_len;
+    int forcefield_name_len;
     int offset = 0;
 
     if(tng_init_output_file(tng_data, FALSE) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
-    
-    if(!tng_data->program_name)
+
+    /* If the strings are unallocated allocate memory for just string
+     * termination */
+    if(!tng_data->first_program_name)
     {
-        tng_data->program_name = (char *) malloc(1);
-        if(!tng_data->program_name)
+        tng_data->first_program_name = (char *) malloc(1);
+        if(!tng_data->first_program_name)
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
             tng_block_destroy(block);
             return(TNG_CRITICAL);
         }
-        tng_data->program_name[0] = 0;
+        tng_data->first_program_name[0] = 0;
+    }
+    if(!tng_data->last_program_name)
+    {
+        tng_data->last_program_name = (char *) malloc(1);
+        if(!tng_data->last_program_name)
+        {
+            printf("Cannot allocate memory (1 byte). %s: %d\n",
+                   __FILE__, __LINE__);
+            tng_block_destroy(block);
+            return(TNG_CRITICAL);
+        }
+        tng_data->last_program_name[0] = 0;
+    }
+    if(!tng_data->first_user_name)
+    {
+        tng_data->first_user_name = (char *) malloc(1);
+        if(!tng_data->first_user_name)
+        {
+            printf("Cannot allocate memory (1 byte). %s: %d\n",
+                   __FILE__, __LINE__);
+            tng_block_destroy(block);
+            return(TNG_CRITICAL);
+        }
+        tng_data->first_user_name[0] = 0;
+    }
+    if(!tng_data->last_user_name)
+    {
+        tng_data->last_user_name = (char *) malloc(1);
+        if(!tng_data->last_user_name)
+        {
+            printf("Cannot allocate memory (1 byte). %s: %d\n",
+                   __FILE__, __LINE__);
+            tng_block_destroy(block);
+            return(TNG_CRITICAL);
+        }
+        tng_data->last_user_name[0] = 0;
+    }
+    if(!tng_data->first_computer_name)
+    {
+        tng_data->first_computer_name = (char *) malloc(1);
+        if(!tng_data->first_computer_name)
+        {
+            printf("Cannot allocate memory (1 byte). %s: %d\n",
+                   __FILE__, __LINE__);
+            tng_block_destroy(block);
+            return(TNG_CRITICAL);
+        }
+        tng_data->first_computer_name[0] = 0;
+    }
+    if(!tng_data->last_computer_name)
+    {
+        tng_data->last_computer_name = (char *) malloc(1);
+        if(!tng_data->last_computer_name)
+        {
+            printf("Cannot allocate memory (1 byte). %s: %d\n",
+                   __FILE__, __LINE__);
+            tng_block_destroy(block);
+            return(TNG_CRITICAL);
+        }
+        tng_data->last_computer_name[0] = 0;
+    }
+    if(!tng_data->first_pgp_signature)
+    {
+        tng_data->first_pgp_signature = (char *) malloc(1);
+        if(!tng_data->first_pgp_signature)
+        {
+            printf("Cannot allocate memory (1 byte). %s: %d\n",
+                   __FILE__, __LINE__);
+            tng_block_destroy(block);
+            return(TNG_CRITICAL);
+        }
+        tng_data->first_pgp_signature[0] = 0;
+    }
+    if(!tng_data->last_pgp_signature)
+    {
+        tng_data->last_pgp_signature = (char *) malloc(1);
+        if(!tng_data->last_pgp_signature)
+        {
+            printf("Cannot allocate memory (1 byte). %s: %d\n",
+                   __FILE__, __LINE__);
+            tng_block_destroy(block);
+            return(TNG_CRITICAL);
+        }
+        tng_data->last_pgp_signature[0] = 0;
     }
     if(!tng_data->forcefield_name)
     {
@@ -752,53 +887,25 @@ static tng_function_status tng_write_general_info_block
         }
         tng_data->forcefield_name[0] = 0;
     }
-    if(!tng_data->user_name)
-    {
-        tng_data->user_name = (char *) malloc(1);
-        if(!tng_data->user_name)
-        {
-            printf("Cannot allocate memory (1 byte). %s: %d\n",
-                   __FILE__, __LINE__);
-            tng_block_destroy(block);
-            return(TNG_CRITICAL);
-        }
-        tng_data->user_name[0] = 0;
-    }
-    if(!tng_data->computer_name)
-    {
-        tng_data->computer_name = (char *) malloc(1);
-        if(!tng_data->computer_name)
-        {
-            printf("Cannot allocate memory (1 byte). %s: %d\n",
-                   __FILE__, __LINE__);
-            tng_block_destroy(block);
-            return(TNG_CRITICAL);
-        }
-        tng_data->computer_name[0] = 0;
-    }
-    if(!tng_data->pgp_signature)
-    {
-        tng_data->pgp_signature = (char *) malloc(1);
-        if(!tng_data->pgp_signature)
-        {
-            printf("Cannot allocate memory (1 byte). %s: %d\n",
-                   __FILE__, __LINE__);
-            tng_block_destroy(block);
-            return(TNG_CRITICAL);
-        }
-        tng_data->pgp_signature[0] = 0;
-    }
 
-    program_name_len = min(strlen(tng_data->program_name) + 1,
+    first_program_name_len = min(strlen(tng_data->first_program_name) + 1,
                            TNG_MAX_STR_LEN);
+    last_program_name_len = min(strlen(tng_data->last_program_name) + 1,
+                           TNG_MAX_STR_LEN);
+    first_user_name_len = min(strlen(tng_data->first_user_name) + 1,
+                        TNG_MAX_STR_LEN);
+    last_user_name_len = min(strlen(tng_data->last_user_name) + 1,
+                        TNG_MAX_STR_LEN);
+    first_computer_name_len = min(strlen(tng_data->first_computer_name) + 1,
+                            TNG_MAX_STR_LEN);
+    last_computer_name_len = min(strlen(tng_data->last_computer_name) + 1,
+                            TNG_MAX_STR_LEN);
+    first_pgp_signature_len = min(strlen(tng_data->first_pgp_signature) + 1,
+                            TNG_MAX_STR_LEN);
+    last_pgp_signature_len = min(strlen(tng_data->last_pgp_signature) + 1,
+                            TNG_MAX_STR_LEN);
     forcefield_name_len = min(strlen(tng_data->forcefield_name) + 1,
                               TNG_MAX_STR_LEN);
-    user_name_len = min(strlen(tng_data->user_name) + 1,
-                        TNG_MAX_STR_LEN);
-    computer_name_len = min(strlen(tng_data->computer_name) + 1,
-                            TNG_MAX_STR_LEN);
-    pgp_signature_len = min(strlen(tng_data->pgp_signature) + 1,
-                            TNG_MAX_STR_LEN);
 
     /* If just dumping the whole block_contents it is not certain that the
      * contents are known beforehand (e.g. due to different file versions) */
@@ -835,11 +942,15 @@ static tng_function_status tng_write_general_info_block
                 sizeof(tng_data->last_trajectory_frame_set_input_file_pos) +
                 sizeof(tng_data->medium_stride_length) +
                 sizeof(tng_data->long_stride_length) +
-                program_name_len +
-                forcefield_name_len +
-                user_name_len +
-                computer_name_len +
-                pgp_signature_len;
+                first_program_name_len +
+                last_program_name_len +
+                first_user_name_len +
+                last_user_name_len +
+                first_computer_name_len +
+                last_computer_name_len +
+                first_pgp_signature_len +
+                last_pgp_signature_len +
+                forcefield_name_len;
 
     if(block->block_contents)
     {
@@ -854,15 +965,37 @@ static tng_function_status tng_write_general_info_block
         return(TNG_CRITICAL);
     }
 
-    strncpy(block->block_contents, tng_data->program_name, program_name_len);
-    offset += program_name_len;
+    strncpy(block->block_contents, tng_data->first_program_name, first_program_name_len);
+    offset += first_program_name_len;
+
+    strncpy(block->block_contents, tng_data->last_program_name, last_program_name_len);
+    offset += last_program_name_len;
+
+    strncpy(block->block_contents+offset, tng_data->first_user_name, first_user_name_len);
+    offset += first_user_name_len;
+
+    strncpy(block->block_contents+offset, tng_data->last_user_name, last_user_name_len);
+    offset += last_user_name_len;
+
+    strncpy(block->block_contents+offset, tng_data->first_computer_name,
+            first_computer_name_len);
+    offset += first_computer_name_len;
+
+    strncpy(block->block_contents+offset, tng_data->last_computer_name,
+            last_computer_name_len);
+    offset += last_computer_name_len;
+
+    strncpy(block->block_contents+offset, tng_data->first_pgp_signature,
+            first_pgp_signature_len);
+    offset += first_pgp_signature_len;
+
+    strncpy(block->block_contents+offset, tng_data->last_pgp_signature,
+            last_pgp_signature_len);
+    offset += last_pgp_signature_len;
 
     strncpy(block->block_contents+offset, tng_data->forcefield_name,
             forcefield_name_len);
     offset += forcefield_name_len;
-
-    strncpy(block->block_contents+offset, tng_data->user_name, user_name_len);
-    offset += user_name_len;
 
     memcpy(block->block_contents+offset, &tng_data->time,
            sizeof(tng_data->time));
@@ -877,14 +1010,6 @@ static tng_function_status tng_write_general_info_block
         }
     }
     offset += sizeof(tng_data->time);
-
-    strncpy(block->block_contents+offset, tng_data->computer_name,
-            computer_name_len);
-    offset += computer_name_len;
-
-    strncpy(block->block_contents+offset, tng_data->pgp_signature,
-            pgp_signature_len);
-    offset += pgp_signature_len;
 
     memcpy(block->block_contents+offset, &tng_data->var_num_atoms_flag,
            sizeof(tng_data->var_num_atoms_flag));
@@ -5380,18 +5505,15 @@ tng_function_status tng_trajectory_init(tng_trajectory_t tng_data)
     tng_data->output_file = 0;
     tng_data->output_file_pos = 0;
 
-    tng_data->program_name = 0;
+    tng_data->first_program_name = 0;
+    tng_data->first_user_name = 0;
+    tng_data->first_computer_name = 0;
+    tng_data->first_pgp_signature = 0;
+    tng_data->last_program_name = 0;
+    tng_data->last_user_name = 0;
+    tng_data->last_computer_name = 0;
+    tng_data->last_pgp_signature = 0;
     tng_data->forcefield_name = 0;
-    
-    /* FIXME: No unistd.h on Windows!! */
-//     tng_data->user_name = (char *) malloc(LOGIN_NAME_MAX);
-//     if(getlogin_r(tng_data->user_name, LOGIN_NAME_MAX) != 0)
-//     {
-//         printf("Cannot get user name. %s: %d\n", __FILE__, __LINE__);
-//         free(tng_data->user_name);
-//         tng_data->user_name = 0;
-//     }
-    tng_data->user_name = 0;
     
     seconds = time(0);
     if ( seconds == -1)
@@ -5402,19 +5524,7 @@ tng_function_status tng_trajectory_init(tng_trajectory_t tng_data)
     {
         tng_data->time = seconds;
     }
-    
-    /* FIXME: No unistd.h on Windows!! */
-    /* FIXME: Append operating system to computer_name */
-//     tng_data->computer_name = (char *) malloc(HOST_NAME_MAX);
-//     if(gethostname(tng_data->computer_name, HOST_NAME_MAX) != 0)
-//     {
-//         printf("Cannot get computer name. %s: %d\n", __FILE__, __LINE__);
-//         free(tng_data->computer_name);
-//         tng_data->computer_name = 0;
-//     }
-    tng_data->computer_name = 0;
 
-    tng_data->pgp_signature = 0;
     tng_data->var_num_atoms_flag = TNG_CONSTANT_N_ATOMS;
     tng_data->first_trajectory_frame_set_input_file_pos = -1;
     tng_data->last_trajectory_frame_set_input_file_pos = -1;
@@ -5445,6 +5555,13 @@ tng_function_status tng_trajectory_init(tng_trajectory_t tng_data)
 
     frame_set->tr_particle_data = 0;
     frame_set->tr_data = 0;
+
+    frame_set->next_frame_set_file_pos = -1;
+    frame_set->prev_frame_set_file_pos = -1;
+    frame_set->medium_stride_next_frame_set_file_pos = -1;
+    frame_set->medium_stride_prev_frame_set_file_pos = -1;
+    frame_set->long_stride_next_frame_set_file_pos = -1;
+    frame_set->long_stride_prev_frame_set_file_pos = -1;
     
     tng_data->n_molecules = 0;
     tng_data->molecules = 0;
@@ -5553,34 +5670,58 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t tng_data)
         tng_data->output_file = 0;
     }
     
-    if(tng_data->program_name)
+    if(tng_data->first_program_name)
     {
-        free(tng_data->program_name);
-        tng_data->program_name = 0;
+        free(tng_data->first_program_name);
+        tng_data->first_program_name = 0;
+    }
+
+    if(tng_data->last_program_name)
+    {
+        free(tng_data->last_program_name);
+        tng_data->last_program_name = 0;
+    }
+
+    if(tng_data->first_user_name)
+    {
+        free(tng_data->first_user_name);
+        tng_data->first_user_name = 0;
+    }
+    
+    if(tng_data->last_user_name)
+    {
+        free(tng_data->last_user_name);
+        tng_data->last_user_name = 0;
+    }
+
+    if(tng_data->first_computer_name)
+    {
+        free(tng_data->first_computer_name);
+        tng_data->first_computer_name = 0;
+    }
+
+    if(tng_data->last_computer_name)
+    {
+        free(tng_data->last_computer_name);
+        tng_data->last_computer_name = 0;
+    }
+
+    if(tng_data->first_pgp_signature)
+    {
+        free(tng_data->first_pgp_signature);
+        tng_data->first_pgp_signature = 0;
+    }
+
+    if(tng_data->last_pgp_signature)
+    {
+        free(tng_data->last_pgp_signature);
+        tng_data->last_pgp_signature = 0;
     }
 
     if(tng_data->forcefield_name)
     {
         free(tng_data->forcefield_name);
         tng_data->forcefield_name = 0;
-    }
-    
-    if(tng_data->user_name)
-    {
-        free(tng_data->user_name);
-        tng_data->user_name = 0;
-    }
-    
-    if(tng_data->computer_name)
-    {
-        free(tng_data->computer_name);
-        tng_data->computer_name = 0;
-    }
-
-    if(tng_data->pgp_signature)
-    {
-        free(tng_data->pgp_signature);
-        tng_data->pgp_signature = 0;
     }
 
     if(frame_set->contents.block_names)
@@ -5803,22 +5944,22 @@ tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_program_name_set(tng_trajectory_t tng_data,
+tng_function_status tng_first_program_name_set(tng_trajectory_t tng_data,
                                          const char *new_name)
 {
     int len;
 
     len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
-    if(tng_data->program_name && strlen(tng_data->program_name) < len)
+    if(tng_data->first_program_name && strlen(tng_data->first_program_name) < len)
     {
-        free(tng_data->program_name);
-        tng_data->program_name = 0;
+        free(tng_data->first_program_name);
+        tng_data->first_program_name = 0;
     }
-    if(!tng_data->program_name)
+    if(!tng_data->first_program_name)
     {
-        tng_data->program_name = (char *) malloc(len);
-        if(!tng_data->program_name)
+        tng_data->first_program_name = (char *) malloc(len);
+        if(!tng_data->first_program_name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
@@ -5826,7 +5967,203 @@ tng_function_status tng_program_name_set(tng_trajectory_t tng_data,
         }
     }
 
-    strncpy(tng_data->program_name, new_name, len);
+    strncpy(tng_data->first_program_name, new_name, len);
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_last_program_name_set(tng_trajectory_t tng_data,
+                                         const char *new_name)
+{
+    int len;
+
+    len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+
+    if(tng_data->last_program_name && strlen(tng_data->last_program_name) < len)
+    {
+        free(tng_data->last_program_name);
+        tng_data->last_program_name = 0;
+    }
+    if(!tng_data->last_program_name)
+    {
+        tng_data->last_program_name = (char *) malloc(len);
+        if(!tng_data->last_program_name)
+        {
+            printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+                   __FILE__, __LINE__);
+            return(TNG_CRITICAL);
+        }
+    }
+
+    strncpy(tng_data->last_program_name, new_name, len);
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_first_user_name_set(tng_trajectory_t tng_data,
+                                      const char *new_name)
+{
+    int len;
+
+    len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+
+    if(tng_data->first_user_name && strlen(tng_data->first_user_name) < len)
+    {
+        free(tng_data->first_user_name);
+        tng_data->first_user_name = 0;
+    }
+    if(!tng_data->first_user_name)
+    {
+        tng_data->first_user_name = (char *) malloc(len);
+        if(!tng_data->first_user_name)
+        {
+            printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+                   __FILE__, __LINE__);
+            return(TNG_CRITICAL);
+        }
+    }
+
+    strncpy(tng_data->first_user_name, new_name, len);
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_last_user_name_set(tng_trajectory_t tng_data,
+                                      const char *new_name)
+{
+    int len;
+
+    len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+
+    if(tng_data->last_user_name && strlen(tng_data->last_user_name) < len)
+    {
+        free(tng_data->last_user_name);
+        tng_data->last_user_name = 0;
+    }
+    if(!tng_data->last_user_name)
+    {
+        tng_data->last_user_name = (char *) malloc(len);
+        if(!tng_data->last_user_name)
+        {
+            printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+                   __FILE__, __LINE__);
+            return(TNG_CRITICAL);
+        }
+    }
+
+    strncpy(tng_data->last_user_name, new_name, len);
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_first_computer_name_set(tng_trajectory_t tng_data,
+                                          const char *new_name)
+{
+    int len;
+
+    len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+
+    if(tng_data->first_computer_name && strlen(tng_data->first_computer_name) < len)
+    {
+        free(tng_data->first_computer_name);
+        tng_data->first_computer_name = 0;
+    }
+    if(!tng_data->first_computer_name)
+    {
+        tng_data->first_computer_name = (char *) malloc(len);
+        if(!tng_data->first_computer_name)
+        {
+            printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+                   __FILE__, __LINE__);
+            return(TNG_CRITICAL);
+        }
+    }
+
+    strncpy(tng_data->first_computer_name, new_name, len);
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_last_computer_name_set(tng_trajectory_t tng_data,
+                                          const char *new_name)
+{
+    int len;
+
+    len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+
+    if(tng_data->last_computer_name && strlen(tng_data->last_computer_name) < len)
+    {
+        free(tng_data->last_computer_name);
+        tng_data->last_computer_name = 0;
+    }
+    if(!tng_data->last_computer_name)
+    {
+        tng_data->last_computer_name = (char *) malloc(len);
+        if(!tng_data->last_computer_name)
+        {
+            printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+                   __FILE__, __LINE__);
+            return(TNG_CRITICAL);
+        }
+    }
+
+    strncpy(tng_data->last_computer_name, new_name, len);
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_first_signature_set(tng_trajectory_t tng_data,
+                                      const char *signature)
+{
+    int len;
+
+    len = min(strlen(signature) + 1, TNG_MAX_STR_LEN);
+
+    if(tng_data->first_pgp_signature && strlen(tng_data->first_pgp_signature) < len)
+    {
+        free(tng_data->first_pgp_signature);
+        tng_data->first_pgp_signature = 0;
+    }
+    if(!tng_data->first_pgp_signature)
+    {
+        tng_data->first_pgp_signature = (char *) malloc(len);
+        if(!tng_data->first_pgp_signature)
+        {
+            printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+                   __FILE__, __LINE__);
+            return(TNG_CRITICAL);
+        }
+    }
+
+    strncpy(tng_data->first_pgp_signature, signature, len);
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_last_signature_set(tng_trajectory_t tng_data,
+                                      const char *signature)
+{
+    int len;
+
+    len = min(strlen(signature) + 1, TNG_MAX_STR_LEN);
+
+    if(tng_data->last_pgp_signature && strlen(tng_data->last_pgp_signature) < len)
+    {
+        free(tng_data->last_pgp_signature);
+        tng_data->last_pgp_signature = 0;
+    }
+    if(!tng_data->last_pgp_signature)
+    {
+        tng_data->last_pgp_signature = (char *) malloc(len);
+        if(!tng_data->last_pgp_signature)
+        {
+            printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+                   __FILE__, __LINE__);
+            return(TNG_CRITICAL);
+        }
+    }
+
+    strncpy(tng_data->last_pgp_signature, signature, len);
 
     return(TNG_SUCCESS);
 }
@@ -5855,90 +6192,6 @@ tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
     }
 
     strncpy(tng_data->forcefield_name, new_name, len);
-
-    return(TNG_SUCCESS);
-}
-
-tng_function_status tng_user_name_set(tng_trajectory_t tng_data,
-                                      const char *new_name)
-{
-    int len;
-
-    len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
-
-    if(tng_data->user_name && strlen(tng_data->user_name) < len)
-    {
-        free(tng_data->user_name);
-        tng_data->user_name = 0;
-    }
-    if(!tng_data->user_name)
-    {
-        tng_data->user_name = (char *) malloc(len);
-        if(!tng_data->user_name)
-        {
-            printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
-                   __FILE__, __LINE__);
-            return(TNG_CRITICAL);
-        }
-    }
-
-    strncpy(tng_data->user_name, new_name, len);
-
-    return(TNG_SUCCESS);
-}
-
-tng_function_status tng_computer_name_set(tng_trajectory_t tng_data,
-                                          const char *new_name)
-{
-    int len;
-
-    len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
-
-    if(tng_data->computer_name && strlen(tng_data->computer_name) < len)
-    {
-        free(tng_data->computer_name);
-        tng_data->computer_name = 0;
-    }
-    if(!tng_data->computer_name)
-    {
-        tng_data->computer_name = (char *) malloc(len);
-        if(!tng_data->computer_name)
-        {
-            printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
-                   __FILE__, __LINE__);
-            return(TNG_CRITICAL);
-        }
-    }
-
-    strncpy(tng_data->computer_name, new_name, len);
-
-    return(TNG_SUCCESS);
-}
-
-tng_function_status tng_signature_set(tng_trajectory_t tng_data,
-                                      const char *signature)
-{
-    int len;
-
-    len = min(strlen(signature) + 1, TNG_MAX_STR_LEN);
-
-    if(tng_data->pgp_signature && strlen(tng_data->pgp_signature) < len)
-    {
-        free(tng_data->pgp_signature);
-        tng_data->pgp_signature = 0;
-    }
-    if(!tng_data->pgp_signature)
-    {
-        tng_data->pgp_signature = (char *) malloc(len);
-        if(!tng_data->pgp_signature)
-        {
-            printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
-                   __FILE__, __LINE__);
-            return(TNG_CRITICAL);
-        }
-    }
-
-    strncpy(tng_data->pgp_signature, signature, len);
 
     return(TNG_SUCCESS);
 }

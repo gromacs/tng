@@ -343,17 +343,28 @@ struct tng_trajectory {
     tng_endianness_64 endianness_64;
 
     /** The name of the program producing this trajectory */
-    char *program_name;
+    char *first_program_name;
     /** The forcefield used in the simulations */
     char *forcefield_name;
     /** The name of the user running the simulations */
-    char *user_name;
+    char *first_user_name;
+    /** The name of the computer on which the simulations were performed */
+    char *first_computer_name;
+    /** The PGP signature of the user creating the file. */
+    char *first_pgp_signature;
+    /** The name of the program used when making last modifications to the
+     *  file */
+    char *last_program_name;
+    /** The name of the user making the last modifications to the file */
+    char *last_user_name;
+    /** The name of the computer on which the last modifications were made */
+    char *last_computer_name;
+    /** The PGP signature of the user making the last modifications to the
+     *  file. */
+    char *last_pgp_signature;
     /** The time (n seconds since 1970) when the file was created */
     int64_t time;
-    /** The name of the computer on which the simulations were performed */
-    char *computer_name;
-    /** The PGP signature of the user creating the file. */
-    char *pgp_signature;
+    
     /** A flag indicating if the number of atoms can vary throughout the
      *  simulation, e.g. using a grand canonical ensemble */
     char var_num_atoms_flag;
@@ -459,8 +470,78 @@ tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_program_name_set(tng_trajectory_t tng_data,
-                                         const char *new_name);
+tng_function_status tng_first_program_name_set(tng_trajectory_t tng_data,
+                                               const char *new_name);
+
+/**
+ * @brief Set the name of the program used when last modifying the trajectory.
+ * @param tng_data the trajectory of which to set the program name.
+ * @param new_name is a string containing the wanted name.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_last_program_name_set(tng_trajectory_t tng_data,
+                                              const char *new_name);
+
+/**
+ * @brief Set the name of the user who created the trajectory.
+ * @param tng_data the trajectory of which to set the user name.
+ * @param new_name is a string containing the wanted name.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_first_user_name_set(tng_trajectory_t tng_data,
+                                            const char *new_name);
+
+/**
+ * @brief Set the name of the user who last modified the trajectory.
+ * @param tng_data the trajectory of which to set the user name.
+ * @param new_name is a string containing the wanted name.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_last_user_name_set(tng_trajectory_t tng_data,
+                                           const char *new_name);
+
+/**
+ * @brief Set the name of the computer used when creating the trajectory.
+ * @param tng_data the trajectory of which to set the computer name.
+ * @param new_name is a string containing the wanted name.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_first_computer_name_set(tng_trajectory_t tng_data,
+                                                const char *new_name);
+
+/**
+ * @brief Set the name of the computer used when last modifying the trajectory.
+ * @param tng_data the trajectory of which to set the computer name.
+ * @param new_name is a string containing the wanted name.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_last_computer_name_set(tng_trajectory_t tng_data,
+                                               const char *new_name);
+
+/**
+ * @brief Set the pgp_signature of the user creating the trajectory.
+ * @param tng_data the trajectory of which to set the computer name.
+ * @param signature is a string containing the pgp_signature.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_first_signature_set(tng_trajectory_t tng_data,
+                                            const char *signature);
+
+/**
+ * @brief Set the pgp_signature of the user last modifying the trajectory.
+ * @param tng_data the trajectory of which to set the computer name.
+ * @param signature is a string containing the pgp_signature.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_last_signature_set(tng_trajectory_t tng_data,
+                                           const char *signature);
 
 /**
  * @brief Set the name of the forcefield used in the trajectory.
@@ -471,36 +552,6 @@ tng_function_status tng_program_name_set(tng_trajectory_t tng_data,
  */
 tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
                                             const char *new_name);
-
-/**
- * @brief Set the name of the user who created the trajectory.
- * @param tng_data the trajectory of which to set the user name.
- * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
- */
-tng_function_status tng_user_name_set(tng_trajectory_t tng_data,
-                                      const char *new_name);
-
-/**
- * @brief Set the name of the computer used when creating the trajectory.
- * @param tng_data the trajectory of which to set the computer name.
- * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
- */
-tng_function_status tng_computer_name_set(tng_trajectory_t tng_data,
-                                          const char *new_name);
-
-/**
- * @brief Set the pgp_signature of the trajectory.
- * @param tng_data the trajectory of which to set the computer name.
- * @param signature is a string containing the pgp_signature.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
- */
-tng_function_status tng_signature_set(tng_trajectory_t tng_data,
-                                      const char *signature);
 
 /**
  * @brief Setup a molecule container.
@@ -682,7 +733,7 @@ tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
  * @brief Set the atom type of an atom.
  * @param tng_data is the trajectory data container containing the atom..
  * @param atom is the atom to change.
- * @param new_name is a string containing the atom type.
+ * @param new_type is a string containing the atom type.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -698,7 +749,8 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
  * @details tng_data->input_file_path specifies
  * which file to read from. If the file (input_file) is not open it will be
  * opened.
- * @details If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
  * compared to the md5 hash of the read contents to ensure valid data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
@@ -714,7 +766,8 @@ tng_function_status tng_file_headers_read(tng_trajectory_t tng_data,
  * @details tng_data->output_file_path
  * specifies which file to write to. If the file (output_file) is not open it
  * will be opened.
- * @details If hash_mode == TNG_USE_HASH an md5 hash for each header block will be generated.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH an md5 hash for each header block will be generated.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -732,7 +785,8 @@ tng_function_status tng_file_headers_write(tng_trajectory_t tng_data,
  * data.
  * @details If block_data->input_file_pos > 0 it is the position from where the
  * reading starts otherwise it starts from the current position.
- * @details If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
  * compared to the md5 hash of the read contents to ensure valid data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
@@ -749,7 +803,8 @@ tng_function_status tng_block_read_next(tng_trajectory_t tng_data,
  * @details  tng_data->input_file_path specifies
  * which file to read from. If the file (input_file) is not open it will be
  * opened.
- * @details If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
  * compared to the md5 hash of the read contents to ensure valid data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
@@ -764,7 +819,8 @@ tng_function_status tng_frame_set_read_next(tng_trajectory_t tng_data,
  * @details  tng_data->output_file_path specifies
  * which file to write to. If the file (output_file) is not open it will be
  * opened.
- * @details If hash_mode == TNG_USE_HASH an md5 hash for each block will be generated.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH an md5 hash for each header block will be generated.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -962,6 +1018,7 @@ tng_function_status tng_particle_data_values_free(union data_values ***values,
  * needed to properly reach and/or free the data afterwards.
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
+ * @param type is set to the data type of the data in the array.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -987,6 +1044,7 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
  * responsibility to free the memory.
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
+ * @param type is set to the data type of the data in the array.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1015,6 +1073,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
  * needed to properly reach and/or free the data afterwards.
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
+ * @param type is set to the data type of the data in the array.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1045,6 +1104,7 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
  * responsibility to free the memory.
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
+ * @param type is set to the data type of the data in the array.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
