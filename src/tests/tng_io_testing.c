@@ -129,6 +129,9 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     int i, j, k, nr, tot_n_mols, cnt;
     float *data, *molpos;
     tng_function_status stat;
+
+    tng_medium_stride_length_set(traj, 10);
+    tng_long_stride_length_set(traj, 100);
     
     /* Create molecules */
     if(tng_test_setup_molecules(traj) == TNG_CRITICAL)

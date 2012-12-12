@@ -2187,8 +2187,7 @@ static tng_function_status tng_read_frame_set_block
            sizeof(frame_set->medium_stride_next_frame_set_file_pos));
     if(tng_data->endianness_64 != TNG_BIG_ENDIAN_64)
     {
-        if(tng_swap_byte_order_64(tng_data,
-                                  &frame_set->
+        if(tng_swap_byte_order_64(tng_data, &frame_set->
                                   medium_stride_next_frame_set_file_pos) !=
            TNG_SUCCESS)
         {
@@ -2203,8 +2202,7 @@ static tng_function_status tng_read_frame_set_block
            sizeof(frame_set->medium_stride_prev_frame_set_file_pos));
     if(tng_data->endianness_64 != TNG_BIG_ENDIAN_64)
     {
-        if(tng_swap_byte_order_64(tng_data,
-                                  &frame_set->
+        if(tng_swap_byte_order_64(tng_data, &frame_set->
                                   medium_stride_prev_frame_set_file_pos) !=
            TNG_SUCCESS)
         {
@@ -2219,8 +2217,7 @@ static tng_function_status tng_read_frame_set_block
            sizeof(frame_set->long_stride_next_frame_set_file_pos));
     if(tng_data->endianness_64 != TNG_BIG_ENDIAN_64)
     {
-        if(tng_swap_byte_order_64(tng_data,
-                                  &frame_set->
+        if(tng_swap_byte_order_64(tng_data, &frame_set->
                                   long_stride_next_frame_set_file_pos) !=
            TNG_SUCCESS)
         {
@@ -2235,8 +2232,7 @@ static tng_function_status tng_read_frame_set_block
            sizeof(frame_set->long_stride_prev_frame_set_file_pos));
     if(tng_data->endianness_64 != TNG_BIG_ENDIAN_64)
     {
-        if(tng_swap_byte_order_64(tng_data,
-                                  &frame_set->
+        if(tng_swap_byte_order_64(tng_data, &frame_set->
                                   long_stride_prev_frame_set_file_pos) !=
            TNG_SUCCESS)
         {
@@ -4746,6 +4742,8 @@ static tng_function_status tng_update_frame_set_pointers
     tng_data->input_file = tng_data->output_file;
 
     frame_set = &tng_data->current_trajectory_frame_set;
+
+    /* Update previous frame set */
     if(frame_set->prev_frame_set_file_pos != -1 &&
        frame_set->prev_frame_set_file_pos != 0)
     {
@@ -4765,7 +4763,7 @@ static tng_function_status tng_update_frame_set_pointers
 
         contents_start_pos = ftell(tng_data->output_file);
 
-        fseek(tng_data->output_file, block.block_contents_size - 4 *
+        fseek(tng_data->output_file, block.block_contents_size - 6 *
             sizeof(int64_t), SEEK_CUR);
 
 //         printf("Updating frame set\n");
@@ -4799,11 +4797,12 @@ static tng_function_status tng_update_frame_set_pointers
         fseek(tng_data->output_file, tng_data->output_file_pos, SEEK_SET);
     }
 
-    if(frame_set->long_stride_prev_frame_set_file_pos != -1 &&
-       frame_set->long_stride_prev_frame_set_file_pos != 0)
+    /* Update the frame set one medium stride step before */
+    if(frame_set->medium_stride_prev_frame_set_file_pos != -1 &&
+       frame_set->medium_stride_prev_frame_set_file_pos != 0)
     {
         fseek(tng_data->output_file,
-              frame_set->long_stride_prev_frame_set_file_pos,
+              frame_set->medium_stride_prev_frame_set_file_pos,
               SEEK_SET);
 
         if(tng_read_block_header(tng_data, &block) != TNG_SUCCESS)
@@ -4817,7 +4816,7 @@ static tng_function_status tng_update_frame_set_pointers
 
         contents_start_pos = ftell(tng_data->output_file);
         
-        fseek(tng_data->output_file, block.block_contents_size - 2 *
+        fseek(tng_data->output_file, block.block_contents_size - 4 *
             sizeof(int64_t), SEEK_CUR);
 
         pos = tng_data->current_trajectory_frame_set_output_file_pos;
@@ -4841,11 +4840,59 @@ static tng_function_status tng_update_frame_set_pointers
         if(hash_mode == TNG_USE_HASH)
         {
             tng_update_md5_hash(tng_data, &block,
-                                frame_set->long_stride_prev_frame_set_file_pos,
+                                frame_set->medium_stride_prev_frame_set_file_pos,
                                 contents_start_pos);
         }
     }
 
+    /* Update the frame set one long stride step before */
+    if(frame_set->long_stride_prev_frame_set_file_pos != -1 &&
+       frame_set->long_stride_prev_frame_set_file_pos != 0)
+    {
+        fseek(tng_data->output_file,
+              frame_set->long_stride_prev_frame_set_file_pos,
+              SEEK_SET);
+
+        if(tng_read_block_header(tng_data, &block) != TNG_SUCCESS)
+        {
+            printf("Cannot read frame set header. %s: %d\n",
+                __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            tng_data->input_file = temp;
+            return(TNG_CRITICAL);
+        }
+
+        contents_start_pos = ftell(tng_data->output_file);
+
+        fseek(tng_data->output_file, block.block_contents_size - 2 *
+            sizeof(int64_t), SEEK_CUR);
+
+        pos = tng_data->current_trajectory_frame_set_output_file_pos;
+
+        if(tng_data->endianness_64 != TNG_BIG_ENDIAN_64)
+        {
+            if(tng_swap_byte_order_64(tng_data, &pos) != TNG_SUCCESS)
+            {
+                printf("Cannot swap byte order to get big endian. %s: %d\n",
+                        __FILE__, __LINE__);
+            }
+        }
+
+        if(fwrite(&pos, sizeof(int64_t), 1, tng_data->output_file) != 1)
+        {
+            tng_block_destroy(&block);
+            tng_data->input_file = temp;
+            return(TNG_CRITICAL);
+        }
+
+        if(hash_mode == TNG_USE_HASH)
+        {
+            tng_update_md5_hash(tng_data, &block,
+                                frame_set->long_stride_prev_frame_set_file_pos,
+                                contents_start_pos);
+        }
+    }
+    
     fseek(tng_data->output_file, tng_data->output_file_pos, SEEK_SET);
     
     tng_data->input_file = temp;
@@ -6196,6 +6243,39 @@ tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_medium_stride_length_get(tng_trajectory_t tng_data,
+                                               int64_t *len)
+{
+    *len = tng_data->medium_stride_length;
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_medium_stride_length_set(tng_trajectory_t tng_data,
+                                               int64_t len)
+{
+    tng_data->medium_stride_length = len;
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_long_stride_length_get(tng_trajectory_t tng_data,
+                                               int64_t *len)
+{
+    *len = tng_data->long_stride_length;
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
+                                               int64_t len)
+{
+    tng_data->long_stride_length = len;
+
+    return(TNG_SUCCESS);
+}
+
+
 tng_function_status tng_file_headers_read(tng_trajectory_t tng_data,
                                           const tng_hash_mode hash_mode)
 {
@@ -6630,25 +6710,25 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
 
     tng_data->n_trajectory_frame_sets++;
 
-    /* Set the long range pointers */
-    if(tng_data->n_trajectory_frame_sets == tng_data->long_stride_length + 1)
+    /* Set the medium range pointers */
+    if(tng_data->n_trajectory_frame_sets == tng_data->medium_stride_length + 1)
     {
-        frame_set->long_stride_prev_frame_set_file_pos =
+        frame_set->medium_stride_prev_frame_set_file_pos =
         tng_data->first_trajectory_frame_set_output_file_pos;
     }
-    else if(tng_data->n_trajectory_frame_sets > tng_data->long_stride_length + 1)
+    else if(tng_data->n_trajectory_frame_sets > tng_data->medium_stride_length + 1)
     {
         /* FIXME: Currently only working if the previous frame set has its
-         * long stride pointer already set. This might need some fixing. */
-        if(frame_set->long_stride_prev_frame_set_file_pos != -1 &&
-           frame_set->long_stride_prev_frame_set_file_pos != 0)
+         * medium stride pointer already set. This might need some fixing. */
+        if(frame_set->medium_stride_prev_frame_set_file_pos != -1 &&
+           frame_set->medium_stride_prev_frame_set_file_pos != 0)
         {
             tng_block_init(&block);
             tng_data->input_file = tng_data->output_file;
             
             curr_pos = ftell(tng_data->output_file);
             fseek(tng_data->output_file,
-                  frame_set->long_stride_prev_frame_set_file_pos,
+                  frame_set->medium_stride_prev_frame_set_file_pos,
                   SEEK_SET);
             
             if(tng_read_block_header(tng_data, &block) != TNG_SUCCESS)
@@ -6661,12 +6741,12 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
             }
 
             /* Read the next frame set from the previous frame set and one
-             * long stride step back */
-            fseek(tng_data->output_file, block.block_contents_size - 4 *
+             * medium stride step back */
+            fseek(tng_data->output_file, block.block_contents_size - 6 *
                 sizeof(int64_t), SEEK_CUR);
-            if(fread(&frame_set->long_stride_prev_frame_set_file_pos,
-                  sizeof(frame_set->long_stride_prev_frame_set_file_pos),
-                  1, tng_data->output_file) == 0)
+            if(fread(&frame_set->medium_stride_prev_frame_set_file_pos,
+               sizeof(frame_set->medium_stride_prev_frame_set_file_pos),
+               1, tng_data->output_file) == 0)
             {
                 printf("Cannot read block. %s: %d\n", __FILE__, __LINE__);
                 tng_block_destroy(&block);
@@ -6678,7 +6758,7 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
             {
                 if(tng_swap_byte_order_64(tng_data,
                                           &frame_set->
-                                          long_stride_prev_frame_set_file_pos)
+                                          medium_stride_prev_frame_set_file_pos)
                    != TNG_SUCCESS)
                 {
                     printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -6686,6 +6766,63 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
                 }
             }
 
+            /* Set the long range pointers */
+            if(tng_data->n_trajectory_frame_sets == tng_data->long_stride_length + 1)
+            {
+                frame_set->long_stride_prev_frame_set_file_pos =
+                tng_data->first_trajectory_frame_set_output_file_pos;
+            }
+            else if(tng_data->n_trajectory_frame_sets > tng_data->medium_stride_length + 1)
+            {
+                /* FIXME: Currently only working if the previous frame set has its
+                * long stride pointer already set. This might need some fixing. */
+                if(frame_set->long_stride_prev_frame_set_file_pos != -1 &&
+                frame_set->long_stride_prev_frame_set_file_pos != 0)
+                {
+                    tng_block_init(&block);
+                    tng_data->input_file = tng_data->output_file;
+
+                    fseek(tng_data->output_file,
+                        frame_set->long_stride_prev_frame_set_file_pos,
+                        SEEK_SET);
+
+                    if(tng_read_block_header(tng_data, &block) != TNG_SUCCESS)
+                    {
+                        printf("Cannot read frame header. %s: %d\n",
+                            __FILE__, __LINE__);
+                        tng_block_destroy(&block);
+                        tng_data->input_file = temp;
+                        return(TNG_CRITICAL);
+                    }
+
+                    /* Read the next frame set from the previous frame set and one
+                    * long stride step back */
+                    fseek(tng_data->output_file, block.block_contents_size - 6 *
+                        sizeof(int64_t), SEEK_CUR);
+                    if(fread(&frame_set->long_stride_prev_frame_set_file_pos,
+                    sizeof(frame_set->long_stride_prev_frame_set_file_pos),
+                    1, tng_data->output_file) == 0)
+                    {
+                        printf("Cannot read block. %s: %d\n", __FILE__, __LINE__);
+                        tng_block_destroy(&block);
+                        tng_data->input_file = temp;
+                        return(TNG_CRITICAL);
+                    }
+
+                    if(tng_data->endianness_64 != TNG_BIG_ENDIAN_64)
+                    {
+                        if(tng_swap_byte_order_64(tng_data,
+                                                &frame_set->
+                                                long_stride_prev_frame_set_file_pos)
+                        != TNG_SUCCESS)
+                        {
+                            printf("Cannot swap byte order to get big endian. %s: %d\n",
+                                    __FILE__, __LINE__);
+                        }
+                    }
+                }
+            }
+        
             tng_block_destroy(&block);
             tng_data->input_file = temp;
             fseek(tng_data->output_file, curr_pos, SEEK_SET);

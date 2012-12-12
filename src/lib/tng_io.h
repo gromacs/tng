@@ -554,6 +554,46 @@ tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
                                             const char *new_name);
 
 /**
+ * @brief Get the medium stride length of the trajectory.
+ * @param tng_data is the trajectory from which to get the stride length.
+ * @param len is pointing to a value set to the stride length.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_medium_stride_length_get(tng_trajectory_t tng_data,
+                                               int64_t *len);
+
+/**
+ * @brief Set the medium stride length of the trajectory.
+ * @param tng_data is the trajectory of which to set the stride length.
+ * @param len is the wanted medium stride length.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_medium_stride_length_set(tng_trajectory_t tng_data,
+                                               int64_t len);
+
+/**
+ * @brief Get the long stride length of the trajectory.
+ * @param tng_data is the trajectory from which to get the stride length.
+ * @param len is pointing to a value set to the stride length.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_long_stride_length_get(tng_trajectory_t tng_data,
+                                               int64_t *len);
+
+/**
+ * @brief Set the long stride length of the trajectory.
+ * @param tng_data is the trajectory of which to set the stride length.
+ * @param len is the wanted long stride length.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
+                                               int64_t len);
+
+/**
  * @brief Setup a molecule container.
  * @param molecule is the molecule to initialise. Memory must be preallocated.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
