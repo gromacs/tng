@@ -898,6 +898,8 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
  * data block
  * @param codec_id is the ID of the codec to compress the data.
  * @param new_data is an array of data values to add.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
                                         const int64_t id,
@@ -932,6 +934,8 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
  * @param n_particles is the number of particles stored in this data block
  * @param codec_id is the ID of the codec to compress the data.
  * @param new_data is an array of data values to add.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                                         const int64_t id,

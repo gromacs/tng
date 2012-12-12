@@ -6247,6 +6247,10 @@ tng_function_status tng_medium_stride_length_get(tng_trajectory_t tng_data,
 tng_function_status tng_medium_stride_length_set(tng_trajectory_t tng_data,
                                                int64_t len)
 {
+    if(len >= tng_data->long_stride_length)
+    {
+        return(TNG_FAILURE);
+    }
     tng_data->medium_stride_length = len;
 
     return(TNG_SUCCESS);
@@ -6263,6 +6267,10 @@ tng_function_status tng_long_stride_length_get(tng_trajectory_t tng_data,
 tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
                                                int64_t len)
 {
+    if(len <= tng_data->medium_stride_length)
+    {
+        return(TNG_FAILURE);
+    }
     tng_data->long_stride_length = len;
 
     return(TNG_SUCCESS);
@@ -6434,63 +6442,6 @@ tng_function_status tng_block_read_next(tng_trajectory_t tng_data,
     }
 }
 
-// tng_function_status tng_write_block(tng_trajectory_t tng_data
-//                                     struct tng_gen_block *block,
-//                                     tng_close_file_flag close_file)
-// {
-//     if(tng_data->output_file)
-//     {
-//         tng_data->output_file_pos = ftell(tng_data->output_file);
-//     }
-// 
-//     switch(block->id)
-//     {
-//     case TNG_TRAJECTORY_FRAME_SET:
-//         return(tng_frame_set_write_block(tng_data, block, TNG_NORMAL_WRITE));
-//         break;
-//     case TNG_BLOCK_TABLE_OF_CONTENTS:
-//         return(tng_write_trajectory_toc_block(tng_data, block,
-//                                               TNG_NORMAL_WRITE));
-//         break;
-//     case TNG_PARTICLE_MAPPING:
-//         return(tng_write_trajectory_mapping_block(tng_data, block,
-//                                                   TNG_NORMAL_WRITE));
-//         break;
-//     case TNG_TRAJ_POSITIONS:
-//         break;
-//     case TNG_TRAJ_VELOCITIES:
-//         break;
-//     case TNG_TRAJ_FORCES:
-//         break;
-//     case TNG_TRAJ_BOX_SHAPE:
-//         break;
-//     case TNG_GENERAL_INFO:
-//         return(tng_write_general_info_block(tng_data, block,
-//                                             TNG_NORMAL_WRITE));
-//     case TNG_MOLECULES:
-//         return(tng_write_molecules_block(tng_data, block,
-//                                          TNG_NORMAL_WRITE));
-//     default:
-//         if(block->id > TNG_TRAJ_FORCES)
-//         {
-//             /* Implement writing data blocks. */
-//             return(TNG_FAILURE);
-//         }
-//         else
-//         {
-//             return(TNG_FAILURE);
-//         }
-//     }
-// 
-//     /* FIXME: Never reached. */
-//     if(close_file)
-//     {
-//         fclose(tng_data->output_file);
-//         tng_data->output_file = 0;
-//     }
-// 
-//     return(TNG_SUCCESS);
-// }
 
 tng_function_status tng_frame_set_read_next(tng_trajectory_t tng_data,
                                             const tng_hash_mode hash_mode)
@@ -6526,6 +6477,7 @@ tng_function_status tng_frame_set_read_next(tng_trajectory_t tng_data,
         fseek(tng_data->input_file, file_pos, SEEK_SET);
     }
 
+    /* Read block headers first to see what block is found. */
     stat = tng_read_block_header(tng_data, &block);
     if(stat == TNG_CRITICAL || block.id != TNG_TRAJECTORY_FRAME_SET)
     {
@@ -6601,17 +6553,20 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
 
     tng_frame_set_write_block(tng_data, &block, TNG_NORMAL_WRITE, hash_mode);
 
+    /* Write contents block */
     if(frame_set->contents.n_blocks > 0)
     {
         block.id = TNG_BLOCK_TABLE_OF_CONTENTS;
         tng_write_trajectory_toc_block(tng_data, &block, TNG_NORMAL_WRITE,
                                        hash_mode);
     }
+    /* Write non-particle data blocks */
     for(i = 0; i<frame_set->n_data_blocks; i++)
     {
         block.id = frame_set->tr_data[i].block_id;
         tng_write_data_block(tng_data, &block, i, TNG_NORMAL_WRITE, hash_mode);
     }
+    /* Write the mapping blocks and particle data blocks*/
     if(frame_set->n_mapping_blocks)
     {
         for(i = 0; i < frame_set->n_mapping_blocks; i++)
@@ -6644,6 +6599,7 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
 
     tng_data->output_file_pos = ftell(tng_data->output_file);
 
+    /* Update pointers in the general info block */
     stat = tng_update_header_pointers(tng_data, hash_mode);
     
     if(stat == TNG_SUCCESS)
@@ -6669,12 +6625,16 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
+    /* Set pointer to previous frame set to the one that was loaded
+     * before.
+     * FIXME: This is a bit risky. If they are not added in order
+     * it will be wrong. */
     if(tng_data->n_trajectory_frame_sets)
     {
         frame_set->prev_frame_set_file_pos =
         tng_data->current_trajectory_frame_set_output_file_pos;
     }
-
+    
     if(tng_data->output_file)
     {
         tng_data->current_trajectory_frame_set_output_file_pos =
@@ -6686,6 +6646,7 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
         tng_data->output_file_pos;
     }
 
+    /* Clear mappings if they remain. */
     if(frame_set->n_mapping_blocks && frame_set->mappings)
     {
         for(i = frame_set->n_mapping_blocks; i--;)
@@ -7151,8 +7112,8 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
         {
             for(k = 0; k < n_values_per_frame; k++)
             {
-                /* FIXME: Not optimal to have this switch statement inside
-                 * the for loops. Check if it should be moved outside. */
+                /* FIXME: Not optimal to have this switch statement inside the
+                 * for loops. Profile to see if it should be moved outside. */
                 switch(datatype)
                 {
                 case TNG_CHAR_DATA:
