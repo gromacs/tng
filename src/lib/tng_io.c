@@ -26,13 +26,6 @@
 #include "tng_io.h"
 #include "md5.h"
 
-#ifndef LOGIN_NAME_MAX
-#define LOGIN_NAME_MAX 33
-#endif
-#ifndef HOST_NAME_MAX
-#define HOST_NAME_MAX 257
-#endif
-
 
 /* This function swaps the byte order of a 32 bit numerical variable.
    It does not only work with integer, but e.g. floats need casting. */
