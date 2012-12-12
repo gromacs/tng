@@ -4437,9 +4437,6 @@ static tng_function_status tng_read_data_block_contents
            sizeof(dependency));
     offset += sizeof(dependency);
 
-//     memcpy(&var_n_particles, block->block_contents+offset,
-//            sizeof(var_n_particles));
-//     offset += sizeof(var_n_particles);
 
     if(dependency & TNG_FRAME_DEPENDENT)
     {
@@ -4448,12 +4445,6 @@ static tng_function_status tng_read_data_block_contents
         offset += sizeof(sparse_data);
     }
 
-//     memcpy(&var_n_values, block->block_contents+offset,
-//            sizeof(var_n_values));
-//     offset += sizeof(var_n_values);
-//     
-//     if(!var_n_values)
-//     {
     memcpy(&n_values, block->block_contents+offset,
         sizeof(n_values));
     if(tng_data->endianness_64 != TNG_BIG_ENDIAN_64)
@@ -4465,7 +4456,6 @@ static tng_function_status tng_read_data_block_contents
         }
     }
     offset += sizeof(n_values);
-//     }
 
     memcpy(&codec_id, block->block_contents+offset,
         sizeof(codec_id));
@@ -4902,7 +4892,9 @@ tng_function_status tng_block_name_set(tng_trajectory_t tng_data,
     int len;
     
     len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
-    
+
+    /* If the currently stored string length is not enough to store the new
+     * string it is freed and reallocated. */
     if(block->name && strlen(block->name) < len)
     {
         free(block->name);
@@ -4929,8 +4921,7 @@ tng_function_status tng_block_init(struct tng_gen_block *block)
 //     printf("In tng_block_init\n");
 
     block->id = -1;
-/*    block->hash_type = TNG_NO_HASH;
-    block->hash_name = 0;*/
+    /* Reset the hash */
     memcpy(block->hash, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", TNG_HASH_LEN);
     block->name = 0;
     block->block_version = TNG_VERSION;
