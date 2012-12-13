@@ -259,7 +259,9 @@ struct tng_particle_mapping {
     /** The number of particles list in this mapping block */
     int64_t n_particles;
     /** the mapping of index numbers to the real particle numbers in the
-     * trajectory */
+     * trajectory. real_particle_numbers[0] is the real particle number
+     * (as it is numbered in the molecular system) of the first particle
+     * in the data blocks covered by this particle mapping block */
     int64_t *real_particle_numbers;
 };
 
@@ -805,7 +807,7 @@ tng_function_status tng_residue_atom_add(tng_trajectory_t tng_data,
 
 /**
  * @brief Set the name of an atom.
- * @param tng_data is the trajectory data container containing the atom..
+ * @param tng_data is the trajectory data container containing the atom.
  * @param atom is the atom to rename.
  * @param new_name is a string containing the wanted name.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -817,7 +819,7 @@ tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
 
 /**
  * @brief Set the atom type of an atom.
- * @param tng_data is the trajectory data container containing the atom..
+ * @param tng_data is the trajectory data container containing the atom.
  * @param atom is the atom to change.
  * @param new_type is a string containing the atom type.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -827,6 +829,31 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
                                       tng_atom_t atom,
                                       const char *new_type);
 
+/**
+ * @brief Add a particle mapping table.
+ * @details Each particle mapping table will be written as a separate block,
+ * followed by the data blocks for the corresponding particles. In most cases
+ * there is one particle mapping block for each thread writing the trajectory.
+ * @param tng_data is the trajectory, with the frame set to which to add
+ * the mapping block.
+ * @details The mapping information is added to the currently active frame set
+ * of tng_data
+ * @param first_particle_number is the first particle number of this mapping
+ * block.
+ * @param n_particles is the number of particles in this mapping block.
+ * @param mapping_table is a list of the real particle numbers (i.e. the numbers
+ * used in the molecular system). The list is n_particles long.
+ * @details mapping_table[0] is the real particle number of the first particle
+ * in the following data blocks.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_particle_mapping_add
+                (tng_trajectory_t tng_data,
+                 const int64_t first_particle_number,
+                 const int64_t n_particles,
+                 const int64_t *mapping_table);
+                
 /**
  * @brief Read the header blocks from the input_file of tng_data.
  * @details The trajectory blocks must be read separately and iteratively in chunks

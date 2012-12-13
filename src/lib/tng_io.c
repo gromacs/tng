@@ -2060,6 +2060,7 @@ static tng_function_status tng_read_frame_set_block
             }
         }
         free(frame_set->mappings);
+        frame_set->mappings = 0;
         frame_set->n_mapping_blocks = 0;
     }
 
@@ -2730,7 +2731,7 @@ static tng_function_status tng_read_trajectory_mapping_block
                  struct tng_gen_block *block,
                  const tng_hash_mode hash_mode)
 {
-    int64_t i, old_n_particles;
+    int64_t i;
     int offset = 0;
     tng_bool same_hash;
     struct tng_trajectory_frame_set *frame_set =
@@ -2815,8 +2816,6 @@ static tng_function_status tng_read_trajectory_mapping_block
     }
     offset += sizeof(mapping->num_first_particle);
 
-    old_n_particles = mapping->n_particles;
-
     memcpy(&mapping->n_particles, block->block_contents+offset,
            sizeof(mapping->n_particles));
     if(tng_data->endianness_64 != TNG_BIG_ENDIAN_64)
@@ -2830,21 +2829,14 @@ static tng_function_status tng_read_trajectory_mapping_block
     }
     offset += sizeof(mapping->n_particles);
 
-    if(old_n_particles != mapping->n_particles)
+    mapping->real_particle_numbers = malloc(mapping->n_particles *
+                                            sizeof(int64_t));
+    if(!mapping->real_particle_numbers)
     {
-        if(mapping->real_particle_numbers)
-        {
-            free(mapping->real_particle_numbers);
-        }
-        mapping->real_particle_numbers = malloc(mapping->n_particles *
-                                                sizeof(int64_t));
-        if(!mapping->real_particle_numbers)
-        {
-            printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                   mapping->n_particles * sizeof(int64_t), __FILE__, __LINE__);
-            tng_block_destroy(block);
-            return(TNG_CRITICAL);
-        }
+        printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                mapping->n_particles * sizeof(int64_t), __FILE__, __LINE__);
+        tng_block_destroy(block);
+        return(TNG_CRITICAL);
     }
 
     for(i = 0; i < mapping->n_particles; i++)
@@ -3491,7 +3483,8 @@ static tng_function_status tng_write_particle_data_block
     {
         for(i = n_frames; i--;)
         {
-            for(j = num_first_particle; j < n_particles; j++)
+            for(j = num_first_particle; j < num_first_particle + n_particles;
+                j++)
             {
                 for(k = data->n_values_per_frame; k--;)
                 {
@@ -3653,7 +3646,7 @@ static tng_function_status tng_write_particle_data_block
     
     for(i = 0; i < data->n_frames; i++)
     {
-        for(j = num_first_particle; j < n_particles; j++)
+        for(j = num_first_particle; j < num_first_particle + n_particles; j++)
         {
             for(k = 0; k < data->n_values_per_frame; k++)
             {
@@ -5522,6 +5515,88 @@ tng_function_status tng_molecule_destroy(tng_molecule_t molecule)
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_particle_mapping_add
+                (tng_trajectory_t tng_data,
+                 const int64_t first_particle_number,
+                 const int64_t n_particles,
+                 const int64_t *mapping_table)
+{
+    int64_t i;
+    struct tng_particle_mapping *mapping;
+    struct tng_trajectory_frame_set *frame_set =
+    &tng_data->current_trajectory_frame_set;
+
+    /* Sanity check of the particle ranges. Split into multiple if
+     * statements for improved readability */
+    for(i=0; i<frame_set->n_mapping_blocks; i++)
+    {
+        mapping = &frame_set->mappings[i];
+        if(first_particle_number >= mapping->num_first_particle &&
+           first_particle_number < mapping->num_first_particle +
+                                   mapping->n_particles)
+        {
+            printf("Particle mapping overlap. %s: %d\n", __FILE__, __LINE__);
+            return(TNG_FAILURE);
+        }
+        if(first_particle_number + n_particles >=
+           mapping->num_first_particle &&
+           first_particle_number + n_particles <
+           mapping->num_first_particle + mapping->n_particles)
+        {
+            printf("Particle mapping overlap. %s: %d\n", __FILE__, __LINE__);
+            return(TNG_FAILURE);
+        }
+        if(mapping->num_first_particle >= first_particle_number &&
+           mapping->num_first_particle < first_particle_number +
+                                            n_particles)
+        {
+            printf("Particle mapping overlap. %s: %d\n", __FILE__, __LINE__);
+            return(TNG_FAILURE);
+        }
+        if(mapping->num_first_particle + mapping->n_particles >
+           first_particle_number &&
+           mapping->num_first_particle + mapping->n_particles <
+           first_particle_number + n_particles)
+        {
+            printf("Particle mapping overlap. %s: %d\n", __FILE__, __LINE__);
+            return(TNG_FAILURE);
+        }
+    }
+
+    frame_set->n_mapping_blocks++;
+
+    mapping = realloc(frame_set->mappings, sizeof(struct tng_particle_mapping) *
+                      frame_set->n_mapping_blocks);
+
+    if(!mapping)
+    {
+        printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+               sizeof(struct tng_particle_mapping)*frame_set->n_mapping_blocks,
+               __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+    frame_set->mappings = mapping;
+
+    mapping = &frame_set->mappings[frame_set->n_mapping_blocks - 1];
+
+    mapping->num_first_particle = first_particle_number;
+    mapping->n_particles = n_particles;
+    mapping->real_particle_numbers = malloc(sizeof(int64_t) * n_particles);
+    if(!mapping->real_particle_numbers)
+    {
+        printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+               sizeof(int64_t) * n_particles, __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+
+    for(i=0; i<n_particles; i++)
+    {
+        mapping->real_particle_numbers[i] = mapping_table[i];
+    }
+    
+    return(TNG_SUCCESS);
+}
+
 tng_function_status tng_trajectory_init(tng_trajectory_t tng_data)
 {
     time_t seconds;
@@ -5769,17 +5844,21 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t tng_data)
         frame_set->contents.block_names = 0;
     }
 
-    for(i = frame_set->n_mapping_blocks; i--;)
+    if(frame_set->mappings)
     {
-        mapping = &frame_set->mappings[i];
-        if(mapping->real_particle_numbers)
+        for(i = frame_set->n_mapping_blocks; i--;)
         {
-            free(mapping->real_particle_numbers);
-            mapping->real_particle_numbers = 0;
+            mapping = &frame_set->mappings[i];
+            if(mapping->real_particle_numbers)
+            {
+                free(mapping->real_particle_numbers);
+                mapping->real_particle_numbers = 0;
+            }
         }
+        free(frame_set->mappings);
+        frame_set->mappings = 0;
+        frame_set->n_mapping_blocks = 0;
     }
-    free(frame_set->mappings);
-    frame_set->n_mapping_blocks = 0;
 
     if(frame_set->molecule_cnt_list)
     {
@@ -6284,11 +6363,11 @@ static tng_function_status tng_particle_mapping_get_real_particle
         mapping = &frame_set->mappings[i];
         first = mapping->num_first_particle;
         if(local < first ||
-           local > first + mapping->n_particles)
+           local >= first + mapping->n_particles)
         {
             continue;
         }
-        *real = mapping->real_particle_numbers[i-first];
+        *real = mapping->real_particle_numbers[local-first];
         return(TNG_SUCCESS);
     }
     *real = local;
@@ -6597,7 +6676,7 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
                                                    TNG_NORMAL_WRITE, hash_mode);
                 for(j = 0; j<frame_set->n_particle_data_blocks; j++)
                 {
-                    block.id = frame_set->tr_particle_data[i].block_id;
+                    block.id = frame_set->tr_particle_data[j].block_id;
                     tng_write_particle_data_block(tng_data, &block,
                                                   j, &frame_set->mappings[i],
                                                   TNG_NORMAL_WRITE,
@@ -6678,6 +6757,7 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
             }
         }
         free(frame_set->mappings);
+        frame_set->mappings = 0;
         frame_set->n_mapping_blocks = 0;
     }
 

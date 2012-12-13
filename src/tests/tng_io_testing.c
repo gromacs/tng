@@ -33,6 +33,7 @@ static tng_function_status tng_test_setup_molecules(tng_trajectory_t traj)
     tng_molecule_cnt_set(traj, molecule, 200);
     tng_molecule_cnt_get(traj, molecule, &cnt);
     printf("Created %"PRId64" %s molecules.\n", cnt, molecule->name);
+
 //     traj->molecule_cnt_list[traj->n_molecules-1] = 5;
 //     tng_molecule_name_set(traj, &traj->molecules[1], "ligand");
 //     tng_molecule_name_set(traj, &traj->molecules[2], "water");
@@ -128,6 +129,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
 {
     int i, j, k, nr, tot_n_mols, cnt;
     float *data, *molpos;
+    int64_t mapping[150];
     tng_function_status stat;
 
     tng_medium_stride_length_set(traj, 10);
@@ -217,6 +219,55 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
             return(TNG_CRITICAL);
         }
 
+        for(k=0; k<150; k++)
+        {
+            mapping[k]=k;
+        }
+        if(tng_particle_mapping_add(traj, 0, 150, mapping) != TNG_SUCCESS)
+        {
+            printf("Error creating particle mapping. %s: %d\n",
+                   __FILE__, __LINE__);
+            free(molpos);
+            free(data);
+            return(TNG_CRITICAL);
+        }
+        for(k=0; k<150; k++)
+        {
+            mapping[k]=599-k;
+        }
+        if(tng_particle_mapping_add(traj, 150, 150, mapping) != TNG_SUCCESS)
+        {
+            printf("Error creating particle mapping. %s: %d\n",
+                   __FILE__, __LINE__);
+            free(molpos);
+            free(data);
+            return(TNG_CRITICAL);
+        }
+        for(k=0; k<150; k++)
+        {
+            mapping[k]=k+150;
+        }
+        if(tng_particle_mapping_add(traj, 300, 150, mapping) != TNG_SUCCESS)
+        {
+            printf("Error creating particle mapping. %s: %d\n",
+                   __FILE__, __LINE__);
+            free(molpos);
+            free(data);
+            return(TNG_CRITICAL);
+        }
+        for(k=0; k<150; k++)
+        {
+            mapping[k]=449-k;
+        }
+        if(tng_particle_mapping_add(traj, 450, 150, mapping) != TNG_SUCCESS)
+        {
+            printf("Error creating particle mapping. %s: %d\n",
+                   __FILE__, __LINE__);
+            free(molpos);
+            free(data);
+            return(TNG_CRITICAL);
+        }
+        
         if(tng_particle_data_block_add(traj, TNG_TRAJ_POSITIONS,
                                        "POSITIONS",
                                        TNG_FLOAT_DATA,
