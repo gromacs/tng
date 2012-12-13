@@ -1,5 +1,51 @@
 /** @file tng_io.h
  *  @brief API for input and output of tng trajectory files
+ *  @mainpage TNG: A flexible binary trajectory format
+ *  @section intro_sec Introduction
+ *
+ * The TNG format is developed as part of the ScalaLife EU project.
+ * It is flexible by design to allow parallel writing, custom data blocks,
+ * different output frequencies and different compression algorithms.
+ *
+ * Each block can contain MD5 hashes to verify data integrity and the file
+ * can be signed by the user to ensure that the origin is correct.
+ *
+ * @section authors_sec Authors
+ * 
+ * The TNG trajectory format is developed by:
+ * 
+ * Magnus Lundborg magnus.lundborg@scilifelab.se
+ *
+ * Daniel Spångberg daniels@mkem.uu.se
+ *
+ * Rossen Apostolov rossen@kth.se
+ *
+ * The API is implemented mainly by:
+ *
+ * Magnus Lundborg
+ *
+ * @section License
+ *
+ * The TNG API is released under LGPL 2.1 and is free to redistribute according
+ * to that license (or a later version of the LGPL license).
+ *
+ * A license file (named COPYING) should be included with each copy of the API.
+ *
+ * @section install_sec Installation
+ *
+ * mkdir build
+ * 
+ * cd build
+ * 
+ * cmake ..
+ * 
+ * make
+ * 
+ *
+ * Test by running:
+ * 
+ * bin/tng_testing
+ * 
  */
 
 #ifndef _TNGIO_H
@@ -953,6 +999,7 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
 
 /**
  * @brief Read one trajectory block from the input_file of tng_data.
+ * @details Not implemented yet!
  * @param tng_data is a trajectory data container. tng_data->input_file_path
  * specifies which file to read from. If the file (input_file) is not open it
  * will be opened.
@@ -965,6 +1012,7 @@ tng_function_status tng_traj_block_read(tng_trajectory_t tng_data,
         
 /**
  * @brief Write one trajectory block to the output_file of tng_data.
+ * @details Not implemented yet!
  * @param tng_data is a trajectory data container. tng_data->output_file_path
  * specifies which file to write to. If the file (output_file) is not open it
  * will be opened.
@@ -977,6 +1025,7 @@ tng_function_status tng_traj_block_write(tng_trajectory_t tng_data,
 
 /**
  * @brief Read a requested frame set.
+ * @details Not implemented yet!
  * @param tng_data is a trajectory data container.
  * tng_data->current_trajectory_frame_set will be the read frame set.
  * @param frame_set_nr is the number of the frame set to return (starting from 0).
@@ -989,6 +1038,7 @@ tng_function_status tng_frame_set_read_nr(tng_trajectory_t tng_data,
 /**
  * @brief Read a number of consecutive trajectory frames from the input_file of
  * tng_data.
+ * @details Not implemented yet!
  * @param tng_data is a trajectory data container.
  * tng_data->input_file_path specifies
  * which file to read from. If the file (input_file) is not open it will be
@@ -1005,6 +1055,7 @@ tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
 /**
  * @brief Write a number of consecutive trajectory frames to the output_file of
  * tng_data.
+ * @details Not implemented yet!
  * @param tng_data is a trajectory data container. tng_data->output_file_path specifies
  * which file to write to. If the file (output_file) is not open it will be
  * opened.
@@ -1075,6 +1126,7 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
 
 /**
  * @brief Read and retrieve non-particle data, in a specific interval.
+ * @details Not implemented yet!
  * @param tng_data is a trajectory data container. tng_data->input_file_path specifies
  * which file to read from. If the file (input_file) is not open it will be
  * opened.
@@ -1102,9 +1154,12 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
 
 /**
  * @brief Retrieve particle data, from the last read frame set.
- * @param tng_data is a trajectory data container. tng_data->input_file_path specifies
- * which file to read from. If the file (input_file) is not open it will be
- * opened.
+ * @details The particle dimension of the returned values array is translated
+ * to real particle numbering, i.e. the numbering of the actual molecular
+ * system.
+ * @param tng_data is a trajectory data container. tng_data->input_file_path
+ * specifies which file to read from. If the file (input_file) is not open it
+ * will be opened.
  * @param block_id is the id number of the particle data block to read.
  * @param values is a pointer to a 3-dimensional array (memory unallocated), which
  * will be filled with data. The array will be sized
@@ -1131,6 +1186,10 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
 
 /**
  * @brief Read and retrieve particle data, in a specific interval.
+ * @details Not implemented yet!
+ * @details The particle dimension of the returned values array is translated
+ * to real particle numbering, i.e. the numbering of the actual molecular
+ * system.
  * @param tng_data is a trajectory data container. tng_data->input_file_path specifies
  * which file to read from. If the file (input_file) is not open it will be
  * opened.
