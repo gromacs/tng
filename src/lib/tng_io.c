@@ -961,7 +961,7 @@ static tng_function_status tng_write_general_info_block
     strncpy(block->block_contents, tng_data->first_program_name, first_program_name_len);
     offset += first_program_name_len;
 
-    strncpy(block->block_contents, tng_data->last_program_name, last_program_name_len);
+    strncpy(block->block_contents+offset, tng_data->last_program_name, last_program_name_len);
     offset += last_program_name_len;
 
     strncpy(block->block_contents+offset, tng_data->first_user_name, first_user_name_len);
@@ -6267,6 +6267,34 @@ tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+static tng_function_status tng_particle_mapping_get_real_particle
+                (const struct tng_trajectory_frame_set *frame_set,
+                 const int64_t local,
+                 int64_t *real)
+{
+    int64_t i, n_blocks = frame_set->n_mapping_blocks, first;
+    struct tng_particle_mapping *mapping;
+    if(n_blocks <= 0)
+    {
+        *real = local;
+        return(TNG_SUCCESS);
+    }
+    for(i = 0; i < n_blocks; i++)
+    {
+        mapping = &frame_set->mappings[i];
+        first = mapping->num_first_particle;
+        if(local < first ||
+           local > first + mapping->n_particles)
+        {
+            continue;
+        }
+        *real = mapping->real_particle_numbers[i-first];
+        return(TNG_SUCCESS);
+    }
+    *real = local;
+    return(TNG_SUCCESS);
+}
+
 
 tng_function_status tng_file_headers_read(tng_trajectory_t tng_data,
                                           const tng_hash_mode hash_mode)
@@ -6710,6 +6738,8 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
                             __FILE__, __LINE__);
                 }
             }
+            
+            tng_block_destroy(&block);
 
             /* Set the long range pointers */
             if(tng_data->n_trajectory_frame_sets == tng_data->long_stride_length + 1)
@@ -6765,10 +6795,11 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
                                     __FILE__, __LINE__);
                         }
                     }
+
+                    tng_block_destroy(&block);
                 }
             }
         
-            tng_block_destroy(&block);
             tng_data->input_file = temp;
             fseek(tng_data->output_file, curr_pos, SEEK_SET);
         }
@@ -7391,7 +7422,8 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
                                           int64_t *n_values_per_frame,
                                           tng_data_type *type)
 {
-    int i, j, k, block_index, len;
+    int64_t i, j, k, mapping;
+    int block_index, len;
     struct tng_particle_data *data, *new_data;
     struct tng_trajectory_frame_set *frame_set =
     &tng_data->current_trajectory_frame_set;
@@ -7463,6 +7495,9 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
 
     *values = new_data->values;
     *type = data->datatype;
+    /* It's not very elegant to reuse so much of the code in the different case
+     * statements, but it's unnecessarily slow to have the switch-case block
+     * inside the for loops. */
     switch(*type)
     {
     case TNG_CHAR_DATA:
@@ -7470,11 +7505,12 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
         {
             for(j=*n_particles; j--;)
             {
+                tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
                 for(k=*n_values_per_frame; k--;)
                 {
                     len = strlen(data->values[i][j][k].c) + 1;
                     (*values)[i][j][k].c = malloc(len);
-                    strncpy((*values)[i][j][k].c, data->values[i][j][k].c, len);
+                    strncpy((*values)[i][mapping][k].c, data->values[i][j][k].c, len);
                 }
             }
         }
@@ -7484,9 +7520,10 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
         {
             for(j=*n_particles; j--;)
             {
+                tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
                 for(k=*n_values_per_frame; k--;)
                 {
-                    (*values)[i][j][k].i = data->values[i][j][k].i;
+                    (*values)[i][mapping][k].i = data->values[i][j][k].i;
                 }
             }
         }
@@ -7496,9 +7533,10 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
         {
             for(j=*n_particles; j--;)
             {
+                tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
                 for(k=*n_values_per_frame; k--;)
                 {
-                    (*values)[i][j][k].f = data->values[i][j][k].f;
+                    (*values)[i][mapping][k].f = data->values[i][j][k].f;
                 }
             }
         }
@@ -7509,9 +7547,10 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
         {
             for(j=*n_particles; j--;)
             {
+                tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
                 for(k=*n_values_per_frame; k--;)
                 {
-                    (*values)[i][j][k].d = data->values[i][j][k].d;
+                    (*values)[i][mapping][k].d = data->values[i][j][k].d;
                 }
             }
         }
