@@ -1,0 +1,6 @@
+#ifndef _TNG_IO_TESTING_H
+#define _TNG_IO_TESTING_H
+
+#define EXAMPLE_FILES_DIR "@EXAMPLE_FILES_DIR@"
+
+#endif

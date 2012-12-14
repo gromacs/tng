@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "tng_io.h"
-
-
-
+#include "tng_io_testing.h"
 
 static tng_function_status tng_test_setup_molecules(tng_trajectory_t traj)
 {
@@ -301,7 +299,11 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     free(data);
 
     tng_trajectory_destroy(traj);
+#ifdef EXAMPLE_FILES_DIR
+    tng_input_file_set(traj, EXAMPLE_FILES_DIR "tng_test.tng");
+#else
     tng_input_file_set(traj, "/tmp/tng_test.tng");
+#endif
     
     stat = tng_file_headers_read(traj, TNG_SKIP_HASH);
     
@@ -407,9 +409,15 @@ int main()
     tng_time_get_str(&traj, time_str);
 
     printf("Creation time: %s\n", time_str);
-    
+
+#ifdef EXAMPLE_FILES_DIR
+    tng_input_file_set(&traj, EXAMPLE_FILES_DIR "tng_example.tng");
+    tng_output_file_set(&traj, EXAMPLE_FILES_DIR "tng_example_out.tng");
+#else
     tng_input_file_set(&traj, "tng_example.tng");
     tng_output_file_set(&traj, "/tmp/tng_example_out.tng");
+#endif
+
 
 //     if(tng_test_endianness(&traj) != TNG_SUCCESS)
 //     {
@@ -448,7 +456,11 @@ int main()
     }
     
 
+#ifdef EXAMPLE_FILES_DIR
+    tng_output_file_set(&traj, EXAMPLE_FILES_DIR "tng_test.tng");
+#else
     tng_output_file_set(&traj, "/tmp/tng_test.tng");
+#endif
 
     if(tng_test_write_and_read_traj(&traj) == TNG_CRITICAL)
     {

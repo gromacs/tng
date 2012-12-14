@@ -10,12 +10,6 @@ bin/tng_testing
 No system wide installations are made yet (no 'make install'), which means that
 programs using the library must specify explicitly where to look for it.
 
-(currently 'bin/tng_testing' requires a tng_example.tng in the directory
- the command is invoked. This will be fixed soon:
-
- cp ../example_files/tng_example.tng .
-
- )
 
 Useful cmake flags:
 -DBUILD_DOCUMENTATION=ON to build the API documentation (requires doxygen)
