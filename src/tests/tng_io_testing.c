@@ -419,11 +419,6 @@ int main()
 #endif
 
 
-//     if(tng_test_endianness(&traj) != TNG_SUCCESS)
-//     {
-//         printf("Test failed: Endianness. %s: %d\n", __FILE__, __LINE__);
-//     }
-
     if(tng_test_read_and_write_file(&traj) == TNG_CRITICAL)
     {
         printf("Test Read and write file:\t\t\tFailed. %s: %d\n",
