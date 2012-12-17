@@ -1025,18 +1025,6 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
 
 
 /**
- * @brief Read a requested frame set.
- * @details Not implemented yet!
- * @param tng_data is a trajectory data container.
- * tng_data->current_trajectory_frame_set will be the read frame set.
- * @param frame_set_nr is the number of the frame set to return (starting from 0).
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
- */
-tng_function_status tng_frame_set_read_nr(tng_trajectory_t tng_data,
-                                          int64_t frame_set_nr);
-
-/**
  * @brief Read a number of consecutive trajectory frames from the input_file of
  * tng_data.
  * @details Not implemented yet!

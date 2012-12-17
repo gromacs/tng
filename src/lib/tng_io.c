@@ -7446,13 +7446,6 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
                                                 
-tng_function_status tng_frame_set_read_nr(tng_trajectory_t tng_data,
-                                          int64_t frame_set_nr)
-{
-    /* STUB */
-    return(TNG_SUCCESS);
-}
-
 tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
                                        int64_t start_frame_nr,
                                        int64_t end_frame_nr)
