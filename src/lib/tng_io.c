@@ -5791,7 +5791,8 @@ tng_function_status tng_trajectory_init(tng_trajectory_t tng_data)
 
     tng_data->non_tr_particle_data = 0;
     tng_data->non_tr_data = 0;
-    
+
+    frame_set->first_frame = -1;
     frame_set->contents.n_blocks = 0;
     frame_set->contents.block_names = 0;
     frame_set->n_mapping_blocks = 0;
@@ -7445,20 +7446,6 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
                                                 
-tng_function_status tng_traj_block_read(tng_trajectory_t tng_data,
-                                        int64_t block_id)
-{
-    /* STUB */
-    return(TNG_SUCCESS);
-}
-        
-tng_function_status tng_traj_block_write(tng_trajectory_t tng_data,
-                                         int64_t block_id)
-{
-    /* STUB */
-    return(TNG_SUCCESS);
-}
-
 tng_function_status tng_frame_set_read_nr(tng_trajectory_t tng_data,
                                           int64_t frame_set_nr)
 {
@@ -7471,6 +7458,12 @@ tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
                                        int64_t end_frame_nr)
 {
     /* STUB */
+    
+    struct tng_trajectory_frame_set frame_set =
+    &tng_data->current_trajectory_frame_set;
+
+    if frame_set.frame_set_nr >= 0
+
     return(TNG_SUCCESS);
 }
 

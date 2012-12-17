@@ -1025,32 +1025,6 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
 
 
 /**
- * @brief Read one trajectory block from the input_file of tng_data.
- * @details Not implemented yet!
- * @param tng_data is a trajectory data container. tng_data->input_file_path
- * specifies which file to read from. If the file (input_file) is not open it
- * will be opened.
- * @param block_id is the ID of the block to read.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
- */
-tng_function_status tng_traj_block_read(tng_trajectory_t tng_data,
-                                        int64_t block_id);
-        
-/**
- * @brief Write one trajectory block to the output_file of tng_data.
- * @details Not implemented yet!
- * @param tng_data is a trajectory data container. tng_data->output_file_path
- * specifies which file to write to. If the file (output_file) is not open it
- * will be opened.
- * @param block_id is the ID of the block to write.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
- */
-tng_function_status tng_traj_block_write(tng_trajectory_t tng_data,
-                                         int64_t block_id);
-
-/**
  * @brief Read a requested frame set.
  * @details Not implemented yet!
  * @param tng_data is a trajectory data container.
