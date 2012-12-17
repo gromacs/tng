@@ -1039,7 +1039,8 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
  */
 tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
                                        int64_t start_frame_nr,
-                                       int64_t end_frame_nr);
+                                       int64_t end_frame_nr,
+                                       const tng_hash_mode hash_mode);
 
 /**
  * @brief Write a number of consecutive trajectory frames to the output_file of
@@ -1055,7 +1056,8 @@ tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
  */
 tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
                                         int64_t start_frame_nr,
-                                        int64_t end_frame_nr);
+                                        int64_t end_frame_nr,
+                                        const tng_hash_mode hash_mode);
 
 /**
  * @brief Free data is an array of values (2D).

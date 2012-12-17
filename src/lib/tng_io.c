@@ -273,7 +273,7 @@ static tng_function_status tng_block_header_read
         free(block->header_contents);
     }
 
-    block->header_contents = (char *) malloc(block->header_contents_size);
+    block->header_contents = malloc(block->header_contents_size);
     if(!block->header_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -333,7 +333,7 @@ static tng_function_status tng_block_header_read
     len = min(strlen(block->header_contents+offset) + 1, TNG_MAX_STR_LEN);
     if(!block->name)
     {
-        block->name = (char *) malloc(len);
+        block->name = malloc(len);
         if(!block->name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -396,7 +396,7 @@ static tng_function_status tng_block_header_write
 
     if(!block->name)
     {
-        block->name = (char *) malloc(1);
+        block->name = malloc(1);
         if(!block->name)
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -426,7 +426,7 @@ static tng_function_status tng_block_header_write
         free(block->header_contents);
     }
 
-    block->header_contents = (char *) malloc(block->header_contents_size);
+    block->header_contents = malloc(block->header_contents_size);
     if(!block->header_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -519,7 +519,7 @@ static tng_function_status tng_general_info_block_read
         return(TNG_CRITICAL);
     }
     
-    block->block_contents = (char *) malloc(block->block_contents_size);
+    block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -558,7 +558,7 @@ static tng_function_status tng_general_info_block_read
     }
 
     len = min(strlen(block->block_contents) + 1, TNG_MAX_STR_LEN);
-    tng_data->first_program_name = (char *) malloc(len);
+    tng_data->first_program_name = malloc(len);
     if(!tng_data->first_program_name)
     {
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -570,7 +570,7 @@ static tng_function_status tng_general_info_block_read
     offset += len;
     
     len = min(strlen(block->block_contents) + 1, TNG_MAX_STR_LEN);
-    tng_data->last_program_name = (char *) malloc(len);
+    tng_data->last_program_name = malloc(len);
     if(!tng_data->last_program_name)
     {
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -582,7 +582,7 @@ static tng_function_status tng_general_info_block_read
     offset += len;
 
     len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
-    tng_data->first_user_name = (char *) malloc(len);
+    tng_data->first_user_name = malloc(len);
     if(!tng_data->first_user_name)
     {
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -594,7 +594,7 @@ static tng_function_status tng_general_info_block_read
     offset += len;
     
     len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
-    tng_data->last_user_name = (char *) malloc(len);
+    tng_data->last_user_name = malloc(len);
     if(!tng_data->last_user_name)
     {
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -606,7 +606,7 @@ static tng_function_status tng_general_info_block_read
     offset += len;
 
     len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
-    tng_data->first_computer_name = (char *) malloc(len);
+    tng_data->first_computer_name = malloc(len);
     if(!tng_data->first_computer_name)
     {
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -617,7 +617,7 @@ static tng_function_status tng_general_info_block_read
     offset += len;
 
     len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
-    tng_data->last_computer_name = (char *) malloc(len);
+    tng_data->last_computer_name = malloc(len);
     if(!tng_data->last_computer_name)
     {
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -628,7 +628,7 @@ static tng_function_status tng_general_info_block_read
     offset += len;
 
     len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
-    tng_data->first_pgp_signature = (char *) malloc(len);
+    tng_data->first_pgp_signature = malloc(len);
     if(!tng_data->first_pgp_signature)
     {
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -639,7 +639,7 @@ static tng_function_status tng_general_info_block_read
     offset += len;
 
     len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
-    tng_data->last_pgp_signature = (char *) malloc(len);
+    tng_data->last_pgp_signature = malloc(len);
     if(!tng_data->last_pgp_signature)
     {
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -650,7 +650,7 @@ static tng_function_status tng_general_info_block_read
     offset += len;
 
     len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
-    tng_data->forcefield_name = (char *) malloc(len);
+    tng_data->forcefield_name = malloc(len);
     if(!tng_data->forcefield_name)
     {
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -774,7 +774,7 @@ static tng_function_status tng_general_info_block_write
      * termination */
     if(!tng_data->first_program_name)
     {
-        tng_data->first_program_name = (char *) malloc(1);
+        tng_data->first_program_name = malloc(1);
         if(!tng_data->first_program_name)
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -786,7 +786,7 @@ static tng_function_status tng_general_info_block_write
     }
     if(!tng_data->last_program_name)
     {
-        tng_data->last_program_name = (char *) malloc(1);
+        tng_data->last_program_name = malloc(1);
         if(!tng_data->last_program_name)
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -798,7 +798,7 @@ static tng_function_status tng_general_info_block_write
     }
     if(!tng_data->first_user_name)
     {
-        tng_data->first_user_name = (char *) malloc(1);
+        tng_data->first_user_name = malloc(1);
         if(!tng_data->first_user_name)
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -810,7 +810,7 @@ static tng_function_status tng_general_info_block_write
     }
     if(!tng_data->last_user_name)
     {
-        tng_data->last_user_name = (char *) malloc(1);
+        tng_data->last_user_name = malloc(1);
         if(!tng_data->last_user_name)
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -822,7 +822,7 @@ static tng_function_status tng_general_info_block_write
     }
     if(!tng_data->first_computer_name)
     {
-        tng_data->first_computer_name = (char *) malloc(1);
+        tng_data->first_computer_name = malloc(1);
         if(!tng_data->first_computer_name)
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -834,7 +834,7 @@ static tng_function_status tng_general_info_block_write
     }
     if(!tng_data->last_computer_name)
     {
-        tng_data->last_computer_name = (char *) malloc(1);
+        tng_data->last_computer_name = malloc(1);
         if(!tng_data->last_computer_name)
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -846,7 +846,7 @@ static tng_function_status tng_general_info_block_write
     }
     if(!tng_data->first_pgp_signature)
     {
-        tng_data->first_pgp_signature = (char *) malloc(1);
+        tng_data->first_pgp_signature = malloc(1);
         if(!tng_data->first_pgp_signature)
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -858,7 +858,7 @@ static tng_function_status tng_general_info_block_write
     }
     if(!tng_data->last_pgp_signature)
     {
-        tng_data->last_pgp_signature = (char *) malloc(1);
+        tng_data->last_pgp_signature = malloc(1);
         if(!tng_data->last_pgp_signature)
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -870,7 +870,7 @@ static tng_function_status tng_general_info_block_write
     }
     if(!tng_data->forcefield_name)
     {
-        tng_data->forcefield_name = (char *) malloc(1);
+        tng_data->forcefield_name = malloc(1);
         if(!tng_data->forcefield_name)
         {
             printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -949,7 +949,7 @@ static tng_function_status tng_general_info_block_write
     {
         free(block->block_contents);
     }
-    block->block_contents = (char *) malloc(block->block_contents_size);
+    block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -1123,7 +1123,7 @@ static tng_function_status tng_molecules_block_read
         free(block->block_contents);
     }
 
-    block->block_contents = (char *) malloc(block->block_contents_size);
+    block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -1197,7 +1197,7 @@ static tng_function_status tng_molecules_block_read
         {
             free(tng_data->molecule_cnt_list);
         }
-        tng_data->molecule_cnt_list = (int64_t *) malloc(sizeof(int64_t) *
+        tng_data->molecule_cnt_list = malloc(sizeof(int64_t) *
                                       tng_data->n_molecules);
         if(!tng_data->molecule_cnt_list)
         {
@@ -1228,7 +1228,7 @@ static tng_function_status tng_molecules_block_read
         
 //         printf("Read id: %"PRId64" offset: %d\n", molecule->id, offset);
         len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
-        molecule->name = (char *) malloc(len);
+        molecule->name = malloc(len);
         strncpy(molecule->name, block->block_contents+offset, len);
         offset += len;
 
@@ -1304,8 +1304,8 @@ static tng_function_status tng_molecules_block_read
         tng_data->n_particles += molecule->n_atoms *
                                  tng_data->molecule_cnt_list[i];
 
-        molecule->chains = (tng_chain_t ) malloc(molecule->n_chains *
-                                                      sizeof(struct tng_chain));
+        molecule->chains = malloc(molecule->n_chains *
+                                  sizeof(struct tng_chain));
         if(!molecule->chains)
         {
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -1331,8 +1331,8 @@ static tng_function_status tng_molecules_block_read
 
         residue = molecule->residues;
 
-        molecule->atoms = (tng_atom_t ) malloc(molecule->n_atoms *
-                                                     sizeof(struct tng_atom));
+        molecule->atoms = malloc(molecule->n_atoms *
+                                 sizeof(struct tng_atom));
         if(!molecule->atoms)
         {
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -1362,7 +1362,7 @@ static tng_function_status tng_molecules_block_read
 
             len = min(strlen(block->block_contents+offset) + 1,
                     TNG_MAX_STR_LEN);
-            chain->name = (char *) malloc(len);
+            chain->name = malloc(len);
             strncpy(chain->name,
                     block->block_contents+offset, len);
             offset += len;
@@ -1398,7 +1398,7 @@ static tng_function_status tng_molecules_block_read
 
                 len = min(strlen(block->block_contents+offset) + 1,
                         TNG_MAX_STR_LEN);
-                residue->name = (char *) malloc(len);
+                residue->name = malloc(len);
                 strncpy(residue->name,
                         block->block_contents+offset, len);
                 offset += len;
@@ -1435,14 +1435,14 @@ static tng_function_status tng_molecules_block_read
 
                     len = min(strlen(block->block_contents+offset) + 1,
                             TNG_MAX_STR_LEN);
-                    atom->name = (char *) malloc(len);
+                    atom->name = malloc(len);
                     strncpy(atom->name,
                             block->block_contents+offset, len);
                     offset += len;
 
                     len = min(strlen(block->block_contents+offset) + 1,
                             TNG_MAX_STR_LEN);
-                    atom->atom_type = (char *) malloc(len);
+                    atom->atom_type = malloc(len);
                     strncpy(atom->atom_type,
                             block->block_contents+offset, len);
                     offset += len;
@@ -1467,8 +1467,8 @@ static tng_function_status tng_molecules_block_read
         }
         offset += sizeof(molecule->n_bonds);
         
-        molecule->bonds = (tng_bond_t ) malloc(molecule->n_bonds *
-                                                     sizeof(struct tng_bond));
+        molecule->bonds = malloc(molecule->n_bonds *
+                                 sizeof(struct tng_bond));
         if(!molecule->bonds)
         {
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -1548,7 +1548,7 @@ static tng_function_status tng_molecules_block_write
 //         printf("mol %s\n", molecule->name);
         if(!molecule->name)
         {
-            molecule->name = (char *) malloc(1);
+            molecule->name = malloc(1);
             if(!molecule->name)
             {
                 printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -1567,7 +1567,7 @@ static tng_function_status tng_molecules_block_write
             
             if(!chain->name)
             {
-                chain->name = (char *) malloc(1);
+                chain->name = malloc(1);
                 if(!chain->name)
                 {
                     printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -1591,7 +1591,7 @@ static tng_function_status tng_molecules_block_write
 
             if(!residue->name)
             {
-                residue->name = (char *) malloc(1);
+                residue->name = malloc(1);
                 if(!residue->name)
                 {
                     printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -1614,7 +1614,7 @@ static tng_function_status tng_molecules_block_write
             len += sizeof(atom->id);
             if(!atom->name)
             {
-                atom->name = (char *) malloc(1);
+                atom->name = malloc(1);
                 if(!atom->name)
                 {
                     printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -1628,7 +1628,7 @@ static tng_function_status tng_molecules_block_write
 
             if(!atom->atom_type)
             {
-                atom->atom_type = (char *) malloc(1);
+                atom->atom_type = malloc(1);
                 if(!atom->atom_type)
                 {
                     printf("Cannot allocate memory (1 byte). %s: %d\n",
@@ -1697,7 +1697,7 @@ static tng_function_status tng_molecules_block_write
     {
         free(block->block_contents);
     }
-    block->block_contents = (char *) malloc(block->block_contents_size);
+    block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -2008,7 +2008,7 @@ static tng_function_status tng_frame_set_block_read
         free(block->block_contents);
     }
 
-    block->block_contents = (char *) malloc(block->block_contents_size);
+    block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -2110,7 +2110,7 @@ static tng_function_status tng_frame_set_block_read
         if(!frame_set->molecule_cnt_list)
         {
                 frame_set->molecule_cnt_list =
-                (int64_t *) malloc(sizeof(int64_t) * tng_data->n_molecules);
+                malloc(sizeof(int64_t) * tng_data->n_molecules);
                 
                 if(!frame_set->molecule_cnt_list)
                 {
@@ -2320,7 +2320,7 @@ static tng_function_status tng_frame_set_block_write
     {
         free(block->block_contents);
     }
-    block->block_contents = (char *) malloc(block->block_contents_size);
+    block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -2508,7 +2508,7 @@ static tng_function_status tng_trajectory_contents_block_read
         free(block->block_contents);
     }
 
-    block->block_contents = (char *) malloc(block->block_contents_size);
+    block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -2573,7 +2573,7 @@ static tng_function_status tng_trajectory_contents_block_read
             }
             free(toc->block_names);
         }
-        toc->block_names = (char **) malloc(toc->n_blocks * sizeof(char *));
+        toc->block_names = malloc(toc->n_blocks * sizeof(char *));
         if(!toc->block_names)
         {
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -2587,7 +2587,7 @@ static tng_function_status tng_trajectory_contents_block_read
     {
         len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
 
-        toc->block_names[i] = (char *) malloc(len);
+        toc->block_names[i] = malloc(len);
         if(!toc->block_names[i])
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n",
@@ -2676,7 +2676,7 @@ static tng_function_status tng_trajectory_contents_block_write
     {
         free(block->block_contents);
     }
-    block->block_contents = (char *) malloc(block->block_contents_size);
+    block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -2750,7 +2750,7 @@ static tng_function_status tng_trajectory_mapping_block_read
         free(block->block_contents);
     }
 
-    block->block_contents = (char *) malloc(block->block_contents_size);
+    block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -2937,7 +2937,7 @@ static tng_function_status tng_trajectory_mapping_block_write
     {
         free(block->block_contents);
     }
-    block->block_contents = (char *) malloc(block->block_contents_size);
+    block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -3545,7 +3545,7 @@ static tng_function_status tng_particle_data_block_write
     {
         free(block->block_contents);
     }
-    block->block_contents = (char *) malloc(block->block_contents_size);
+    block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -4282,7 +4282,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     {
         free(block->block_contents);
     }
-    block->block_contents = (char *) malloc(block->block_contents_size);
+    block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -4526,7 +4526,7 @@ static tng_function_status tng_data_block_contents_read
         free(block->block_contents);
     }
 
-    block->block_contents = (char *) malloc(block->block_contents_size);
+    block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -5037,7 +5037,7 @@ tng_function_status tng_block_name_set(tng_trajectory_t tng_data,
     }
     if(!block->name)
     {
-        block->name = (char *) malloc(len);
+        block->name = malloc(len);
         if(!block->name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -5116,7 +5116,7 @@ tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
     }
     if(!atom->name)
     {
-        atom->name = (char *) malloc(len);
+        atom->name = malloc(len);
         if(!atom->name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -5145,7 +5145,7 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
     }
     if(!atom->atom_type)
     {
-        atom->atom_type = (char *) malloc(len);
+        atom->atom_type = malloc(len);
         if(!atom->atom_type)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -5268,7 +5268,7 @@ tng_function_status tng_molecule_name_set(tng_trajectory_t tng_data,
     }
     if(!molecule->name)
     {
-        molecule->name = (char *) malloc(len);
+        molecule->name = malloc(len);
         if(!molecule->name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -5382,7 +5382,7 @@ tng_function_status tng_chain_name_set(tng_trajectory_t tng_data,
     }
     if(!chain->name)
     {
-        chain->name = (char *) malloc(len);
+        chain->name = malloc(len);
         if(!chain->name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -5488,7 +5488,7 @@ tng_function_status tng_residue_name_set(tng_trajectory_t tng_data,
     }
     if(!residue->name)
     {
-        residue->name = (char *) malloc(len);
+        residue->name = malloc(len);
         if(!residue->name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -6211,7 +6211,7 @@ tng_function_status tng_first_program_name_set(tng_trajectory_t tng_data,
     }
     if(!tng_data->first_program_name)
     {
-        tng_data->first_program_name = (char *) malloc(len);
+        tng_data->first_program_name = malloc(len);
         if(!tng_data->first_program_name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -6239,7 +6239,7 @@ tng_function_status tng_last_program_name_set(tng_trajectory_t tng_data,
     }
     if(!tng_data->last_program_name)
     {
-        tng_data->last_program_name = (char *) malloc(len);
+        tng_data->last_program_name = malloc(len);
         if(!tng_data->last_program_name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -6267,7 +6267,7 @@ tng_function_status tng_first_user_name_set(tng_trajectory_t tng_data,
     }
     if(!tng_data->first_user_name)
     {
-        tng_data->first_user_name = (char *) malloc(len);
+        tng_data->first_user_name = malloc(len);
         if(!tng_data->first_user_name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -6295,7 +6295,7 @@ tng_function_status tng_last_user_name_set(tng_trajectory_t tng_data,
     }
     if(!tng_data->last_user_name)
     {
-        tng_data->last_user_name = (char *) malloc(len);
+        tng_data->last_user_name = malloc(len);
         if(!tng_data->last_user_name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -6323,7 +6323,7 @@ tng_function_status tng_first_computer_name_set(tng_trajectory_t tng_data,
     }
     if(!tng_data->first_computer_name)
     {
-        tng_data->first_computer_name = (char *) malloc(len);
+        tng_data->first_computer_name = malloc(len);
         if(!tng_data->first_computer_name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -6351,7 +6351,7 @@ tng_function_status tng_last_computer_name_set(tng_trajectory_t tng_data,
     }
     if(!tng_data->last_computer_name)
     {
-        tng_data->last_computer_name = (char *) malloc(len);
+        tng_data->last_computer_name = malloc(len);
         if(!tng_data->last_computer_name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -6379,7 +6379,7 @@ tng_function_status tng_first_signature_set(tng_trajectory_t tng_data,
     }
     if(!tng_data->first_pgp_signature)
     {
-        tng_data->first_pgp_signature = (char *) malloc(len);
+        tng_data->first_pgp_signature = malloc(len);
         if(!tng_data->first_pgp_signature)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -6407,7 +6407,7 @@ tng_function_status tng_last_signature_set(tng_trajectory_t tng_data,
     }
     if(!tng_data->last_pgp_signature)
     {
-        tng_data->last_pgp_signature = (char *) malloc(len);
+        tng_data->last_pgp_signature = malloc(len);
         if(!tng_data->last_pgp_signature)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -6435,7 +6435,7 @@ tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
     }
     if(!tng_data->forcefield_name)
     {
-        tng_data->forcefield_name = (char *) malloc(len);
+        tng_data->forcefield_name = malloc(len);
         if(!tng_data->forcefield_name)
         {
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
@@ -6699,6 +6699,11 @@ tng_function_status tng_frame_set_read_next(tng_trajectory_t tng_data,
     tng_block_init(&block);
 
     file_pos = tng_data->current_trajectory_frame_set.next_frame_set_file_pos;
+
+    if(file_pos < 0)
+    {
+        file_pos = tng_data->first_trajectory_frame_set_input_file_pos;
+    }
     
     if(file_pos > 0)
     {
@@ -7448,21 +7453,34 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                                                 
 tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
                                        int64_t start_frame_nr,
-                                       int64_t end_frame_nr)
+                                       int64_t end_frame_nr,
+                                       const tng_hash_mode hash_mode)
 {
     /* STUB */
-    
-    struct tng_trajectory_frame_set frame_set =
+    tng_function_status stat;
+    struct tng_trajectory_frame_set *frame_set =
     &tng_data->current_trajectory_frame_set;
 
-    if frame_set.frame_set_nr >= 0
+//     if(frame_set.frame_set_nr < 0)
+//     {
+//         stat = tng_frame_set_read_next(tng_data, hash_mode);
+//         if(stat != TNG_SUCCESS)
+//         {
+//             printf("Error reading frame set. %s: %d\n", __FILE__, __LINE__);
+//             return(stat);
+//         }
+//     }
+
+    
 
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
-                                        int64_t start_frame_nr,
-                                        int64_t end_frame_nr)
+tng_function_status tng_frame_write_interval
+                (tng_trajectory_t tng_data,
+                 int64_t start_frame_nr,
+                 int64_t end_frame_nr,
+                 const tng_hash_mode hash_mode)
 {
     /* STUB */
     return(TNG_SUCCESS);
