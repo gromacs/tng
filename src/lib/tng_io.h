@@ -914,7 +914,6 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
 
 /**
  * @brief Read and retrieve non-particle data, in a specific interval.
- * @details Not implemented yet!
  * @param tng_data is a trajectory data container. tng_data->input_file_path specifies
  * which file to read from. If the file (input_file) is not open it will be
  * opened.
@@ -974,7 +973,6 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
 
 /**
  * @brief Read and retrieve particle data, in a specific interval.
- * @details Not implemented yet!
  * @details The particle dimension of the returned values array is translated
  * to real particle numbering, i.e. the numbering of the actual molecular
  * system.
