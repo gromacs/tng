@@ -433,7 +433,7 @@ static tng_function_status tng_block_hash_generate(tng_gen_block_t block)
    If the hashes match results is set to TRUE, otherwise it is set to
    FALSE. */
 static tng_function_status hash_match_verify(tng_gen_block_t block,
-                                                 tng_bool *results)
+                                             tng_bool *results)
 {
     md5_state_t md5_state;
     char hash[TNG_HASH_LEN];
@@ -4901,8 +4901,8 @@ static tng_function_status tng_data_block_contents_read
 
 static tng_function_status tng_md5_hash_update(tng_trajectory_t tng_data,
                                                tng_gen_block_t block,
-                                               int64_t header_start_pos,
-                                               int64_t contents_start_pos)
+                                               const int64_t header_start_pos,
+                                               const int64_t contents_start_pos)
 {
     if(block->block_contents)
     {
@@ -5638,10 +5638,10 @@ tng_function_status tng_residue_name_set(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_residue_atom_add(tng_trajectory_t tng_data,
-                                            tng_residue_t residue,
-                                            const char *atom_name,
-                                            const char *atom_type,
-                                            tng_atom_t *atom)
+                                         tng_residue_t residue,
+                                         const char *atom_name,
+                                         const char *atom_type,
+                                         tng_atom_t *atom)
 {
     int curr_index;
     tng_atom_t new_atoms, temp_atom, last_atom;
@@ -6595,7 +6595,7 @@ tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_medium_stride_length_get(tng_trajectory_t tng_data,
+tng_function_status tng_medium_stride_length_get(const tng_trajectory_t tng_data,
                                                int64_t *len)
 {
     *len = tng_data->medium_stride_length;
@@ -6615,7 +6615,7 @@ tng_function_status tng_medium_stride_length_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_long_stride_length_get(tng_trajectory_t tng_data,
+tng_function_status tng_long_stride_length_get(const tng_trajectory_t tng_data,
                                                int64_t *len)
 {
     *len = tng_data->long_stride_length;
@@ -6635,7 +6635,7 @@ tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_input_file_pos_get(tng_trajectory_t tng_data,
+tng_function_status tng_input_file_pos_get(const tng_trajectory_t tng_data,
                                            int64_t *pos)
 {
     *pos = tng_data->input_file_pos;
@@ -6643,7 +6643,7 @@ tng_function_status tng_input_file_pos_get(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);    
 }
 
-tng_function_status tng_output_file_pos_get(tng_trajectory_t tng_data,
+tng_function_status tng_output_file_pos_get(const tng_trajectory_t tng_data,
                                             int64_t *pos)
 {
     *pos = tng_data->output_file_pos;
@@ -6651,7 +6651,7 @@ tng_function_status tng_output_file_pos_get(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_input_file_len_get(tng_trajectory_t tng_data,
+tng_function_status tng_input_file_len_get(const tng_trajectory_t tng_data,
                                            int64_t *len)
 {
     *len = tng_data->input_file_len;
@@ -6659,7 +6659,7 @@ tng_function_status tng_input_file_len_get(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_num_particles_get(tng_trajectory_t tng_data,
+tng_function_status tng_num_particles_get(const tng_trajectory_t tng_data,
                                           int64_t *n)
 {
     if(tng_data->var_num_atoms_flag == TNG_CONSTANT_N_ATOMS)
@@ -6674,7 +6674,7 @@ tng_function_status tng_num_particles_get(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_num_molecules_get(tng_trajectory_t tng_data,
+tng_function_status tng_num_molecules_get(const tng_trajectory_t tng_data,
                                           int64_t *n)
 {
     int64_t *cnt_list, cnt = 0, i;
@@ -6698,7 +6698,7 @@ tng_function_status tng_num_molecules_get(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_num_frames_per_frame_set_get(tng_trajectory_t tng_data,
+tng_function_status tng_num_frames_per_frame_set_get(const tng_trajectory_t tng_data,
                                                      int64_t *n)
 {
     *n = tng_data->frame_set_n_frames;
@@ -6708,7 +6708,7 @@ tng_function_status tng_num_frames_per_frame_set_get(tng_trajectory_t tng_data,
 
 
 tng_function_status tng_current_frame_set_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  tng_trajectory_frame_set_t frame_set)
 {
     frame_set = &tng_data->current_trajectory_frame_set;
@@ -6717,7 +6717,7 @@ tng_function_status tng_current_frame_set_get
 }
 
 tng_function_status tng_frame_set_find(tng_trajectory_t tng_data,
-                                       int64_t frame)
+                                       const int64_t frame)
 {
     int64_t first_frame, last_frame, n_frames_per_frame_set;
     int64_t long_stride_length, medium_stride_length;
@@ -7017,7 +7017,7 @@ tng_function_status tng_frame_set_find(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_frame_set_next_frame_set_file_pos_get
-                (tng_trajectory_frame_set_t frame_set,
+                (const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
 {
     *pos = frame_set->next_frame_set_file_pos;
@@ -7026,7 +7026,7 @@ tng_function_status tng_frame_set_next_frame_set_file_pos_get
 }
 
 tng_function_status tng_frame_set_prev_frame_set_file_pos_get
-                (tng_trajectory_frame_set_t frame_set,
+                (const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
 {
     *pos = frame_set->prev_frame_set_file_pos;
@@ -7613,7 +7613,7 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
                                         int64_t n_frames,
                                         const int64_t n_values_per_frame,
                                         const int64_t stride_length,
-                                        int64_t codec_id,
+                                        const int64_t codec_id,
                                         void *new_data)
 {
     int i, j, block_index, size, len;
@@ -7796,7 +7796,7 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                                         const int64_t stride_length,
                                         const int64_t num_first_particle,
                                         const int64_t n_particles,
-                                        int64_t codec_id,
+                                        const int64_t codec_id,
                                         void *new_data)
 {
     int i, j, k, block_index, size, len;
@@ -7997,8 +7997,8 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
 }
                                                 
 tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
-                                       int64_t start_frame_nr,
-                                       int64_t end_frame_nr,
+                                       const int64_t start_frame_nr,
+                                       const int64_t end_frame_nr,
                                        const tng_hash_mode hash_mode)
 {
     /* STUB */
@@ -8023,8 +8023,8 @@ tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
 
 tng_function_status tng_frame_write_interval
                 (tng_trajectory_t tng_data,
-                 int64_t start_frame_nr,
-                 int64_t end_frame_nr,
+                 const int64_t start_frame_nr,
+                 const int64_t end_frame_nr,
                  const tng_hash_mode hash_mode)
 {
     /* STUB */
@@ -8032,9 +8032,9 @@ tng_function_status tng_frame_write_interval
 }
 
 tng_function_status tng_data_values_free(union data_values **values,
-                                         int64_t n_frames,
-                                         int64_t n_values_per_frame,
-                                         tng_data_type type)
+                                         const int64_t n_frames,
+                                         const int64_t n_values_per_frame,
+                                         const tng_data_type type)
 {
     int i, j;
     
@@ -8067,10 +8067,10 @@ tng_function_status tng_data_values_free(union data_values **values,
 }
 
 tng_function_status tng_particle_data_values_free(union data_values ***values,
-                                                  int64_t n_frames,
-                                                  int64_t n_particles,
-                                                  int64_t n_values_per_frame,
-                                                  tng_data_type type)
+                                                  const int64_t n_frames,
+                                                  const int64_t n_particles,
+                                                  const int64_t n_values_per_frame,
+                                                  const tng_data_type type)
 {
     int i, j, k;
 
@@ -8107,7 +8107,7 @@ tng_function_status tng_particle_data_values_free(union data_values ***values,
     return(TNG_SUCCESS);
 }
 tng_function_status tng_data_get(tng_trajectory_t tng_data,
-                                 int64_t block_id,
+                                 const int64_t block_id,
                                  union data_values ***values,
                                  int64_t *n_frames,
                                  int64_t *n_values_per_frame,
@@ -8216,9 +8216,9 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
-                                          int64_t block_id,
-                                          int64_t start_frame_nr,
-                                          int64_t end_frame_nr,
+                                          const int64_t block_id,
+                                          const int64_t start_frame_nr,
+                                          const int64_t end_frame_nr,
                                           union data_values ***values,
                                           int64_t *n_values_per_frame,
                                           tng_data_type *type)
@@ -8228,7 +8228,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
-                                          int64_t block_id,
+                                          const int64_t block_id,
                                           union data_values ****values,
                                           int64_t *n_frames,
                                           int64_t *n_particles,
@@ -8382,9 +8382,9 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
-                                                  int64_t block_id,
-                                                  int64_t start_frame_nr,
-                                                  int64_t end_frame_nr,
+                                                  const int64_t block_id,
+                                                  const int64_t start_frame_nr,
+                                                  const int64_t end_frame_nr,
                                                   union data_values ****values,
                                                   int64_t *n_particles,
                                                   int64_t *n_values_per_frame,
@@ -8611,7 +8611,7 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_time_get_str(tng_trajectory_t tng_data,
+tng_function_status tng_time_get_str(const tng_trajectory_t tng_data,
                                      char *time)
 {
     struct tm *time_data;

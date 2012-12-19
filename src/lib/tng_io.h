@@ -315,7 +315,7 @@ tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_medium_stride_length_get(tng_trajectory_t tng_data,
+tng_function_status tng_medium_stride_length_get(const tng_trajectory_t tng_data,
                                                int64_t *len);
 
 /**
@@ -335,7 +335,7 @@ tng_function_status tng_medium_stride_length_set(tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_long_stride_length_get(tng_trajectory_t tng_data,
+tng_function_status tng_long_stride_length_get(const tng_trajectory_t tng_data,
                                                int64_t *len);
 
 /**
@@ -355,7 +355,7 @@ tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_input_file_pos_get(tng_trajectory_t tng_data,
+tng_function_status tng_input_file_pos_get(const tng_trajectory_t tng_data,
                                            int64_t *pos);
 
 /**
@@ -365,7 +365,7 @@ tng_function_status tng_input_file_pos_get(tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_output_file_pos_get(tng_trajectory_t tng_data,
+tng_function_status tng_output_file_pos_get(const tng_trajectory_t tng_data,
                                             int64_t *pos);
 
 /**
@@ -375,7 +375,7 @@ tng_function_status tng_output_file_pos_get(tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_input_file_len_get(tng_trajectory_t tng_data,
+tng_function_status tng_input_file_len_get(const tng_trajectory_t tng_data,
                                            int64_t *len);
 
 /**
@@ -387,7 +387,7 @@ tng_function_status tng_input_file_len_get(tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_num_particles_get(tng_trajectory_t tng_data,
+tng_function_status tng_num_particles_get(const tng_trajectory_t tng_data,
                                           int64_t *n);
 
 /**
@@ -399,7 +399,7 @@ tng_function_status tng_num_particles_get(tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_num_molecules_get(tng_trajectory_t tng_data,
+tng_function_status tng_num_molecules_get(const tng_trajectory_t tng_data,
                                           int64_t *n);
 
 /**
@@ -410,7 +410,7 @@ tng_function_status tng_num_molecules_get(tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_num_frames_per_frame_set_get(tng_trajectory_t tng_data,
+tng_function_status tng_num_frames_per_frame_set_get(const tng_trajectory_t tng_data,
                                                      int64_t *n);
 
 /**
@@ -421,7 +421,7 @@ tng_function_status tng_num_frames_per_frame_set_get(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_current_frame_set_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  tng_trajectory_frame_set_t frame_set);
 
 
@@ -435,7 +435,7 @@ tng_function_status tng_current_frame_set_get
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_frame_set_find(tng_trajectory_t tng_data,
-                                       int64_t frame);
+                                       const int64_t frame);
 
 /**
  * @brief Get the file position of the next frame set in the input file.
@@ -446,7 +446,7 @@ tng_function_status tng_frame_set_find(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_frame_set_next_frame_set_file_pos_get
-                (tng_trajectory_frame_set_t frame_set,
+                (const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos);
 
 /**
@@ -458,7 +458,7 @@ tng_function_status tng_frame_set_next_frame_set_file_pos_get
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_frame_set_prev_frame_set_file_pos_get
-                (tng_trajectory_frame_set_t frame_set,
+                (const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos);
 
 /**
@@ -773,7 +773,7 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
                                         int64_t n_frames,
                                         const int64_t n_values_per_frame,
                                         const int64_t stride_length,
-                                        int64_t codec_id,
+                                        const int64_t codec_id,
                                         void *new_data);
                                        
 
@@ -811,7 +811,7 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                                         const int64_t stride_length,
                                         const int64_t first_particle_number,
                                         const int64_t n_particles,
-                                        int64_t codec_id,
+                                        const int64_t codec_id,
                                         void *new_data);
 
 
@@ -832,8 +832,8 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
-                                       int64_t start_frame_nr,
-                                       int64_t end_frame_nr,
+                                       const int64_t start_frame_nr,
+                                       const int64_t end_frame_nr,
                                        const tng_hash_mode hash_mode);
 
 /**
@@ -852,8 +852,8 @@ tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
-                                        int64_t start_frame_nr,
-                                        int64_t end_frame_nr,
+                                        const int64_t start_frame_nr,
+                                        const int64_t end_frame_nr,
                                         const tng_hash_mode hash_mode);
 
 /**
@@ -866,9 +866,9 @@ tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_data_values_free(union data_values **values,
-                                         int64_t n_frames,
-                                         int64_t n_values_per_frame,
-                                         tng_data_type type);
+                                         const int64_t n_frames,
+                                         const int64_t n_values_per_frame,
+                                         const tng_data_type type);
 
 /**
  * @brief Free data is an array of values (3D).
@@ -881,10 +881,10 @@ tng_function_status tng_data_values_free(union data_values **values,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_particle_data_values_free(union data_values ***values,
-                                                  int64_t n_frames,
-                                                  int64_t n_particles,
-                                                  int64_t n_values_per_frame,
-                                                  tng_data_type type);
+                                                  const int64_t n_frames,
+                                                  const int64_t n_particles,
+                                                  const int64_t n_values_per_frame,
+                                                  const tng_data_type type);
 
 /**
  * @brief Retrieve non-particle data, from the last read frame set.
@@ -906,7 +906,7 @@ tng_function_status tng_particle_data_values_free(union data_values ***values,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_data_get(tng_trajectory_t tng_data,
-                                 int64_t block_id,
+                                 const int64_t block_id,
                                  union data_values ***values,
                                  int64_t *n_frames,
                                  int64_t *n_values_per_frame,
@@ -933,9 +933,9 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
-                                          int64_t block_id,
-                                          int64_t start_frame_nr,
-                                          int64_t end_frame_nr,
+                                          const int64_t block_id,
+                                          const int64_t start_frame_nr,
+                                          const int64_t end_frame_nr,
                                           union data_values ***values,
                                           int64_t *n_values_per_frame,
                                           tng_data_type *type);
@@ -965,7 +965,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
-                                          int64_t block_id,
+                                          const int64_t block_id,
                                           union data_values ****values,
                                           int64_t *n_frames,
                                           int64_t *n_particles,
@@ -984,15 +984,13 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
  * @param block_id is the id number of the particle data block to read.
  * @param start_frame_nr is the index number of the first frame to read.
  * @param end_frame_nr is the index number of the last frame to read.
- * @param first_particle_number is the number of the first particle, for which to
- * retrieve data.
- * @param last_particle_number is the number of the last particle, for which to
- * retrieve data.
  * @param values is a pointer to a 3-dimensional array (memory unallocated), which
  * will be filled with data. The array will be sized
  * (n_frames * n_particles * n_values_per_frame).
  * Since ****values is allocated in this function it is the callers
  * responsibility to free the memory.
+ * @param n_particles is set to the number of particles in the returned data. This is
+ * needed to properly reach and/or free the data afterwards.
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
@@ -1000,9 +998,9 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
-                                                  int64_t block_id,
-                                                  int64_t start_frame_nr,
-                                                  int64_t end_frame_nr,
+                                                  const int64_t block_id,
+                                                  const int64_t start_frame_nr,
+                                                  const int64_t end_frame_nr,
                                                   union data_values ****values,
                                                   int64_t *n_particles,
                                                   int64_t *n_values_per_frame,
@@ -1015,7 +1013,8 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_time_get_str(tng_trajectory_t tng_data, char *time);
+tng_function_status tng_time_get_str(const tng_trajectory_t tng_data,
+                                     char *time);
 
 #ifdef __cplusplus
 }  /* end extern "C" */
