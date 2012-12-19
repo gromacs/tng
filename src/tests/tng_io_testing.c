@@ -6,10 +6,10 @@
 
 static tng_function_status tng_test_setup_molecules(tng_trajectory_t traj)
 {
-    struct tng_molecule *molecule;
-    struct tng_chain *chain;
-    struct tng_residue *residue;
-    struct tng_atom *atom;
+    tng_molecule_t molecule;
+    tng_chain_t chain;
+    tng_residue_t residue;
+    tng_atom_t atom;
     int64_t cnt;
 //     int i;
 
@@ -30,7 +30,7 @@ static tng_function_status tng_test_setup_molecules(tng_trajectory_t traj)
     }
     tng_molecule_cnt_set(traj, molecule, 200);
     tng_molecule_cnt_get(traj, molecule, &cnt);
-    printf("Created %"PRId64" %s molecules.\n", cnt, molecule->name);
+//     printf("Created %"PRId64" %s molecules.\n", cnt, molecule->name);
 
 //     traj->molecule_cnt_list[traj->n_molecules-1] = 5;
 //     tng_molecule_name_set(traj, &traj->molecules[1], "ligand");
@@ -97,6 +97,7 @@ static tng_function_status tng_test_read_and_write_file
                 (tng_trajectory_t traj)
 {
     tng_function_status stat;
+    int64_t pos;
 
     stat = tng_file_headers_read(traj, TNG_USE_HASH);
     if(stat == TNG_CRITICAL)
@@ -109,15 +110,15 @@ static tng_function_status tng_test_read_and_write_file
         return(stat);
     }
 
-    while(stat != TNG_CRITICAL && traj->input_file_pos < traj->input_file_len &&
-          traj->current_trajectory_frame_set.next_frame_set_file_pos != -1UL)
+    while(stat != TNG_SUCCESS)
     {
         stat = tng_frame_set_read_next(traj, TNG_USE_HASH);
-        if(stat == TNG_CRITICAL)
+        if(stat != TNG_SUCCESS)
         {
             return(stat);
         }
         stat = tng_frame_set_write(traj, TNG_USE_HASH);
+        tng_input_file_pos_get(traj, &pos);
     }
     
     return(stat);
@@ -125,9 +126,9 @@ static tng_function_status tng_test_read_and_write_file
 
 static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
 {
-    int i, j, k, nr, tot_n_mols, cnt;
+    int i, j, k, nr, cnt;
     float *data, *molpos;
-    int64_t mapping[150];
+    int64_t mapping[150], n_particles, n_frames_per_frame_set, tot_n_mols;
     tng_function_status stat;
 
     tng_medium_stride_length_set(traj, 10);
@@ -139,36 +140,23 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
         return(TNG_CRITICAL);
     }
 
-    if(tng_block_init(&traj->non_trajectory_blocks[traj->n_non_trajectory_blocks]) == TNG_CRITICAL)
-    {
-        return(TNG_CRITICAL);
-    }
-    traj->non_trajectory_blocks[traj->n_non_trajectory_blocks].id = TNG_MOLECULES;
-    if(tng_block_name_set(traj,
-                          &traj->non_trajectory_blocks[traj->n_non_trajectory_blocks++],
-                          "MOLECULES") == TNG_CRITICAL)
-    {
-        return(TNG_CRITICAL);
-    }
-
     if(tng_file_headers_write(traj, TNG_SKIP_HASH) == TNG_CRITICAL)
     {
         return(TNG_CRITICAL);
     }
+
+    tng_num_particles_get(traj, &n_particles);
+    tng_num_frames_per_frame_set_get(traj, &n_frames_per_frame_set);
     
-    data = malloc(sizeof(float) * traj->n_particles *
-                  traj->frame_set_n_frames * 3);
+    data = malloc(sizeof(float) * n_particles *
+                  n_frames_per_frame_set * 3);
     if(!data)
     {
         printf("Cannot allocate memory. %s: %d\n", __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
 
-    tot_n_mols = 0;
-    for(i = 0; i < traj->n_molecules; i++)
-    {
-        tot_n_mols += traj->molecule_cnt_list[i];
-    }
+    tng_num_molecules_get(traj, &tot_n_mols);
     molpos = malloc(sizeof(float) * tot_n_mols * 3);
 
     /* Set initial coordinates */
@@ -186,7 +174,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     for(i = 0; i < 200; i++)
     {
         cnt = 0;
-        for(j = 0; j < traj->frame_set_n_frames; j++)
+        for(j = 0; j < n_frames_per_frame_set; j++)
         {
             for(k = 0; k < tot_n_mols; k++)
             {
@@ -207,8 +195,8 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
                 data[cnt++] = molpos[nr + 2] - 1;
             }
         }
-        if(tng_frame_set_new(traj, i * traj->frame_set_n_frames,
-            traj->frame_set_n_frames) != TNG_SUCCESS)
+        if(tng_frame_set_new(traj, i * n_frames_per_frame_set,
+            n_frames_per_frame_set) != TNG_SUCCESS)
         {
             printf("Error creating frame set %d. %s: %d\n",
                    i, __FILE__, __LINE__);
@@ -270,8 +258,8 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
                                        "POSITIONS",
                                        TNG_FLOAT_DATA,
                                        TNG_TRAJECTORY_BLOCK,
-                                       traj->frame_set_n_frames, 3,
-                                       1, 0, traj->n_particles,
+                                       n_frames_per_frame_set, 3,
+                                       1, 0, n_particles,
                                        TNG_UNCOMPRESSED,
                                        data) != TNG_SUCCESS)
         {
@@ -289,16 +277,9 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
         }
     }
 
-//     tng_add_ids_names_pair(traj, TNG_TRAJ_VELOCITIES, "BOX SHAPE");
-//     tng_add_ids_names_pair(traj, TNG_TRAJ_POSITIONS, "TRAJECTORY POSITIONS");
-//     tng_add_ids_names_pair(traj, TNG_TRAJ_VELOCITIES, "TRAJECTORY VELOCITIES");
-//     tng_add_ids_names_pair(traj, TNG_TRAJ_FORCES, "TRAJECTORY FORCES");
-//     tng_add_ids_names_pair(traj, 11000, "TEST DATA");
-        
     free(molpos);
     free(data);
 
-    tng_trajectory_destroy(traj);
 #ifdef EXAMPLE_FILES_DIR
     tng_input_file_set(traj, EXAMPLE_FILES_DIR "tng_test.tng");
 #else
@@ -307,8 +288,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     
     stat = tng_file_headers_read(traj, TNG_SKIP_HASH);
     
-    while(stat != TNG_CRITICAL && traj->input_file_pos < traj->input_file_len &&
-          traj->current_trajectory_frame_set.next_frame_set_file_pos != -1)
+    while(stat == TNG_SUCCESS)
     {
         stat = tng_frame_set_read_next(traj, TNG_SKIP_HASH);
         if(stat == TNG_CRITICAL)
@@ -394,7 +374,7 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj)
 
 int main()
 {
-    struct tng_trajectory traj;
+    tng_trajectory_t traj;
     char time_str[TNG_MAX_DATE_STR_LEN];
     
     if(tng_trajectory_init(&traj) != TNG_SUCCESS)
@@ -406,20 +386,20 @@ int main()
     }
     printf("Test Init trajectory:\t\t\t\tSucceeded.\n");
 
-    tng_time_get_str(&traj, time_str);
+    tng_time_get_str(traj, time_str);
 
     printf("Creation time: %s\n", time_str);
 
 #ifdef EXAMPLE_FILES_DIR
-    tng_input_file_set(&traj, EXAMPLE_FILES_DIR "tng_example.tng");
-    tng_output_file_set(&traj, EXAMPLE_FILES_DIR "tng_example_out.tng");
+    tng_input_file_set(traj, EXAMPLE_FILES_DIR "tng_example.tng");
+    tng_output_file_set(traj, EXAMPLE_FILES_DIR "tng_example_out.tng");
 #else
-    tng_input_file_set(&traj, "tng_example.tng");
-    tng_output_file_set(&traj, "/tmp/tng_example_out.tng");
+    tng_input_file_set(traj, "tng_example.tng");
+    tng_output_file_set(traj, "/tmp/tng_example_out.tng");
 #endif
 
 
-    if(tng_test_read_and_write_file(&traj) == TNG_CRITICAL)
+    if(tng_test_read_and_write_file(traj) == TNG_CRITICAL)
     {
         printf("Test Read and write file:\t\t\tFailed. %s: %d\n",
                __FILE__, __LINE__);
@@ -429,7 +409,7 @@ int main()
         printf("Test Read and write file:\t\t\tSucceeded.\n");
     }
     
-    if(tng_test_get_box_data(&traj) != TNG_SUCCESS)
+    if(tng_test_get_box_data(traj) != TNG_SUCCESS)
     {
         printf("Test Get data:\t\t\t\t\tFailed. %s: %d\n",
                __FILE__, __LINE__);
@@ -452,12 +432,12 @@ int main()
     
 
 #ifdef EXAMPLE_FILES_DIR
-    tng_output_file_set(&traj, EXAMPLE_FILES_DIR "tng_test.tng");
+    tng_output_file_set(traj, EXAMPLE_FILES_DIR "tng_test.tng");
 #else
-    tng_output_file_set(&traj, "/tmp/tng_test.tng");
+    tng_output_file_set(traj, "/tmp/tng_test.tng");
 #endif
 
-    if(tng_test_write_and_read_traj(&traj) == TNG_CRITICAL)
+    if(tng_test_write_and_read_traj(traj) == TNG_CRITICAL)
     {
         printf("Test Write and read file:\t\t\tFailed. %s: %d\n",
                __FILE__, __LINE__);
@@ -467,15 +447,15 @@ int main()
         printf("Test Write and read file:\t\t\tSucceeded.\n");
     }
     
-    if(tng_test_get_positions_data(&traj) != TNG_SUCCESS)
-    {
-        printf("Test Get particle data:\t\t\t\tFailed. %s: %d\n",
-               __FILE__, __LINE__);
-    }
-    else
-    {
-        printf("Test Get particle data:\t\t\t\tSucceeded.\n");
-    }
+//     if(tng_test_get_positions_data(traj) != TNG_SUCCESS)
+//     {
+//         printf("Test Get particle data:\t\t\t\tFailed. %s: %d\n",
+//                __FILE__, __LINE__);
+//     }
+//     else
+//     {
+//         printf("Test Get particle data:\t\t\t\tSucceeded.\n");
+//     }
 
     if(tng_trajectory_destroy(&traj) == TNG_CRITICAL)
     {

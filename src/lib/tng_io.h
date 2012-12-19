@@ -129,8 +129,6 @@ typedef enum {TNG_CONSTANT_N_ATOMS, TNG_VARIABLE_N_ATOMS}
 
 typedef enum {TNG_SUCCESS, TNG_FAILURE, TNG_CRITICAL} tng_function_status;
 
-typedef enum {TNG_NORMAL_WRITE, TNG_COPY_EXISTING} tng_write_mode;
-
 typedef enum {TNG_SKIP_HASH, TNG_USE_HASH} tng_hash_mode;
 
 typedef enum {TNG_CHAR_DATA,
@@ -139,7 +137,18 @@ typedef enum {TNG_CHAR_DATA,
               TNG_DOUBLE_DATA} tng_data_type;
 
 
-
+struct tng_trajectory;
+struct tng_molecule;
+struct tng_chain;
+struct tng_residue;
+struct tng_atom;
+struct tng_bond;
+struct tng_gen_block;
+struct tng_frame_set_toc;
+struct tng_particle_mapping;
+struct tng_trajectory_frame_set;
+struct tng_particle_data;
+struct tng_non_particle_data;
 
 typedef struct tng_trajectory *tng_trajectory_t;
 typedef struct tng_molecule *tng_molecule_t;
@@ -147,164 +156,12 @@ typedef struct tng_chain *tng_chain_t;
 typedef struct tng_residue *tng_residue_t;
 typedef struct tng_atom *tng_atom_t;
 typedef struct tng_bond *tng_bond_t;
-              
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-struct tng_bond {
-    /** One of the atoms of the bond */
-    int64_t from_atom_id;
-    /** The other atom of the bond */
-    int64_t to_atom_id;
-};
-
-struct tng_atom {
-    /** The residue containing this atom */
-    tng_residue_t residue;
-    /** A unique (per molecule) ID number of the atom */
-    int64_t id;
-    /** The atom_type (depending on the forcefield) */
-    char *atom_type;
-    /** The name of the atom */
-    char *name;
-};
-
-struct tng_residue {
-    /** The chain containing this residue */
-    tng_chain_t chain;
-    /** A unique (per chain) ID number of the residue */
-    int64_t id;
-    /** The name of the residue */
-    char *name;
-    /** The number of atoms in the residue */
-    int64_t n_atoms;
-    /** A list of atoms in the residue */
-    tng_atom_t atoms;
-};
-
-struct tng_chain {
-    /** The molecule containing this chain */
-    tng_molecule_t molecule;
-    /** A unique (per molecule) ID number of the chain */
-    int64_t id;
-    /** The name of the chain */
-    char *name;
-    /** The number of residues in the chain */
-    int64_t n_residues;
-    /** A list of residues in the chain */
-    tng_residue_t residues;
-};
-
-struct tng_molecule {
-    /** A unique ID number of the molecule */
-    int64_t id;
-    /** Quaternary structure of the molecule.
-     *  1 => monomeric
-     *  2 => dimeric
-     *  3 => trimeric
-     *  etc */
-    int64_t quaternary_str;
-    /** The number of chains in the molecule */
-    int64_t n_chains;
-    /** The number of residues in the molecule */
-    int64_t n_residues;
-    /** The number of atoms in the molecule */
-    int64_t n_atoms;
-    /** The number of bonds in the molecule. If the bonds are not specified this
-     * value can be 0. */
-    int64_t n_bonds;
-    /** The name of the molecule */
-    char *name;
-    /** A list of chains in the molecule */
-    tng_chain_t chains;
-    /** A list of residues in the molecule */
-    tng_residue_t residues;
-    /** A list of the atoms in the molecule */
-    tng_atom_t atoms;
-    /** A list of the bonds in the molecule */
-    tng_bond_t bonds;
-};
-
-struct tng_gen_block {
-    /** The size of the block header in bytes */
-    int64_t header_contents_size;
-    /** The size of the block contents in bytes */
-    int64_t block_contents_size;
-    /** The ID of the block to determine its type */
-    int64_t id;
-    /** The MD5 hash of the block to verify integrity */
-    char hash[TNG_HASH_LEN];
-    /** The name of the block */
-    char *name;
-    /** The library version used to write the block */
-    int64_t block_version;
-    /** The full block header contents */
-    char *header_contents;
-    /** The full block contents */
-    char *block_contents;
-};
-
-struct tng_frame_set_toc {
-    /** The number of blocks listed in this table of contents */
-    int64_t n_blocks;
-    /** A list of block names */
-    char **block_names;
-};
-
-struct tng_particle_mapping {
-    /** The index number of the first particle in this mapping block */
-    int64_t num_first_particle;
-    /** The number of particles list in this mapping block */
-    int64_t n_particles;
-    /** the mapping of index numbers to the real particle numbers in the
-     * trajectory. real_particle_numbers[0] is the real particle number
-     * (as it is numbered in the molecular system) of the first particle
-     * in the data blocks covered by this particle mapping block */
-    int64_t *real_particle_numbers;
-};
-
-struct tng_trajectory_frame_set {
-    /** The table of contents of this frame set */
-    struct tng_frame_set_toc contents;
-    /** The number of different particle mapping blocks present. */
-    int64_t n_mapping_blocks;
-    /** The atom mappings of this frame set */
-    struct tng_particle_mapping *mappings;
-    /** The first frame of this frame set */
-    int64_t first_frame;
-    /** The number of frames in this frame set */
-    int64_t n_frames;
-    /** A list of the number of each molecule type - only used when using
-     * variable number of atoms */
-    int64_t *molecule_cnt_list;
-    /** The number of particles/atoms - only used when using variable number
-     * of atoms */
-    int64_t n_particles;
-    /** The file position of the next frame set */
-    int64_t next_frame_set_file_pos;
-    /** The file position of the previous frame set */
-    int64_t prev_frame_set_file_pos;
-    /** The file position of the frame set one long stride step ahead */
-    int64_t medium_stride_next_frame_set_file_pos;
-    /** The file position of the frame set one long stride step behind */
-    int64_t medium_stride_prev_frame_set_file_pos;
-    /** The file position of the frame set one long stride step ahead */
-    int64_t long_stride_next_frame_set_file_pos;
-    /** The file position of the frame set one long stride step behind */
-    int64_t long_stride_prev_frame_set_file_pos;
-
-    /* The data blocks in a frame set are trajectory data blocks */
-    /** The number of trajectory data blocks of particle dependent data */
-    int n_particle_data_blocks;
-    /** A list of data blocks containing particle dependent data */
-    struct tng_particle_data *tr_particle_data;
-    /** The number of trajectory data blocks independent of particles */
-    int n_data_blocks;
-    /** A list of data blocks containing particle indepdendent data */
-    struct tng_data *tr_data;
-};
+typedef struct tng_gen_block *tng_gen_block_t;
+typedef struct tng_frame_set_toc *tng_frame_set_toc_t;
+typedef struct tng_particle_mapping *tng_particle_mapping_t;
+typedef struct tng_trajectory_frame_set *tng_trajectory_frame_set_t;
+typedef struct tng_particle_data *tng_particle_data_t;
+typedef struct tng_non_particle_data *tng_non_particle_data_t;
 
 /** Data can be either double, float, int or a string */
 union data_values {
@@ -314,182 +171,32 @@ union data_values {
     char *c;
 };
 
-/* FIXME: Should there be a pointer to a tng_gen_block from each data block? */
-struct tng_particle_data {
-    /** The block ID of the data block containing this particle data.
-     *  This is used to determine the kind of data that is stored */
-    int64_t block_id;
-    /** The name of the data block. This is used to determine the kind of
-     *  data that is stored */
-    char *block_name;
-    /** The type of data stored. */
-    tng_data_type datatype;
-    /** The first frame number of the first data value */
-    int64_t first_frame_with_data;
-    /** The number of frames in this frame set */
-    int64_t n_frames;
-    /** The number of values stored per frame */
-    int64_t n_values_per_frame;
-    /** The number of frames between each data point - e.g. when
-     *  storing sparse data. */
-    int64_t stride_length;
-    /** ID of the CODEC used for compression 0 == no compression. */
-    int64_t codec_id;
-    /** The multiplier used for getting integer values for compression */
-    double compression_multiplier;
-    /** A 3-dimensional array of values, sized
-     *  n_frames * n_particles * n_values_per_frame */
-    union data_values ***values;
-};
 
-struct tng_data {
-    /** The ID of the data block */
-    int64_t block_id;
-    /** The name of the data block. This is used to determine the kind of
-     *  data that is stored */
-    char *block_name;
-    /** The type of data stored. */
-    tng_data_type datatype;
-    /** The first frame number of the first data value */
-    int64_t first_frame_with_data;
-    /** The number of frames in this data block */
-    int64_t n_frames;
-    /** The number of values stored per frame */
-    int64_t n_values_per_frame;
-    /** The number of frames between each data value, e.g. if storing data
-     *  that is not saved every frame. */
-    int64_t stride_length;
-    /** ID of the CODEC used for compression. 0 == no compression. */
-    int64_t codec_id;
-    /** Compressed data is stored as integers. This compression multiplier is
-     *  the multiplication factor to convert from integer to float/double */
-    double compression_multiplier;
-    /** A 2-dimensional array of values, sized n_frames * n_values_per_frame */
-    union data_values **values;
-};
-
-
-
-struct tng_trajectory {
-    /** The path of the input trajectory file */
-    char *input_file_path;
-    /** A handle to the input file */
-    FILE *input_file;
-    /** The reading position of the file */
-    long int input_file_pos;
-    /** The length of the input file */
-    long int input_file_len;
-    /** The path of the output trajectory file */
-    char *output_file_path;
-    /** A handle to the output file */
-    FILE *output_file;
-    /** The writing position of the file */
-    long int output_file_pos;        
-    /** The endianness of 32 bit values of the current computer */
-    tng_endianness_32 endianness_32;
-    /** The endianness of 64 bit values of the current computer */
-    tng_endianness_64 endianness_64;
-
-    /** The name of the program producing this trajectory */
-    char *first_program_name;
-    /** The forcefield used in the simulations */
-    char *forcefield_name;
-    /** The name of the user running the simulations */
-    char *first_user_name;
-    /** The name of the computer on which the simulations were performed */
-    char *first_computer_name;
-    /** The PGP signature of the user creating the file. */
-    char *first_pgp_signature;
-    /** The name of the program used when making last modifications to the
-     *  file */
-    char *last_program_name;
-    /** The name of the user making the last modifications to the file */
-    char *last_user_name;
-    /** The name of the computer on which the last modifications were made */
-    char *last_computer_name;
-    /** The PGP signature of the user making the last modifications to the
-     *  file. */
-    char *last_pgp_signature;
-    /** The time (n seconds since 1970) when the file was created */
-    int64_t time;
-    
-    /** A flag indicating if the number of atoms can vary throughout the
-     *  simulation, e.g. using a grand canonical ensemble */
-    char var_num_atoms_flag;
-    /** The number of frames in a frame set. It is allowed to have frame sets
-     *  with fewer frames, but this will help searching for specific frames */
-    int64_t frame_set_n_frames;
-    /** The number of frame sets in a medium stride step */
-    int64_t medium_stride_length;
-    /** The number of frame sets in a long stride step */
-    int64_t long_stride_length;
-    
-    /** The number of different kinds of molecules in the trajectory */
-    int64_t n_molecules;
-    /** A list of molecules in the trajectory */
-    tng_molecule_t molecules;
-    /** A list of the count of each molecule - if using variable number of
-     *  particles this will be specified in each frame set */
-    int64_t *molecule_cnt_list;
-    /** The total number of particles/atoms. If using variable number of
-     *  particles this will be specified in each frame set */
-    int64_t n_particles;
-
-     /** The pos in the src file of the first frame set */
-    int64_t first_trajectory_frame_set_input_file_pos;
-    /** The pos in the dest file of the first frame set */
-    int64_t first_trajectory_frame_set_output_file_pos;
-    /** The pos in the src file of the last frame set */
-    int64_t last_trajectory_frame_set_input_file_pos;
-    /** The pos in the dest file of the last frame set */
-    int64_t last_trajectory_frame_set_output_file_pos;
-    /** The currently active frame set */
-    struct tng_trajectory_frame_set current_trajectory_frame_set;
-    /** The pos in the src file of the current frame set */
-    long int current_trajectory_frame_set_input_file_pos;
-    /** The pos in the dest file of the current frame set */
-    long int current_trajectory_frame_set_output_file_pos;
-    /** The number of frame sets in the trajectory */
-    int64_t n_trajectory_frame_sets;
-
-    /** The number of trajectory blocks in the file */
-    int64_t n_trajectory_blocks;
-    /** The number of non-trajectory blocks in the file */
-    int64_t n_non_trajectory_blocks;
-    /** A list of non-trajectory blocks */
-    struct tng_gen_block non_trajectory_blocks[32];
-                                                       
-    /* These data blocks are non-trajectory data blocks */
-    /** The number of non-frame dependent particle dependent data blocks */
-    int n_particle_data_blocks;
-    /** A list of data blocks containing particle dependent data */
-    struct tng_particle_data *non_tr_particle_data;
-
-    /** The number of frame and particle independent data blocks */
-    int n_data_blocks;
-    /** A list of frame and particle indepdendent data blocks */
-    struct tng_data *non_tr_data;
-};
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 
 /**
  * @brief Setup a trajectory data container.
- * @param tng_data pre-allocated memory to initialise as a trajectory.
+ * @param tng_data_p a pointer to memory to initialise as a trajectory.
+ * @details Memory is allocated during initialisation.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_trajectory_init(tng_trajectory_t tng_data);
+tng_function_status tng_trajectory_init(tng_trajectory_t *tng_data_p);
 
 /**
  * @brief Clean up a trajectory data container.
- * @param tng_data the trajectory data to destroy.
- * @details All allocated memory in the data structure is freed, but not the memory
- * of tng_data itself.
+ * @param tng_data_p a pointer to the trajectory data to destroy.
+ * @details All allocated memory in the data structure is freed, as well as
+ * tng_data_p itself.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_trajectory_destroy(tng_trajectory_t tng_data);
+tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p);
 
 /**
  * @brief Set the name of the input file.
@@ -642,6 +349,106 @@ tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
                                                int64_t len);
 
 /**
+ * @brief Get the reading position of the input file.
+ * @param tng_data is the trajectory from which to get the position.
+ * @param pos is pointing to a value set to the reading position.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_input_file_pos_get(tng_trajectory_t tng_data,
+                                           int64_t *pos);
+
+/**
+ * @brief Get the writing position of the output file.
+ * @param tng_data is the trajectory from which to get the position.
+ * @param pos is pointing to a value set to the writing position.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_output_file_pos_get(tng_trajectory_t tng_data,
+                                            int64_t *pos);
+
+/**
+ * @brief Get the length of the input file.
+ * @param tng_data is the trajectory from which to get the input file length.
+ * @param len is pointing to a value set to the file length.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_input_file_len_get(tng_trajectory_t tng_data,
+                                           int64_t *len);
+
+/**
+ * @brief Get the current number of particles.
+ * @param tng_data is the trajectory from which to get the number of particles.
+ * @param n is pointing to a value set to the number of particles.
+ * @details If variable number of particles are used this function will return
+ * the number of particles in the current frame set.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_num_particles_get(tng_trajectory_t tng_data,
+                                          int64_t *n);
+
+/**
+ * @brief Get the current total number of molecules.
+ * @param tng_data is the trajectory from which to get the number of molecules.
+ * @param n is pointing to a value set to the number of molecules.
+ * @details If variable number of particles are used this function will return
+ * the total number of molecules in the current frame set.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_num_molecules_get(tng_trajectory_t tng_data,
+                                          int64_t *n);
+
+/**
+ * @brief Get the number of frames per frame set.
+ * @param tng_data is the trajectory from which to get the number of frames
+ * per frame set.
+ * @param n is pointing to a value set to the number of frames per frame set.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_num_frames_per_frame_set_get(tng_trajectory_t tng_data,
+                                                     int64_t *n);
+
+/**
+ * @brief Get the current trajectory frame set.
+ * @param tng_data is the trajectory from which to get the frame set.
+ * @param frame_set is pointing to the memory position of the frame set.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_current_frame_set_get
+                (tng_trajectory_t tng_data,
+                 tng_trajectory_frame_set_t frame_set);
+
+/**
+ * @brief Get the file position of the next frame set in the input file.
+ * @param frame_set is the frame set of which to get the position of the
+ * following frame set.
+ * @param pos is pointing to a value set to the file position.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_frame_set_next_frame_set_file_pos_get
+                (tng_trajectory_frame_set_t frame_set,
+                 int64_t *pos);
+
+/**
+ * @brief Get the file position of the previous frame set in the input file.
+ * @param frame_set is the frame set of which to get the position of the
+ * previous frame set.
+ * @param pos is pointing to a value set to the file position.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_frame_set_prev_frame_set_file_pos_get
+                (tng_trajectory_frame_set_t frame_set,
+                 int64_t *pos);
+
+/**
  * @brief Setup a molecule container.
  * @param molecule is the molecule to initialise. Memory must be preallocated.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -659,35 +466,6 @@ tng_function_status tng_molecule_init(tng_molecule_t molecule);
  */
 tng_function_status tng_molecule_destroy(tng_molecule_t molecule);
 
-/**
- * @brief Setup a data block.
- * @param block is a pointer to pre-allocated memory.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
- */
-tng_function_status tng_block_init(struct tng_gen_block *block);
-
-/**
- * @brief Clean up a data block.
- * @param block is a pointer to pre-allocated memory.
- * @details All allocated memory in the data structure is freed, but not the
- * memory of block itself.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
- */
-tng_function_status tng_block_destroy(struct tng_gen_block *block);
-
-/**
- * @brief Set the name of a data block.
- * @param tng_data is the trajectory data container containing the block..
- * @param block is a pointer to the block to rename.
- * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
- */
-tng_function_status tng_block_name_set(tng_trajectory_t tng_data,
-                                       struct tng_gen_block *block,
-                                       const char *new_name);
 
 /**
  * @brief Add a molecule to the trajectory.
@@ -905,7 +683,7 @@ tng_function_status tng_file_headers_write(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_block_read_next(tng_trajectory_t tng_data,
-                                        struct tng_gen_block *block_data,
+                                        tng_gen_block_t block_data,
                                         const tng_hash_mode hash_mode);
 
 
@@ -1034,6 +812,9 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
  * opened.
  * @param start_frame_nr is the index number of the first frame to read.
  * @param end_frame_nr is the index number of the last frame to read.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * compared to the md5 hash of the read contents to ensure valid data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1051,6 +832,9 @@ tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
  * opened.
  * @param start_frame_nr is the index number of the first frame to write.
  * @param end_frame_nr is the index number of the last frame to write.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * compared to the md5 hash of the read contents to ensure valid data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
