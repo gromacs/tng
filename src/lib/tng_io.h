@@ -816,47 +816,6 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
 
 
 /**
- * @brief Read a number of consecutive trajectory frames from the input_file of
- * tng_data.
- * @details Not implemented yet!
- * @param tng_data is a trajectory data container.
- * tng_data->input_file_path specifies
- * which file to read from. If the file (input_file) is not open it will be
- * opened.
- * @param start_frame_nr is the index number of the first frame to read.
- * @param end_frame_nr is the index number of the last frame to read.
- * @param hash_mode is an option to decide whether to use the md5 hash or not.
- * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
- * compared to the md5 hash of the read contents to ensure valid data.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
- */
-tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
-                                       const int64_t start_frame_nr,
-                                       const int64_t end_frame_nr,
-                                       const tng_hash_mode hash_mode);
-
-/**
- * @brief Write a number of consecutive trajectory frames to the output_file of
- * tng_data.
- * @details Not implemented yet!
- * @param tng_data is a trajectory data container. tng_data->output_file_path specifies
- * which file to write to. If the file (output_file) is not open it will be
- * opened.
- * @param start_frame_nr is the index number of the first frame to write.
- * @param end_frame_nr is the index number of the last frame to write.
- * @param hash_mode is an option to decide whether to use the md5 hash or not.
- * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
- * compared to the md5 hash of the read contents to ensure valid data.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
- */
-tng_function_status tng_frame_write_interval(tng_trajectory_t tng_data,
-                                        const int64_t start_frame_nr,
-                                        const int64_t end_frame_nr,
-                                        const tng_hash_mode hash_mode);
-
-/**
  * @brief Free data is an array of values (2D).
  * @param values is the 2D array to free and will be set to 0 afterwards.
  * @param n_frames is the number of frames in the data array.

@@ -7996,41 +7996,6 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
                                                 
-tng_function_status tng_frame_read_interval(tng_trajectory_t tng_data,
-                                       const int64_t start_frame_nr,
-                                       const int64_t end_frame_nr,
-                                       const tng_hash_mode hash_mode)
-{
-    /* STUB */
-//     tng_function_status stat;
-//     tng_trajectory_frame_set_t frame_set =
-//     &tng_data->current_trajectory_frame_set;
-
-//     if(frame_set.frame_set_nr < 0)
-//     {
-//         stat = tng_frame_set_read_next(tng_data, hash_mode);
-//         if(stat != TNG_SUCCESS)
-//         {
-//             printf("Error reading frame set. %s: %d\n", __FILE__, __LINE__);
-//             return(stat);
-//         }
-//     }
-
-    
-
-    return(TNG_SUCCESS);
-}
-
-tng_function_status tng_frame_write_interval
-                (tng_trajectory_t tng_data,
-                 const int64_t start_frame_nr,
-                 const int64_t end_frame_nr,
-                 const tng_hash_mode hash_mode)
-{
-    /* STUB */
-    return(TNG_SUCCESS);
-}
-
 tng_function_status tng_data_values_free(union data_values **values,
                                          const int64_t n_frames,
                                          const int64_t n_values_per_frame,
