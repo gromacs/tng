@@ -285,7 +285,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
 #else
     tng_input_file_set(traj, "/tmp/tng_test.tng");
 #endif
-    
+
     stat = tng_file_headers_read(traj, TNG_SKIP_HASH);
     
     while(stat == TNG_SUCCESS)
@@ -369,6 +369,14 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj)
     tng_particle_data_values_free(values, n_frames, n_particles,
                                   n_values_per_frame, type);
 
+    values = 0;
+
+    tng_particle_data_interval_get(traj, TNG_TRAJ_POSITIONS, 11000, 11499,
+                                   &values, &n_particles, &n_values_per_frame,
+                                   &type);
+
+    tng_particle_data_values_free(values, 500, n_particles, n_values_per_frame, type);
+
     return(TNG_SUCCESS);
 }
 
@@ -447,15 +455,15 @@ int main()
         printf("Test Write and read file:\t\t\tSucceeded.\n");
     }
     
-//     if(tng_test_get_positions_data(traj) != TNG_SUCCESS)
-//     {
-//         printf("Test Get particle data:\t\t\t\tFailed. %s: %d\n",
-//                __FILE__, __LINE__);
-//     }
-//     else
-//     {
-//         printf("Test Get particle data:\t\t\t\tSucceeded.\n");
-//     }
+    if(tng_test_get_positions_data(traj) != TNG_SUCCESS)
+    {
+        printf("Test Get particle data:\t\t\t\tFailed. %s: %d\n",
+               __FILE__, __LINE__);
+    }
+    else
+    {
+        printf("Test Get particle data:\t\t\t\tSucceeded.\n");
+    }
 
     if(tng_trajectory_destroy(&traj) == TNG_CRITICAL)
     {

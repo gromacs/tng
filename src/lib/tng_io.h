@@ -416,13 +416,26 @@ tng_function_status tng_num_frames_per_frame_set_get(tng_trajectory_t tng_data,
 /**
  * @brief Get the current trajectory frame set.
  * @param tng_data is the trajectory from which to get the frame set.
- * @param frame_set is pointing to the memory position of the frame set.
+ * @param frame_set is pointing to the memory position of the found frame set.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_current_frame_set_get
                 (tng_trajectory_t tng_data,
                  tng_trajectory_frame_set_t frame_set);
+
+
+/**
+ * @brief Find the frame set containing a specific frame.
+ * @param tng_data is the trajectory from which to get the frame set.
+ * @param frame is the frame number to search for.
+ * @details tng_data->current_trajectory_frame_set will contain the
+ * found trajectory if successful.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_frame_set_find(tng_trajectory_t tng_data,
+                                       int64_t frame);
 
 /**
  * @brief Get the file position of the next frame set in the input file.
@@ -990,9 +1003,8 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
                                                   int64_t block_id,
                                                   int64_t start_frame_nr,
                                                   int64_t end_frame_nr,
-                                                  int64_t first_particle_number,
-                                                  int64_t last_particle_number,
                                                   union data_values ****values,
+                                                  int64_t *n_particles,
                                                   int64_t *n_values_per_frame,
                                                   tng_data_type *type);
 
