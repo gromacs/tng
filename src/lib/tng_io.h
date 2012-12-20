@@ -184,6 +184,10 @@ extern "C"
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_trajectory_init(tng_trajectory_t *tng_data_p);
+tng_function_status tng_trajectory_init_(tng_trajectory_t *tng_data_p)
+{
+    return(tng_trajectory_init(tng_data_p));
+}
 
 /**
  * @brief Clean up a trajectory data container.
@@ -194,6 +198,10 @@ tng_function_status tng_trajectory_init(tng_trajectory_t *tng_data_p);
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p);
+tng_function_status tng_trajectory_destroy_(tng_trajectory_t *tng_data_p)
+{
+    return(tng_trajectory_destroy(tng_data_p));
+}
 
 /**
  * @brief Set the name of the input file.
@@ -204,6 +212,18 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p);
  */
 tng_function_status tng_input_file_set(tng_trajectory_t tng_data,
                                        const char *file_name);
+tng_function_status tng_input_file_set_(tng_trajectory_t tng_data,
+                                        const char *file_name, int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, file_name, name_len);
+    name[name_len] = 0;
+    stat = tng_input_file_set(tng_data, name);
+    free(name);
+    return(stat);
+}
 
 /**
  * @brief Set the name of the output file.
@@ -214,6 +234,18 @@ tng_function_status tng_input_file_set(tng_trajectory_t tng_data,
  */
 tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
                                         const char *file_name);
+tng_function_status tng_output_file_set_(tng_trajectory_t tng_data,
+                                         const char *file_name, int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, file_name, name_len);
+    name[name_len] = 0;
+    stat = tng_output_file_set(tng_data, name);
+    free(name);
+    return(stat);
+}
 
 /**
  * @brief Set the name of the program used when creating the trajectory.
@@ -224,6 +256,19 @@ tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
  */
 tng_function_status tng_first_program_name_set(tng_trajectory_t tng_data,
                                                const char *new_name);
+tng_function_status tng_first_program_name_set_(tng_trajectory_t tng_data,
+                                                const char *new_name,
+                                                int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, new_name, name_len);
+    name[name_len] = 0;
+    stat = tng_first_program_name_set(tng_data, name);
+    free(name);
+    return(stat);
+}
 
 /**
  * @brief Set the name of the program used when last modifying the trajectory.
@@ -234,6 +279,20 @@ tng_function_status tng_first_program_name_set(tng_trajectory_t tng_data,
  */
 tng_function_status tng_last_program_name_set(tng_trajectory_t tng_data,
                                               const char *new_name);
+tng_function_status tng_last_program_name_set_(tng_trajectory_t tng_data,
+                                               const char *new_name,
+                                               int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, new_name, name_len);
+    name[name_len] = 0;
+    stat = tng_last_program_name_set(tng_data, name);
+    free(name);
+    return(stat);
+}
+
 
 /**
  * @brief Set the name of the user who created the trajectory.
@@ -244,6 +303,19 @@ tng_function_status tng_last_program_name_set(tng_trajectory_t tng_data,
  */
 tng_function_status tng_first_user_name_set(tng_trajectory_t tng_data,
                                             const char *new_name);
+tng_function_status tng_first_user_name_set_(tng_trajectory_t tng_data,
+                                             const char *new_name,
+                                             int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, new_name, name_len);
+    name[name_len] = 0;
+    stat = tng_first_user_name_set(tng_data, name);
+    free(name);
+    return(stat);
+}
 
 /**
  * @brief Set the name of the user who last modified the trajectory.
@@ -254,6 +326,20 @@ tng_function_status tng_first_user_name_set(tng_trajectory_t tng_data,
  */
 tng_function_status tng_last_user_name_set(tng_trajectory_t tng_data,
                                            const char *new_name);
+tng_function_status tng_last_user_name_set_(tng_trajectory_t tng_data,
+                                            const char *new_name,
+                                            int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, new_name, name_len);
+    name[name_len] = 0;
+    stat = tng_last_user_name_set(tng_data, name);
+    free(name);
+    return(stat);
+}
+
 
 /**
  * @brief Set the name of the computer used when creating the trajectory.
@@ -264,6 +350,19 @@ tng_function_status tng_last_user_name_set(tng_trajectory_t tng_data,
  */
 tng_function_status tng_first_computer_name_set(tng_trajectory_t tng_data,
                                                 const char *new_name);
+tng_function_status tng_first_computer_name_set_(tng_trajectory_t tng_data,
+                                                 const char *new_name,
+                                                 int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, new_name, name_len);
+    name[name_len] = 0;
+    stat = tng_first_computer_name_set(tng_data, name);
+    free(name);
+    return(stat);
+}
 
 /**
  * @brief Set the name of the computer used when last modifying the trajectory.
@@ -274,6 +373,19 @@ tng_function_status tng_first_computer_name_set(tng_trajectory_t tng_data,
  */
 tng_function_status tng_last_computer_name_set(tng_trajectory_t tng_data,
                                                const char *new_name);
+tng_function_status tng_last_computer_name_set_(tng_trajectory_t tng_data,
+                                                const char *new_name,
+                                                int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, new_name, name_len);
+    name[name_len] = 0;
+    stat = tng_last_computer_name_set(tng_data, name);
+    free(name);
+    return(stat);
+}
 
 /**
  * @brief Set the pgp_signature of the user creating the trajectory.
@@ -284,6 +396,19 @@ tng_function_status tng_last_computer_name_set(tng_trajectory_t tng_data,
  */
 tng_function_status tng_first_signature_set(tng_trajectory_t tng_data,
                                             const char *signature);
+tng_function_status tng_first_signature_set_(tng_trajectory_t tng_data,
+                                             const char *signature,
+                                             int sign_len)
+{
+    char *sign = malloc(sign_len + 1);
+    tng_function_status stat;
+
+    strncpy(sign, signature, sign_len);
+    sign[sign_len] = 0;
+    stat = tng_first_signature_set(tng_data, sign);
+    free(sign);
+    return(stat);
+}
 
 /**
  * @brief Set the pgp_signature of the user last modifying the trajectory.
@@ -294,6 +419,19 @@ tng_function_status tng_first_signature_set(tng_trajectory_t tng_data,
  */
 tng_function_status tng_last_signature_set(tng_trajectory_t tng_data,
                                            const char *signature);
+tng_function_status tng_last_signature_set_(tng_trajectory_t tng_data,
+                                            const char *signature,
+                                            int sign_len)
+{
+    char *sign = malloc(sign_len + 1);
+    tng_function_status stat;
+
+    strncpy(sign, signature, sign_len);
+    sign[sign_len] = 0;
+    stat = tng_last_signature_set(tng_data, sign);
+    free(sign);
+    return(stat);
+}
 
 /**
  * @brief Set the name of the forcefield used in the trajectory.
@@ -304,6 +442,19 @@ tng_function_status tng_last_signature_set(tng_trajectory_t tng_data,
  */
 tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
                                             const char *new_name);
+tng_function_status tng_forcefield_name_set_(tng_trajectory_t tng_data,
+                                             const char *new_name,
+                                             int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, new_name, name_len);
+    name[name_len] = 0;
+    stat = tng_forcefield_name_set(tng_data, name);
+    free(name);
+    return(stat);
+}
 
 /**
  * @brief Get the medium stride length of the trajectory.
@@ -313,7 +464,12 @@ tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_medium_stride_length_get(const tng_trajectory_t tng_data,
-                                               int64_t *len);
+                                                 int64_t *len);
+tng_function_status tng_medium_stride_length_get_(const tng_trajectory_t tng_data,
+                                                  int64_t *len)
+{
+    return(tng_medium_stride_length_get(tng_data, len));
+}
 
 /**
  * @brief Set the medium stride length of the trajectory.
@@ -323,7 +479,12 @@ tng_function_status tng_medium_stride_length_get(const tng_trajectory_t tng_data
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_medium_stride_length_set(tng_trajectory_t tng_data,
-                                               int64_t len);
+                                                 const int64_t len);
+tng_function_status tng_medium_stride_length_set_(tng_trajectory_t tng_data,
+                                                  const int64_t *len)
+{
+    return(tng_medium_stride_length_set(tng_data, *len));
+}
 
 /**
  * @brief Get the long stride length of the trajectory.
@@ -334,6 +495,11 @@ tng_function_status tng_medium_stride_length_set(tng_trajectory_t tng_data,
  */
 tng_function_status tng_long_stride_length_get(const tng_trajectory_t tng_data,
                                                int64_t *len);
+tng_function_status tng_long_stride_length_get_(const tng_trajectory_t tng_data,
+                                                int64_t *len)
+{
+    return(tng_long_stride_length_get(tng_data, len));
+}
 
 /**
  * @brief Set the long stride length of the trajectory.
@@ -343,7 +509,12 @@ tng_function_status tng_long_stride_length_get(const tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
-                                               int64_t len);
+                                               const int64_t len);
+tng_function_status tng_long_stride_length_set_(tng_trajectory_t tng_data,
+                                                const int64_t *len)
+{
+    return(tng_long_stride_length_set(tng_data, *len));
+}
 
 /**
  * @brief Get the reading position of the input file.
@@ -354,6 +525,11 @@ tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
  */
 tng_function_status tng_input_file_pos_get(const tng_trajectory_t tng_data,
                                            int64_t *pos);
+tng_function_status tng_input_file_pos_get_(const tng_trajectory_t tng_data,
+                                            int64_t *pos)
+{
+    return(tng_input_file_pos_get(tng_data, pos));
+}
 
 /**
  * @brief Get the writing position of the output file.
@@ -364,6 +540,11 @@ tng_function_status tng_input_file_pos_get(const tng_trajectory_t tng_data,
  */
 tng_function_status tng_output_file_pos_get(const tng_trajectory_t tng_data,
                                             int64_t *pos);
+tng_function_status tng_output_file_pos_get_(const tng_trajectory_t tng_data,
+                                             int64_t *pos)
+{
+    return(tng_output_file_pos_get(tng_data, pos));
+}
 
 /**
  * @brief Get the length of the input file.
@@ -374,6 +555,11 @@ tng_function_status tng_output_file_pos_get(const tng_trajectory_t tng_data,
  */
 tng_function_status tng_input_file_len_get(const tng_trajectory_t tng_data,
                                            int64_t *len);
+tng_function_status tng_input_file_len_get_(const tng_trajectory_t tng_data,
+                                            int64_t *len)
+{
+    return(tng_input_file_len_get(tng_data, len));
+}
 
 /**
  * @brief Get the current number of particles.
@@ -386,6 +572,11 @@ tng_function_status tng_input_file_len_get(const tng_trajectory_t tng_data,
  */
 tng_function_status tng_num_particles_get(const tng_trajectory_t tng_data,
                                           int64_t *n);
+tng_function_status tng_num_particles_get_(const tng_trajectory_t tng_data,
+                                           int64_t *n)
+{
+    return(tng_num_particles_get(tng_data, n));
+}
 
 /**
  * @brief Get the current total number of molecules.
@@ -398,6 +589,12 @@ tng_function_status tng_num_particles_get(const tng_trajectory_t tng_data,
  */
 tng_function_status tng_num_molecules_get(const tng_trajectory_t tng_data,
                                           int64_t *n);
+tng_function_status tng_num_molecules_get_(const tng_trajectory_t tng_data,
+                                           int64_t *n)
+{
+    return(tng_num_molecules_get(tng_data, n));
+}
+
 
 /**
  * @brief Get the number of frames per frame set.
@@ -407,8 +604,15 @@ tng_function_status tng_num_molecules_get(const tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_num_frames_per_frame_set_get(const tng_trajectory_t tng_data,
-                                                     int64_t *n);
+tng_function_status tng_num_frames_per_frame_set_get
+                (const tng_trajectory_t tng_data,
+                 int64_t *n);
+tng_function_status tng_num_frames_per_frame_set_get_
+                (const tng_trajectory_t tng_data,
+                 int64_t *n)
+{
+    return(tng_num_frames_per_frame_set_get(tng_data, n));
+}
 
 /**
  * @brief Get the current trajectory frame set.
@@ -420,6 +624,12 @@ tng_function_status tng_num_frames_per_frame_set_get(const tng_trajectory_t tng_
 tng_function_status tng_current_frame_set_get
                 (const tng_trajectory_t tng_data,
                  tng_trajectory_frame_set_t frame_set);
+tng_function_status tng_current_frame_set_get_
+                (const tng_trajectory_t tng_data,
+                 tng_trajectory_frame_set_t frame_set)
+{
+    return(tng_current_frame_set_get(tng_data, frame_set));
+}
 
 
 /**
@@ -433,6 +643,11 @@ tng_function_status tng_current_frame_set_get
  */
 tng_function_status tng_frame_set_find(tng_trajectory_t tng_data,
                                        const int64_t frame);
+tng_function_status tng_frame_set_find_(tng_trajectory_t tng_data,
+                                        const int64_t *frame)
+{
+    return(tng_frame_set_find(tng_data, *frame));
+}
 
 /**
  * @brief Get the file position of the next frame set in the input file.
@@ -445,6 +660,12 @@ tng_function_status tng_frame_set_find(tng_trajectory_t tng_data,
 tng_function_status tng_frame_set_next_frame_set_file_pos_get
                 (const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos);
+tng_function_status tng_frame_set_next_frame_set_file_pos_get_
+                (const tng_trajectory_frame_set_t frame_set,
+                 int64_t *pos)
+{
+    return(tng_frame_set_next_frame_set_file_pos_get(frame_set, pos));
+}
 
 /**
  * @brief Get the file position of the previous frame set in the input file.
@@ -457,6 +678,12 @@ tng_function_status tng_frame_set_next_frame_set_file_pos_get
 tng_function_status tng_frame_set_prev_frame_set_file_pos_get
                 (const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos);
+tng_function_status tng_frame_set_prev_frame_set_file_pos_get_
+                (const tng_trajectory_frame_set_t frame_set,
+                 int64_t *pos)
+{
+    return(tng_frame_set_prev_frame_set_file_pos_get(frame_set, pos));
+}
 
 /**
  * @brief Setup a molecule container.
@@ -465,6 +692,10 @@ tng_function_status tng_frame_set_prev_frame_set_file_pos_get
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_molecule_init(tng_molecule_t molecule);
+tng_function_status tng_molecule_init_(tng_molecule_t molecule)
+{
+    return(tng_molecule_init(molecule));
+}
 
 /**
  * @brief Clean up a molecule container.
@@ -475,7 +706,10 @@ tng_function_status tng_molecule_init(tng_molecule_t molecule);
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_molecule_destroy(tng_molecule_t molecule);
-
+tng_function_status tng_molecule_destroy_(tng_molecule_t molecule)
+{
+    return(tng_molecule_destroy(molecule));
+}
 
 /**
  * @brief Add a molecule to the trajectory.
@@ -488,6 +722,20 @@ tng_function_status tng_molecule_destroy(tng_molecule_t molecule);
 tng_function_status tng_molecule_add(tng_trajectory_t tng_data,
                                      const char *name,
                                      tng_molecule_t *molecule);
+tng_function_status tng_molecule_add_(tng_trajectory_t tng_data,
+                                     const char *name,
+                                     tng_molecule_t *molecule,
+                                     int name_len)
+{
+    char *n = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(n, name, name_len);
+    n[name_len] = 0;
+    stat = tng_molecule_add(tng_data, n, molecule);
+    free(n);
+    return(stat);
+}
 
 /**
  * @brief Set the name of a molecule.
@@ -500,6 +748,20 @@ tng_function_status tng_molecule_add(tng_trajectory_t tng_data,
 tng_function_status tng_molecule_name_set(tng_trajectory_t tng_data,
                                           tng_molecule_t molecule,
                                           const char *new_name);
+tng_function_status tng_molecule_name_set_(tng_trajectory_t tng_data,
+                                           tng_molecule_t molecule,
+                                           const char *new_name,
+                                           int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, new_name, name_len);
+    name[name_len] = 0;
+    stat = tng_molecule_name_set(tng_data, molecule, name);
+    free(name);
+    return(stat);
+}
 
 /**
  * @brief Get the count of a molecule.
@@ -512,6 +774,12 @@ tng_function_status tng_molecule_name_set(tng_trajectory_t tng_data,
 tng_function_status tng_molecule_cnt_get(tng_trajectory_t tng_data,
                                          tng_molecule_t molecule,
                                          int64_t *cnt);
+tng_function_status tng_molecule_cnt_get_(tng_trajectory_t tng_data,
+                                          tng_molecule_t molecule,
+                                          int64_t *cnt)
+{
+    return(tng_molecule_cnt_get(tng_data, molecule, cnt));
+}
 
 /**
  * @brief Set the count of a molecule.
@@ -524,6 +792,12 @@ tng_function_status tng_molecule_cnt_get(tng_trajectory_t tng_data,
 tng_function_status tng_molecule_cnt_set(tng_trajectory_t tng_data,
                                          tng_molecule_t molecule,
                                          int64_t cnt);
+tng_function_status tng_molecule_cnt_set_(tng_trajectory_t tng_data,
+                                          tng_molecule_t molecule,
+                                          int64_t *cnt)
+{
+    return(tng_molecule_cnt_set(tng_data, molecule, *cnt));
+}
 
 /**
  * @brief Add a chain to a molecule.
@@ -535,9 +809,24 @@ tng_function_status tng_molecule_cnt_set(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_molecule_chain_add(tng_trajectory_t tng_data,
-                                              tng_molecule_t molecule,
-                                              const char *name,
-                                              tng_chain_t *chain);
+                                           tng_molecule_t molecule,
+                                           const char *name,
+                                           tng_chain_t *chain);
+tng_function_status tng_molecule_chain_add_(tng_trajectory_t tng_data,
+                                            tng_molecule_t molecule,
+                                            const char *name,
+                                            tng_chain_t *chain,
+                                            int name_len)
+{
+    char *n = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(n, name, name_len);
+    n[name_len] = 0;
+    stat = tng_molecule_chain_add(tng_data, molecule, n, chain);
+    free(n);
+    return(stat);
+}
 
 /**
  * @brief Set the name of a chain.
@@ -550,6 +839,20 @@ tng_function_status tng_molecule_chain_add(tng_trajectory_t tng_data,
 tng_function_status tng_chain_name_set(tng_trajectory_t tng_data,
                                        tng_chain_t chain,
                                        const char *new_name);
+tng_function_status tng_chain_name_set_(tng_trajectory_t tng_data,
+                                        tng_chain_t chain,
+                                        const char *new_name,
+                                        int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, new_name, name_len);
+    name[name_len] = 0;
+    stat = tng_chain_name_set(tng_data, chain, name);
+    free(name);
+    return(stat);
+}
 
 /**
  * @brief Add a residue to a chain.
@@ -561,9 +864,24 @@ tng_function_status tng_chain_name_set(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_chain_residue_add(tng_trajectory_t tng_data,
-                                             tng_chain_t chain,
-                                             const char *name,
-                                             tng_residue_t *residue);
+                                          tng_chain_t chain,
+                                          const char *name,
+                                          tng_residue_t *residue);
+tng_function_status tng_chain_residue_add_(tng_trajectory_t tng_data,
+                                           tng_chain_t chain,
+                                           const char *name,
+                                           tng_residue_t *residue,
+                                           int name_len)
+{
+    char *n = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(n, name, name_len);
+    n[name_len] = 0;
+    stat = tng_chain_residue_add(tng_data, chain, n, residue);
+    free(n);
+    return(stat);
+}
 
 /**
  * @brief Set the name of a residue.
@@ -576,6 +894,20 @@ tng_function_status tng_chain_residue_add(tng_trajectory_t tng_data,
 tng_function_status tng_residue_name_set(tng_trajectory_t tng_data,
                                          tng_residue_t residue,
                                          const char *new_name);
+tng_function_status tng_residue_name_set_(tng_trajectory_t tng_data,
+                                          tng_residue_t residue,
+                                          const char *new_name,
+                                          int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, new_name, name_len);
+    name[name_len] = 0;
+    stat = tng_residue_name_set(tng_data, residue, name);
+    free(name);
+    return(stat);
+}
 
 /**
  * @brief Add an atom to a residue.
@@ -588,10 +920,31 @@ tng_function_status tng_residue_name_set(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_residue_atom_add(tng_trajectory_t tng_data,
-                                            tng_residue_t residue,
-                                            const char *atom_name,
-                                            const char *atom_type,
-                                            tng_atom_t *atom);
+                                         tng_residue_t residue,
+                                         const char *atom_name,
+                                         const char *atom_type,
+                                         tng_atom_t *atom);
+tng_function_status tng_residue_atom_add_(tng_trajectory_t tng_data,
+                                          tng_residue_t residue,
+                                          const char *atom_name,
+                                          const char *atom_type,
+                                          tng_atom_t *atom,
+                                          int name_len,
+                                          int type_len)
+{
+    char *name = malloc(name_len + 1);
+    char *type = malloc(type_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, atom_name, name_len);
+    strncpy(type, atom_type, type_len);
+    name[name_len] = 0;
+    type[type_len] = 0;
+    stat = tng_residue_atom_add(tng_data, residue, name, type, atom);
+    free(name);
+    free(type);
+    return(stat); 
+}
 
 /**
  * @brief Set the name of an atom.
@@ -604,6 +957,20 @@ tng_function_status tng_residue_atom_add(tng_trajectory_t tng_data,
 tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
                                       tng_atom_t atom,
                                       const char *new_name);
+tng_function_status tng_atom_name_set_(tng_trajectory_t tng_data,
+                                       tng_atom_t atom,
+                                       const char *new_name,
+                                       int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, new_name, name_len);
+    name[name_len] = 0;
+    stat = tng_atom_name_set(tng_data, atom, name);
+    free(name);
+    return(stat);
+}
 
 /**
  * @brief Set the atom type of an atom.
@@ -616,6 +983,20 @@ tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
 tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
                                       tng_atom_t atom,
                                       const char *new_type);
+tng_function_status tng_atom_type_set_(tng_trajectory_t tng_data,
+                                       tng_atom_t atom,
+                                       const char *new_type,
+                                       int type_len)
+{
+    char *type = malloc(type_len + 1);
+    tng_function_status stat;
+
+    strncpy(type, new_type, type_len);
+    type[type_len] = 0;
+    stat = tng_atom_type_set(tng_data, atom, type);
+    free(type);
+    return(stat);
+}
 
 /**
  * @brief Add a particle mapping table.
@@ -641,7 +1022,16 @@ tng_function_status tng_particle_mapping_add
                  const int64_t first_particle_number,
                  const int64_t n_particles,
                  const int64_t *mapping_table);
-                
+tng_function_status tng_particle_mapping_add_
+                (tng_trajectory_t tng_data,
+                 const int64_t *first_particle_number,
+                 const int64_t *n_particles,
+                 const int64_t *mapping_table)
+{
+    return(tng_particle_mapping_add(tng_data, *first_particle_number,
+                                    *n_particles, mapping_table));
+}
+
 /**
  * @brief Read the header blocks from the input_file of tng_data.
  * @details The trajectory blocks must be read separately and iteratively in chunks
@@ -658,6 +1048,11 @@ tng_function_status tng_particle_mapping_add
  */
 tng_function_status tng_file_headers_read(tng_trajectory_t tng_data,
                                           const tng_hash_mode hash_mode);
+tng_function_status tng_file_headers_read_(tng_trajectory_t tng_data,
+                                           const tng_hash_mode *hash_mode)
+{
+    return(tng_file_headers_read(tng_data, *hash_mode));
+}
 
 /**
  * @brief Write the header blocks to the output_file of tng_data.
@@ -674,6 +1069,11 @@ tng_function_status tng_file_headers_read(tng_trajectory_t tng_data,
  */
 tng_function_status tng_file_headers_write(tng_trajectory_t tng_data,
                                            const tng_hash_mode hash_mode);
+tng_function_status tng_file_headers_write_(tng_trajectory_t tng_data,
+                                            const tng_hash_mode *hash_mode)
+{
+    return(tng_file_headers_write(tng_data, *hash_mode));
+}
 
 
 /**
@@ -695,6 +1095,12 @@ tng_function_status tng_file_headers_write(tng_trajectory_t tng_data,
 tng_function_status tng_block_read_next(tng_trajectory_t tng_data,
                                         tng_gen_block_t block_data,
                                         const tng_hash_mode hash_mode);
+tng_function_status tng_block_read_next_(tng_trajectory_t tng_data,
+                                         tng_gen_block_t block_data,
+                                         const tng_hash_mode *hash_mode)
+{
+    return(tng_block_read_next(tng_data, block_data, *hash_mode));
+}
 
 
 /**
@@ -712,6 +1118,11 @@ tng_function_status tng_block_read_next(tng_trajectory_t tng_data,
  */
 tng_function_status tng_frame_set_read_next(tng_trajectory_t tng_data,
                                             const tng_hash_mode hash_mode);
+tng_function_status tng_frame_set_read_next_(tng_trajectory_t tng_data,
+                                             const tng_hash_mode *hash_mode)
+{
+    return(tng_frame_set_read_next(tng_data, *hash_mode));
+}
 
 /**
  * @brief Write one frame set, including mapping and related data blocks
@@ -727,6 +1138,11 @@ tng_function_status tng_frame_set_read_next(tng_trajectory_t tng_data,
  */
 tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
                                         const tng_hash_mode hash_mode);
+tng_function_status tng_frame_set_write_(tng_trajectory_t tng_data,
+                                         const tng_hash_mode *hash_mode)
+{
+    return(tng_frame_set_write(tng_data, *hash_mode));
+}
 
 /**
  * @brief Create and initialise a frame set.
@@ -740,6 +1156,12 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
 tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
                                       const int64_t first_frame,
                                       const int64_t n_frames);
+tng_function_status tng_frame_set_new_(tng_trajectory_t tng_data,
+                                       const int64_t *first_frame,
+                                       const int64_t *n_frames)
+{
+    return(tng_frame_set_new(tng_data, *first_frame, *n_frames));
+}
 
 /**
  * @brief Add a non-particle dependent data block.
@@ -763,15 +1185,38 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
-                                        const int64_t id,
+                                       const int64_t id,
+                                       const char *block_name,
+                                       const char datatype,
+                                       const tng_block_type block_type_flag,
+                                       int64_t n_frames,
+                                       const int64_t n_values_per_frame,
+                                       const int64_t stride_length,
+                                       const int64_t codec_id,
+                                       void *new_data);
+tng_function_status tng_data_block_add_(tng_trajectory_t tng_data,
+                                        const int64_t *id,
                                         const char *block_name,
-                                        const char datatype,
-                                        const tng_block_type block_type_flag,
-                                        int64_t n_frames,
-                                        const int64_t n_values_per_frame,
-                                        const int64_t stride_length,
-                                        const int64_t codec_id,
-                                        void *new_data);
+                                        const char *datatype,
+                                        const tng_block_type *block_type_flag,
+                                        int64_t *n_frames,
+                                        const int64_t *n_values_per_frame,
+                                        const int64_t *stride_length,
+                                        const int64_t *codec_id,
+                                        void *new_data,
+                                        int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, block_name, name_len);
+    name[name_len] = 0;
+    stat = tng_data_block_add(tng_data, *id, name, *datatype, *block_type_flag,
+                              *n_frames, *n_values_per_frame, *stride_length,
+                              *codec_id, new_data);
+    free(name);
+    return(stat);
+}
                                        
 
 /**
@@ -810,6 +1255,34 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                                         const int64_t n_particles,
                                         const int64_t codec_id,
                                         void *new_data);
+tng_function_status tng_particle_data_block_add_
+                (tng_trajectory_t tng_data,
+                 const int64_t *id,
+                 const char *block_name,
+                 const char *datatype,
+                 const tng_block_type *block_type_flag,
+                 int64_t *n_frames,
+                 const int64_t *n_values_per_frame,
+                 const int64_t *stride_length,
+                 const int64_t *first_particle_number,
+                 const int64_t *n_particles,
+                 const int64_t *codec_id,
+                 void *new_data,
+                 int name_len)
+{
+    char *name = malloc(name_len + 1);
+    tng_function_status stat;
+
+    strncpy(name, block_name, name_len);
+    name[name_len] = 0;
+    stat = tng_particle_data_block_add(tng_data, *id, name, *datatype,
+                                       *block_type_flag, *n_frames,
+                                       *n_values_per_frame, *stride_length,
+                                       *first_particle_number, *n_particles,
+                                       *codec_id, new_data);
+    free(name);
+    return(stat);
+}
 
 /**
  * @brief Write data of one trajectory frame to the output_file of tng_data.
@@ -827,10 +1300,19 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
-                                        const int64_t frame_nr,
-                                        const int64_t block_id,
-                                        const void *data,
-                                        const tng_hash_mode hash_mode);
+                                         const int64_t frame_nr,
+                                         const int64_t block_id,
+                                         const void *data,
+                                         const tng_hash_mode hash_mode);
+tng_function_status tng_frame_data_write_(tng_trajectory_t tng_data,
+                                          const int64_t *frame_nr,
+                                          const int64_t *block_id,
+                                          const void *data,
+                                          const tng_hash_mode *hash_mode)
+{
+    return(tng_frame_data_write(tng_data, *frame_nr, *block_id, data,
+                                *hash_mode));
+}
 
 /**
  * @brief Write particle data of one trajectory frame to the output_file of
@@ -852,7 +1334,15 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
                                                   const int64_t frame_nr,
                                                   const int64_t block_id,
                                                   const void **data,
-                                                 const tng_hash_mode hash_mode);
+                                                  const tng_hash_mode hash_mode);
+tng_function_status tng_frame_particle_data_write_(tng_trajectory_t tng_data,
+                                                   const int64_t *frame_nr,
+                                                   const int64_t *block_id,
+                                                   const void **data,
+                                                   const tng_hash_mode *hash_mode)
+{
+    return(tng_frame_particle_data_write(tng_data, *frame_nr, *block_id, data, *hash_mode));
+}
 
 /**
  * @brief Free data is an array of values (2D).
@@ -867,6 +1357,13 @@ tng_function_status tng_data_values_free(union data_values **values,
                                          const int64_t n_frames,
                                          const int64_t n_values_per_frame,
                                          const tng_data_type type);
+tng_function_status tng_data_values_free_(union data_values **values,
+                                          const int64_t *n_frames,
+                                          const int64_t *n_values_per_frame,
+                                          const tng_data_type *type)
+{
+    return(tng_data_values_free(values, *n_frames, *n_values_per_frame, *type));
+}
 
 /**
  * @brief Free data is an array of values (3D).
@@ -883,6 +1380,15 @@ tng_function_status tng_particle_data_values_free(union data_values ***values,
                                                   const int64_t n_particles,
                                                   const int64_t n_values_per_frame,
                                                   const tng_data_type type);
+tng_function_status tng_particle_data_values_free_(union data_values ***values,
+                                                   const int64_t *n_frames,
+                                                   const int64_t *n_particles,
+                                                   const int64_t *n_values_per_frame,
+                                                   const tng_data_type *type)
+{
+    return(tng_particle_data_values_free(values, *n_frames, *n_particles,
+                                         *n_values_per_frame, *type));
+}
 
 /**
  * @brief Retrieve non-particle data, from the last read frame set.
@@ -909,6 +1415,16 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
                                  int64_t *n_frames,
                                  int64_t *n_values_per_frame,
                                  tng_data_type *type);
+tng_function_status tng_data_get_(tng_trajectory_t tng_data,
+                                  const int64_t *block_id,
+                                  union data_values ***values,
+                                  int64_t *n_frames,
+                                  int64_t *n_values_per_frame,
+                                  tng_data_type *type)
+{
+    return(tng_data_get(tng_data, *block_id, values, n_frames,
+                        n_values_per_frame, type));
+}
 
 /**
  * @brief Read and retrieve non-particle data, in a specific interval.
@@ -936,6 +1452,18 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
                                           union data_values ***values,
                                           int64_t *n_values_per_frame,
                                           tng_data_type *type);
+tng_function_status tng_data_interval_get_(tng_trajectory_t tng_data,
+                                           const int64_t *block_id,
+                                           const int64_t *start_frame_nr,
+                                           const int64_t *end_frame_nr,
+                                           union data_values ***values,
+                                           int64_t *n_values_per_frame,
+                                           tng_data_type *type)
+{
+    return(tng_data_interval_get(tng_data, *block_id, *start_frame_nr,
+                                 *end_frame_nr, values, n_values_per_frame,
+                                 type));
+}
 
 /**
  * @brief Retrieve particle data, from the last read frame set.
@@ -968,6 +1496,18 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
                                           int64_t *n_particles,
                                           int64_t *n_values_per_frame,
                                           tng_data_type *type);
+tng_function_status tng_particle_data_get_(tng_trajectory_t tng_data,
+                                           const int64_t *block_id,
+                                           union data_values ****values,
+                                           int64_t *n_frames,
+                                           int64_t *n_particles,
+                                           int64_t *n_values_per_frame,
+                                           tng_data_type *type)
+{
+    return(tng_particle_data_get(tng_data, *block_id, values, n_frames,
+                                 n_particles, n_values_per_frame, type));
+}
+
 
 /**
  * @brief Read and retrieve particle data, in a specific interval.
@@ -994,13 +1534,26 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
-                                                  const int64_t block_id,
-                                                  const int64_t start_frame_nr,
-                                                  const int64_t end_frame_nr,
-                                                  union data_values ****values,
-                                                  int64_t *n_particles,
-                                                  int64_t *n_values_per_frame,
-                                                  tng_data_type *type);
+                                                   const int64_t block_id,
+                                                   const int64_t start_frame_nr,
+                                                   const int64_t end_frame_nr,
+                                                   union data_values ****values,
+                                                   int64_t *n_particles,
+                                                   int64_t *n_values_per_frame,
+                                                   tng_data_type *type);
+tng_function_status tng_particle_data_interval_get_(tng_trajectory_t tng_data,
+                                                    const int64_t *block_id,
+                                                    const int64_t *start_frame_nr,
+                                                    const int64_t *end_frame_nr,
+                                                    union data_values ****values,
+                                                    int64_t *n_particles,
+                                                    int64_t *n_values_per_frame,
+                                                    tng_data_type *type)
+{
+    return(tng_particle_data_interval_get(tng_data, *block_id, *start_frame_nr,
+                                          *end_frame_nr, values, n_particles,
+                                          n_values_per_frame, type));
+}
 
 /** @brief Get the date and time of initial file creation in ISO format (string).
  *  @param tng_data is a trajectory data container.
@@ -1011,6 +1564,12 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
  */
 tng_function_status tng_time_get_str(const tng_trajectory_t tng_data,
                                      char *time);
+tng_function_status tng_time_get_str_(const tng_trajectory_t tng_data,
+                                      char *time, int64_t str_len)
+{
+    return(tng_time_get_str(tng_data, time));
+}
+
 
 #ifdef __cplusplus
 }  /* end extern "C" */

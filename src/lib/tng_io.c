@@ -6116,7 +6116,7 @@ tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
 
 
 tng_function_status tng_first_program_name_set(tng_trajectory_t tng_data,
-                                         const char *new_name)
+                                               const char *new_name)
 {
     int len;
 
@@ -6144,7 +6144,7 @@ tng_function_status tng_first_program_name_set(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_last_program_name_set(tng_trajectory_t tng_data,
-                                         const char *new_name)
+                                              const char *new_name)
 {
     int len;
 
@@ -6172,7 +6172,7 @@ tng_function_status tng_last_program_name_set(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_first_user_name_set(tng_trajectory_t tng_data,
-                                      const char *new_name)
+                                            const char *new_name)
 {
     int len;
 
@@ -6200,7 +6200,7 @@ tng_function_status tng_first_user_name_set(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_last_user_name_set(tng_trajectory_t tng_data,
-                                      const char *new_name)
+                                           const char *new_name)
 {
     int len;
 
@@ -6228,7 +6228,7 @@ tng_function_status tng_last_user_name_set(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_first_computer_name_set(tng_trajectory_t tng_data,
-                                          const char *new_name)
+                                                const char *new_name)
 {
     int len;
 
@@ -6256,7 +6256,7 @@ tng_function_status tng_first_computer_name_set(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_last_computer_name_set(tng_trajectory_t tng_data,
-                                          const char *new_name)
+                                               const char *new_name)
 {
     int len;
 
@@ -6284,7 +6284,7 @@ tng_function_status tng_last_computer_name_set(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_first_signature_set(tng_trajectory_t tng_data,
-                                      const char *signature)
+                                            const char *signature)
 {
     int len;
 
@@ -6312,7 +6312,7 @@ tng_function_status tng_first_signature_set(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_last_signature_set(tng_trajectory_t tng_data,
-                                      const char *signature)
+                                           const char *signature)
 {
     int len;
 
@@ -6368,7 +6368,7 @@ tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_medium_stride_length_get(const tng_trajectory_t tng_data,
-                                               int64_t *len)
+                                                 int64_t *len)
 {
     *len = tng_data->medium_stride_length;
 
@@ -6376,7 +6376,7 @@ tng_function_status tng_medium_stride_length_get(const tng_trajectory_t tng_data
 }
 
 tng_function_status tng_medium_stride_length_set(tng_trajectory_t tng_data,
-                                               int64_t len)
+                                                 const int64_t len)
 {
     if(len >= tng_data->long_stride_length)
     {
@@ -6396,7 +6396,7 @@ tng_function_status tng_long_stride_length_get(const tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
-                                               int64_t len)
+                                               const int64_t len)
 {
     if(len <= tng_data->medium_stride_length)
     {
