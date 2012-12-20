@@ -105,7 +105,6 @@ typedef enum {TNG_ENDIANNESS_AND_STRING_LENGTH,
               TNG_MOLECULES,
               TNG_TRAJECTORY_IDS_AND_NAMES,
               TNG_TRAJECTORY_FRAME_SET,
-              TNG_BLOCK_TABLE_OF_CONTENTS,
               TNG_PARTICLE_MAPPING} tng_non_trajectory_block_ids;
 
 typedef enum {TNG_TRAJ_BOX_SHAPE = 10000,
@@ -144,7 +143,6 @@ struct tng_residue;
 struct tng_atom;
 struct tng_bond;
 struct tng_gen_block;
-struct tng_frame_set_toc;
 struct tng_particle_mapping;
 struct tng_trajectory_frame_set;
 struct tng_particle_data;
@@ -157,7 +155,6 @@ typedef struct tng_residue *tng_residue_t;
 typedef struct tng_atom *tng_atom_t;
 typedef struct tng_bond *tng_bond_t;
 typedef struct tng_gen_block *tng_gen_block_t;
-typedef struct tng_frame_set_toc *tng_frame_set_toc_t;
 typedef struct tng_particle_mapping *tng_particle_mapping_t;
 typedef struct tng_trajectory_frame_set *tng_trajectory_frame_set_t;
 typedef struct tng_particle_data *tng_particle_data_t;
@@ -701,7 +698,7 @@ tng_function_status tng_block_read_next(tng_trajectory_t tng_data,
 
 
 /**
- * @brief Read one (the next) frame set, including toc, mapping and related data blocks
+ * @brief Read one (the next) frame set, including mapping and related data blocks
  * from the input_file of tng_data.
  * @param tng_data is a trajectory data container.
  * @details  tng_data->input_file_path specifies
@@ -717,7 +714,7 @@ tng_function_status tng_frame_set_read_next(tng_trajectory_t tng_data,
                                             const tng_hash_mode hash_mode);
 
 /**
- * @brief Write one frame set, including toc, mapping and related data blocks
+ * @brief Write one frame set, including mapping and related data blocks
  * to the output_file of tng_data.
  * @param tng_data is a trajectory data container.
  * @details  tng_data->output_file_path specifies

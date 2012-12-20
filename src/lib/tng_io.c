@@ -121,13 +121,6 @@ struct tng_gen_block {
     char *block_contents;
 };
 
-struct tng_frame_set_toc {
-    /** The number of blocks listed in this table of contents */
-    int64_t n_blocks;
-    /** A list of block names */
-    char **block_names;
-};
-
 struct tng_particle_mapping {
     /** The index number of the first particle in this mapping block */
     int64_t num_first_particle;
@@ -141,8 +134,6 @@ struct tng_particle_mapping {
 };
 
 struct tng_trajectory_frame_set {
-    /** The table of contents of this frame set */
-    struct tng_frame_set_toc contents;
     /** The number of different particle mapping blocks present. */
     int64_t n_mapping_blocks;
     /** The atom mappings of this frame set */
@@ -2806,209 +2797,6 @@ static tng_function_status tng_frame_set_block_write
     return(TNG_SUCCESS);
 }
 
-static tng_function_status tng_trajectory_contents_block_read
-                (tng_trajectory_t tng_data,
-                 tng_gen_block_t block,
-                 const tng_hash_mode hash_mode)
-{
-    int64_t i, old_n_blocks;
-    int offset = 0, len;
-    tng_bool same_hash;
-    tng_frame_set_toc_t toc =
-    &tng_data->current_trajectory_frame_set.contents;
-
-    if(tng_input_file_init(tng_data, FALSE) != TNG_SUCCESS)
-    {
-        return(TNG_CRITICAL);
-    }
-
-    if(block->block_contents)
-    {
-        free(block->block_contents);
-    }
-
-    block->block_contents = malloc(block->block_contents_size);
-    if(!block->block_contents)
-    {
-        printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-               block->block_contents_size, __FILE__, __LINE__);
-        return(TNG_CRITICAL);
-    }
-
-    /* Read the whole block into block_contents to be able to write it to disk
-     *  even if it cannot be interpreted. */
-    if(fread(block->block_contents, block->block_contents_size, 1,
-             tng_data->input_file) == 0)
-    {
-        printf("Cannot read block. %s: %d\n", __FILE__, __LINE__);
-        return(TNG_CRITICAL);
-    }
-
-    /* FIXME: Does not check if the size of the contents matches the expected
-     * size or if the contents can be read. */
-
-    if(hash_mode == TNG_USE_HASH)
-    {
-        if(hash_match_verify(block, &same_hash) != TNG_SUCCESS)
-        {
-            printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
-            return(TNG_FAILURE);
-        }
-        if(same_hash != TRUE)
-        {
-            printf("Table of contents block contents corrupt. Hashes do not match. "
-                "%s: %d\n",
-                __FILE__, __LINE__);
-    //         return(TNG_FAILURE);
-        }
-    }
-
-    old_n_blocks = toc->n_blocks;
-    
-    memcpy(&toc->n_blocks, block->block_contents,
-           sizeof(toc->n_blocks));
-    if(tng_data->endianness_64 != TNG_BIG_ENDIAN_64)
-    {
-        if(tng_swap_byte_order_64(tng_data, &toc->n_blocks) != TNG_SUCCESS)
-        {
-            printf("Cannot swap byte order to get big endian. %s: %d\n",
-                   __FILE__, __LINE__);
-        }
-    }
-    offset += sizeof(toc->n_blocks);
-
-    if(old_n_blocks != toc->n_blocks)
-    {
-        if(toc->block_names)
-        {
-            for(i = old_n_blocks; i--;)
-            {
-                if(toc->block_names[i])
-                {
-                    free(toc->block_names[i]);
-                }
-            }
-            free(toc->block_names);
-        }
-        toc->block_names = malloc(toc->n_blocks * sizeof(char *));
-        if(!toc->block_names)
-        {
-            printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                   toc->n_blocks * sizeof(int64_t), __FILE__, __LINE__);
-            return(TNG_CRITICAL);
-        }
-    }
-
-    for(i = 0; i < toc->n_blocks; i++)
-    {
-        len = min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
-
-        toc->block_names[i] = malloc(len);
-        if(!toc->block_names[i])
-        {
-            printf("Cannot allocate memory (%d bytes). %s: %d\n",
-                    len, __FILE__, __LINE__);
-            return(TNG_CRITICAL);
-        }
-
-        strncpy(toc->block_names[i], block->block_contents+offset, len);
-        
-        offset += len;
-    }
-    
-    return(TNG_SUCCESS);
-}
-
-static tng_function_status tng_trajectory_contents_block_write
-                (tng_trajectory_t tng_data,
-                 tng_gen_block_t block,
-                 const tng_hash_mode hash_mode)
-{
-    char *temp_name;
-    int64_t i;
-    int offset = 0, name_len;
-    tng_frame_set_toc_t toc =
-    &tng_data->current_trajectory_frame_set.contents;
-
-    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
-    {
-        return(TNG_CRITICAL);
-    }
-
-
-    name_len = strlen("BLOCK TABLE OF CONTENTS");
-
-    if(!block->name || strlen(block->name) < name_len)
-    {
-        temp_name = realloc(block->name, name_len + 1);
-        if(!temp_name)
-        {
-            printf("Cannot allocate memory (%d bytes). %s: %d\n",
-                   name_len+1, __FILE__, __LINE__);
-            return(TNG_CRITICAL);
-        }
-        block->name = temp_name;
-    }
-    strcpy(block->name, "BLOCK TABLE OF CONTENTS");
-    block->id = TNG_BLOCK_TABLE_OF_CONTENTS;
-
-    block->block_contents_size = sizeof(int64_t);
-
-    for(i = toc->n_blocks; i--;)
-    {
-        block->block_contents_size += strlen(toc->block_names[i]) + 1;
-    }
-
-    if(block->block_contents)
-    {
-        free(block->block_contents);
-    }
-    block->block_contents = malloc(block->block_contents_size);
-    if(!block->block_contents)
-    {
-        printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-               block->block_contents_size, __FILE__, __LINE__);
-        return(TNG_CRITICAL);
-    }
-
-    memcpy(block->block_contents, &toc->n_blocks, sizeof(toc->n_blocks));
-    if(tng_data->endianness_64 != TNG_BIG_ENDIAN_64)
-    {
-        if(tng_swap_byte_order_64(tng_data, (int64_t *)
-                                  (block->block_contents)) !=
-           TNG_SUCCESS)
-        {
-            printf("Cannot swap byte order to get big endian. %s: %d\n",
-                   __FILE__, __LINE__);
-        }
-    }
-    offset += sizeof(toc->n_blocks);
-
-    for(i = 0; i < toc->n_blocks; i++)
-    {
-        name_len = strlen(toc->block_names[i]) + 1;
-        strncpy(block->block_contents+offset, toc->block_names[i], name_len);
-        offset += name_len;
-    }
-
-
-    if(tng_block_header_write(tng_data, block, hash_mode) != TNG_SUCCESS)
-    {
-        printf("Cannot write header of file %s. %s: %d\n",
-               tng_data->output_file_path, __FILE__, __LINE__);
-        return(TNG_CRITICAL);
-    }
-
-    if(fwrite(block->block_contents, block->block_contents_size, 1,
-              tng_data->output_file) != 1)
-    {
-        printf("Could not write all block data. %s: %d\n",
-               __FILE__, __LINE__);
-        return(TNG_CRITICAL);
-    }
-
-    return(TNG_SUCCESS);
-}
 
 static tng_function_status tng_trajectory_mapping_block_read
                 (tng_trajectory_t tng_data,
@@ -5943,8 +5731,6 @@ tng_function_status tng_trajectory_init(struct tng_trajectory **tng_data_p)
     tng_data->non_tr_data = 0;
 
     frame_set->first_frame = -1;
-    frame_set->contents.n_blocks = 0;
-    frame_set->contents.block_names = 0;
     frame_set->n_mapping_blocks = 0;
     frame_set->mappings = 0;
     frame_set->molecule_cnt_list = 0;
@@ -6117,20 +5903,6 @@ tng_function_status tng_trajectory_destroy(struct tng_trajectory **tng_data_p)
     {
         free(tng_data->forcefield_name);
         tng_data->forcefield_name = 0;
-    }
-
-    if(frame_set->contents.block_names)
-    {
-        for(i = frame_set->contents.n_blocks; i--;)
-        {
-            if(frame_set->contents.block_names[i])
-            {
-                free(frame_set->contents.block_names[i]);
-                frame_set->contents.block_names[i] = 0;
-            }
-        }
-        free(frame_set->contents.block_names);
-        frame_set->contents.block_names = 0;
     }
 
     if(frame_set->mappings)
@@ -7201,8 +6973,6 @@ tng_function_status tng_block_read_next(tng_trajectory_t tng_data,
     {
     case TNG_TRAJECTORY_FRAME_SET:
         return(tng_frame_set_block_read(tng_data, block, hash_mode));
-    case TNG_BLOCK_TABLE_OF_CONTENTS:
-        return(tng_trajectory_contents_block_read(tng_data, block, hash_mode));
     case TNG_PARTICLE_MAPPING:
         return(tng_trajectory_mapping_block_read(tng_data, block, hash_mode));
     case TNG_GENERAL_INFO:
@@ -7345,13 +7115,6 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
         return(TNG_FAILURE);
     }
 
-    /* Write contents block */
-    if(frame_set->contents.n_blocks > 0)
-    {
-        block->id = TNG_BLOCK_TABLE_OF_CONTENTS;
-        tng_trajectory_contents_block_write(tng_data, block,
-                                       hash_mode);
-    }
     /* Write non-particle data blocks */
     for(i = 0; i<frame_set->n_data_blocks; i++)
     {
