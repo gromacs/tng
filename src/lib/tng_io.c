@@ -191,7 +191,7 @@ struct tng_particle_data {
     char *block_name;
     /** The type of data stored. */
     tng_data_type datatype;
-    /** The first frame number of the first data value */
+    /** The frame number of the first data value */
     int64_t first_frame_with_data;
     /** The number of frames in this frame set */
     int64_t n_frames;
@@ -7995,7 +7995,292 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
     
     return(TNG_SUCCESS);
 }
-                                                
+
+tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
+                                        const int64_t frame_nr,
+                                        const int64_t block_id,
+                                        const void *values,
+                                        const tng_hash_mode hash_mode)
+{
+    int64_t i, block_index, header_pos, file_pos;
+    int64_t output_file_len, n_values_per_frame, size, contents_size;
+    int64_t header_size;
+    tng_gen_block_t block;
+    tng_trajectory_frame_set_t frame_set;
+    FILE *temp = tng_data->input_file;
+    tng_non_particle_data_t data;
+    tng_function_status stat;
+
+    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    {
+        printf("Cannot initialise destination file. %s: %d\n",
+               __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+
+    tng_data->input_file = tng_data->output_file;
+
+    stat = tng_frame_set_find(tng_data, frame_nr);
+    
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+
+    tng_data->input_file = temp;
+    
+    file_pos = ftell(tng_data->output_file);
+    
+    fseek(tng_data->output_file, 0, SEEK_END);
+    output_file_len = ftell(tng_data->output_file);
+    fseek(tng_data->output_file, file_pos, SEEK_SET);
+
+    
+    tng_block_init(&block);
+    /* Read all block headers until next frame set block */
+    stat = tng_block_header_read(tng_data, block);
+    while(file_pos < output_file_len &&
+            stat != TNG_CRITICAL &&
+            block->id != block_id &&
+            block->id != TNG_TRAJECTORY_FRAME_SET)
+    {
+        fseek(tng_data->output_file, block->block_contents_size, SEEK_CUR);
+        file_pos = ftell(tng_data->output_file);
+        if(file_pos < output_file_len)
+        {
+            stat = tng_block_header_read(tng_data, block);
+        }
+    }
+    if(stat == TNG_CRITICAL)
+    {
+        tng_block_destroy(&block);
+        return(stat);
+    }
+
+    contents_size = block->block_contents_size;
+    header_size = block->header_contents_size;
+
+    header_pos = file_pos;
+    frame_set = &tng_data->current_trajectory_frame_set;
+
+    block_index = -1;
+    /* See if there is already a data block of this ID.
+     * Start checking the last read frame set */
+    for(i = frame_set->n_data_blocks; i--;)
+    {
+        data = &frame_set->tr_data[i];
+        if(data->block_id == block_id)
+        {
+            block_index = i;
+            break;
+        }
+    }
+
+    if(block_index < 0)
+    {
+        tng_block_destroy(&block);
+        return(TNG_FAILURE);
+    }
+    
+    switch(data->datatype)
+    {
+        case(TNG_INT_DATA):
+            size = sizeof(int64_t);
+            break;
+        case(TNG_FLOAT_DATA):
+            size = sizeof(float);
+            break;
+        case(TNG_DOUBLE_DATA):
+            size = sizeof(double);
+            break;
+        default:
+            printf("Cannot calculate writing locations. %s: %d.\n", __FILE__,
+                   __LINE__);
+            tng_block_destroy(&block);
+            return(TNG_FAILURE);
+    }
+
+    size *= data->n_values_per_frame;
+
+    n_values_per_frame = data->n_values_per_frame;
+
+    file_pos = (frame_nr - data->first_frame_with_data) * n_values_per_frame /
+               data->stride_length;
+
+    if(file_pos > contents_size)
+    {
+        printf("Attempting to write outside the block. %s: %d\n", __FILE__,
+               __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_FAILURE);
+    }
+
+    fseek(tng_data->output_file, file_pos, SEEK_CUR);
+
+    fwrite(values, n_values_per_frame, size, tng_data->output_file);
+
+    /* If the last frame has been written update the hash */
+    if(hash_mode == TNG_USE_HASH && (frame_nr + data->stride_length -
+       data->first_frame_with_data) / data->stride_length >=
+       frame_set->n_frames)
+    {
+        tng_md5_hash_update(tng_data, block, header_pos, header_pos +
+                            header_size);
+    }
+
+    tng_block_destroy(&block);
+    
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
+                                                  const int64_t frame_nr,
+                                                  const int64_t block_id,
+                                                  const void **values,
+                                                 const tng_hash_mode hash_mode)
+{
+    int64_t i, block_index, header_pos, file_pos, n_particles;
+    int64_t output_file_len, n_values_per_frame, size, contents_size;
+    int64_t header_size;
+    tng_gen_block_t block;
+    tng_trajectory_frame_set_t frame_set;
+    FILE *temp = tng_data->input_file;
+    tng_particle_data_t data;
+    tng_function_status stat;
+    
+    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    {
+        printf("Cannot initialise destination file. %s: %d\n",
+               __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+
+    tng_data->input_file = tng_data->output_file;
+
+    stat = tng_frame_set_find(tng_data, frame_nr);
+
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
+
+    tng_data->input_file = temp;
+
+    file_pos = ftell(tng_data->output_file);
+
+    fseek(tng_data->output_file, 0, SEEK_END);
+    output_file_len = ftell(tng_data->output_file);
+    fseek(tng_data->output_file, file_pos, SEEK_SET);
+    
+    tng_block_init(&block);
+    /* Read all block headers until next frame set block */
+    stat = tng_block_header_read(tng_data, block);
+    while(file_pos < output_file_len &&
+            stat != TNG_CRITICAL &&
+            block->id != block_id &&
+            block->id != TNG_TRAJECTORY_FRAME_SET)
+    {
+        fseek(tng_data->output_file, block->block_contents_size, SEEK_CUR);
+        file_pos = ftell(tng_data->output_file);
+        if(file_pos < output_file_len)
+        {
+            stat = tng_block_header_read(tng_data, block);
+        }
+    }
+    if(stat == TNG_CRITICAL)
+    {
+        tng_block_destroy(&block);
+        return(stat);
+    }
+
+    contents_size = block->block_contents_size;
+    header_size = block->header_contents_size;
+    
+    header_pos = file_pos;
+    frame_set = &tng_data->current_trajectory_frame_set;
+
+    block_index = -1;
+    /* See if there is already a data block of this ID.
+     * Start checking the last read frame set */
+    for(i = frame_set->n_data_blocks; i--;)
+    {
+        data = &frame_set->tr_particle_data[i];
+        if(data->block_id == block_id)
+        {
+            block_index = i;
+            break;
+        }
+    }
+
+    if(block_index < 0)
+    {
+        tng_block_destroy(&block);
+        return(TNG_FAILURE);
+    }
+
+    switch(data->datatype)
+    {
+        case(TNG_INT_DATA):
+            size = sizeof(int64_t);
+            break;
+        case(TNG_FLOAT_DATA):
+            size = sizeof(float);
+            break;
+        case(TNG_DOUBLE_DATA):
+            size = sizeof(double);
+            break;
+        default:
+            printf("Cannot calculate writing locations. %s: %d.\n", __FILE__,
+                   __LINE__);
+            tng_block_destroy(&block);
+            return(TNG_FAILURE);
+    }
+
+    size *= data->n_values_per_frame;
+    
+    if(tng_data->var_num_atoms_flag)
+    {
+        n_particles = frame_set->n_particles;
+    }
+    else
+    {
+        n_particles = tng_data->n_particles;
+    }
+    n_values_per_frame = data->n_values_per_frame;
+
+    file_pos = (frame_nr - data->first_frame_with_data) / data->stride_length;
+    file_pos *= n_particles * n_values_per_frame;
+
+    if(file_pos > contents_size)
+    {
+        printf("Attempting to write outside the block. %s: %d\n", __FILE__,
+               __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_FAILURE);
+    }
+    
+    fseek(tng_data->output_file, file_pos, SEEK_CUR);
+
+    for(i = 0; i < n_particles; i++)
+    {
+        fwrite(values[i], n_values_per_frame, size, tng_data->output_file);
+    }
+
+    /* If the last frame has been written update the hash */
+    if(hash_mode == TNG_USE_HASH && (frame_nr + data->stride_length -
+       data->first_frame_with_data) / data->stride_length >=
+       frame_set->n_frames)
+    {
+        tng_md5_hash_update(tng_data, block, header_pos, header_pos +
+                            header_size);
+    }
+    
+    tng_block_destroy(&block);
+    return(TNG_SUCCESS);
+}
+
 tng_function_status tng_data_values_free(union data_values **values,
                                          const int64_t n_frames,
                                          const int64_t n_values_per_frame,
@@ -8245,23 +8530,9 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
 
     if(block_index < 0)
     {
-        /* If the data block was not found in the frame set
-         * look for it in the non-trajectory data (in tng_data). */
-        for(i = tng_data->n_data_blocks; i-- ;)
-        {
-            data = &tng_data->non_tr_data[i];
-            if(data->block_id == block_id)
-            {
-                block_index = i;
-                break;
-            }
-        }
-        if(block_index < 0)
-        {
-            printf("Could not find non-particle data block with id %"PRId64". %s: %d\n",
-                   block_id, __FILE__, __LINE__);
-            return(TNG_FAILURE);
-        }
+        printf("Could not find non-particle data block with id %"PRId64". %s: %d\n",
+                block_id, __FILE__, __LINE__);
+        return(TNG_FAILURE);
     }
 
     n_frames = end_frame_nr - start_frame_nr + 1;
@@ -8601,24 +8872,9 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
 
     if(block_index < 0)
     {
-        /* If the data block was not found in the frame set
-         * look for it in the non-trajectory data (in tng_data). */
-        for(i = tng_data->n_particle_data_blocks; i-- ;)
-        {
-            data = &tng_data->non_tr_particle_data[i];
-            if(data->block_id == block_id)
-            {
-                block_index = i;
-                block_type_flag = TNG_NON_TRAJECTORY_BLOCK;
-                break;
-            }
-        }
-        if(block_index < 0)
-        {
-            printf("Could not find particle data block with id %"PRId64". %s: %d\n",
-                   block_id, __FILE__, __LINE__);
-            return(TNG_FAILURE);
-        }
+        printf("Could not find particle data block with id %"PRId64". %s: %d\n",
+                block_id, __FILE__, __LINE__);
+        return(TNG_FAILURE);
     }
 
     if(block_type_flag == TNG_TRAJECTORY_BLOCK &&

@@ -814,6 +814,48 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                                         const int64_t codec_id,
                                         void *new_data);
 
+/**
+ * @brief Write data of one trajectory frame to the output_file of tng_data.
+ * @param tng_data is a trajectory data container. tng_data->output_file_path
+ * specifies which file to write to. If the file (output_file) is not open it
+ * will be opened.
+ * @param frame_nr is the index number of the frame to write.
+ * @param block_id is the ID of the data block to write the data to.
+ * @param data is an array of data to write. The length of the array should
+ * equal n_values_per_frame.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * compared to the md5 hash of the read contents to ensure valid data.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
+                                        const int64_t frame_nr,
+                                        const int64_t block_id,
+                                        const void *data,
+                                        const tng_hash_mode hash_mode);
+
+/**
+ * @brief Write particle data of one trajectory frame to the output_file of
+ * tng_data.
+ * @param tng_data is a trajectory data container. tng_data->output_file_path
+ * specifies which file to write to. If the file (output_file) is not open it
+ * will be opened.
+ * @param frame_nr is the index number of the frame to write.
+ * @param block_id is the ID of the data block to write the data to.
+ * @param data is a 2D-array of data to write. The length of the array should
+ * equal n_particles * n_values_per_frame.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * compared to the md5 hash of the read contents to ensure valid data.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
+                                                  const int64_t frame_nr,
+                                                  const int64_t block_id,
+                                                  const void **data,
+                                                 const tng_hash_mode hash_mode);
 
 /**
  * @brief Free data is an array of values (2D).
