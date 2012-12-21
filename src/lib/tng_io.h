@@ -1322,7 +1322,10 @@ tng_function_status tng_frame_data_write_(tng_trajectory_t tng_data,
  * will be opened.
  * @param frame_nr is the index number of the frame to write.
  * @param block_id is the ID of the data block to write the data to.
- * @param data is a 2D-array of data to write. The length of the array should
+ * @param val_first_particle is the number of the first particle in the data
+ * array.
+ * @param val_n_particles is the number of particles in the data array.
+ * @param data is a 1D-array of data to write. The length of the array should
  * equal n_particles * n_values_per_frame.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
  * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
@@ -1333,15 +1336,21 @@ tng_function_status tng_frame_data_write_(tng_trajectory_t tng_data,
 tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
                                                   const int64_t frame_nr,
                                                   const int64_t block_id,
-                                                  const void **data,
-                                                  const tng_hash_mode hash_mode);
+                                                  const int64_t val_first_particle,
+                                                  const int64_t val_n_particles,
+                                                  const void *data,
+                                                 const tng_hash_mode hash_mode);
 tng_function_status tng_frame_particle_data_write_(tng_trajectory_t tng_data,
                                                    const int64_t *frame_nr,
                                                    const int64_t *block_id,
-                                                   const void **data,
-                                                   const tng_hash_mode *hash_mode)
+                                                  const int64_t *val_first_particle,
+                                                   const int64_t *val_n_particles,
+                                                   const void *data,
+                                                 const tng_hash_mode *hash_mode)
 {
-    return(tng_frame_particle_data_write(tng_data, *frame_nr, *block_id, data, *hash_mode));
+    return(tng_frame_particle_data_write(tng_data, *frame_nr, *block_id,
+                                         *val_first_particle, *val_n_particles,
+                                         data, *hash_mode));
 }
 
 /**

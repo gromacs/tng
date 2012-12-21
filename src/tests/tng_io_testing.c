@@ -128,7 +128,8 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
 {
     int i, j, k, nr, cnt;
     float *data, *molpos;
-    int64_t mapping[150], n_particles, n_frames_per_frame_set, tot_n_mols;
+    int64_t mapping[300], n_particles, n_frames_per_frame_set, tot_n_mols;
+    int64_t frame_nr;
     tng_function_status stat;
 
     tng_medium_stride_length_set(traj, 10);
@@ -276,7 +277,119 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
             return(TNG_CRITICAL);
         }
     }
+    
+    /* Write one more frame set one frame at a time */
+    cnt = 0;
+    for(j = 0; j < n_frames_per_frame_set; j++)
+    {
+        for(k = 0; k < tot_n_mols; k++)
+        {
+            data[cnt++] = 0;
+            data[cnt++] = 0;
+            data[cnt++] = 0;
+            data[cnt++] = 0;
+            data[cnt++] = 0;
+            data[cnt++] = 0;
+            data[cnt++] = 0;
+            data[cnt++] = 0;
+            data[cnt++] = 0;
+        }
+    }
+    if(tng_frame_set_new(traj, i * n_frames_per_frame_set,
+        n_frames_per_frame_set) != TNG_SUCCESS)
+    {
+        printf("Error creating frame set %d. %s: %d\n",
+                i, __FILE__, __LINE__);
+        free(molpos);
+        free(data);
+        return(TNG_CRITICAL);
+    }
 
+    frame_nr = i * n_frames_per_frame_set;
+    
+    for(k=0; k<300; k++)
+    {
+        mapping[k]=k;
+    }
+    if(tng_particle_mapping_add(traj, 0, 300, mapping) != TNG_SUCCESS)
+    {
+        printf("Error creating particle mapping. %s: %d\n",
+                __FILE__, __LINE__);
+        free(molpos);
+        free(data);
+        return(TNG_CRITICAL);
+    }
+    for(k=0; k<300; k++)
+    {
+        mapping[k]=599-k;
+    }
+    if(tng_particle_mapping_add(traj, 300, 300, mapping) != TNG_SUCCESS)
+    {
+        printf("Error creating particle mapping. %s: %d\n",
+                __FILE__, __LINE__);
+        free(molpos);
+        free(data);
+        return(TNG_CRITICAL);
+    }
+
+    if(tng_particle_data_block_add(traj, TNG_TRAJ_POSITIONS,
+                                    "POSITIONS",
+                                    TNG_FLOAT_DATA,
+                                    TNG_TRAJECTORY_BLOCK,
+                                    n_frames_per_frame_set, 3,
+                                    1, 0, n_particles,
+                                    TNG_UNCOMPRESSED,
+                                    data) != TNG_SUCCESS)
+    {
+        printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+        free(molpos);
+        free(data);
+        return(TNG_CRITICAL);
+    }
+    
+    if(tng_frame_set_write(traj, TNG_SKIP_HASH) != TNG_SUCCESS)
+    {
+        printf("Error writing frame set. %s: %d\n", __FILE__, __LINE__);
+        free(molpos);
+        free(data);
+        return(TNG_CRITICAL);
+    }
+        
+    for(i = 0; i < n_frames_per_frame_set; i++)
+    {
+        for(j = 0; j < 2; j++)
+        {
+            cnt = 0;
+            for(k = 0; k < tot_n_mols/2; k++)
+            {
+                nr = k * 3;
+                /* Move -1 to 1 */
+                molpos[nr] += 2 * (rand() / (RAND_MAX + 1.0)) - 1;
+                molpos[nr+1] += 2 * (rand() / (RAND_MAX + 1.0)) - 1;
+                molpos[nr+2] += 2 * (rand() / (RAND_MAX + 1.0)) - 1;
+
+                data[cnt++] = molpos[nr];
+                data[cnt++] = molpos[nr + 1];
+                data[cnt++] = molpos[nr + 2];
+                data[cnt++] = molpos[nr] + 1;
+                data[cnt++] = molpos[nr + 1] + 1;
+                data[cnt++] = molpos[nr + 2] + 1;
+                data[cnt++] = molpos[nr] - 1;
+                data[cnt++] = molpos[nr + 1] - 1;
+                data[cnt++] = molpos[nr + 2] - 1;
+            }
+            if(tng_frame_particle_data_write(traj, frame_nr + i,
+                                          TNG_TRAJ_POSITIONS, j * 300, 300,
+                                          data, TNG_SKIP_HASH) != TNG_SUCCESS)
+            {
+                printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+                free(molpos);
+                free(data);
+                return(TNG_CRITICAL);
+            }
+        }
+    }
+    
     free(molpos);
     free(data);
 
