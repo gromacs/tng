@@ -165,7 +165,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     {
         nr = i * 3;
         /* Somewhat random coordinates (between 0 and 100),
-        * but not specifying a random seed */
+         * but not specifying a random seed */
         molpos[nr] = 100.0 * rand() / (RAND_MAX + 1.0);
         molpos[nr+1] = 100.0 * rand() / (RAND_MAX + 1.0);
         molpos[nr+2] = 100.0 * rand() / (RAND_MAX + 1.0);
@@ -206,6 +206,8 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
             return(TNG_CRITICAL);
         }
 
+        /* Setup particle mapping. Use 4 different mapping blocks with arbitrary
+         * mappings. */
         for(k=0; k<150; k++)
         {
             mapping[k]=k;
@@ -254,7 +256,8 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
             free(data);
             return(TNG_CRITICAL);
         }
-        
+
+        /* Add the positions in a data block */
         if(tng_particle_data_block_add(traj, TNG_TRAJ_POSITIONS,
                                        "POSITIONS",
                                        TNG_FLOAT_DATA,
@@ -269,6 +272,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
             free(data);
             return(TNG_CRITICAL);
         }
+        /* Write the frame set */
         if(tng_frame_set_write(traj, TNG_SKIP_HASH) != TNG_SUCCESS)
         {
             printf("Error writing frame set. %s: %d\n", __FILE__, __LINE__);
@@ -280,6 +284,9 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     
     /* Write one more frame set one frame at a time */
     cnt = 0;
+    /* Setup an empty data array - this will be written to the frame set
+     * (since the block size needs to be correct in the file. After that it
+     * is filled with data. */
     for(j = 0; j < n_frames_per_frame_set; j++)
     {
         for(k = 0; k < tot_n_mols; k++)
@@ -295,6 +302,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
             data[cnt++] = 0;
         }
     }
+    /* Make a new frame set */
     if(tng_frame_set_new(traj, i * n_frames_per_frame_set,
         n_frames_per_frame_set) != TNG_SUCCESS)
     {
@@ -311,6 +319,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     {
         mapping[k]=k;
     }
+    /* Just use two particle mapping blocks in this frame set */
     if(tng_particle_mapping_add(traj, 0, 300, mapping) != TNG_SUCCESS)
     {
         printf("Error creating particle mapping. %s: %d\n",
@@ -332,6 +341,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
         return(TNG_CRITICAL);
     }
 
+    /* Add the data block to the current frame set */
     if(tng_particle_data_block_add(traj, TNG_TRAJ_POSITIONS,
                                     "POSITIONS",
                                     TNG_FLOAT_DATA,
@@ -346,7 +356,8 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
         free(data);
         return(TNG_CRITICAL);
     }
-    
+
+    /* Write the frame set to disk */
     if(tng_frame_set_write(traj, TNG_SKIP_HASH) != TNG_SUCCESS)
     {
         printf("Error writing frame set. %s: %d\n", __FILE__, __LINE__);
@@ -354,7 +365,8 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
         free(data);
         return(TNG_CRITICAL);
     }
-        
+
+    /* Write particle data to disk - one frame at a time */
     for(i = 0; i < n_frames_per_frame_set; i++)
     {
         for(j = 0; j < 2; j++)
