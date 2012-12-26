@@ -1458,6 +1458,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
                                           const int64_t block_id,
                                           const int64_t start_frame_nr,
                                           const int64_t end_frame_nr,
+                                          const tng_hash_mode hash_mode,
                                           union data_values ***values,
                                           int64_t *n_values_per_frame,
                                           tng_data_type *type);
@@ -1465,13 +1466,14 @@ tng_function_status tng_data_interval_get_(tng_trajectory_t tng_data,
                                            const int64_t *block_id,
                                            const int64_t *start_frame_nr,
                                            const int64_t *end_frame_nr,
+                                           const tng_hash_mode *hash_mode,
                                            union data_values ***values,
                                            int64_t *n_values_per_frame,
                                            tng_data_type *type)
 {
     return(tng_data_interval_get(tng_data, *block_id, *start_frame_nr,
-                                 *end_frame_nr, values, n_values_per_frame,
-                                 type));
+                                 *end_frame_nr, *hash_mode, values,
+                                 n_values_per_frame, type));
 }
 
 /**
@@ -1546,6 +1548,7 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
                                                    const int64_t block_id,
                                                    const int64_t start_frame_nr,
                                                    const int64_t end_frame_nr,
+                                                   const tng_hash_mode hash_mode,
                                                    union data_values ****values,
                                                    int64_t *n_particles,
                                                    int64_t *n_values_per_frame,
@@ -1554,14 +1557,16 @@ tng_function_status tng_particle_data_interval_get_(tng_trajectory_t tng_data,
                                                     const int64_t *block_id,
                                                     const int64_t *start_frame_nr,
                                                     const int64_t *end_frame_nr,
+                                                    const tng_hash_mode *hash_mode,
                                                     union data_values ****values,
                                                     int64_t *n_particles,
                                                     int64_t *n_values_per_frame,
                                                     tng_data_type *type)
 {
     return(tng_particle_data_interval_get(tng_data, *block_id, *start_frame_nr,
-                                          *end_frame_nr, values, n_particles,
-                                          n_values_per_frame, type));
+                                          *end_frame_nr, *hash_mode, values,
+                                          n_particles, n_values_per_frame,
+                                          type));
 }
 
 /** @brief Get the date and time of initial file creation in ISO format (string).

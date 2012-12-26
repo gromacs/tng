@@ -485,8 +485,8 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj)
     values = 0;
 
     tng_particle_data_interval_get(traj, TNG_TRAJ_POSITIONS, 11000, 11499,
-                                   &values, &n_particles, &n_values_per_frame,
-                                   &type);
+                                   TNG_SKIP_HASH, &values, &n_particles,
+                                   &n_values_per_frame, &type);
 
     tng_particle_data_values_free(values, 500, n_particles, n_values_per_frame, type);
 

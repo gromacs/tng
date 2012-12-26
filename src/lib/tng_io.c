@@ -8014,7 +8014,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
                                                   const int64_t val_first_particle,
                                                   const int64_t val_n_particles,
                                                   const void *values,
-                                                 const tng_hash_mode hash_mode)
+                                                  const tng_hash_mode hash_mode)
 {
     int64_t header_pos, file_pos, tot_n_particles;
     int64_t output_file_len, n_values_per_frame, size, contents_size;
@@ -8548,6 +8548,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
                                           const int64_t block_id,
                                           const int64_t start_frame_nr,
                                           const int64_t end_frame_nr,
+                                          const tng_hash_mode hash_mode,
                                           union data_values ***values,
                                           int64_t *n_values_per_frame,
                                           tng_data_type *type)
@@ -8577,7 +8578,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
             block->id != TNG_TRAJECTORY_FRAME_SET)
     {
         stat = tng_block_read_next(tng_data, block,
-                                    TNG_SKIP_HASH);
+                                   hash_mode);
         if(stat != TNG_CRITICAL)
         {
             file_pos = ftell(tng_data->input_file);
@@ -8658,7 +8659,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
             current_frame_pos++;
             if(current_frame_pos == frame_set->n_frames)
             {
-                stat = tng_frame_set_read_next(tng_data, TNG_SKIP_HASH);
+                stat = tng_frame_set_read_next(tng_data, hash_mode);
                 if(stat != TNG_SUCCESS)
                 {
                     return(stat);
@@ -8677,7 +8678,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
             current_frame_pos++;
             if(current_frame_pos == frame_set->n_frames)
             {
-                stat = tng_frame_set_read_next(tng_data, TNG_SKIP_HASH);
+                stat = tng_frame_set_read_next(tng_data, hash_mode);
                 if(stat != TNG_SUCCESS)
                 {
                     return(stat);
@@ -8696,7 +8697,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
             current_frame_pos++;
             if(current_frame_pos == frame_set->n_frames)
             {
-                stat = tng_frame_set_read_next(tng_data, TNG_SKIP_HASH);
+                stat = tng_frame_set_read_next(tng_data, hash_mode);
                 if(stat != TNG_SUCCESS)
                 {
                     return(stat);
@@ -8716,7 +8717,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
             current_frame_pos++;
             if(current_frame_pos == frame_set->n_frames)
             {
-                stat = tng_frame_set_read_next(tng_data, TNG_SKIP_HASH);
+                stat = tng_frame_set_read_next(tng_data, hash_mode);
                 if(stat != TNG_SUCCESS)
                 {
                     return(stat);
@@ -8887,6 +8888,7 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
                                                   const int64_t block_id,
                                                   const int64_t start_frame_nr,
                                                   const int64_t end_frame_nr,
+                                                  const tng_hash_mode hash_mode,
                                                   union data_values ****values,
                                                   int64_t *n_particles,
                                                   int64_t *n_values_per_frame,
@@ -8918,7 +8920,7 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
             block->id != TNG_TRAJECTORY_FRAME_SET)
     {
         stat = tng_block_read_next(tng_data, block,
-                                    TNG_SKIP_HASH);
+                                   hash_mode);
         if(stat != TNG_CRITICAL)
         {
             file_pos = ftell(tng_data->input_file);
@@ -8981,7 +8983,7 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
         *n_values_per_frame = data->n_values_per_frame;
         if(tng_allocate_particle_data_mem(tng_data, new_data, n_frames,
                                           *n_particles, data->n_values_per_frame) !=
-        TNG_SUCCESS)
+           TNG_SUCCESS)
         {
             free(new_data);
             return(TNG_CRITICAL);
@@ -9015,7 +9017,7 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
             current_frame_pos++;
             if(current_frame_pos == frame_set->n_frames)
             {
-                stat = tng_frame_set_read_next(tng_data, TNG_SKIP_HASH);
+                stat = tng_frame_set_read_next(tng_data, hash_mode);
                 if(stat != TNG_SUCCESS)
                 {
                     return(stat);
@@ -9038,7 +9040,7 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
             current_frame_pos++;
             if(current_frame_pos == frame_set->n_frames)
             {
-                stat = tng_frame_set_read_next(tng_data, TNG_SKIP_HASH);
+                stat = tng_frame_set_read_next(tng_data, hash_mode);
                 if(stat != TNG_SUCCESS)
                 {
                     return(stat);
@@ -9061,7 +9063,7 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
             current_frame_pos++;
             if(current_frame_pos == frame_set->n_frames)
             {
-                stat = tng_frame_set_read_next(tng_data, TNG_SKIP_HASH);
+                stat = tng_frame_set_read_next(tng_data, hash_mode);
                 if(stat != TNG_SUCCESS)
                 {
                     return(stat);
@@ -9085,7 +9087,7 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
             current_frame_pos++;
             if(current_frame_pos == frame_set->n_frames)
             {
-                stat = tng_frame_set_read_next(tng_data, TNG_SKIP_HASH);
+                stat = tng_frame_set_read_next(tng_data, hash_mode);
                 if(stat != TNG_SUCCESS)
                 {
                     return(stat);
