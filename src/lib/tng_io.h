@@ -1413,6 +1413,9 @@ tng_function_status tng_data_get_(tng_trajectory_t tng_data,
  * @param block_id is the id number of the particle data block to read.
  * @param start_frame_nr is the index number of the first frame to read.
  * @param end_frame_nr is the index number of the last frame to read.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the md5 hash in the file will be
+ * compared to the md5 hash of the read contents to ensure valid data.
  * @param values is a pointer to a 2-dimensional array (memory unallocated), which
  * will be filled with data. The array will be sized
  * (n_frames * n_values_per_frame).
@@ -1501,6 +1504,9 @@ tng_function_status tng_particle_data_get_(tng_trajectory_t tng_data,
  * @param block_id is the id number of the particle data block to read.
  * @param start_frame_nr is the index number of the first frame to read.
  * @param end_frame_nr is the index number of the last frame to read.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the md5 hash in the file will be
+ * compared to the md5 hash of the read contents to ensure valid data.
  * @param values is a pointer to a 3-dimensional array (memory unallocated), which
  * will be filled with data. The array will be sized
  * (n_frames * n_particles * n_values_per_frame).
