@@ -517,36 +517,6 @@ tng_function_status tng_long_stride_length_set_(tng_trajectory_t tng_data,
 }
 
 /**
- * @brief Get the reading position of the input file.
- * @param tng_data is the trajectory from which to get the position.
- * @param pos is pointing to a value set to the reading position.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
- */
-tng_function_status tng_input_file_pos_get(const tng_trajectory_t tng_data,
-                                           int64_t *pos);
-tng_function_status tng_input_file_pos_get_(const tng_trajectory_t tng_data,
-                                            int64_t *pos)
-{
-    return(tng_input_file_pos_get(tng_data, pos));
-}
-
-/**
- * @brief Get the writing position of the output file.
- * @param tng_data is the trajectory from which to get the position.
- * @param pos is pointing to a value set to the writing position.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
- */
-tng_function_status tng_output_file_pos_get(const tng_trajectory_t tng_data,
-                                            int64_t *pos);
-tng_function_status tng_output_file_pos_get_(const tng_trajectory_t tng_data,
-                                             int64_t *pos)
-{
-    return(tng_output_file_pos_get(tng_data, pos));
-}
-
-/**
  * @brief Get the length of the input file.
  * @param tng_data is the trajectory from which to get the input file length.
  * @param len is pointing to a value set to the file length.

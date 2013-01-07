@@ -233,16 +233,12 @@ struct tng_trajectory {
     char *input_file_path;
     /** A handle to the input file */
     FILE *input_file;
-    /** The reading position of the file */
-    long int input_file_pos;
     /** The length of the input file */
     long int input_file_len;
     /** The path of the output trajectory file */
     char *output_file_path;
     /** A handle to the output file */
     FILE *output_file;
-    /** The writing position of the file */
-    long int output_file_pos;
     /** The endianness of 32 bit values of the current computer */
     tng_endianness_32 endianness_32;
     /** The endianness of 64 bit values of the current computer */
@@ -470,20 +466,6 @@ static tng_function_status tng_input_file_init(tng_trajectory_t tng_data,
                    tng_data->input_file_path, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
-        if(fseek(tng_data->input_file, tng_data->input_file_pos,
-                 SEEK_SET) != 0)
-        {
-            printf("Cannot specify position in file %s. %s: %d\n",
-                   tng_data->input_file_path, __FILE__, __LINE__);
-            return(TNG_CRITICAL);
-        }
-    }
-    else if(update_read_pos && fseek(tng_data->input_file,
-                                     tng_data->input_file_pos, SEEK_SET) != 0)
-    {
-        printf("Cannot specify position in file %s. %s: %d\n",
-               tng_data->input_file_path, __FILE__, __LINE__);
-        return(TNG_CRITICAL);
     }
     return(TNG_SUCCESS);
 }
@@ -501,14 +483,7 @@ static tng_function_status tng_output_file_init
             return(TNG_CRITICAL);
         }
 
-        if(tng_data->output_file_pos <= 0)
-        {
-            tng_data->output_file = fopen(tng_data->output_file_path, "w+");
-        }
-        else
-        {
-            tng_data->output_file = fopen(tng_data->output_file_path, "a+");
-        }
+        tng_data->output_file = fopen(tng_data->output_file_path, "w+");
         
         if(!tng_data->output_file)
         {
@@ -516,19 +491,6 @@ static tng_function_status tng_output_file_init
                    tng_data->output_file_path, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
-        if(fseek(tng_data->output_file, 0, SEEK_SET) != 0)
-        {
-            printf("Cannot specify position in file %s. %s: %d\n",
-                   tng_data->output_file_path, __FILE__, __LINE__);
-            return(TNG_CRITICAL);
-        }
-    }
-    else if(update_write_pos && fseek(tng_data->output_file, 0,
-                                      SEEK_SET) != 0)
-    {
-        printf("Cannot specify position in file %s. %s: %d\n",
-               tng_data->output_file_path, __FILE__, __LINE__);
-        return(TNG_CRITICAL);
     }
     return(TNG_SUCCESS);
 }
@@ -4721,7 +4683,7 @@ static tng_function_status tng_header_pointers_update
 {
     tng_gen_block_t block;
     FILE *temp = tng_data->input_file;
-    int64_t pos, contents_start_pos;
+    int64_t output_file_pos, pos, contents_start_pos;
 
     if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
     {
@@ -4734,7 +4696,7 @@ static tng_function_status tng_header_pointers_update
     
     tng_block_init(&block);
 
-    tng_data->output_file_pos = ftell(tng_data->output_file);
+    output_file_pos = ftell(tng_data->output_file);
     fseek(tng_data->output_file, 0, SEEK_SET);
 
     if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
@@ -4802,7 +4764,7 @@ static tng_function_status tng_header_pointers_update
 
     tng_block_destroy(&block);
     
-    fseek(tng_data->output_file, tng_data->output_file_pos, SEEK_SET);
+    fseek(tng_data->output_file, output_file_pos, SEEK_SET);
 
     return(TNG_SUCCESS);
 }
@@ -4813,7 +4775,7 @@ static tng_function_status tng_frame_set_pointers_update
     tng_gen_block_t block;
     tng_trajectory_frame_set_t frame_set;
     FILE *temp = tng_data->input_file;
-    int64_t pos, header_start_pos, contents_start_pos;
+    int64_t pos, output_file_pos, header_start_pos, contents_start_pos;
 
     if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
     {
@@ -4823,7 +4785,7 @@ static tng_function_status tng_frame_set_pointers_update
     }
 
     tng_block_init(&block);
-    tng_data->output_file_pos = ftell(tng_data->output_file);
+    output_file_pos = ftell(tng_data->output_file);
     
     tng_data->input_file = tng_data->output_file;
 
@@ -4880,7 +4842,7 @@ static tng_function_status tng_frame_set_pointers_update
                                 contents_start_pos);
         }
         
-        fseek(tng_data->output_file, tng_data->output_file_pos, SEEK_SET);
+        fseek(tng_data->output_file, output_file_pos, SEEK_SET);
     }
 
     /* Update the frame set one medium stride step before */
@@ -4979,7 +4941,7 @@ static tng_function_status tng_frame_set_pointers_update
         }
     }
     
-    fseek(tng_data->output_file, tng_data->output_file_pos, SEEK_SET);
+    fseek(tng_data->output_file, output_file_pos, SEEK_SET);
     
     tng_data->input_file = temp;
 
@@ -5685,11 +5647,9 @@ tng_function_status tng_trajectory_init(struct tng_trajectory **tng_data_p)
     
     tng_data->input_file_path = 0;
     tng_data->input_file = 0;
-    tng_data->input_file_pos = 0;
     tng_data->input_file_len = 0;
     tng_data->output_file_path = 0;
     tng_data->output_file = 0;
-    tng_data->output_file_pos = 0;
 
     tng_data->first_program_name = 0;
     tng_data->first_user_name = 0;
@@ -6407,22 +6367,6 @@ tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_input_file_pos_get(const tng_trajectory_t tng_data,
-                                           int64_t *pos)
-{
-    *pos = tng_data->input_file_pos;
-
-    return(TNG_SUCCESS);    
-}
-
-tng_function_status tng_output_file_pos_get(const tng_trajectory_t tng_data,
-                                            int64_t *pos)
-{
-    *pos = tng_data->output_file_pos;
-
-    return(TNG_SUCCESS);
-}
-
 tng_function_status tng_input_file_len_get(const tng_trajectory_t tng_data,
                                            int64_t *len)
 {
@@ -6867,7 +6811,6 @@ tng_function_status tng_file_headers_read(tng_trajectory_t tng_data,
     int cnt = 0, prev_pos = 0;
     tng_gen_block_t block;
 
-    tng_data->input_file_pos = 0;
     tng_data->n_trajectory_frame_sets = 0;
     
     if(tng_input_file_init(tng_data, FALSE) != TNG_SUCCESS)
@@ -6916,8 +6859,6 @@ tng_function_status tng_file_headers_write(tng_trajectory_t tng_data,
 {
     int i;
     tng_gen_block_t data_block;
-
-    tng_data->output_file_pos = 0;
 
     if(tng_output_file_init(tng_data, TRUE) != TNG_SUCCESS)
     {
@@ -7075,8 +7016,6 @@ tng_function_status tng_frame_set_read_next(tng_trajectory_t tng_data,
         }
     }
 
-    tng_data->input_file_pos=ftell(tng_data->input_file);
-
     tng_block_destroy(&block);
     
     return(TNG_SUCCESS);
@@ -7093,17 +7032,9 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
     tng_function_status stat;
     
 
-    if(tng_data->output_file)
-    {
-        tng_data->current_trajectory_frame_set_output_file_pos =
-        ftell(tng_data->output_file);
-    }
-    else
-    {
-        tng_data->current_trajectory_frame_set_output_file_pos =
-        tng_data->output_file_pos;
-    }
-    
+    tng_data->current_trajectory_frame_set_output_file_pos =
+    ftell(tng_data->output_file);
+
     tng_block_init(&block);
 
     if(tng_frame_set_block_write(tng_data, block, hash_mode) != TNG_SUCCESS)
@@ -7147,7 +7078,6 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
         }
     }
 
-    tng_data->output_file_pos = ftell(tng_data->output_file);
 
     /* Update pointers in the general info block */
     stat = tng_header_pointers_update(tng_data, hash_mode);
@@ -7185,16 +7115,8 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
         tng_data->current_trajectory_frame_set_output_file_pos;
     }
     
-    if(tng_data->output_file)
-    {
-        tng_data->current_trajectory_frame_set_output_file_pos =
-        ftell(tng_data->output_file);
-    }
-    else
-    {
-        tng_data->current_trajectory_frame_set_output_file_pos =
-        tng_data->output_file_pos;
-    }
+    tng_data->current_trajectory_frame_set_output_file_pos =
+    ftell(tng_data->output_file);
 
     /* Clear mappings if they remain. */
     if(frame_set->n_mapping_blocks && frame_set->mappings)

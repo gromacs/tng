@@ -118,7 +118,6 @@ static tng_function_status tng_test_read_and_write_file
             return(stat);
         }
         stat = tng_frame_set_write(traj, TNG_USE_HASH);
-        tng_input_file_pos_get(traj, &pos);
     }
     
     return(stat);
