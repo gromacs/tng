@@ -97,7 +97,6 @@ static tng_function_status tng_test_read_and_write_file
                 (tng_trajectory_t traj)
 {
     tng_function_status stat;
-    int64_t pos;
 
     stat = tng_file_headers_read(traj, TNG_USE_HASH);
     if(stat == TNG_CRITICAL)
