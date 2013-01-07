@@ -1,7 +1,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
-#include "tng_io.h"
+#include <tng_io.h>
 #include "tng_io_testing.h"
 
 static tng_function_status tng_test_setup_molecules(tng_trajectory_t traj)

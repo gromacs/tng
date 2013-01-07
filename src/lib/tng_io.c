@@ -8275,7 +8275,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
         memcpy(copy, values, val_n_particles * n_values_per_frame * size);
         for(i = 0; i < val_n_particles * n_values_per_frame; i++)
         {
-            tng_swap_byte_order_64(tng_data, &copy[i*size]);
+            tng_swap_byte_order_64(tng_data, (int64_t *)copy+i*size);
         }
         fwrite(copy, val_n_particles * n_values_per_frame, size,
                tng_data->output_file);
@@ -8288,7 +8288,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
         memcpy(copy, values, val_n_particles * n_values_per_frame * size);
         for(i = 0; i < val_n_particles * n_values_per_frame; i++)
         {
-            tng_swap_byte_order_32(tng_data, &copy[i*size]);
+            tng_swap_byte_order_32(tng_data, (int32_t *)copy+i*size);
         }
         fwrite(copy, val_n_particles * n_values_per_frame, size,
                tng_data->output_file);

@@ -1,3 +1,7 @@
+if(NOT OPENMP_FOUND)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+endif()
+
 include_directories(${TRAJECTORY_SOURCE_DIR}/src/lib)
 link_directories(${TRAJECTORY_BINARY_DIR}/src/lib)
 
@@ -8,3 +12,6 @@ include_directories(${CMAKE_BINARY_DIR}/generated/)
 
 add_executable(tng_testing tng_io_testing.c)
 target_link_libraries(tng_testing tng_io)
+
+add_executable(md_openmp md_openmp.c)
+target_link_libraries(md_openmp tng_io ${OpenMP_LIBS} m)
