@@ -7941,6 +7941,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
     int64_t output_file_len, n_values_per_frame, size, contents_size;
     int64_t header_size, temp_first, temp_last, temp_current;
     int64_t mapping_block_end_pos, num_first_particle, block_n_particles;
+    int64_t i;
     tng_gen_block_t block;
     tng_trajectory_frame_set_t frame_set;
     FILE *temp = tng_data->input_file;
@@ -7948,6 +7949,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
     tng_function_status stat;
     tng_particle_mapping_t mapping;
     char dependency, sparse_data, datatype;
+    void *copy;
     
     if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
     {
@@ -8264,8 +8266,40 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
     
     fseek(tng_data->output_file, file_pos, SEEK_CUR);
 
-    fwrite(values, val_n_particles * n_values_per_frame, size,
-           tng_data->output_file);
+    /* If the endianness is not big endian the data needs to be swapped */
+    if((data.datatype == TNG_INT_DATA ||
+        data.datatype == TNG_DOUBLE_DATA) &&
+       tng_data->endianness_64 != TNG_BIG_ENDIAN_64)
+    {
+        copy = malloc(val_n_particles * n_values_per_frame * size);
+        memcpy(copy, values, val_n_particles * n_values_per_frame * size);
+        for(i = 0; i < val_n_particles * n_values_per_frame; i++)
+        {
+            tng_swap_byte_order_64(tng_data, &copy[i*size]);
+        }
+        fwrite(copy, val_n_particles * n_values_per_frame, size,
+               tng_data->output_file);
+        free(copy);
+    }
+    else if(data.datatype == TNG_FLOAT_DATA &&
+       tng_data->endianness_32 != TNG_BIG_ENDIAN_32)
+    {
+        copy = malloc(val_n_particles * n_values_per_frame * size);
+        memcpy(copy, values, val_n_particles * n_values_per_frame * size);
+        for(i = 0; i < val_n_particles * n_values_per_frame; i++)
+        {
+            tng_swap_byte_order_32(tng_data, &copy[i*size]);
+        }
+        fwrite(copy, val_n_particles * n_values_per_frame, size,
+               tng_data->output_file);
+        free(copy);
+    }
+
+    else
+    {
+        fwrite(values, val_n_particles * n_values_per_frame, size,
+            tng_data->output_file);
+    }
     fflush(tng_data->output_file);
 
     /* If the last frame has been written update the hash */
