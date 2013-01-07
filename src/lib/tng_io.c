@@ -733,7 +733,6 @@ static tng_function_status tng_block_header_write
     }
     
 
-    /* Just dump the full header contents to file */
     if(!block->name)
     {
         block->name = malloc(1);
