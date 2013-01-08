@@ -280,27 +280,11 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
         }
     }
     
-    /* Write one more frame set one frame at a time */
+    /* Write two more frame sets one frame at a time */
     cnt = 0;
-    /* Setup an empty data array - this will be written to the frame set
-     * (since the block size needs to be correct in the file. After that it
-     * is filled with data. */
-    for(j = 0; j < n_frames_per_frame_set; j++)
-    {
-        for(k = 0; k < tot_n_mols; k++)
-        {
-            data[cnt++] = 0;
-            data[cnt++] = 0;
-            data[cnt++] = 0;
-            data[cnt++] = 0;
-            data[cnt++] = 0;
-            data[cnt++] = 0;
-            data[cnt++] = 0;
-            data[cnt++] = 0;
-            data[cnt++] = 0;
-        }
-    }
-    /* Make a new frame set */
+    /* Make a new frame set - if always using the same mapping blocks
+     * it is not necessary to explicitly add a new frame set - it will
+     * be added automatically when adding data for a frame */
     if(tng_frame_set_new(traj, i * n_frames_per_frame_set,
         n_frames_per_frame_set) != TNG_SUCCESS)
     {
@@ -347,7 +331,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
                                     n_frames_per_frame_set, 3,
                                     1, 0, n_particles,
                                     TNG_UNCOMPRESSED,
-                                    data) != TNG_SUCCESS)
+                                    0) != TNG_SUCCESS)
     {
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
         free(molpos);
@@ -365,7 +349,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     }
 
     /* Write particle data to disk - one frame at a time */
-    for(i = 0; i < n_frames_per_frame_set; i++)
+    for(i = 0; i < n_frames_per_frame_set * 2; i++)
     {
         for(j = 0; j < 2; j++)
         {

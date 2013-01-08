@@ -72,7 +72,7 @@ int main ( int argc, char *argv[] )
     int proc_num;
     int seed = 123456789;
     int step;
-    int step_num = 1000;
+    int step_num = 2000;
     int step_print;
     int step_print_index;
     int step_print_num;
@@ -87,7 +87,6 @@ int main ( int argc, char *argv[] )
     int64_t n_frames_per_frame_set;
     int frames_saved_cnt = 0;
     int frame_set_cnt = 0;
-    double **data;
 
     timestamp ( );
 
@@ -112,7 +111,7 @@ int main ( int argc, char *argv[] )
     printf ( "  DT, the size of each time step, is %f\n", dt );
 
     printf ( "\n" );
-    printf ( "  Number of processors available = %d\n", omp_get_num_procs ( ) );
+    printf ( "  Number of processors available = %d\n", proc_num );
     printf ( "  Number of threads =              %d\n", omp_get_max_threads ( ) );
 
     
@@ -185,13 +184,24 @@ int main ( int argc, char *argv[] )
     compute ( np, nd, pos, vel, mass, force, &potential, &kinetic );
 
     e0 = potential + kinetic;
+    
+    /* Saving frequency */
+    step_save = 5;
+
+    step_print = 0;
+    step_print_index = 0;
+    step_print_num = 10;
+
 /*
     This is the main time stepping loop:
         Compute forces and energies,
         Update positions, velocities, accelerations.
 */
+    printf("  Every %d steps particle positions, velocities and forces are\n",
+           step_save);
+    printf("  saved to a TNG trajectory file.\n");
     printf ( "\n" );
-    printf ( "  At each step, we report the potential and kinetic energies.\n" );
+    printf ( "  At certain step intervals, we report the potential and kinetic energies.\n" );
     printf ( "  The sum of these energies should be a constant.\n" );
     printf ( "  As an accuracy check, we also print the relative error\n" );
     printf ( "  in the total energy.\n" );
@@ -200,18 +210,11 @@ int main ( int argc, char *argv[] )
     printf ( "                Energy P        Energy K       Relative Energy Error\n" );
     printf ( "\n" );
 
-    step_print = 0;
-    step_print_index = 0;
-    step_print_num = 10;
-    
     step = 0;
     printf ( "  %8d  %14f  %14f  %14e\n",
         step, potential, kinetic, ( potential + kinetic - e0 ) / e0 );
     step_print_index++;
     step_print = ( step_print_index * step_num ) / step_print_num;
-
-    /* Saving frequency */
-    step_save = 5;
 
     wtime = omp_get_wtime ( );
 
@@ -225,19 +228,8 @@ int main ( int argc, char *argv[] )
         exit(1);
     }
     frame_set_cnt++;
-
-    /* Setup an empty data array - this will be written to the frame set
-     * (since the block size needs to be correct in the file. After that it
-     * is filled with data. */
-    data = malloc(n_frames_per_frame_set * 3 * np * sizeof(double));
-
-    for(i = 0; i < n_frames_per_frame_set * 3 * np; i++)
-    {
-        data[i] = 0;
-    }
-
     
-    /* Add data blocks */
+    /* Add empty data blocks */
     if(tng_particle_data_block_add(traj, TNG_TRAJ_POSITIONS,
                                 "POSITIONS",
                                 TNG_DOUBLE_DATA,
@@ -245,10 +237,9 @@ int main ( int argc, char *argv[] )
                                 n_frames_per_frame_set, 3,
                                 1, 0, np,
                                 TNG_UNCOMPRESSED,
-                                data) != TNG_SUCCESS)
+                                0) != TNG_SUCCESS)
     {
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-        free(data);
         exit(1);
     }
     if(tng_particle_data_block_add(traj, TNG_TRAJ_VELOCITIES,
@@ -258,10 +249,9 @@ int main ( int argc, char *argv[] )
                                 n_frames_per_frame_set, 3,
                                 1, 0, np,
                                 TNG_UNCOMPRESSED,
-                                data) != TNG_SUCCESS)
+                                0) != TNG_SUCCESS)
     {
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-        free(data);
         exit(1);
     }
     if(tng_particle_data_block_add(traj, TNG_TRAJ_FORCES,
@@ -271,10 +261,9 @@ int main ( int argc, char *argv[] )
                                 n_frames_per_frame_set, 3,
                                 1, 0, np,
                                 TNG_UNCOMPRESSED,
-                                data) != TNG_SUCCESS)
+                                0) != TNG_SUCCESS)
     {
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-        free(data);
         exit(1);
     }
     
@@ -282,38 +271,8 @@ int main ( int argc, char *argv[] )
     if(tng_frame_set_write(traj, TNG_SKIP_HASH) != TNG_SUCCESS)
     {
         printf("Error writing frame set. %s: %d\n", __FILE__, __LINE__);
-        free(data);
         exit(1);
     }
-
-    if(tng_frame_particle_data_write(traj, 0,
-                                    TNG_TRAJ_POSITIONS, 0, np,
-                                    pos, TNG_USE_HASH) != TNG_SUCCESS)
-    {
-        printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-        free(data);
-        exit(1);
-    }
-    if(tng_frame_particle_data_write(traj, 0,
-                                    TNG_TRAJ_VELOCITIES, 0, np,
-                                    vel, TNG_USE_HASH) != TNG_SUCCESS)
-    {
-        printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-        free(data);
-        exit(1);
-    }
-    if(tng_frame_particle_data_write(traj, 0,
-                                    TNG_TRAJ_FORCES, 0, np,
-                                    force, TNG_USE_HASH) != TNG_SUCCESS)
-    {
-        printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-        free(data);
-        exit(1);
-    }
-    frames_saved_cnt++;
-
-    
-//     printf("pos: %f, vel: %f, force: %f\n", pos[0], vel[0], force[0]);
         
     for ( step = 1; step <= step_num; step++ )
     {
@@ -328,72 +287,11 @@ int main ( int argc, char *argv[] )
         }
         if(step % step_save == 0)
         {
-            if(frames_saved_cnt % n_frames_per_frame_set == 0)
-            {
-                if(tng_frame_set_new(traj, frames_saved_cnt,
-                    n_frames_per_frame_set) != TNG_SUCCESS)
-                {
-                    printf("Error creating frame set %d. %s: %d\n",
-                            i, __FILE__, __LINE__);
-                    free(data);
-                    exit(1);
-                }
-                /* Add data blocks */
-                if(tng_particle_data_block_add(traj, TNG_TRAJ_POSITIONS,
-                                            "POSITIONS",
-                                            TNG_DOUBLE_DATA,
-                                            TNG_TRAJECTORY_BLOCK,
-                                            n_frames_per_frame_set, 3,
-                                            1, 0, np,
-                                            TNG_UNCOMPRESSED,
-                                            data) != TNG_SUCCESS)
-                {
-                    printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-                    free(data);
-                    exit(1);
-                }
-                if(tng_particle_data_block_add(traj, TNG_TRAJ_VELOCITIES,
-                                            "VELOCITIES",
-                                            TNG_DOUBLE_DATA,
-                                            TNG_TRAJECTORY_BLOCK,
-                                            n_frames_per_frame_set, 3,
-                                            1, 0, np,
-                                            TNG_UNCOMPRESSED,
-                                            data) != TNG_SUCCESS)
-                {
-                    printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-                    free(data);
-                    exit(1);
-                }
-                if(tng_particle_data_block_add(traj, TNG_TRAJ_FORCES,
-                                            "FORCES",
-                                            TNG_DOUBLE_DATA,
-                                            TNG_TRAJECTORY_BLOCK,
-                                            n_frames_per_frame_set, 3,
-                                            1, 0, np,
-                                            TNG_UNCOMPRESSED,
-                                            data) != TNG_SUCCESS)
-                {
-                    printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-                    free(data);
-                    exit(1);
-                }
-
-                /* Write the frame set to disk */
-                if(tng_frame_set_write(traj, TNG_SKIP_HASH) != TNG_SUCCESS)
-                {
-                    printf("Error writing frame set. %s: %d\n", __FILE__, __LINE__);
-                    free(data);
-                    exit(1);
-                }
-
-            }
             if(tng_frame_particle_data_write(traj, frames_saved_cnt,
                                             TNG_TRAJ_POSITIONS, 0, np,
                                             pos, TNG_USE_HASH) != TNG_SUCCESS)
             {
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-                free(data);
                 exit(1);
             }
             if(tng_frame_particle_data_write(traj, frames_saved_cnt,
@@ -401,7 +299,6 @@ int main ( int argc, char *argv[] )
                                             vel, TNG_USE_HASH) != TNG_SUCCESS)
             {
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-                free(data);
                 exit(1);
             }
             if(tng_frame_particle_data_write(traj, frames_saved_cnt,
@@ -409,7 +306,6 @@ int main ( int argc, char *argv[] )
                                             force, TNG_USE_HASH) != TNG_SUCCESS)
             {
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-                free(data);
                 exit(1);
             }
             frames_saved_cnt++;
