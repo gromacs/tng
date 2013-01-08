@@ -43,7 +43,7 @@ int main ( int argc, char *argv[] )
 
     Modified:
 
-        30 July 2009
+        8 Jan 2013
 
     Author:
 
