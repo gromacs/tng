@@ -49,6 +49,7 @@
  *
  * @subsection C
  *
+ * \code
  * // These includes must be fixed in order to compile the example.
  * // They do not include the # in order to compile the header file.
  * include <stdlib.h>
@@ -148,6 +149,8 @@
  *
  *     return(0);
  * }
+ *
+ * \endcode
  * 
  */
 
