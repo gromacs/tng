@@ -72,7 +72,7 @@ c
       double precision wtime
 
 c
-c  Cray pointers are not standard fortran, but must be used to allocate
+c  Cray pointers are not standard fortran 77, but must be used to allocate
 c  memory properly.
 c
       pointer (traj_p, traj)
@@ -87,7 +87,7 @@ c
       byte atom
 
 c
-c  The TNG functions expect 8 bit integers
+c  The TNG functions expect 64 bit integers
 c
       integer*8 n_frames_per_frame_set
       integer*8 frames_saved_cnt
@@ -157,6 +157,9 @@ c
       write ( *, '(a)' ) '  Initializing trajectory storage.'
       call tng_trajectory_init(traj_p)
 
+c
+c  N.B. The TNG output file should be modified according to needs
+c      
       call tng_output_file_set(traj, "/tmp/tng_md_out_f77.tng")
 
       write ( *, '(a)' ) '  Creating molecules in trajectory.'
@@ -254,7 +257,7 @@ c
       call tng_frame_set_new(traj, int(0, 8), n_frames_per_frame_set)
 
 c
-c  Add empty data blocks
+c  Add empty data blocks.
 c
       call tng_particle_data_block_add(traj, TNG_TRAJ_POSITIONS,
      &  "POSITIONS", TNG_DOUBLE_DATA, TNG_TRAJECTORY_BLOCK,
