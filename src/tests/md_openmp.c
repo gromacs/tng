@@ -37,6 +37,9 @@ int main ( int argc, char *argv[] )
 
         The particles interact with a central pair potential.
 
+        Output of the program is saved in the TNG format, which is why this
+        code is included in the TNG API release.
+
     Licensing:
 
         This code is distributed under the GNU LGPL license.

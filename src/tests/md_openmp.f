@@ -14,6 +14,9 @@ c    The velocity Verlet time integration scheme is used.
 c
 c    The particles interact with a central pair potential.
 c
+c    Output of the program is saved in the TNG format, which is why this
+c    code is included in the TNG API release.
+c
 c  Licensing:
 c
 c    This code is distributed under the GNU LGPL license. 

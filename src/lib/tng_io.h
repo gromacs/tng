@@ -47,7 +47,19 @@
  *
  * @section examples_sec Examples
  *
- * @subsection C
+ * @subsection tng_subsec TNG files
+ *
+ * The build directory contains an example_files directory, which in turn
+ * contains a very short example of a TNG file containing a few water molecules,
+ * a box shape description and positions in 10 frames.
+ *
+ * It is also possible to run the bin/md_openmp testing program, which will
+ * save MD simulations output to a new file (saved in the example_files
+ * directory).
+ *
+ * These files can be read using the bin/tng_io_read_pos testing program.
+ *
+ * @subsection c_subsec C
  *
  * \code
  * // These includes must be fixed in order to compile the example.
@@ -151,6 +163,14 @@
  * }
  *
  * \endcode
+ *
+ * @subsection fortran_subsec Fortran
+ *
+ * The TNG library can be used from Fortran. It requires cray pointers, which
+ * are not part of the Fortran 77 standard, but available in most compilers.
+ *
+ * To compile the fortran example -DBUILD_FORTRAN=ON needs to be specified when
+ * running cmake.
  * 
  */
 
@@ -167,6 +187,7 @@
 
 /** Flag to indicate particle dependent data. */
 #define TNG_PARTICLE_DEPENDENT 1
+
 /** Flag to indicate frame dependent data. */
 #define TNG_FRAME_DEPENDENT 2
 
@@ -190,52 +211,62 @@
        __typeof__ (b) _b = (b); \
        _a > _b ? _a : _b; })
 
-
+/** Flag to specify the endianness of 32 bit values of the current architecture.
+ *  Output is always converted to big endian */
 typedef enum {TNG_BIG_ENDIAN_32,
               TNG_LITTLE_ENDIAN_32,
               TNG_BYTE_PAIR_SWAP_32} tng_endianness_32;
 
+/** Flag to specify the endianness of 64 bit values of the current architecture.
+ *  Output is always converted to big endian */
 typedef enum {TNG_BIG_ENDIAN_64,
               TNG_LITTLE_ENDIAN_64,
               TNG_QUAD_SWAP_64,
               TNG_BYTE_PAIR_SWAP_64,
               TNG_BYTE_SWAP_64} tng_endianness_64;
 
-
+/** Compression mode is specified in each data block */
 typedef enum {TNG_UNCOMPRESSED,
               TNG_XTC_COMPRESSION,
               TNG_TNG_COMPRESSION} tng_compression;
 
+/** Non trajectory blocks come before the first frame set block */
 typedef enum {TNG_NON_TRAJECTORY_BLOCK, TNG_TRAJECTORY_BLOCK} tng_block_type;
 
+/** Block IDs of standard non trajectory blocks. */
 typedef enum {TNG_GENERAL_INFO,
               TNG_MOLECULES,
               TNG_TRAJECTORY_FRAME_SET,
               TNG_PARTICLE_MAPPING} tng_non_trajectory_block_ids;
 
+/** Block IDs of standard trajectory blocks. Box shape can be either a
+ *  trajectory block or a non-trajectory block */
 typedef enum {TNG_TRAJ_BOX_SHAPE = 10000,
               TNG_TRAJ_POSITIONS,
               TNG_TRAJ_VELOCITIES,
               TNG_TRAJ_FORCES} tng_trajectory_block_ids;
               
-
+/** Flag to specify if a data block contains data related to particles or not.*/
 typedef enum {TNG_NON_PARTICLE_BLOCK_DATA,
               TNG_PARTICLE_BLOCK_DATA} tng_particle_block_data;
-              
-/*typedef enum {TNG_NO_HASH, TNG_OTHER_HASH,
-              TNG_MD5_HASH, TNG_MD6_HASH,
-              TNG_SHA0_HASH, TNG_SHA1_HASH,
-              TNG_SHA256_HASH, TNG_SHA512_HASH} tng_hash_type;*/
 
+              
 typedef enum {FALSE, TRUE} tng_bool;
 
+/** Flag to specify if the number of atoms change throughout the trajectory or
+ *  if it is constant. */
 typedef enum {TNG_CONSTANT_N_ATOMS, TNG_VARIABLE_N_ATOMS}
              tng_variable_n_atoms_flag;
 
+/** Return values of API functions */
 typedef enum {TNG_SUCCESS, TNG_FAILURE, TNG_CRITICAL} tng_function_status;
 
+/** If tng_hash_mode == TNG_USE_HASH md5 hashes will be written to output files
+ *  and when reading a file the md5 hashes of the contents will be compared to
+ *  those in the file (for each block) in order to ensure data integrity */
 typedef enum {TNG_SKIP_HASH, TNG_USE_HASH} tng_hash_mode;
 
+/** Possible formats of data block contents */
 typedef enum {TNG_CHAR_DATA,
               TNG_INT_DATA,
               TNG_FLOAT_DATA,
@@ -254,16 +285,28 @@ struct tng_trajectory_frame_set;
 struct tng_particle_data;
 struct tng_non_particle_data;
 
+/** A pointer to the main trajectory data storage. */
 typedef struct tng_trajectory *tng_trajectory_t;
+/** A pointer to a molecule description. */
 typedef struct tng_molecule *tng_molecule_t;
+/** A pointer to a molecular chain description. */
 typedef struct tng_chain *tng_chain_t;
+/** A pointer to a molecular residue description. */
 typedef struct tng_residue *tng_residue_t;
+/** A pointer to a molecular atom description. */
 typedef struct tng_atom *tng_atom_t;
+/** A pointer to a bond between two atoms. */
 typedef struct tng_bond *tng_bond_t;
+/** A pointer to a structure containing data common to all trajectory blocks,
+ *  such as header and contents. */
 typedef struct tng_gen_block *tng_gen_block_t;
+/** A pointer to particle mapping information. */
 typedef struct tng_particle_mapping *tng_particle_mapping_t;
+/** A pointer to a structure containing frame set information. */
 typedef struct tng_trajectory_frame_set *tng_trajectory_frame_set_t;
+/** A pointer to a particle data container. */
 typedef struct tng_particle_data *tng_particle_data_t;
+/** A pointer to a non-particle data container. */
 typedef struct tng_non_particle_data *tng_non_particle_data_t;
 
 /** Data can be either double, float, int or a string */
