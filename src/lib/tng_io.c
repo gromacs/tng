@@ -3437,7 +3437,7 @@ static tng_function_status tng_particle_data_block_write
                             size);
                     tng_swap_byte_order_32(tng_data,
                         (int32_t *)(block->block_contents+offset));
-                    offset += sizeof(size);
+                    offset += size;
                 }
             }
         }
@@ -3458,7 +3458,7 @@ static tng_function_status tng_particle_data_block_write
                             size);
                     tng_swap_byte_order_64(tng_data,
                         (int64_t *)(block->block_contents+offset));
-                    offset += sizeof(size);
+                    offset += size;
                 }
             }
         }
@@ -3497,7 +3497,7 @@ static tng_function_status tng_particle_data_block_write
                             size);
                     tng_swap_byte_order_64(tng_data,
                         (int64_t *)(block->block_contents+offset));
-                    offset += sizeof(size);
+                    offset += size;
                 }
             }
         }
