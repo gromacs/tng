@@ -40,11 +40,112 @@
  * cmake ..
  * 
  * make
- * 
  *
  * Test by running:
- * 
+ *
  * bin/tng_testing
+ *
+ * @section examples_sec Examples
+ *
+ * @subsection C
+ *
+ * #include <stdlib.h>
+ * #include <stdio.h>
+ * #include <tng_io.h>
+ *
+ * int main(int argc, char **argv)
+ * {
+ *     tng_trajectory_t traj;
+ *     union data_values ***positions = 0; // A 3-dimensional array to be populated
+ *     int64_t n_particles, n_values_per_frame, n_frames;
+ *     tng_data_type data_type;
+ *     int i, j;
+ *     int64_t particle = 0;
+ *     // Set a default frame range
+ *     int first_frame = 0, last_frame = 50;
+ *
+ *     if(argc <= 1)
+ *     {
+ *         printf("No file specified\n");
+ *         printf("Usage:\n");
+ *         printf("tng_io_read_pos <tng_file> [particle number = %"PRId64"] "
+ *                "[first_frame = %d] [last_frame = %d]\n",
+ *                particle, first_frame, last_frame);
+ *         exit(1);
+ *     }
+ *
+ *     // A reference must be passed to allocate memory
+ *     if(tng_trajectory_init(&traj) != TNG_SUCCESS)
+ *     {
+ *         tng_trajectory_destroy(&traj);
+ *         exit(1);
+ *     }
+ *     tng_input_file_set(traj, argv[1]);
+ *
+ *     // Read the file headers
+ *     tng_file_headers_read(traj, TNG_USE_HASH);
+ *
+ *     if(argc >= 3)
+ *     {
+ *         particle = strtoll(argv[2], 0, 10);
+ *         if(argc >= 4)
+ *         {
+ *             first_frame = strtoll(argv[3], 0, 10);
+ *             if(argc >= 5)
+ *             {
+ *                 last_frame = strtoll(argv[4], 0, 10);
+ *             }
+ *         }
+ *     }
+ *
+ *     n_frames = last_frame - first_frame + 1;
+ *
+ *     // Get the positions of all particles in the requested frame range.
+ *     // The positions are stored in the positions array.
+ *     // N.B. No proper error checks.
+ *     if(tng_particle_data_interval_get(traj, TNG_TRAJ_POSITIONS, first_frame,
+ *        last_frame, TNG_USE_HASH, &positions, &n_particles, &n_values_per_frame,
+ *        &data_type) != TNG_SUCCESS)
+ *     {
+ *         printf("Cannot read positions\n");
+ *     }
+ *     else
+ *     {
+ *         // Print the positions of the wanted particle (zero based)
+ *         for(i=first_frame; i<=last_frame; i++)
+ *         {
+ *             printf("%d", i);
+ *             for(j=0; j<n_values_per_frame; j++)
+ *             {
+ *                 switch(data_type)
+ *                 {
+ *                 case TNG_INT_DATA:
+ *                     printf("\t%"PRId64"", positions[i][particle][j].i);
+ *                     break;
+ *                 case TNG_FLOAT_DATA:
+ *                     printf("\t%f", positions[i][particle][j].f);
+ *                     break;
+ *                 case TNG_DOUBLE_DATA:
+ *                     printf("\t%f", positions[i][particle][j].d);
+ *                     break;
+ *                 default:
+ *                     break;
+ *                 }
+ *                 printf("\n");
+ *             }
+ *         }
+ *     }
+ *
+ *     // Free memory
+ *     if(positions)
+ *     {
+ *         tng_particle_data_values_free(positions, n_frames, n_particles,
+ *                                       n_values_per_frame, data_type);
+ *     }
+ *     tng_trajectory_destroy(&traj);
+ *
+ *     return(0);
+ * }
  * 
  */
 
@@ -52,6 +153,7 @@
 #define _TNGIO_H     1
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
 
@@ -101,10 +203,8 @@ typedef enum {TNG_UNCOMPRESSED,
 
 typedef enum {TNG_NON_TRAJECTORY_BLOCK, TNG_TRAJECTORY_BLOCK} tng_block_type;
 
-typedef enum {TNG_ENDIANNESS_AND_STRING_LENGTH,
-              TNG_GENERAL_INFO,
+typedef enum {TNG_GENERAL_INFO,
               TNG_MOLECULES,
-              TNG_TRAJECTORY_IDS_AND_NAMES,
               TNG_TRAJECTORY_FRAME_SET,
               TNG_PARTICLE_MAPPING} tng_non_trajectory_block_ids;
 
@@ -165,7 +265,7 @@ typedef struct tng_non_particle_data *tng_non_particle_data_t;
 union data_values {
     double d;
     float f;
-    int i;
+    int64_t i;
     char *c;
 };
 
@@ -1158,7 +1258,7 @@ tng_function_status tng_frame_set_new_(tng_trajectory_t tng_data,
 tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
                                        const int64_t id,
                                        const char *block_name,
-                                       const char datatype,
+                                       const tng_data_type datatype,
                                        const tng_block_type block_type_flag,
                                        int64_t n_frames,
                                        const int64_t n_values_per_frame,
@@ -1168,7 +1268,7 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
 tng_function_status tng_data_block_add_(tng_trajectory_t tng_data,
                                         const int64_t *id,
                                         const char *block_name,
-                                        const char *datatype,
+                                        const tng_data_type *datatype,
                                         const tng_block_type *block_type_flag,
                                         int64_t *n_frames,
                                         const int64_t *n_values_per_frame,
@@ -1217,7 +1317,7 @@ tng_function_status tng_data_block_add_(tng_trajectory_t tng_data,
 tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                                         const int64_t id,
                                         const char *block_name,
-                                        const char datatype,
+                                        const tng_data_type datatype,
                                         const tng_block_type block_type_flag,
                                         int64_t n_frames,
                                         const int64_t n_values_per_frame,
@@ -1230,7 +1330,7 @@ tng_function_status tng_particle_data_block_add_
                 (tng_trajectory_t tng_data,
                  const int64_t *id,
                  const char *block_name,
-                 const char *datatype,
+                 const tng_data_type *datatype,
                  const tng_block_type *block_type_flag,
                  int64_t *n_frames,
                  const int64_t *n_values_per_frame,

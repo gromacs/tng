@@ -159,6 +159,7 @@ int main ( int argc, char *argv[] )
     }
 
 
+    /* Add the box shape data block and write the file headers */
     if(tng_data_block_add(traj, TNG_TRAJ_BOX_SHAPE, "BOX SHAPE", TNG_DOUBLE_DATA,
                        TNG_NON_TRAJECTORY_BLOCK, 1, 9, 1, TNG_UNCOMPRESSED,
                        box_shape) == TNG_CRITICAL ||
@@ -216,8 +217,6 @@ int main ( int argc, char *argv[] )
     step_print_index++;
     step_print = ( step_print_index * step_num ) / step_print_num;
 
-    wtime = omp_get_wtime ( );
-
     /* Create a frame set for writing data */
     tng_num_frames_per_frame_set_get(traj, &n_frames_per_frame_set);
     if(tng_frame_set_new(traj, 0,
@@ -274,6 +273,8 @@ int main ( int argc, char *argv[] )
         exit(1);
     }
         
+    wtime = omp_get_wtime ( );
+
     for ( step = 1; step <= step_num; step++ )
     {
         compute ( np, nd, pos, vel, mass, force, &potential, &kinetic );
@@ -327,6 +328,8 @@ int main ( int argc, char *argv[] )
 /*
     Terminate.
 */
+    tng_trajectory_destroy(&traj);
+
     printf ( "\n" );
     printf ( "MD_OPENMP\n" );
     printf ( "  Normal end of execution.\n" );

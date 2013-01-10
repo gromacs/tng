@@ -15,3 +15,16 @@ target_link_libraries(tng_testing tng_io)
 
 add_executable(md_openmp md_openmp.c)
 target_link_libraries(md_openmp tng_io ${OpenMP_LIBS} m)
+
+add_executable(tng_io_read_pos tng_io_read_pos.c)
+target_link_libraries(tng_io_read_pos tng_io)
+
+# enable_language(Fortran OPTIONAL)
+# if(${CMAKE_Fortran_COMPILER_WORKS})
+#   get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
+#   if (Fortran_COMPILER_NAME STREQUAL "gfortran")
+#     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fcray-pointer ${OpenMP_C_FLAGS} -std=legacy")
+#   endif()
+#   add_executable(md_openmp_f md_openmp.f)
+#   target_link_libraries(md_openmp_f tng_io ${OpenMP_LIBS})
+# endif()

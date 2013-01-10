@@ -2201,7 +2201,10 @@ static tng_function_status tng_frame_set_block_read
         }
     }
 
-    file_pos = ftell(tng_data->input_file);
+    file_pos = ftell(tng_data->input_file) -
+               (block->block_contents_size + block->header_contents_size);
+
+    tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
 
     if(frame_set->n_mapping_blocks && frame_set->mappings)
     {
@@ -6084,8 +6087,7 @@ tng_function_status tng_frame_set_find(tng_trajectory_t tng_data,
     tng_block_init(&block);
 
     /* Is this the right frame set? */
-    if(first_frame <= frame &&
-    frame <= last_frame)
+    if(first_frame <= frame && frame <= last_frame)
     {
         tng_block_destroy(&block);
         return(TNG_SUCCESS);
@@ -6119,6 +6121,7 @@ tng_function_status tng_frame_set_find(tng_trajectory_t tng_data,
             fseek(tng_data->input_file,
                 file_pos,
                 SEEK_SET);
+            tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
             /* Read block headers first to see what block is found. */
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
@@ -6139,6 +6142,12 @@ tng_function_status tng_frame_set_find(tng_trajectory_t tng_data,
     first_frame = max(frame_set->first_frame, 0);
     last_frame = first_frame + frame_set->n_frames - 1;
     file_pos = tng_data->current_trajectory_frame_set_input_file_pos;
+
+    if(frame >= first_frame && frame <= last_frame)
+    {
+        tng_block_destroy(&block);
+        return(TNG_SUCCESS);
+    }
 
     while(file_pos > 0 && first_frame + long_stride_length *
           n_frames_per_frame_set < frame)
@@ -6669,6 +6678,11 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
     tng_data->last_trajectory_frame_set_output_file_pos = 
     ftell(tng_data->output_file);
 
+    if(tng_data->current_trajectory_frame_set_output_file_pos <= 0)
+    {
+        return(TNG_FAILURE);
+    }
+
     tng_block_init(&block);
 
     if(tng_frame_set_block_write(tng_data, block, hash_mode) != TNG_SUCCESS)
@@ -6918,7 +6932,7 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
 tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
                                         const int64_t id,
                                         const char *block_name,
-                                        const char datatype,
+                                        const tng_data_type datatype,
                                         const tng_block_type block_type_flag,
                                         int64_t n_frames,
                                         const int64_t n_values_per_frame,
@@ -7118,7 +7132,7 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
 tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                                         const int64_t id,
                                         const char *block_name,
-                                        const char datatype,
+                                        const tng_data_type datatype,
                                         const tng_block_type block_type_flag,
                                         int64_t n_frames,
                                         const int64_t n_values_per_frame,
