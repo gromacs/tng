@@ -86,7 +86,6 @@ int main ( int argc, char *argv[] )
     tng_atom_t atom;
     int64_t n_frames_per_frame_set;
     int frames_saved_cnt = 0;
-    int frame_set_cnt = 0;
 
     timestamp ( );
 
@@ -226,7 +225,6 @@ int main ( int argc, char *argv[] )
                 i, __FILE__, __LINE__);
         exit(1);
     }
-    frame_set_cnt++;
     
     /* Add empty data blocks */
     if(tng_particle_data_block_add(traj, TNG_TRAJ_POSITIONS,

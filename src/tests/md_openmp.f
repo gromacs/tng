@@ -88,7 +88,6 @@ c  The TNG functions expect 8 bit integers
 c
       integer*8 n_frames_per_frame_set
       integer*8 frames_saved_cnt
-      integer*8 frame_set_cnt
       integer*8 tng_n_particles
 
 c
@@ -250,7 +249,6 @@ c
       call tng_num_frames_per_frame_set_get(traj,
      &  n_frames_per_frame_set)
       call tng_frame_set_new(traj, int(0, 8), n_frames_per_frame_set)
-      frame_set_cnt = frame_set_cnt + 1
 
 c
 c  Add empty data blocks
@@ -302,7 +300,7 @@ c
           call tng_frame_particle_data_write(traj, frames_saved_cnt,
      &  TNG_TRAJ_FORCES, int(0, 8), tng_n_particles, force,
      &  TNG_USE_HASH)
-          frames_saved_cnt = frame_set_cnt + 1
+          frames_saved_cnt = frames_saved_cnt + 1
         end if
 
         call update ( np, nd, pos, vel, force, acc, mass, dt )
