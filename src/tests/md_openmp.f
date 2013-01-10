@@ -296,6 +296,9 @@ c
 
         end if
 
+c
+c  Output to TNG file at regular intervals, specified by step_save
+c
         if ( step_save .EQ. 0 .OR. mod(step, step_save) .EQ. 0 ) then
           call tng_frame_particle_data_write(traj, frames_saved_cnt,
      &  TNG_TRAJ_POSITIONS, int(0, 8), tng_n_particles, pos,
