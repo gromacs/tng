@@ -6,6 +6,8 @@ project(TRAJECTORY)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+option(BUILD_FORTRAN "Build Fortran examples" OFF)
+
 option(USE_OPENMP "Try to use the OpenMP library (if available)" ON)
 if(USE_OPENMP)
   FIND_PACKAGE(OpenMP)
