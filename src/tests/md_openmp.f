@@ -271,7 +271,7 @@ c
 c
 c  Write the frame set to disk
 c
-      call tng_frame_set_write(traj, TNG_SKIP_HASH)
+      call tng_frame_set_write(traj, TNG_USE_HASH)
       
       wtime = omp_get_wtime ( )
 

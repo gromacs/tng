@@ -438,6 +438,26 @@ static tng_function_status hash_match_verify(tng_gen_block_t block,
     if(strncmp(block->hash, hash, 16) != 0)
     {
         *results = FALSE;
+//         int i;
+//         printf("Hash in file:  ");
+//         for(i = 0; i<16; i++)
+//         {
+//             printf("%hhX ", block->hash[i]);
+//         }
+//         printf("\n");
+//         printf("Expected hash: ");
+//         for(i = 0; i<16; i++)
+//         {
+//             printf("%hhX ", hash[i]);
+//         }
+//         printf("\n");
+//         if(block->block_contents_size < 100)
+//         {
+//             for(i = 0; i < block->block_contents_size; i++)
+//             {
+//                 printf("%hhX ", block->block_contents[i]);
+//             }
+//         }
     }
     else
     {
@@ -2185,6 +2205,9 @@ static tng_function_status tng_frame_set_block_read
     /* FIXME: Does not check if the size of the contents matches the expected
      * size or if the contents can be read. */
 
+    file_pos = ftell(tng_data->input_file) -
+               (block->block_contents_size + block->header_contents_size);
+               
     if(hash_mode == TNG_USE_HASH)
     {
         if(hash_match_verify(block, &same_hash) != TNG_SUCCESS)
@@ -2194,15 +2217,12 @@ static tng_function_status tng_frame_set_block_read
         }
         if(same_hash != TRUE)
         {
-            printf("Frame set block contents corrupt. Hashes do not match. "
+            printf("Frame set block contents corrupt. File pos %d Hashes do not match. "
                 "%s: %d\n",
-                __FILE__, __LINE__);
+                file_pos, __FILE__, __LINE__);
     //         return(TNG_FAILURE);
         }
     }
-
-    file_pos = ftell(tng_data->input_file) -
-               (block->block_contents_size + block->header_contents_size);
 
     tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
 
@@ -7885,7 +7905,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
     contents_size = block->block_contents_size;
     header_size = block->header_contents_size;
     
-    header_pos = file_pos;
+    header_pos = ftell(tng_data->output_file) - header_size;
     frame_set = &tng_data->current_trajectory_frame_set;
 
     fread(&datatype, sizeof(datatype), 1, tng_data->input_file);

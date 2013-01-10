@@ -49,9 +49,11 @@
  *
  * @subsection C
  *
- * #include <stdlib.h>
- * #include <stdio.h>
- * #include <tng_io.h>
+ * // These includes must be fixed in order to compile the example.
+ * // They do not include the # in order to compile the header file.
+ * include <stdlib.h>
+ * include <stdio.h>
+ * include <tng_io.h>
  *
  * int main(int argc, char **argv)
  * {

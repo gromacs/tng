@@ -265,7 +265,7 @@ int main ( int argc, char *argv[] )
     }
     
     /* Write the frame set to disk */
-    if(tng_frame_set_write(traj, TNG_SKIP_HASH) != TNG_SUCCESS)
+    if(tng_frame_set_write(traj, TNG_USE_HASH) != TNG_SUCCESS)
     {
         printf("Error writing frame set. %s: %d\n", __FILE__, __LINE__);
         exit(1);
