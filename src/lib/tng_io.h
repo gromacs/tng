@@ -329,8 +329,8 @@ extern "C"
  * @brief Setup a trajectory data container.
  * @param tng_data_p a pointer to memory to initialise as a trajectory.
  * @details Memory is allocated during initialisation.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_trajectory_init(tng_trajectory_t *tng_data_p);
 tng_function_status tng_trajectory_init_(tng_trajectory_t *tng_data_p)
@@ -343,8 +343,8 @@ tng_function_status tng_trajectory_init_(tng_trajectory_t *tng_data_p)
  * @param tng_data_p a pointer to the trajectory data to destroy.
  * @details All allocated memory in the data structure is freed, as well as
  * tng_data_p itself.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p);
 tng_function_status tng_trajectory_destroy_(tng_trajectory_t *tng_data_p)
@@ -374,8 +374,8 @@ tng_function_status tng_input_file_get_(const tng_trajectory_t tng_data,
  * @brief Set the name of the input file.
  * @param tng_data the trajectory of which to set the input file name.
  * @param file_name the name of the input file.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_input_file_set(tng_trajectory_t tng_data,
                                        const char *file_name);
@@ -414,8 +414,8 @@ tng_function_status tng_output_file_get_(const tng_trajectory_t tng_data,
  * @brief Set the name of the output file.
  * @param tng_data the trajectory of which to set the output file name.
  * @param file_name the name of the output file.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
                                         const char *file_name);
@@ -454,8 +454,8 @@ tng_function_status tng_first_program_name_get_(const tng_trajectory_t tng_data,
  * @brief Set the name of the program used when creating the trajectory.
  * @param tng_data the trajectory of which to set the program name.
  * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_first_program_name_set(tng_trajectory_t tng_data,
                                                const char *new_name);
@@ -495,8 +495,8 @@ tng_function_status tng_last_program_name_get_(const tng_trajectory_t tng_data,
  * @brief Set the name of the program used when last modifying the trajectory.
  * @param tng_data the trajectory of which to set the program name.
  * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_last_program_name_set(tng_trajectory_t tng_data,
                                               const char *new_name);
@@ -536,8 +536,8 @@ tng_function_status tng_first_user_name_get_(const tng_trajectory_t tng_data,
  * @brief Set the name of the user who created the trajectory.
  * @param tng_data the trajectory of which to set the user name.
  * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_first_user_name_set(tng_trajectory_t tng_data,
                                             const char *new_name);
@@ -577,8 +577,8 @@ tng_function_status tng_last_user_name_get_(const tng_trajectory_t tng_data,
  * @brief Set the name of the user who last modified the trajectory.
  * @param tng_data the trajectory of which to set the user name.
  * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_last_user_name_set(tng_trajectory_t tng_data,
                                            const char *new_name);
@@ -619,8 +619,8 @@ tng_function_status tng_first_computer_name_get_(const tng_trajectory_t tng_data
  * @brief Set the name of the computer used when creating the trajectory.
  * @param tng_data the trajectory of which to set the computer name.
  * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_first_computer_name_set(tng_trajectory_t tng_data,
                                                 const char *new_name);
@@ -660,8 +660,8 @@ tng_function_status tng_last_computer_name_get_(const tng_trajectory_t tng_data,
  * @brief Set the name of the computer used when last modifying the trajectory.
  * @param tng_data the trajectory of which to set the computer name.
  * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_last_computer_name_set(tng_trajectory_t tng_data,
                                                const char *new_name);
@@ -701,8 +701,8 @@ tng_function_status tng_first_signature_get_(const tng_trajectory_t tng_data,
  * @brief Set the pgp_signature of the user creating the trajectory.
  * @param tng_data the trajectory of which to set the computer name.
  * @param signature is a string containing the pgp_signature.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_first_signature_set(tng_trajectory_t tng_data,
                                             const char *signature);
@@ -742,8 +742,8 @@ tng_function_status tng_last_signature_get_(const tng_trajectory_t tng_data,
  * @brief Set the pgp_signature of the user last modifying the trajectory.
  * @param tng_data the trajectory of which to set the computer name.
  * @param signature is a string containing the pgp_signature.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_last_signature_set(tng_trajectory_t tng_data,
                                            const char *signature);
@@ -783,8 +783,8 @@ tng_function_status tng_forcefield_name_get_(const tng_trajectory_t tng_data,
  * @brief Set the name of the forcefield used in the trajectory.
  * @param tng_data the trajectory of which to set the forcefield name.
  * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
                                             const char *new_name);
@@ -806,8 +806,7 @@ tng_function_status tng_forcefield_name_set_(tng_trajectory_t tng_data,
  * @brief Get the medium stride length of the trajectory.
  * @param tng_data is the trajectory from which to get the stride length.
  * @param len is pointing to a value set to the stride length.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_medium_stride_length_get(const tng_trajectory_t tng_data,
                                                  int64_t *len);
@@ -822,7 +821,7 @@ tng_function_status tng_medium_stride_length_get_(const tng_trajectory_t tng_dat
  * @param tng_data is the trajectory of which to set the stride length.
  * @param len is the wanted medium stride length.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * has occurred.
  */
 tng_function_status tng_medium_stride_length_set(tng_trajectory_t tng_data,
                                                  const int64_t len);
@@ -836,8 +835,7 @@ tng_function_status tng_medium_stride_length_set_(tng_trajectory_t tng_data,
  * @brief Get the long stride length of the trajectory.
  * @param tng_data is the trajectory from which to get the stride length.
  * @param len is pointing to a value set to the stride length.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_long_stride_length_get(const tng_trajectory_t tng_data,
                                                int64_t *len);
@@ -852,7 +850,7 @@ tng_function_status tng_long_stride_length_get_(const tng_trajectory_t tng_data,
  * @param tng_data is the trajectory of which to set the stride length.
  * @param len is the wanted long stride length.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * has occurred.
  */
 tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
                                                const int64_t len);
@@ -866,8 +864,7 @@ tng_function_status tng_long_stride_length_set_(tng_trajectory_t tng_data,
  * @brief Get the length of the input file.
  * @param tng_data is the trajectory from which to get the input file length.
  * @param len is pointing to a value set to the file length.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_input_file_len_get(const tng_trajectory_t tng_data,
                                            int64_t *len);
@@ -883,8 +880,7 @@ tng_function_status tng_input_file_len_get_(const tng_trajectory_t tng_data,
  * @param n is pointing to a value set to the number of particles.
  * @details If variable number of particles are used this function will return
  * the number of particles in the current frame set.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_num_particles_get(const tng_trajectory_t tng_data,
                                           int64_t *n);
@@ -900,8 +896,7 @@ tng_function_status tng_num_particles_get_(const tng_trajectory_t tng_data,
  * @param n is pointing to a value set to the number of molecules.
  * @details If variable number of particles are used this function will return
  * the total number of molecules in the current frame set.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_num_molecules_get(const tng_trajectory_t tng_data,
                                           int64_t *n);
@@ -917,8 +912,7 @@ tng_function_status tng_num_molecules_get_(const tng_trajectory_t tng_data,
  * @param tng_data is the trajectory from which to get the number of frames
  * per frame set.
  * @param n is pointing to a value set to the number of frames per frame set.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_num_frames_per_frame_set_get
                 (const tng_trajectory_t tng_data,
@@ -934,8 +928,7 @@ tng_function_status tng_num_frames_per_frame_set_get_
  * @brief Get the current trajectory frame set.
  * @param tng_data is the trajectory from which to get the frame set.
  * @param frame_set is pointing to the memory position of the found frame set.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_current_frame_set_get
                 (const tng_trajectory_t tng_data,
@@ -971,8 +964,7 @@ tng_function_status tng_frame_set_find_(tng_trajectory_t tng_data,
  * @param frame_set is the frame set of which to get the position of the
  * following frame set.
  * @param pos is pointing to a value set to the file position.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_frame_set_next_frame_set_file_pos_get
                 (const tng_trajectory_t tng_data,
@@ -992,8 +984,7 @@ tng_function_status tng_frame_set_next_frame_set_file_pos_get_
  * @param frame_set is the frame set of which to get the position of the
  * previous frame set.
  * @param pos is pointing to a value set to the file position.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_frame_set_prev_frame_set_file_pos_get
                 (const tng_trajectory_t tng_data,
@@ -1011,8 +1002,8 @@ tng_function_status tng_frame_set_prev_frame_set_file_pos_get_
  * @brief Setup a molecule container.
  * @param tng_data is a trajectory data container.
  * @param molecule is the molecule to initialise. Memory must be preallocated.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_molecule_init(const tng_trajectory_t tng_data,
                                       tng_molecule_t molecule);
@@ -1028,8 +1019,8 @@ tng_function_status tng_molecule_init_(const tng_trajectory_t tng_data,
  * @param molecule is the molecule to destroy.
  * @details All allocated memory in the data structure is freed, but not the
  * memory of molecule itself.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_molecule_destroy(const tng_trajectory_t tng_data,
                                          tng_molecule_t molecule);
@@ -1044,8 +1035,8 @@ tng_function_status tng_molecule_destroy_(const tng_trajectory_t tng_data,
  * @param tng_data is the trajectory data container containing the block..
  * @param name is a pointer to the string containing the name of the new molecule.
  * @param molecule is a pointer to the newly created molecule.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_molecule_add(tng_trajectory_t tng_data,
                                      const char *name,
@@ -1070,8 +1061,8 @@ tng_function_status tng_molecule_add_(tng_trajectory_t tng_data,
  * @param tng_data is the trajectory data container containing the molecule..
  * @param molecule is the molecule to rename.
  * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_molecule_name_set(tng_trajectory_t tng_data,
                                           tng_molecule_t molecule,
@@ -1133,8 +1124,8 @@ tng_function_status tng_molecule_cnt_set_(tng_trajectory_t tng_data,
  * @param molecule is the molecule to add a chain to.
  * @param name is a string containing the name of the chain.
  * @param chain is a pointer to the newly created chain.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_molecule_chain_add(tng_trajectory_t tng_data,
                                            tng_molecule_t molecule,
@@ -1161,8 +1152,8 @@ tng_function_status tng_molecule_chain_add_(tng_trajectory_t tng_data,
  * @param tng_data is the trajectory data container containing the atom..
  * @param chain is the chain to rename.
  * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_chain_name_set(tng_trajectory_t tng_data,
                                        tng_chain_t chain,
@@ -1188,8 +1179,8 @@ tng_function_status tng_chain_name_set_(tng_trajectory_t tng_data,
  * @param chain is the chain to add a residue to.
  * @param name is a string containing the name of the residue.
  * @param residue is a pointer to the newly created residue.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_chain_residue_add(tng_trajectory_t tng_data,
                                           tng_chain_t chain,
@@ -1216,8 +1207,8 @@ tng_function_status tng_chain_residue_add_(tng_trajectory_t tng_data,
  * @param tng_data is the trajectory data container containing the residue.
  * @param residue is the residue to rename.
  * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_residue_name_set(tng_trajectory_t tng_data,
                                          tng_residue_t residue,
@@ -1244,8 +1235,8 @@ tng_function_status tng_residue_name_set_(tng_trajectory_t tng_data,
  * @param atom_name is a string containing the name of the atom.
  * @param atom_type is a string containing the atom type of the atom.
  * @param atom is a pointer to the newly created atom.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_residue_atom_add(tng_trajectory_t tng_data,
                                          tng_residue_t residue,
@@ -1279,8 +1270,8 @@ tng_function_status tng_residue_atom_add_(tng_trajectory_t tng_data,
  * @param tng_data is the trajectory data container containing the atom.
  * @param atom is the atom to rename.
  * @param new_name is a string containing the wanted name.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
                                       tng_atom_t atom,
@@ -1305,8 +1296,8 @@ tng_function_status tng_atom_name_set_(tng_trajectory_t tng_data,
  * @param tng_data is the trajectory data container containing the atom.
  * @param atom is the atom to change.
  * @param new_type is a string containing the atom type.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
                                       tng_atom_t atom,
@@ -1371,8 +1362,8 @@ tng_function_status tng_particle_mapping_add_
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
  * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
  * compared to the md5 hash of the read contents to ensure valid data.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_file_headers_read(tng_trajectory_t tng_data,
                                           const tng_hash_mode hash_mode);
@@ -1392,8 +1383,8 @@ tng_function_status tng_file_headers_read_(tng_trajectory_t tng_data,
  * will be opened.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
  * If hash_mode == TNG_USE_HASH an md5 hash for each header block will be generated.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
  */
 tng_function_status tng_file_headers_write(tng_trajectory_t tng_data,
                                            const tng_hash_mode hash_mode);
@@ -1688,8 +1679,7 @@ tng_function_status tng_frame_particle_data_write_(tng_trajectory_t tng_data,
  * @param n_frames is the number of frames in the data array.
  * @param n_values_per_frame is the number of values per frame in the data array.
  * @param type is the data type of the data in the array (e.g. int/float/char).
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_data_values_free(const tng_trajectory_t tng_data,
                                          union data_values **values,
@@ -1714,8 +1704,7 @@ tng_function_status tng_data_values_free_(const tng_trajectory_t tng_data,
  * @param n_particles is the number of particles in the data array.
  * @param n_values_per_frame is the number of values per frame in the data array.
  * @param type is the data type of the data in the array (e.g. int/float/char).
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_particle_data_values_free(const tng_trajectory_t tng_data,
                                                   union data_values ***values,
@@ -1914,8 +1903,7 @@ tng_function_status tng_particle_data_interval_get_(tng_trajectory_t tng_data,
  *  @param tng_data is a trajectory data container.
  *  @param time is a pointer to the string in which the date will be stored. Memory
    must be reserved beforehand.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_time_get_str(const tng_trajectory_t tng_data,
                                      char *time);

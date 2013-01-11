@@ -516,13 +516,20 @@ static tng_function_status tng_output_file_init
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_block_init(struct tng_gen_block **block_p)
+static tng_function_status tng_block_init(struct tng_gen_block **block_p)
 {
 //     printf("In tng_block_init\n");
 
     tng_gen_block_t block;
 
     *block_p = malloc(sizeof(struct tng_gen_block));
+
+    if(!*block_p)
+    {
+        printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+               sizeof(struct tng_gen_block), __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
     
     block = *block_p;
     
@@ -539,7 +546,7 @@ tng_function_status tng_block_init(struct tng_gen_block **block_p)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_block_destroy(struct tng_gen_block **block_p)
+static tng_function_status tng_block_destroy(struct tng_gen_block **block_p)
 {
     tng_gen_block_t block = *block_p;
 
@@ -2851,7 +2858,7 @@ static tng_function_status tng_particle_data_block_create
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_allocate_particle_data_mem
+static tng_function_status tng_allocate_particle_data_mem
                 (struct tng_trajectory  *tng_data,
                  tng_particle_data_t data,
                  int64_t n_frames,
@@ -3562,7 +3569,7 @@ static tng_function_status tng_data_block_create
 }
 
 /* UNTESTED */
-tng_function_status tng_allocate_data_mem
+static tng_function_status tng_allocate_data_mem
                 (tng_trajectory_t tng_data,
                  tng_non_particle_data_t data,
                  int64_t n_frames,
@@ -4607,9 +4614,9 @@ static tng_function_status tng_frame_set_pointers_update
 }
 
 
-tng_function_status tng_block_name_set(tng_trajectory_t tng_data,
-                                       tng_gen_block_t block,
-                                       const char *new_name)
+static tng_function_status tng_block_name_set(tng_trajectory_t tng_data,
+                                              tng_gen_block_t block,
+                                              const char *new_name)
 {
     int len;
     
@@ -7594,7 +7601,7 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
             if(tng_frame_set_write(tng_data, hash_mode) != TNG_SUCCESS)
             {
                 printf("Error writing frame set. %s: %d\n", __FILE__, __LINE__);
-                exit(1);
+                return(TNG_CRITICAL);
             }
         }
         else
