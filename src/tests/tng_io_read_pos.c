@@ -88,7 +88,7 @@ int main(int argc, char **argv)
     // Free memory
     if(positions)
     {
-        tng_particle_data_values_free(positions, n_frames, n_particles,
+        tng_particle_data_values_free(traj, positions, n_frames, n_particles,
                                       n_values_per_frame, data_type);
     }
     tng_trajectory_destroy(&traj);

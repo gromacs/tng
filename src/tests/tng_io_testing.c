@@ -433,7 +433,7 @@ tng_function_status tng_test_get_box_data(tng_trajectory_t traj)
 //         printf("\n");
 //     }
 
-    tng_data_values_free(values, n_frames, n_values_per_frame, type);
+    tng_data_values_free(traj, values, n_frames, n_values_per_frame, type);
 
     return(TNG_SUCCESS);
 }
@@ -473,7 +473,7 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj)
 //         }
 //     }
 
-    tng_particle_data_values_free(values, n_frames, n_particles,
+    tng_particle_data_values_free(traj, values, n_frames, n_particles,
                                   n_values_per_frame, type);
 
     values = 0;
@@ -482,7 +482,10 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj)
                                    TNG_SKIP_HASH, &values, &n_particles,
                                    &n_values_per_frame, &type);
 
-    tng_particle_data_values_free(values, 500, n_particles, n_values_per_frame, type);
+    /* Here the particle positions can be printed */
+
+    tng_particle_data_values_free(traj, values, 500, n_particles,
+                                  n_values_per_frame, type);
 
     return(TNG_SUCCESS);
 }

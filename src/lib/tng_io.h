@@ -154,7 +154,7 @@
  *     // Free memory
  *     if(positions)
  *     {
- *         tng_particle_data_values_free(positions, n_frames, n_particles,
+ *         tng_particle_data_values_free(traj, positions, n_frames, n_particles,
  *                                       n_values_per_frame, data_type);
  *     }
  *     tng_trajectory_destroy(&traj);
@@ -770,6 +770,7 @@ tng_function_status tng_frame_set_find_(tng_trajectory_t tng_data,
 
 /**
  * @brief Get the file position of the next frame set in the input file.
+ * @param tng_data is a trajectory data container.
  * @param frame_set is the frame set of which to get the position of the
  * following frame set.
  * @param pos is pointing to a value set to the file position.
@@ -777,17 +778,20 @@ tng_function_status tng_frame_set_find_(tng_trajectory_t tng_data,
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_frame_set_next_frame_set_file_pos_get
-                (const tng_trajectory_frame_set_t frame_set,
+                (const tng_trajectory_t tng_data,
+                 const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos);
 tng_function_status tng_frame_set_next_frame_set_file_pos_get_
-                (const tng_trajectory_frame_set_t frame_set,
+                (const tng_trajectory_t tng_data,
+                 const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
 {
-    return(tng_frame_set_next_frame_set_file_pos_get(frame_set, pos));
+    return(tng_frame_set_next_frame_set_file_pos_get(tng_data, frame_set, pos));
 }
 
 /**
  * @brief Get the file position of the previous frame set in the input file.
+ * @param tng_data is a trajectory data container.
  * @param frame_set is the frame set of which to get the position of the
  * previous frame set.
  * @param pos is pointing to a value set to the file position.
@@ -795,39 +799,47 @@ tng_function_status tng_frame_set_next_frame_set_file_pos_get_
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_frame_set_prev_frame_set_file_pos_get
-                (const tng_trajectory_frame_set_t frame_set,
+                (const tng_trajectory_t tng_data,
+                 const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos);
 tng_function_status tng_frame_set_prev_frame_set_file_pos_get_
-                (const tng_trajectory_frame_set_t frame_set,
+                (const tng_trajectory_t tng_data,
+                 const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
 {
-    return(tng_frame_set_prev_frame_set_file_pos_get(frame_set, pos));
+    return(tng_frame_set_prev_frame_set_file_pos_get(tng_data, frame_set, pos));
 }
 
 /**
  * @brief Setup a molecule container.
+ * @param tng_data is a trajectory data container.
  * @param molecule is the molecule to initialise. Memory must be preallocated.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_molecule_init(tng_molecule_t molecule);
-tng_function_status tng_molecule_init_(tng_molecule_t molecule)
+tng_function_status tng_molecule_init(const tng_trajectory_t tng_data,
+                                      tng_molecule_t molecule);
+tng_function_status tng_molecule_init_(const tng_trajectory_t tng_data,
+                                       tng_molecule_t molecule)
 {
-    return(tng_molecule_init(molecule));
+    return(tng_molecule_init(tng_data, molecule));
 }
 
 /**
  * @brief Clean up a molecule container.
+ * @param tng_data is a trajectory data container.
  * @param molecule is the molecule to destroy.
  * @details All allocated memory in the data structure is freed, but not the
  * memory of molecule itself.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_molecule_destroy(tng_molecule_t molecule);
-tng_function_status tng_molecule_destroy_(tng_molecule_t molecule)
+tng_function_status tng_molecule_destroy(const tng_trajectory_t tng_data,
+                                         tng_molecule_t molecule);
+tng_function_status tng_molecule_destroy_(const tng_trajectory_t tng_data,
+                                          tng_molecule_t molecule)
 {
-    return(tng_molecule_destroy(molecule));
+    return(tng_molecule_destroy(tng_data, molecule));
 }
 
 /**
@@ -1474,6 +1486,7 @@ tng_function_status tng_frame_particle_data_write_(tng_trajectory_t tng_data,
 
 /**
  * @brief Free data is an array of values (2D).
+ * @param tng_data is a trajectory data container.
  * @param values is the 2D array to free and will be set to 0 afterwards.
  * @param n_frames is the number of frames in the data array.
  * @param n_values_per_frame is the number of values per frame in the data array.
@@ -1481,20 +1494,24 @@ tng_function_status tng_frame_particle_data_write_(tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_data_values_free(union data_values **values,
+tng_function_status tng_data_values_free(const tng_trajectory_t tng_data,
+                                         union data_values **values,
                                          const int64_t n_frames,
                                          const int64_t n_values_per_frame,
                                          const tng_data_type type);
-tng_function_status tng_data_values_free_(union data_values **values,
+tng_function_status tng_data_values_free_(const tng_trajectory_t tng_data,
+                                          union data_values **values,
                                           const int64_t *n_frames,
                                           const int64_t *n_values_per_frame,
                                           const tng_data_type *type)
 {
-    return(tng_data_values_free(values, *n_frames, *n_values_per_frame, *type));
+    return(tng_data_values_free(tng_data, values, *n_frames,
+                                *n_values_per_frame, *type));
 }
 
 /**
  * @brief Free data is an array of values (3D).
+ * @param tng_data is a trajectory data container.
  * @param values is the array to free and will be set to 0 afterwards.
  * @param n_frames is the number of frames in the data array.
  * @param n_particles is the number of particles in the data array.
@@ -1503,18 +1520,20 @@ tng_function_status tng_data_values_free_(union data_values **values,
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_particle_data_values_free(union data_values ***values,
+tng_function_status tng_particle_data_values_free(const tng_trajectory_t tng_data,
+                                                  union data_values ***values,
                                                   const int64_t n_frames,
                                                   const int64_t n_particles,
                                                   const int64_t n_values_per_frame,
                                                   const tng_data_type type);
-tng_function_status tng_particle_data_values_free_(union data_values ***values,
+tng_function_status tng_particle_data_values_free_(const tng_trajectory_t tng_data,
+                                                   union data_values ***values,
                                                    const int64_t *n_frames,
                                                    const int64_t *n_particles,
                                                    const int64_t *n_values_per_frame,
                                                    const tng_data_type *type)
 {
-    return(tng_particle_data_values_free(values, *n_frames, *n_particles,
+    return(tng_particle_data_values_free(tng_data, values, *n_frames, *n_particles,
                                          *n_values_per_frame, *type));
 }
 

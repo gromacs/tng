@@ -324,7 +324,7 @@ struct tng_trajectory {
 
 
 
-/* This function swaps the byte order of a 32 bit numerical variable.
+/** This function swaps the byte order of a 32 bit numerical variable.
    It does not only work with integer, but e.g. floats need casting. */
 static inline tng_function_status tng_swap_byte_order_32
                 (const tng_trajectory_t tng_data, int32_t *v)
@@ -353,7 +353,7 @@ static inline tng_function_status tng_swap_byte_order_32
     }
 }
 
-/* This function swaps the byte order of a 64 bit numerical variable.
+/** This function swaps the byte order of a 64 bit numerical variable.
    It does not only work with integer, but e.g. floats need casting.
    The byte order swapping routine can convert four different byte
    orders to big endian. */
@@ -400,7 +400,7 @@ static inline tng_function_status tng_swap_byte_order_64
     }
 }
 
-/* Generate the md5 hash of a block.
+/** Generate the md5 hash of a block.
    The hash is created based on the actual block contents. */
 static tng_function_status tng_block_hash_generate(tng_gen_block_t block)
 {
@@ -414,7 +414,7 @@ static tng_function_status tng_block_hash_generate(tng_gen_block_t block)
     return(TNG_SUCCESS);
 }
 
-/* Compare the current block hash (e.g. read from file) with the hash
+/** Compare the current block hash (e.g. read from file) with the hash
    calculated from the current contents.
    If the current hash is all zeros skip the comparison.
    If the hashes match results is set to TRUE, otherwise it is set to
@@ -467,7 +467,7 @@ static tng_function_status hash_match_verify(tng_gen_block_t block,
     return(TNG_SUCCESS);
 }
 
-
+/** Open the input file if it is not already opened. */
 static tng_function_status tng_input_file_init(tng_trajectory_t tng_data,
                                                const tng_bool update_read_pos)
 {
@@ -490,6 +490,7 @@ static tng_function_status tng_input_file_init(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+/** Open the output file if it is not already opened */
 static tng_function_status tng_output_file_init
                 (tng_trajectory_t tng_data,
                  const tng_bool update_write_pos)
@@ -538,7 +539,6 @@ tng_function_status tng_block_init(struct tng_gen_block **block_p)
     return(TNG_SUCCESS);
 }
 
-
 tng_function_status tng_block_destroy(struct tng_gen_block **block_p)
 {
     tng_gen_block_t block = *block_p;
@@ -549,16 +549,6 @@ tng_function_status tng_block_destroy(struct tng_gen_block **block_p)
     }
     
 //     printf("Destroying block\n");
-/*    if(block->hash_name)
-    {
-        free(block->hash_name);
-        block->hash_name = 0;
-    }*/
-/*    if(block->hash)
-    {
-        free(block->hash);
-        block->hash = 0;
-    }*/
     if(block->name)
     {
         free(block->name);
@@ -581,6 +571,7 @@ tng_function_status tng_block_destroy(struct tng_gen_block **block_p)
     return(TNG_SUCCESS);
 }
 
+/** Read the header of a data block, regardless of its type */
 static tng_function_status tng_block_header_read
                 (tng_trajectory_t tng_data, tng_gen_block_t block)
 {
@@ -694,6 +685,7 @@ static tng_function_status tng_block_header_read
     return(TNG_SUCCESS);
 }
 
+/** Write a whole block, both header and contents, regardless of it type */
 static tng_function_status tng_block_verbatim_write(tng_trajectory_t tng_data,
                                                     tng_gen_block_t block)
 {
@@ -726,6 +718,7 @@ static tng_function_status tng_block_verbatim_write(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+/** Write the header of a data block, regardless of its type */
 static tng_function_status tng_block_header_write
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -841,7 +834,8 @@ static tng_function_status tng_block_header_write
     return(TNG_SUCCESS);
 }
 
-
+/** Read a genereal info block. This is the first block of a TNG file.
+ *  Set the fields in tng_data */
 static tng_function_status tng_general_info_block_read
                 (tng_trajectory_t tng_data, tng_gen_block_t block,
                  const tng_hash_mode hash_mode)
@@ -1083,6 +1077,7 @@ static tng_function_status tng_general_info_block_read
     return(TNG_SUCCESS);
 }
 
+/** Write a genereal info block. This is the first block of a TNG file. */
 static tng_function_status tng_general_info_block_write
                 (tng_trajectory_t tng_data,
                  const tng_hash_mode hash_mode)
@@ -1370,7 +1365,6 @@ static tng_function_status tng_general_info_block_write
                 __FILE__, __LINE__);
     }
 
-
     if(tng_block_header_write(tng_data, block, hash_mode) != TNG_SUCCESS)
     {
         printf("Cannot write header of file %s. %s: %d\n",
@@ -1392,6 +1386,7 @@ static tng_function_status tng_general_info_block_write
     return(TNG_SUCCESS);
 }
 
+/** Read a molecules block. Contains chain, residue and atom data */
 static tng_function_status tng_molecules_block_read
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -1446,7 +1441,6 @@ static tng_function_status tng_molecules_block_read
             printf("Molecules block contents corrupt. Hashes do not match. "
                 "%s: %d\n",
                 __FILE__, __LINE__);
-    //         return(TNG_FAILURE);
         }
     }
 
@@ -1454,7 +1448,7 @@ static tng_function_status tng_molecules_block_read
     {
         for(i=tng_data->n_molecules; i--;)
         {
-            tng_molecule_destroy(&tng_data->molecules[i]);
+            tng_molecule_destroy(tng_data, &tng_data->molecules[i]);
         }
         free(tng_data->molecules);
         tng_data->molecules = 0;
@@ -1505,7 +1499,7 @@ static tng_function_status tng_molecules_block_read
         }
     }
     
-
+    /* Read each molecule from file */
     for(i=0; i < tng_data->n_molecules; i++)
     {
         molecule = &tng_data->molecules[i];
@@ -1618,6 +1612,7 @@ static tng_function_status tng_molecules_block_read
 
         atom = molecule->atoms;
 
+        /* Each molecule contains chains - read them */
         for(j=molecule->n_chains; j--;)
         {
             chain->molecule = molecule;
@@ -1649,6 +1644,7 @@ static tng_function_status tng_molecules_block_read
             offset += sizeof(chain->n_residues);
 
             chain->residues = residue;
+            /* Read the residues of the chain */
             for(k=chain->n_residues; k--;)
             {
                 residue->chain = chain;
@@ -1679,6 +1675,7 @@ static tng_function_status tng_molecules_block_read
                 offset += sizeof(residue->n_atoms);
 
                 residue->atoms = atom;
+                /* Read the atoms of the residue */
                 for(l=residue->n_atoms; l--;)
                 {
                     atom->residue = residue;
@@ -1764,6 +1761,7 @@ static tng_function_status tng_molecules_block_read
     return(TNG_SUCCESS);
 }
 
+/** Write a molecules block. */
 static tng_function_status tng_molecules_block_write
                 (tng_trajectory_t tng_data,
                  const tng_hash_mode hash_mode)
@@ -1782,12 +1780,10 @@ static tng_function_status tng_molecules_block_write
         return(TNG_CRITICAL);
     }
 
-//     printf("Predicting block size\n");
     /* First predict the size of the block */
     for(i = 0; i < tng_data->n_molecules; i++)
     {
         molecule = &tng_data->molecules[i];
-//         printf("mol %s\n", molecule->name);
         if(!molecule->name)
         {
             molecule->name = malloc(1);
@@ -2162,7 +2158,7 @@ static tng_function_status tng_molecules_block_write
     return(TNG_SUCCESS);
 }
 
-
+/** Read a frame set block. Update tng_data->current_trajectory_frame_set */
 static tng_function_status tng_frame_set_block_read
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -2385,19 +2381,11 @@ static tng_function_status tng_frame_set_block_read
                 __FILE__, __LINE__);
     }
     offset += sizeof(frame_set->long_stride_prev_frame_set_file_pos);
-
-//     frame_set->n_double_particle_data_blocks = 0;
-//     frame_set->n_float_particle_data_blocks = 0;
-//     frame_set->n_int_particle_data_blocks = 0;
-//     frame_set->n_gen_particle_data_blocks = 0;
-//     frame_set->n_double_data_blocks = 0;
-//     frame_set->n_float_data_blocks = 0;
-//     frame_set->n_int_data_blocks = 0;
-//     frame_set->n_gen_data_blocks = 0;
     
     return(TNG_SUCCESS);
 }
 
+/** Write tng_data->current_trajectory_frame_set to file */
 static tng_function_status tng_frame_set_block_write
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -2578,6 +2566,8 @@ static tng_function_status tng_frame_set_block_write
 }
 
 
+/** Read an atom mappings block (translating between real atom indexes and how
+ *  the atom info is written in this frame set). */
 static tng_function_status tng_trajectory_mapping_block_read
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -2699,6 +2689,7 @@ static tng_function_status tng_trajectory_mapping_block_read
     return(TNG_SUCCESS);
 }
 
+/** Write the atom mappings of the current trajectory frame set */
 static tng_function_status tng_trajectory_mapping_block_write
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -2808,6 +2799,7 @@ static tng_function_status tng_trajectory_mapping_block_write
     return(TNG_SUCCESS);
 }
 
+/** Prepare a block for storing particle data */
 static tng_function_status tng_particle_data_block_create
                 (tng_trajectory_t tng_data,
                  const tng_block_type block_type_flag)
@@ -2925,6 +2917,7 @@ tng_function_status tng_allocate_particle_data_mem
     return(TNG_SUCCESS);
 }
 
+/** Read particle data */
 static tng_function_status tng_particle_data_read
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -3176,7 +3169,7 @@ static tng_function_status tng_particle_data_read
     return(TNG_SUCCESS);
 }
 
-
+/** Write a particle data block */
 static tng_function_status tng_particle_data_block_write
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -3522,6 +3515,7 @@ static tng_function_status tng_particle_data_block_write
 }
 
 /* UNTESTED */
+/** Create a non-particle data block */
 static tng_function_status tng_data_block_create
                 (tng_trajectory_t tng_data,
                  const tng_block_type block_type_flag)
@@ -3630,6 +3624,7 @@ tng_function_status tng_allocate_data_mem
     return(TNG_SUCCESS);
 }
 
+/** Read a non-particle data block */
 static tng_function_status tng_data_read(tng_trajectory_t tng_data,
                                          tng_gen_block_t block,
                                          int *offset,
@@ -3842,6 +3837,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+/** Write a non-particle data block */
 static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                                                 tng_gen_block_t block,
                                                 const int block_index,
@@ -4320,6 +4316,7 @@ static tng_function_status tng_data_block_contents_read
     }
 }
 
+/** Update the md5 hash of a block already written to the file */
 static tng_function_status tng_md5_hash_update(tng_trajectory_t tng_data,
                                                tng_gen_block_t block,
                                                const int64_t header_start_pos,
@@ -4348,7 +4345,8 @@ static tng_function_status tng_md5_hash_update(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-
+/** Update the frame set pointers in the file header (general info block),
+ *  already written to disk */
 static tng_function_status tng_header_pointers_update
                 (tng_trajectory_t tng_data, const tng_hash_mode hash_mode)
 {
@@ -4434,6 +4432,8 @@ static tng_function_status tng_header_pointers_update
     return(TNG_SUCCESS);
 }
 
+/** Update the frame set pointers in a the current frame set block, already
+ *  written to disk */
 static tng_function_status tng_frame_set_pointers_update
                 (tng_trajectory_t tng_data, const tng_hash_mode hash_mode)
 {
@@ -4696,6 +4696,7 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+/** Initialise an atom struct */
 static tng_function_status tng_atom_init(tng_atom_t atom)
 {
     atom->name = 0;
@@ -4704,6 +4705,7 @@ static tng_function_status tng_atom_init(tng_atom_t atom)
     return(TNG_SUCCESS);
 }
 
+/** Free the memory in an atom struct */
 static tng_function_status tng_atom_destroy(tng_atom_t atom)
 {
     if(atom->name)
@@ -4760,7 +4762,7 @@ tng_function_status tng_molecule_add(tng_trajectory_t tng_data,
 
     *molecule = &new_molecules[tng_data->n_molecules];
 
-    tng_molecule_init(*molecule);
+    tng_molecule_init(tng_data, *molecule);
     tng_molecule_name_set(tng_data, *molecule, name);
 
     /* FIXME: Should this be a function argument instead? */
@@ -5122,7 +5124,8 @@ tng_function_status tng_residue_atom_add(tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_molecule_init(tng_molecule_t molecule)
+tng_function_status tng_molecule_init(const tng_trajectory_t tng_data,
+                                      tng_molecule_t molecule)
 {
     molecule->quaternary_str = 1;
     molecule->name = 0;
@@ -5138,7 +5141,8 @@ tng_function_status tng_molecule_init(tng_molecule_t molecule)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_molecule_destroy(tng_molecule_t molecule)
+tng_function_status tng_molecule_destroy(const tng_trajectory_t tng_data,
+                                         tng_molecule_t molecule)
 {
     int i;
 
@@ -5556,7 +5560,8 @@ tng_function_status tng_trajectory_destroy(struct tng_trajectory **tng_data_p)
     {
         for(i = tng_data->n_particle_data_blocks; i--; )
         {
-            tng_particle_data_values_free(tng_data->non_tr_particle_data[i].
+            tng_particle_data_values_free(tng_data,
+                                          tng_data->non_tr_particle_data[i].
                                           values,
                                           tng_data->non_tr_particle_data[i].
                                           n_frames,
@@ -5580,7 +5585,8 @@ tng_function_status tng_trajectory_destroy(struct tng_trajectory **tng_data_p)
     {
         for(i = tng_data->n_data_blocks; i--;)
         {
-            tng_data_values_free(tng_data->non_tr_data[i].values, 1,
+            tng_data_values_free(tng_data,
+                                 tng_data->non_tr_data[i].values, 1,
                                  tng_data->non_tr_data[i].n_values_per_frame,
                                  tng_data->non_tr_data[i].datatype);
             
@@ -5601,7 +5607,8 @@ tng_function_status tng_trajectory_destroy(struct tng_trajectory **tng_data_p)
     {
         for(i = frame_set->n_particle_data_blocks; i--; )
         {
-            tng_particle_data_values_free(frame_set->tr_particle_data[i].
+            tng_particle_data_values_free(tng_data,
+                                          frame_set->tr_particle_data[i].
                                           values,
                                           frame_set->tr_particle_data[i].
                                           n_frames,
@@ -5625,7 +5632,8 @@ tng_function_status tng_trajectory_destroy(struct tng_trajectory **tng_data_p)
     {
         for(i = frame_set->n_data_blocks; i--;)
         {
-            tng_data_values_free(frame_set->tr_data[i].values, 1,
+            tng_data_values_free(tng_data,
+                                 frame_set->tr_data[i].values, 1,
                                  frame_set->tr_data[i].
                                  n_values_per_frame,
                                  frame_set->tr_data[i].datatype);
@@ -5646,7 +5654,7 @@ tng_function_status tng_trajectory_destroy(struct tng_trajectory **tng_data_p)
     {
         for(i=tng_data->n_molecules; i--;)
         {
-            tng_molecule_destroy(&tng_data->molecules[i]);
+            tng_molecule_destroy(tng_data, &tng_data->molecules[i]);
         }
         free(tng_data->molecules);
         tng_data->molecules = 0;
@@ -6393,7 +6401,8 @@ tng_function_status tng_frame_set_find(tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_frame_set_next_frame_set_file_pos_get
-                (const tng_trajectory_frame_set_t frame_set,
+                (const tng_trajectory_t tng_data,
+                 const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
 {
     *pos = frame_set->next_frame_set_file_pos;
@@ -6402,7 +6411,8 @@ tng_function_status tng_frame_set_next_frame_set_file_pos_get
 }
 
 tng_function_status tng_frame_set_prev_frame_set_file_pos_get
-                (const tng_trajectory_frame_set_t frame_set,
+                (const tng_trajectory_t tng_data,
+                 const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
 {
     *pos = frame_set->prev_frame_set_file_pos;
@@ -6410,7 +6420,8 @@ tng_function_status tng_frame_set_prev_frame_set_file_pos_get
     return(TNG_SUCCESS);
 }
 
-                
+/** Translate from the particle numbering used in a frame set to the real
+ *  particle numbering - used in the molecule description. */
 static inline tng_function_status tng_particle_mapping_get_real_particle
                 (const tng_trajectory_frame_set_t frame_set,
                  const int64_t local,
@@ -6439,6 +6450,8 @@ static inline tng_function_status tng_particle_mapping_get_real_particle
     return(TNG_FAILURE);
 }
 
+/** Translate from the real particle numbering to the particle numbering
+ *  used in a frame set. */
 static inline tng_function_status tng_particle_mapping_get_local_particle
                 (const tng_trajectory_frame_set_t frame_set,
                  const int64_t real,
@@ -8094,7 +8107,8 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_data_values_free(union data_values **values,
+tng_function_status tng_data_values_free(const tng_trajectory_t tng_data,
+                                         union data_values **values,
                                          const int64_t n_frames,
                                          const int64_t n_values_per_frame,
                                          const tng_data_type type)
@@ -8129,7 +8143,9 @@ tng_function_status tng_data_values_free(union data_values **values,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_particle_data_values_free(union data_values ***values,
+
+tng_function_status tng_particle_data_values_free(const tng_trajectory_t tng_data,
+                                                  union data_values ***values,
                                                   const int64_t n_frames,
                                                   const int64_t n_particles,
                                                   const int64_t n_values_per_frame,
@@ -8169,6 +8185,8 @@ tng_function_status tng_particle_data_values_free(union data_values ***values,
 
     return(TNG_SUCCESS);
 }
+
+
 tng_function_status tng_data_get(tng_trajectory_t tng_data,
                                  const int64_t block_id,
                                  union data_values ***values,
@@ -8464,6 +8482,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+
 tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
                                           const int64_t block_id,
                                           union data_values ****values,
@@ -8617,6 +8636,7 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
     
     return(TNG_SUCCESS);
 }
+
 
 tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
                                                   const int64_t block_id,
@@ -8833,6 +8853,7 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
 
     return(TNG_SUCCESS);
 }
+
 
 tng_function_status tng_time_get_str(const tng_trajectory_t tng_data,
                                      char *time)
