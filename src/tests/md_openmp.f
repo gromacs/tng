@@ -224,9 +224,9 @@ c
 c
 c  This is the main time stepping loop.
 c
-      write ( *, '(a,i16)' ) '  Every', step_save,
+      write ( *, '(a,i4,a)' ) '  Every', step_save,
      &  ' steps particle positions, velocities and forces are'
-      write ( *, '(a)' ) 'saved to a TNG trajectory file.'
+      write ( *, '(a)' ) '  saved to a TNG trajectory file.'
       write ( *, '(a)' )
       write ( *, '(a)' ) 
      &  '  At each step, we report the potential and kinetic energies.'
