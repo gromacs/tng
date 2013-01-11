@@ -61,9 +61,9 @@ int main(int argc, char **argv)
     else
     {
         // Print the positions of the wanted particle (zero based)
-        for(i=first_frame; i<=last_frame; i++)
+        for(i=0; i<n_frames; i++)
         {
-            printf("%d", i);
+            printf("%d", first_frame + i);
             for(j=0; j<n_values_per_frame; j++)
             {
                 switch(data_type)
