@@ -54,11 +54,7 @@ int main(int argc, char **argv)
     // N.B. No proper error checks.
     if(tng_particle_data_interval_get(traj, TNG_TRAJ_POSITIONS, first_frame,
        last_frame, TNG_USE_HASH, &positions, &n_particles, &n_values_per_frame,
-       &data_type) != TNG_SUCCESS)
-    {
-        printf("Cannot read positions\n");
-    }
-    else
+       &data_type) == TNG_SUCCESS)
     {
         // Print the positions of the wanted particle (zero based)
         for(i=0; i<n_frames; i++)
@@ -83,6 +79,10 @@ int main(int argc, char **argv)
                 printf("\n");
             }
         }
+    }
+    else
+    {
+        printf("Cannot read positions\n");
     }
 
     // Free memory
