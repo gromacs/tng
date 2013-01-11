@@ -325,7 +325,13 @@ struct tng_trajectory {
 
 
 /** This function swaps the byte order of a 32 bit numerical variable.
-   It does not only work with integer, but e.g. floats need casting. */
+ * It does not only work with integer, but e.g. floats need casting.
+ * If the byte order is already big endian no change is needed.
+ * @param tng_data is a trajectory data container.
+ * @param v is a pointer to a 32 bit numerical value (float or integer).
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the current
+ * byte order is not recognised.
+ */
 static inline tng_function_status tng_swap_byte_order_32
                 (const tng_trajectory_t tng_data, int32_t *v)
 {
@@ -354,9 +360,15 @@ static inline tng_function_status tng_swap_byte_order_32
 }
 
 /** This function swaps the byte order of a 64 bit numerical variable.
-   It does not only work with integer, but e.g. floats need casting.
-   The byte order swapping routine can convert four different byte
-   orders to big endian. */
+ *  It does not only work with integer, but e.g. floats need casting.
+ *  The byte order swapping routine can convert four different byte
+ *  orders to big endian.
+ * If the byte order is already big endian no change is needed.
+ * @param tng_data is a trajectory data container.
+ * @param v is a pointer to a 64 bit numerical value (double or integer).
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the current
+ * byte order is not recognised.
+ */
 static inline tng_function_status tng_swap_byte_order_64
                 (const tng_trajectory_t tng_data, int64_t *v)
 {
@@ -401,7 +413,10 @@ static inline tng_function_status tng_swap_byte_order_64
 }
 
 /** Generate the md5 hash of a block.
-   The hash is created based on the actual block contents. */
+ * The hash is created based on the actual block contents.
+ * @param block is a general block container.
+ * @return TNG_SUCCESS (0) if successful.
+ */
 static tng_function_status tng_block_hash_generate(tng_gen_block_t block)
 {
     md5_state_t md5_state;
@@ -415,20 +430,24 @@ static tng_function_status tng_block_hash_generate(tng_gen_block_t block)
 }
 
 /** Compare the current block hash (e.g. read from file) with the hash
-   calculated from the current contents.
-   If the current hash is all zeros skip the comparison.
-   If the hashes match results is set to TRUE, otherwise it is set to
-   FALSE. */
+ * calculated from the current contents.
+ * If the current hash is not set skip the comparison.
+ * @param block is a general block container.
+ * @param results If the hashes match results is set to TRUE, otherwise it is
+ * set to FALSE. If the hash was not set results is set to TRUE.
+ * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the hash was not
+ * set.
+ */
 static tng_function_status hash_match_verify(tng_gen_block_t block,
                                              tng_bool *results)
 {
     md5_state_t md5_state;
     char hash[TNG_HASH_LEN];
 
-    if(strcmp(block->hash,"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0") == 0)
+    if(strlen(block->hash) == 0)
     {
         *results = TRUE;
-        return(TNG_SUCCESS);
+        return(TNG_FAILURE);
     }
     md5_init(&md5_state);
     md5_append(&md5_state, (md5_byte_t *)block->block_contents,
@@ -467,9 +486,12 @@ static tng_function_status hash_match_verify(tng_gen_block_t block,
     return(TNG_SUCCESS);
 }
 
-/** Open the input file if it is not already opened. */
-static tng_function_status tng_input_file_init(tng_trajectory_t tng_data,
-                                               const tng_bool update_read_pos)
+/** Open the input file if it is not already opened.
+ * @param tng_data is a trajectory data container.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */ 
+static tng_function_status tng_input_file_init(tng_trajectory_t tng_data)
 {
     if(!tng_data->input_file)
     {
@@ -490,10 +512,12 @@ static tng_function_status tng_input_file_init(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Open the output file if it is not already opened */
-static tng_function_status tng_output_file_init
-                (tng_trajectory_t tng_data,
-                 const tng_bool update_write_pos)
+/** Open the output file if it is not already opened
+ * @param tng_data is a trajectory data container.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
+static tng_function_status tng_output_file_init(tng_trajectory_t tng_data)
 {
     if(!tng_data->output_file)
     {
@@ -516,6 +540,12 @@ static tng_function_status tng_output_file_init
     return(TNG_SUCCESS);
 }
 
+/** Setup a file block container.
+ * @param block_p a pointer to memory to initialise as a file block container.
+ * @details Memory is allocated during initialisation.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */ 
 static tng_function_status tng_block_init(struct tng_gen_block **block_p)
 {
 //     printf("In tng_block_init\n");
@@ -546,6 +576,13 @@ static tng_function_status tng_block_init(struct tng_gen_block **block_p)
     return(TNG_SUCCESS);
 }
 
+/**
+ * @brief Clean up a file block container.
+ * @param block_p a pointer to the file block container to destroy.
+ * @details All allocated memory in the data structure is freed, as well as
+ * block_p itself.
+ * @return TNG_SUCCESS (0) if successful.
+ */
 static tng_function_status tng_block_destroy(struct tng_gen_block **block_p)
 {
     tng_gen_block_t block = *block_p;
@@ -578,13 +615,18 @@ static tng_function_status tng_block_destroy(struct tng_gen_block **block_p)
     return(TNG_SUCCESS);
 }
 
-/** Read the header of a data block, regardless of its type */
+/** Read the header of a data block, regardless of its type
+ * @param tng_data is a trajectory data container.
+ * @param block is a general block container.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_block_header_read
                 (tng_trajectory_t tng_data, tng_gen_block_t block)
 {
     int len, offset = 0;
 
-    if(tng_input_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_input_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -692,7 +734,12 @@ static tng_function_status tng_block_header_read
     return(TNG_SUCCESS);
 }
 
-/** Write a whole block, both header and contents, regardless of it type */
+/** Write a whole block, both header and contents, regardless of it type
+ * @param tng_data is a trajectory data container.
+ * @param block is a general block container.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
 static tng_function_status tng_block_verbatim_write(tng_trajectory_t tng_data,
                                                     tng_gen_block_t block)
 {
@@ -725,7 +772,14 @@ static tng_function_status tng_block_verbatim_write(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Write the header of a data block, regardless of its type */
+/** Write the header of a data block, regardless of its type
+ * @param tng_data is a trajectory data container.
+ * @param block is a general block container.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH an md5 hash will be generated and written.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_block_header_write
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -733,7 +787,7 @@ static tng_function_status tng_block_header_write
 {
     int name_len, offset = 0;
 
-    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         printf("Cannot initialise destination file. %s: %d\n",
                __FILE__, __LINE__);
@@ -841,8 +895,16 @@ static tng_function_status tng_block_header_write
     return(TNG_SUCCESS);
 }
 
-/** Read a genereal info block. This is the first block of a TNG file.
- *  Set the fields in tng_data */
+/** Read a general info block. This is the first block of a TNG file.
+ *  Populate the fields in tng_data.
+ * @param tng_data is a trajectory data container.
+ * @param block is a general block container.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * compared to the md5 hash of the read contents to ensure valid data.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_general_info_block_read
                 (tng_trajectory_t tng_data, tng_gen_block_t block,
                  const tng_hash_mode hash_mode)
@@ -852,7 +914,7 @@ static tng_function_status tng_general_info_block_read
 
     void *temp;
 
-    if(tng_input_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_input_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -881,11 +943,7 @@ static tng_function_status tng_general_info_block_read
 
     if(hash_mode == TNG_USE_HASH)
     {
-        if(hash_match_verify(block, &same_hash) != TNG_SUCCESS)
-        {
-            printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
-            return(TNG_FAILURE);
-        }
+        hash_match_verify(block, &same_hash);
         if(same_hash != TRUE)
         {
             printf("General info block contents corrupt. Hashes do not match. "
@@ -1084,7 +1142,13 @@ static tng_function_status tng_general_info_block_read
     return(TNG_SUCCESS);
 }
 
-/** Write a genereal info block. This is the first block of a TNG file. */
+/** Write a general info block. This is the first block of a TNG file.
+ * @param tng_data is a trajectory data container.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH an md5 hash will be generated and written.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_general_info_block_write
                 (tng_trajectory_t tng_data,
                  const tng_hash_mode hash_mode)
@@ -1097,7 +1161,7 @@ static tng_function_status tng_general_info_block_write
     int offset = 0;
     tng_gen_block_t block;
 
-    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -1393,7 +1457,15 @@ static tng_function_status tng_general_info_block_write
     return(TNG_SUCCESS);
 }
 
-/** Read a molecules block. Contains chain, residue and atom data */
+/** Read a molecules block. Contains chain, residue and atom data
+ * @param tng_data is a trajectory data container.
+ * @param block is a general block container.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * compared to the md5 hash of the read contents to ensure valid data.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_molecules_block_read
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -1407,7 +1479,7 @@ static tng_function_status tng_molecules_block_read
     tng_bond_t bond;
     tng_bool same_hash;
 
-    if(tng_input_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_input_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -1438,11 +1510,7 @@ static tng_function_status tng_molecules_block_read
 
     if(hash_mode == TNG_USE_HASH)
     {
-        if(hash_match_verify(block, &same_hash) != TNG_SUCCESS)
-        {
-            printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
-            return(TNG_FAILURE);
-        }
+        hash_match_verify(block, &same_hash);
         if(same_hash != TRUE)
         {
             printf("Molecules block contents corrupt. Hashes do not match. "
@@ -1768,7 +1836,13 @@ static tng_function_status tng_molecules_block_read
     return(TNG_SUCCESS);
 }
 
-/** Write a molecules block. */
+/** Write a molecules block.
+ * @param tng_data is a trajectory data container.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH an md5 hash will be generated and written.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_molecules_block_write
                 (tng_trajectory_t tng_data,
                  const tng_hash_mode hash_mode)
@@ -1782,7 +1856,7 @@ static tng_function_status tng_molecules_block_write
     tng_bond_t bond;
     tng_gen_block_t block;
 
-    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -2165,7 +2239,15 @@ static tng_function_status tng_molecules_block_write
     return(TNG_SUCCESS);
 }
 
-/** Read a frame set block. Update tng_data->current_trajectory_frame_set */
+/** Read a frame set block. Update tng_data->current_trajectory_frame_set
+ * @param tng_data is a trajectory data container.
+ * @param block is a general block container.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * compared to the md5 hash of the read contents to ensure valid data.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_frame_set_block_read
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -2178,7 +2260,7 @@ static tng_function_status tng_frame_set_block_read
     &tng_data->current_trajectory_frame_set;
     tng_particle_mapping_t mapping;
 
-    if(tng_input_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_input_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -2213,11 +2295,7 @@ static tng_function_status tng_frame_set_block_read
                
     if(hash_mode == TNG_USE_HASH)
     {
-        if(hash_match_verify(block, &same_hash) != TNG_SUCCESS)
-        {
-            printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
-            return(TNG_FAILURE);
-        }
+        hash_match_verify(block, &same_hash);
         if(same_hash != TRUE)
         {
             printf("Frame set block contents corrupt. File pos %d Hashes do not match. "
@@ -2392,7 +2470,14 @@ static tng_function_status tng_frame_set_block_read
     return(TNG_SUCCESS);
 }
 
-/** Write tng_data->current_trajectory_frame_set to file */
+/** Write tng_data->current_trajectory_frame_set to file
+ * @param tng_data is a trajectory data container.
+ * @param block is a general block container.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH an md5 hash will be generated and written.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_frame_set_block_write
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -2404,7 +2489,7 @@ static tng_function_status tng_frame_set_block_write
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
 
-    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -2574,7 +2659,15 @@ static tng_function_status tng_frame_set_block_write
 
 
 /** Read an atom mappings block (translating between real atom indexes and how
- *  the atom info is written in this frame set). */
+ *  the atom info is written in this frame set).
+ * @param tng_data is a trajectory data container.
+ * @param block is a general block container.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * compared to the md5 hash of the read contents to ensure valid data.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_trajectory_mapping_block_read
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -2588,7 +2681,7 @@ static tng_function_status tng_trajectory_mapping_block_read
     
     tng_particle_mapping_t mapping, mappings;
 
-    if(tng_input_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_input_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -2620,11 +2713,7 @@ static tng_function_status tng_trajectory_mapping_block_read
 
     if(hash_mode == TNG_USE_HASH)
     {
-        if(hash_match_verify(block, &same_hash) != TNG_SUCCESS)
-        {
-            printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
-            return(TNG_FAILURE);
-        }
+        hash_match_verify(block, &same_hash);
         if(same_hash != TRUE)
         {
             printf("Particle mapping block contents corrupt. Hashes do not match. "
@@ -2696,7 +2785,15 @@ static tng_function_status tng_trajectory_mapping_block_read
     return(TNG_SUCCESS);
 }
 
-/** Write the atom mappings of the current trajectory frame set */
+/** Write the atom mappings of the current trajectory frame set
+ * @param tng_data is a trajectory data container.
+ * @param block is a general block container.
+ * @param mapping_block_nr is the index of the mapping block to write.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH an md5 hash will be generated and written.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
 static tng_function_status tng_trajectory_mapping_block_write
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -2713,10 +2810,10 @@ static tng_function_status tng_trajectory_mapping_block_write
     {
         printf("Mapping block index out of bounds. %s: %d\n",
                __FILE__, __LINE__);
-        return(TNG_CRITICAL);
+        return(TNG_FAILURE);
     }
 
-    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -2806,7 +2903,13 @@ static tng_function_status tng_trajectory_mapping_block_write
     return(TNG_SUCCESS);
 }
 
-/** Prepare a block for storing particle data */
+/** Prepare a block for storing particle data 
+ * @param tng_data is a trajectory data container.
+ * @param block_type_flag specifies if this is a trajectory block or a
+ * non-trajectory block. (TNG_TRAJECTORY_BLOCK or TNG_NON_TRAJECTORY_BLOCK)
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_particle_data_block_create
                 (tng_trajectory_t tng_data,
                  const tng_block_type block_type_flag)
@@ -2858,6 +2961,18 @@ static tng_function_status tng_particle_data_block_create
     return(TNG_SUCCESS);
 }
 
+/** Allocate memory for storing particle data.
+ * The allocated block will be refered to by data->values.
+ * @param tng_data is a trajectory data container.
+ * @param data is the data struct, which will contain the allocated memory in
+ * data->values.
+ * @param n_frames is the number of frames of data to store.
+ * @param n_particles is the number of particles with data.
+ * @param n_values_per_frame is the number of data values per particle and
+ * frame.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_allocate_particle_data_mem
                 (struct tng_trajectory  *tng_data,
                  tng_particle_data_t data,
@@ -2924,7 +3039,33 @@ static tng_function_status tng_allocate_particle_data_mem
     return(TNG_SUCCESS);
 }
 
-/** Read particle data */
+/** Read the values of a particle data block
+ * @param tng_data is a trajectory data container.
+ * @param block is the block to store the data (should already contain
+ * the block headers and the block contents).
+ * @param offset is the reading offset to point at the place where the actual
+ * values are stored, starting from the beginning of the block_contents. The
+ * offset is changed during the reading.
+ * @param datatype is the type of data of the data block (char, int, float or
+ * double).
+ * @param num_first_particle is the number of the first particle in the data
+ * block. This should be the same as in the corresponding particle mapping
+ * block.
+ * @param n_particles is the number of particles in the data block. This should
+ * be the same as in the corresponding particle mapping block.
+ * @param first_frame_with_data is the frame number of the first frame with data
+ * in this data block.
+ * @param stride_length is the number of frames between each data entry.
+ * @param n_frames is the number of frames in this data block.
+ * @param n_values is the number of values per particle and frame stored in this
+ * data block.
+ * @param codec_id is the ID of the codec to compress the data.
+ * @param multiplier is the multiplication factor applied to each data value
+ * before compression. This factor is applied since some compression algorithms
+ * work only on integers.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_particle_data_read
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -3193,7 +3334,7 @@ static tng_function_status tng_particle_data_block_write
     
     tng_particle_data_t data;
 
-    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -3521,8 +3662,14 @@ static tng_function_status tng_particle_data_block_write
     return(TNG_SUCCESS);
 }
 
-/* UNTESTED */
-/** Create a non-particle data block */
+/* TEST: */
+/** Create a non-particle data block
+ * @param tng_data is a trajectory data container.
+ * @param block_type_flag specifies if this is a trajectory block or a
+ * non-trajectory block. (TNG_TRAJECTORY_BLOCK or TNG_NON_TRAJECTORY_BLOCK)
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_data_block_create
                 (tng_trajectory_t tng_data,
                  const tng_block_type block_type_flag)
@@ -3568,7 +3715,17 @@ static tng_function_status tng_data_block_create
     return(TNG_SUCCESS);
 }
 
-/* UNTESTED */
+/* TEST: */
+/** Allocate memory for storing non-particle data.
+ * The allocated block will be refered to by data->values.
+ * @param tng_data is a trajectory data container.
+ * @param data is the data struct, which will contain the allocated memory in
+ * data->values.
+ * @param n_frames is the number of frames of data to store.
+ * @param n_values_per_frame is the number of data values per frame.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_allocate_data_mem
                 (tng_trajectory_t tng_data,
                  tng_non_particle_data_t data,
@@ -3631,7 +3788,27 @@ static tng_function_status tng_allocate_data_mem
     return(TNG_SUCCESS);
 }
 
-/** Read a non-particle data block */
+/** Read the values of a non-particle data block
+ * @param tng_data is a trajectory data container.
+ * @param block is the block to store the data (should already contain
+ * the block headers and the block contents).
+ * @param offset is the reading offset to point at the place where the actual
+ * values are stored, starting from the beginning of the block_contents. The
+ * offset is changed during the reading.
+ * @param datatype is the type of data of the data block (char, int, float or
+ * double).
+ * @param first_frame_with_data is the frame number of the first frame with data
+ * in this data block.
+ * @param stride_length is the number of frames between each data entry.
+ * @param n_frames is the number of frames in this data block.
+ * @param n_values is the number of values per frame stored in this data block.
+ * @param codec_id is the ID of the codec to compress the data.
+ * @param multiplier is the multiplication factor applied to each data value
+ * before compression. This factor is applied since some compression algorithms
+ * work only on integers.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_data_read(tng_trajectory_t tng_data,
                                          tng_gen_block_t block,
                                          int *offset,
@@ -3868,7 +4045,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         block_type_flag = TNG_NON_TRAJECTORY_BLOCK;
     }
 
-    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -4131,6 +4308,16 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+/** Read the contents of a data block (particle or non-particle data).
+ * @param tng_data is a trajectory data container.
+ * @param block is the block to store the data (should already contain
+ * the block headers).
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * compared to the md5 hash of the read contents to ensure valid data.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_data_block_contents_read
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -4143,7 +4330,7 @@ static tng_function_status tng_data_block_contents_read
     int offset = 0;
     tng_bool same_hash;
 
-    if(tng_input_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_input_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -4175,11 +4362,7 @@ static tng_function_status tng_data_block_contents_read
 
     if(hash_mode == TNG_USE_HASH)
     {
-        if(hash_match_verify(block, &same_hash) != TNG_SUCCESS)
-        {
-            printf("Error comparing hashes. %s: %d\n", __FILE__, __LINE__);
-            return(TNG_FAILURE);
-        }
+        hash_match_verify(block, &same_hash);
         if(same_hash != TRUE)
         {
             printf("%s\n", block->hash);
@@ -4323,7 +4506,15 @@ static tng_function_status tng_data_block_contents_read
     }
 }
 
-/** Update the md5 hash of a block already written to the file */
+/** Update the md5 hash of a block already written to the file
+ * @param tng_data is a trajectory data container.
+ * @param block is the block, of which to update the md5 hash.
+ * @param header_start_pos is the file position where the block header starts.
+ * @param contents_start_pos is the file position where the block contents
+ * start.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_md5_hash_update(tng_trajectory_t tng_data,
                                                tng_gen_block_t block,
                                                const int64_t header_start_pos,
@@ -4353,7 +4544,13 @@ static tng_function_status tng_md5_hash_update(tng_trajectory_t tng_data,
 }
 
 /** Update the frame set pointers in the file header (general info block),
- *  already written to disk */
+ * already written to disk
+ * @param tng_data is a trajectory data container.
+ * @param hash_mode specifies whether to update the block md5 hash when
+ * updating the pointers.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_header_pointers_update
                 (tng_trajectory_t tng_data, const tng_hash_mode hash_mode)
 {
@@ -4361,7 +4558,7 @@ static tng_function_status tng_header_pointers_update
     FILE *temp = tng_data->input_file;
     int64_t output_file_pos, pos, contents_start_pos;
 
-    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         printf("Cannot initialise destination file. %s: %d\n",
                __FILE__, __LINE__);
@@ -4439,8 +4636,14 @@ static tng_function_status tng_header_pointers_update
     return(TNG_SUCCESS);
 }
 
-/** Update the frame set pointers in a the current frame set block, already
- *  written to disk */
+/** Update the frame set pointers in the current frame set block, already
+ * written to disk
+ * @param tng_data is a trajectory data container.
+ * @param hash_mode specifies whether to update the block md5 hash when
+ * updating the pointers.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_frame_set_pointers_update
                 (tng_trajectory_t tng_data, const tng_hash_mode hash_mode)
 {
@@ -4449,7 +4652,7 @@ static tng_function_status tng_frame_set_pointers_update
     FILE *temp = tng_data->input_file;
     int64_t pos, output_file_pos, header_start_pos, contents_start_pos;
 
-    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         printf("Cannot initialise destination file. %s: %d\n",
                __FILE__, __LINE__);
@@ -4613,7 +4816,13 @@ static tng_function_status tng_frame_set_pointers_update
     return(TNG_SUCCESS);
 }
 
-
+/** Sets the name of a file contents block
+ * @param tng_data is a trajectory data container.
+ * @param block is the block, of which to change names.
+ * @param new_name is the new name of the block.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_block_name_set(tng_trajectory_t tng_data,
                                               tng_gen_block_t block,
                                               const char *new_name)
@@ -4703,7 +4912,10 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Initialise an atom struct */
+/** Initialise an atom struct
+ * @param atom is the atom to initialise.
+ * @return TNG_SUCCESS (0) if successful.
+ */
 static tng_function_status tng_atom_init(tng_atom_t atom)
 {
     atom->name = 0;
@@ -4712,7 +4924,10 @@ static tng_function_status tng_atom_init(tng_atom_t atom)
     return(TNG_SUCCESS);
 }
 
-/** Free the memory in an atom struct */
+/** Free the memory in an atom struct
+ * @param atom is the atom to destroy.
+ * @return TNG_SUCCESS (0) if successful.
+ */
 static tng_function_status tng_atom_destroy(tng_atom_t atom)
 {
     if(atom->name)
@@ -5722,7 +5937,7 @@ tng_function_status tng_input_file_set(tng_trajectory_t tng_data,
         
     strncpy(tng_data->input_file_path, file_name, len);
 
-    return(tng_input_file_init(tng_data, FALSE));
+    return(tng_input_file_init(tng_data));
 }
 
 tng_function_status tng_output_file_get(const tng_trajectory_t tng_data,
@@ -5768,7 +5983,7 @@ tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
         
     strncpy(tng_data->output_file_path, file_name, len);
 
-    return(tng_output_file_init(tng_data, FALSE));
+    return(tng_output_file_init(tng_data));
 }
 
 
@@ -6571,7 +6786,13 @@ tng_function_status tng_frame_set_prev_frame_set_file_pos_get
 }
 
 /** Translate from the particle numbering used in a frame set to the real
- *  particle numbering - used in the molecule description. */
+ *  particle numbering - used in the molecule description.
+ * @param frame_set is the frame_set containing the mappings to use.
+ * @param local is the index number of the atom in this frame set
+ * @param real is set to the index of the atom in the molecular system.
+ * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the mapping
+ * cannot be found.
+ */
 static inline tng_function_status tng_particle_mapping_get_real_particle
                 (const tng_trajectory_frame_set_t frame_set,
                  const int64_t local,
@@ -6601,7 +6822,13 @@ static inline tng_function_status tng_particle_mapping_get_real_particle
 }
 
 /** Translate from the real particle numbering to the particle numbering
- *  used in a frame set. */
+ *  used in a frame set.
+ * @param frame_set is the frame_set containing the mappings to use.
+ * @param real is the index number of the atom in the molecular system.
+ * @param local is set to the index of the atom in this frame set.
+ * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the mapping
+ * cannot be found.
+ */
 static inline tng_function_status tng_particle_mapping_get_local_particle
                 (const tng_trajectory_frame_set_t frame_set,
                  const int64_t real,
@@ -6638,7 +6865,7 @@ tng_function_status tng_file_headers_read(tng_trajectory_t tng_data,
 
     tng_data->n_trajectory_frame_sets = 0;
     
-    if(tng_input_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_input_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -6685,7 +6912,7 @@ tng_function_status tng_file_headers_write(tng_trajectory_t tng_data,
     int i;
     tng_gen_block_t data_block;
 
-    if(tng_output_file_init(tng_data, TRUE) != TNG_SUCCESS)
+    if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -6765,7 +6992,7 @@ tng_function_status tng_frame_set_read_next(tng_trajectory_t tng_data,
     tng_gen_block_t block;
     tng_function_status stat = TNG_SUCCESS;
 
-    if(tng_input_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_input_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -7562,7 +7789,7 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
     char dependency, sparse_data, datatype;
     void *copy;
 
-    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         printf("Cannot initialise destination file. %s: %d\n",
                __FILE__, __LINE__);
@@ -7859,7 +8086,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
     char dependency, sparse_data, datatype;
     void *copy;
     
-    if(tng_output_file_init(tng_data, FALSE) != TNG_SUCCESS)
+    if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         printf("Cannot initialise destination file. %s: %d\n",
                __FILE__, __LINE__);

@@ -343,8 +343,7 @@ tng_function_status tng_trajectory_init_(tng_trajectory_t *tng_data_p)
  * @param tng_data_p a pointer to the trajectory data to destroy.
  * @details All allocated memory in the data structure is freed, as well as
  * tng_data_p itself.
- * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
- * error has occured.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p);
 tng_function_status tng_trajectory_destroy_(tng_trajectory_t *tng_data_p)
