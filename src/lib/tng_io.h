@@ -353,6 +353,24 @@ tng_function_status tng_trajectory_destroy_(tng_trajectory_t *tng_data_p)
 }
 
 /**
+ * @brief Get the name of the input file.
+ * @param tng_data the trajectory of which to get the input file name.
+ * @param file_name the string to fill with the name of the input file,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for file_name. This includes \0 terminating character.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status tng_input_file_get(const tng_trajectory_t tng_data,
+                                       char *file_name, const int max_len);
+tng_function_status tng_input_file_get_(const tng_trajectory_t tng_data,
+                                        char *file_name, const int max_len)
+{
+    return(tng_input_file_get(tng_data, file_name, max_len));
+}
+
+/**
  * @brief Set the name of the input file.
  * @param tng_data the trajectory of which to set the input file name.
  * @param file_name the name of the input file.
@@ -375,6 +393,24 @@ tng_function_status tng_input_file_set_(tng_trajectory_t tng_data,
 }
 
 /**
+ * @brief Get the name of the output file.
+ * @param tng_data the trajectory of which to get the input file name.
+ * @param file_name the string to fill with the name of the output file,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for file_name. This includes \0 terminating character.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status tng_output_file_get(const tng_trajectory_t tng_data,
+                                        char *file_name, const int max_len);
+tng_function_status tng_output_file_get_(const tng_trajectory_t tng_data,
+                                         char *file_name, const int max_len)
+{
+    return(tng_output_file_get(tng_data, file_name, max_len));
+}
+
+/**
  * @brief Set the name of the output file.
  * @param tng_data the trajectory of which to set the output file name.
  * @param file_name the name of the output file.
@@ -394,6 +430,24 @@ tng_function_status tng_output_file_set_(tng_trajectory_t tng_data,
     stat = tng_output_file_set(tng_data, name);
     free(name);
     return(stat);
+}
+
+/**
+ * @brief Get the name of the program used when creating the trajectory.
+ * @param tng_data the trajectory of which to get the program name.
+ * @param name the string to fill with the name of the program,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for name. This includes \0 terminating character.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status tng_first_program_name_get(const tng_trajectory_t tng_data,
+                                               char *name, const int max_len);
+tng_function_status tng_first_program_name_get_(const tng_trajectory_t tng_data,
+                                                char *name, const int max_len)
+{
+    return(tng_first_program_name_get(tng_data, name, max_len));
 }
 
 /**
@@ -420,6 +474,24 @@ tng_function_status tng_first_program_name_set_(tng_trajectory_t tng_data,
 }
 
 /**
+ * @brief Get the name of the program used when last modifying the trajectory.
+ * @param tng_data the trajectory of which to get the program name.
+ * @param name the string to fill with the name of the program,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for name. This includes \0 terminating character.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status tng_last_program_name_get(const tng_trajectory_t tng_data,
+                                               char *name, const int max_len);
+tng_function_status tng_last_program_name_get_(const tng_trajectory_t tng_data,
+                                                char *name, const int max_len)
+{
+    return(tng_last_program_name_get(tng_data, name, max_len));
+}
+
+/**
  * @brief Set the name of the program used when last modifying the trajectory.
  * @param tng_data the trajectory of which to set the program name.
  * @param new_name is a string containing the wanted name.
@@ -442,6 +514,23 @@ tng_function_status tng_last_program_name_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
+/**
+ * @brief Get the name of the user who created the trajectory.
+ * @param tng_data the trajectory of which to get the user name.
+ * @param name the string to fill with the name of the user,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for name. This includes \0 terminating character.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status tng_first_user_name_get(const tng_trajectory_t tng_data,
+                                            char *name, const int max_len);
+tng_function_status tng_first_user_name_get_(const tng_trajectory_t tng_data,
+                                             char *name, const int max_len)
+{
+    return(tng_first_user_name_get(tng_data, name, max_len));
+}
 
 /**
  * @brief Set the name of the user who created the trajectory.
@@ -464,6 +553,24 @@ tng_function_status tng_first_user_name_set_(tng_trajectory_t tng_data,
     stat = tng_first_user_name_set(tng_data, name);
     free(name);
     return(stat);
+}
+
+/**
+ * @brief Get the name of the user who last modified the trajectory.
+ * @param tng_data the trajectory of which to get the user name.
+ * @param name the string to fill with the name of the user,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for name. This includes \0 terminating character.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status tng_last_user_name_get(const tng_trajectory_t tng_data,
+                                           char *name, const int max_len);
+tng_function_status tng_last_user_name_get_(const tng_trajectory_t tng_data,
+                                            char *name, const int max_len)
+{
+    return(tng_last_user_name_get(tng_data, name, max_len));
 }
 
 /**
@@ -491,6 +598,24 @@ tng_function_status tng_last_user_name_set_(tng_trajectory_t tng_data,
 
 
 /**
+ * @brief Get the name of the computer used when creating the trajectory.
+ * @param tng_data the trajectory of which to get the computer name.
+ * @param name the string to fill with the name of the computer,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for name. This includes \0 terminating character.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status tng_first_computer_name_get(const tng_trajectory_t tng_data,
+                                                char *name, const int max_len);
+tng_function_status tng_first_computer_name_get_(const tng_trajectory_t tng_data,
+                                                 char *name, const int max_len)
+{
+    return(tng_first_computer_name_get(tng_data, name, max_len));
+}
+
+/**
  * @brief Set the name of the computer used when creating the trajectory.
  * @param tng_data the trajectory of which to set the computer name.
  * @param new_name is a string containing the wanted name.
@@ -511,6 +636,24 @@ tng_function_status tng_first_computer_name_set_(tng_trajectory_t tng_data,
     stat = tng_first_computer_name_set(tng_data, name);
     free(name);
     return(stat);
+}
+
+/**
+ * @brief Get the name of the computer used when last modifying the trajectory.
+ * @param tng_data the trajectory of which to get the computer name.
+ * @param name the string to fill with the name of the computer,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for name. This includes \0 terminating character.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status tng_last_computer_name_get(const tng_trajectory_t tng_data,
+                                                char *name, const int max_len);
+tng_function_status tng_last_computer_name_get_(const tng_trajectory_t tng_data,
+                                                 char *name, const int max_len)
+{
+    return(tng_last_computer_name_get(tng_data, name, max_len));
 }
 
 /**
@@ -537,6 +680,24 @@ tng_function_status tng_last_computer_name_set_(tng_trajectory_t tng_data,
 }
 
 /**
+ * @brief Get the pgp_signature of the user creating the trajectory.
+ * @param tng_data the trajectory of which to get the computer name.
+ * @param signature the string to fill with the signature,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for name. This includes \0 terminating character.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status tng_first_signature_get(const tng_trajectory_t tng_data,
+                                            char *signature, const int max_len);
+tng_function_status tng_first_signature_get_(const tng_trajectory_t tng_data,
+                                             char *signature, const int max_len)
+{
+    return(tng_first_signature_get(tng_data, signature, max_len));
+}
+
+/**
  * @brief Set the pgp_signature of the user creating the trajectory.
  * @param tng_data the trajectory of which to set the computer name.
  * @param signature is a string containing the pgp_signature.
@@ -560,6 +721,24 @@ tng_function_status tng_first_signature_set_(tng_trajectory_t tng_data,
 }
 
 /**
+ * @brief Get the pgp_signature of the user last modifying the trajectory.
+ * @param tng_data the trajectory of which to get the computer name.
+ * @param signature the string to fill with the signature,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for name. This includes \0 terminating character.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status tng_last_signature_get(const tng_trajectory_t tng_data,
+                                            char *signature, const int max_len);
+tng_function_status tng_last_signature_get_(const tng_trajectory_t tng_data,
+                                             char *signature, const int max_len)
+{
+    return(tng_last_signature_get(tng_data, signature, max_len));
+}
+
+/**
  * @brief Set the pgp_signature of the user last modifying the trajectory.
  * @param tng_data the trajectory of which to set the computer name.
  * @param signature is a string containing the pgp_signature.
@@ -580,6 +759,24 @@ tng_function_status tng_last_signature_set_(tng_trajectory_t tng_data,
     stat = tng_last_signature_set(tng_data, sign);
     free(sign);
     return(stat);
+}
+
+/**
+ * @brief Get the name of the forcefield used in the trajectory.
+ * @param tng_data the trajectory of which to get the forcefield name.
+ * @param name the string to fill with the name of the forcefield,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for name. This includes \0 terminating character.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status tng_forcefield_name_get(const tng_trajectory_t tng_data,
+                                            char *name, const int max_len);
+tng_function_status tng_forcefield_name_get_(const tng_trajectory_t tng_data,
+                                             char *name, const int max_len)
+{
+    return(tng_forcefield_name_get(tng_data, name, max_len));
 }
 
 /**

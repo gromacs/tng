@@ -5672,6 +5672,19 @@ tng_function_status tng_trajectory_destroy(struct tng_trajectory **tng_data_p)
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_input_file_get(const tng_trajectory_t tng_data,
+                                       char *file_name, const int max_len)
+{
+    strncpy(file_name, tng_data->input_file_path, max_len - 1);
+    file_name[max_len - 1] = 0;
+
+    if(strlen(tng_data->input_file_path) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
+    return(TNG_SUCCESS);
+}
+
 tng_function_status tng_input_file_set(tng_trajectory_t tng_data,
                                        const char *file_name)
 {
@@ -5703,6 +5716,19 @@ tng_function_status tng_input_file_set(tng_trajectory_t tng_data,
     strncpy(tng_data->input_file_path, file_name, len);
 
     return(tng_input_file_init(tng_data, FALSE));
+}
+
+tng_function_status tng_output_file_get(const tng_trajectory_t tng_data,
+                                       char *file_name, const int max_len)
+{
+    strncpy(file_name, tng_data->output_file_path, max_len - 1);
+    file_name[max_len - 1] = 0;
+
+    if(strlen(tng_data->output_file_path) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
+    return(TNG_SUCCESS);
 }
 
 tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
@@ -5739,6 +5765,19 @@ tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
 }
 
 
+tng_function_status tng_first_program_name_get(const tng_trajectory_t tng_data,
+                                               char *name, const int max_len)
+{
+    strncpy(name, tng_data->first_program_name, max_len - 1);
+    name[max_len - 1] = 0;
+
+    if(strlen(tng_data->first_program_name) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
+    return(TNG_SUCCESS);
+}
+
 tng_function_status tng_first_program_name_set(tng_trajectory_t tng_data,
                                                const char *new_name)
 {
@@ -5764,6 +5803,19 @@ tng_function_status tng_first_program_name_set(tng_trajectory_t tng_data,
 
     strncpy(tng_data->first_program_name, new_name, len);
 
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_last_program_name_get(const tng_trajectory_t tng_data,
+                                              char *name, const int max_len)
+{
+    strncpy(name, tng_data->last_program_name, max_len - 1);
+    name[max_len - 1] = 0;
+
+    if(strlen(tng_data->last_program_name) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
     return(TNG_SUCCESS);
 }
 
@@ -5795,6 +5847,19 @@ tng_function_status tng_last_program_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_first_user_name_get(const tng_trajectory_t tng_data,
+                                            char *name, const int max_len)
+{
+    strncpy(name, tng_data->first_user_name, max_len - 1);
+    name[max_len - 1] = 0;
+
+    if(strlen(tng_data->first_user_name) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
+    return(TNG_SUCCESS);
+}
+
 tng_function_status tng_first_user_name_set(tng_trajectory_t tng_data,
                                             const char *new_name)
 {
@@ -5820,6 +5885,19 @@ tng_function_status tng_first_user_name_set(tng_trajectory_t tng_data,
 
     strncpy(tng_data->first_user_name, new_name, len);
 
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_last_user_name_get(const tng_trajectory_t tng_data,
+                                           char *name, const int max_len)
+{
+    strncpy(name, tng_data->last_user_name, max_len - 1);
+    name[max_len - 1] = 0;
+
+    if(strlen(tng_data->last_user_name) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
     return(TNG_SUCCESS);
 }
 
@@ -5851,6 +5929,19 @@ tng_function_status tng_last_user_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_first_computer_name_get(const tng_trajectory_t tng_data,
+                                                char *name, const int max_len)
+{
+    strncpy(name, tng_data->first_computer_name, max_len - 1);
+    name[max_len - 1] = 0;
+
+    if(strlen(tng_data->first_computer_name) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
+    return(TNG_SUCCESS);
+}
+
 tng_function_status tng_first_computer_name_set(tng_trajectory_t tng_data,
                                                 const char *new_name)
 {
@@ -5876,6 +5967,19 @@ tng_function_status tng_first_computer_name_set(tng_trajectory_t tng_data,
 
     strncpy(tng_data->first_computer_name, new_name, len);
 
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_last_computer_name_get(const tng_trajectory_t tng_data,
+                                               char *name, const int max_len)
+{
+    strncpy(name, tng_data->last_computer_name, max_len - 1);
+    name[max_len - 1] = 0;
+
+    if(strlen(tng_data->last_computer_name) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
     return(TNG_SUCCESS);
 }
 
@@ -5907,6 +6011,19 @@ tng_function_status tng_last_computer_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_first_signature_get(const tng_trajectory_t tng_data,
+                                            char *signature, const int max_len)
+{
+    strncpy(signature, tng_data->first_pgp_signature, max_len - 1);
+    signature[max_len - 1] = 0;
+
+    if(strlen(tng_data->first_pgp_signature) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
+    return(TNG_SUCCESS);
+}
+
 tng_function_status tng_first_signature_set(tng_trajectory_t tng_data,
                                             const char *signature)
 {
@@ -5935,6 +6052,19 @@ tng_function_status tng_first_signature_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_last_signature_get(const tng_trajectory_t tng_data,
+                                           char *signature, const int max_len)
+{
+    strncpy(signature, tng_data->last_pgp_signature, max_len - 1);
+    signature[max_len - 1] = 0;
+
+    if(strlen(tng_data->last_pgp_signature) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
+    return(TNG_SUCCESS);
+}
+
 tng_function_status tng_last_signature_set(tng_trajectory_t tng_data,
                                            const char *signature)
 {
@@ -5960,6 +6090,19 @@ tng_function_status tng_last_signature_set(tng_trajectory_t tng_data,
 
     strncpy(tng_data->last_pgp_signature, signature, len);
 
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_forcefield_name_get(const tng_trajectory_t tng_data,
+                                            char *name, const int max_len)
+{
+    strncpy(name, tng_data->forcefield_name, max_len - 1);
+    name[max_len - 1] = 0;
+
+    if(strlen(tng_data->forcefield_name) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
     return(TNG_SUCCESS);
 }
 
