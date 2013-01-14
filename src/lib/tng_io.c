@@ -3317,7 +3317,17 @@ static tng_function_status tng_particle_data_read
     return(TNG_SUCCESS);
 }
 
-/** Write a particle data block */
+/** Write a particle data block
+ * @param tng_data is a trajectory data container.
+ * @param block is the block to store the data (should already contain
+ * the block headers and the block contents).
+ * @param block_index is the index number of the data block in the frame set.
+ * @param mapping is the particle mapping that is relevant for the data block.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH an md5 hash will be generated and written.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_particle_data_block_write
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
@@ -4021,7 +4031,16 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Write a non-particle data block */
+/** Write a non-particle data block
+ * @param tng_data is a trajectory data container.
+ * @param block is the block to store the data (should already contain
+ * the block headers and the block contents).
+ * @param block_index is the index number of the data block in the frame set.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH an md5 hash will be generated and written.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
 static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                                                 tng_gen_block_t block,
                                                 const int block_index,
