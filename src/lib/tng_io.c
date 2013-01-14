@@ -1368,7 +1368,7 @@ static tng_function_status tng_general_info_block_write
     memcpy(block->block_contents+offset, &tng_data->time,
            sizeof(tng_data->time));
     if(tng_swap_byte_order_64(tng_data, (int64_t *)
-                                (block->block_contents+offset))
+                              (block->block_contents+offset))
         != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1383,7 +1383,7 @@ static tng_function_status tng_general_info_block_write
     memcpy(block->block_contents+offset, &tng_data->frame_set_n_frames,
            sizeof(tng_data->frame_set_n_frames));
     if(tng_swap_byte_order_64(tng_data, (int64_t *)
-                                (block->block_contents+offset))
+                              (block->block_contents+offset))
         != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1395,7 +1395,7 @@ static tng_function_status tng_general_info_block_write
            &tng_data->first_trajectory_frame_set_input_file_pos,
            sizeof(tng_data->first_trajectory_frame_set_input_file_pos));
     if(tng_swap_byte_order_64(tng_data, (int64_t *)
-                                (block->block_contents+offset))
+                              (block->block_contents+offset))
         != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1407,7 +1407,7 @@ static tng_function_status tng_general_info_block_write
            &tng_data->last_trajectory_frame_set_input_file_pos,
            sizeof(tng_data->last_trajectory_frame_set_input_file_pos));
     if(tng_swap_byte_order_64(tng_data, (int64_t *)
-                                (block->block_contents+offset))
+                              (block->block_contents+offset))
         != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1418,7 +1418,7 @@ static tng_function_status tng_general_info_block_write
     memcpy(block->block_contents+offset, &tng_data->medium_stride_length,
            sizeof(tng_data->medium_stride_length));
     if(tng_swap_byte_order_64(tng_data, (int64_t *)
-                                (block->block_contents+offset))
+                              (block->block_contents+offset))
         != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1429,7 +1429,7 @@ static tng_function_status tng_general_info_block_write
     memcpy(block->block_contents+offset, &tng_data->long_stride_length,
            sizeof(tng_data->long_stride_length));
     if(tng_swap_byte_order_64(tng_data, (int64_t *)
-                                (block->block_contents+offset))
+                              (block->block_contents+offset))
         != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -2574,7 +2574,7 @@ static tng_function_status tng_frame_set_block_write
            sizeof(frame_set->next_frame_set_file_pos));
     if(tng_swap_byte_order_64(tng_data, (int64_t *)
                             (block->block_contents+offset)) !=
-    TNG_SUCCESS)
+        TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
             __FILE__, __LINE__);
@@ -4607,10 +4607,6 @@ static tng_function_status tng_header_pointers_update
 
     tng_data->input_file = temp;
 
-//     printf("Updating header\n");
-//     printf("%ld: First frame set %ld\n", ftell(tng_data->output_file),
-//            tng_data->first_trajectory_frame_set_output_file_pos);
-
     pos = tng_data->first_trajectory_frame_set_output_file_pos;
     
     if(tng_swap_byte_order_64(tng_data, &pos) != TNG_SUCCESS)
@@ -4625,9 +4621,6 @@ static tng_function_status tng_header_pointers_update
         return(TNG_CRITICAL);
     }
     
-//     printf("%ld: Last frame set %ld\n", ftell(tng_data->output_file),
-//            tng_data->last_trajectory_frame_set_output_file_pos);
-
     pos = tng_data->last_trajectory_frame_set_output_file_pos;
     
     if(tng_swap_byte_order_64(tng_data, &pos) != TNG_SUCCESS)
@@ -4707,10 +4700,6 @@ static tng_function_status tng_frame_set_pointers_update
 
         fseek(tng_data->output_file, block->block_contents_size - 6 *
             sizeof(int64_t), SEEK_CUR);
-
-//         printf("Updating frame set\n");
-//         printf("%ld: Next frame set %ld\n", ftell(tng_data->output_file),
-//             tng_data->current_trajectory_frame_set_output_file_pos);
 
         pos = tng_data->current_trajectory_frame_set_output_file_pos;
 
@@ -4881,6 +4870,8 @@ tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
 
     len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
+    /* If the currently stored string length is not enough to store the new
+     * string it is freed and reallocated. */
     if(atom->name && strlen(atom->name) < len)
     {
         free(atom->name);
@@ -4910,6 +4901,8 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
 
     len = min(strlen(new_type) + 1, TNG_MAX_STR_LEN);
 
+    /* If the currently stored string length is not enough to store the new
+     * string it is freed and reallocated. */
     if(atom->atom_type && strlen(atom->atom_type) < len)
     {
         free(atom->atom_type);
@@ -5043,6 +5036,8 @@ tng_function_status tng_molecule_name_set(tng_trajectory_t tng_data,
 
     len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
+    /* If the currently stored string length is not enough to store the new
+     * string it is freed and reallocated. */
     if(molecule->name && strlen(molecule->name) < len)
     {
         free(molecule->name);
@@ -5158,6 +5153,8 @@ tng_function_status tng_chain_name_set(tng_trajectory_t tng_data,
 
     len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
+    /* If the currently stored string length is not enough to store the new
+     * string it is freed and reallocated. */
     if(chain->name && strlen(chain->name) < len)
     {
         free(chain->name);
@@ -5265,6 +5262,8 @@ tng_function_status tng_residue_name_set(tng_trajectory_t tng_data,
 
     len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
+    /* If the currently stored string length is not enough to store the new
+     * string it is freed and reallocated. */
     if(residue->name && strlen(residue->name) < len)
     {
         free(residue->name);
@@ -6355,6 +6354,8 @@ tng_function_status tng_first_user_name_set(tng_trajectory_t tng_data,
 
     len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
+    /* If the currently stored string length is not enough to store the new
+     * string it is freed and reallocated. */
     if(tng_data->first_user_name && strlen(tng_data->first_user_name) < len)
     {
         free(tng_data->first_user_name);
@@ -6396,6 +6397,8 @@ tng_function_status tng_last_user_name_set(tng_trajectory_t tng_data,
 
     len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
+    /* If the currently stored string length is not enough to store the new
+     * string it is freed and reallocated. */
     if(tng_data->last_user_name && strlen(tng_data->last_user_name) < len)
     {
         free(tng_data->last_user_name);
@@ -6437,6 +6440,8 @@ tng_function_status tng_first_computer_name_set(tng_trajectory_t tng_data,
 
     len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
+    /* If the currently stored string length is not enough to store the new
+     * string it is freed and reallocated. */
     if(tng_data->first_computer_name && strlen(tng_data->first_computer_name) < len)
     {
         free(tng_data->first_computer_name);
@@ -6478,7 +6483,10 @@ tng_function_status tng_last_computer_name_set(tng_trajectory_t tng_data,
 
     len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
-    if(tng_data->last_computer_name && strlen(tng_data->last_computer_name) < len)
+    /* If the currently stored string length is not enough to store the new
+     * string it is freed and reallocated. */
+    if(tng_data->last_computer_name && strlen(tng_data->last_computer_name) <
+        len)
     {
         free(tng_data->last_computer_name);
         tng_data->last_computer_name = 0;
@@ -6519,7 +6527,10 @@ tng_function_status tng_first_signature_set(tng_trajectory_t tng_data,
 
     len = min(strlen(signature) + 1, TNG_MAX_STR_LEN);
 
-    if(tng_data->first_pgp_signature && strlen(tng_data->first_pgp_signature) < len)
+    /* If the currently stored string length is not enough to store the new
+     * string it is freed and reallocated. */
+    if(tng_data->first_pgp_signature && strlen(tng_data->first_pgp_signature) <
+        len)
     {
         free(tng_data->first_pgp_signature);
         tng_data->first_pgp_signature = 0;
@@ -6560,7 +6571,10 @@ tng_function_status tng_last_signature_set(tng_trajectory_t tng_data,
 
     len = min(strlen(signature) + 1, TNG_MAX_STR_LEN);
 
-    if(tng_data->last_pgp_signature && strlen(tng_data->last_pgp_signature) < len)
+    /* If the currently stored string length is not enough to store the new
+     * string it is freed and reallocated. */
+    if(tng_data->last_pgp_signature && strlen(tng_data->last_pgp_signature) <
+        len)
     {
         free(tng_data->last_pgp_signature);
         tng_data->last_pgp_signature = 0;
@@ -6601,6 +6615,8 @@ tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
 
     len = min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
+    /* If the currently stored string length is not enough to store the new
+     * string it is freed and reallocated. */
     if(tng_data->forcefield_name && strlen(tng_data->forcefield_name) < len)
     {
         free(tng_data->forcefield_name);
@@ -7151,11 +7167,9 @@ tng_function_status tng_file_headers_read(tng_trajectory_t tng_data,
            block->id != -1 &&
            block->id != TNG_TRAJECTORY_FRAME_SET)
     {
-//         printf("Reading block header %d: %s\n", (int)block->id, block->name);
         if(tng_block_read_next(tng_data, block,
                                hash_mode) == TNG_SUCCESS)
         {
-//             printf("Read block %s\n", block->name);
             cnt++;
         }
         prev_pos = ftell(tng_data->input_file);
@@ -7580,8 +7594,6 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
 
     frame_set->first_frame = first_frame;
     frame_set->n_frames = n_frames;
-//     frame_set->n_particle_data_blocks = 0;
-//     frame_set->n_data_blocks = 0;
 
     if(tng_data->first_trajectory_frame_set_output_file_pos == -1 ||
        tng_data->first_trajectory_frame_set_output_file_pos == 0)
@@ -8423,7 +8435,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
 //         printf("Frame %"PRId64" not found. Last frame: %"PRId64"\n", frame_nr,
 //                last_frame);
         /* If the wanted frame would be in the frame set after the last
-            * frame set create a new frame set. */
+         * frame set create a new frame set. */
         if(stat == TNG_FAILURE &&
            (last_frame < frame_nr &&
             last_frame + tng_data->frame_set_n_frames >= frame_nr))
