@@ -556,7 +556,7 @@ static tng_function_status tng_block_init(struct tng_gen_block **block_p)
 
     if(!*block_p)
     {
-        printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        printf("Cannot allocate memory (%lu bytes). %s: %d\n",
                sizeof(struct tng_gen_block), __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -5425,6 +5425,100 @@ tng_function_status tng_molecule_destroy(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_molecule_name_of_particle_nr_get
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 char *name,
+                 int max_len)
+{
+    int64_t cnt = 0, i, *molecule_cnt_list;
+    tng_molecule_t mol;
+    tng_bool found = FALSE;
+
+    if(tng_data->var_num_atoms_flag)
+    {
+        molecule_cnt_list = tng_data->current_trajectory_frame_set.
+                            molecule_cnt_list;
+    }
+    else
+    {
+        molecule_cnt_list = tng_data->molecule_cnt_list;
+    }
+
+    for(i = 0; i < tng_data->n_molecules; i++)
+    {
+        mol = &tng_data->molecules[i];
+        if(cnt + mol->n_atoms * molecule_cnt_list[i] - 1 < nr)
+        {
+            cnt += mol->n_atoms * molecule_cnt_list[i];
+            continue;
+        }
+        found = TRUE;
+        break;
+    }
+    if(!found)
+    {
+        return(TNG_FAILURE);
+    }
+
+    strncpy(name, mol->name, max_len - 1);
+    name[max_len - 1] = 0;
+
+    if(strlen(mol->name) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_atom_name_of_particle_nr_get
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 char *name,
+                 int max_len)
+{
+    int64_t cnt = 0, i, *molecule_cnt_list;
+    tng_molecule_t mol;
+    tng_atom_t atom;
+    tng_bool found = FALSE;
+
+    if(tng_data->var_num_atoms_flag)
+    {
+        molecule_cnt_list = tng_data->current_trajectory_frame_set.
+                            molecule_cnt_list;
+    }
+    else
+    {
+        molecule_cnt_list = tng_data->molecule_cnt_list;
+    }
+
+    for(i = 0; i < tng_data->n_molecules; i++)
+    {
+        mol = &tng_data->molecules[i];
+        if(cnt + mol->n_atoms * molecule_cnt_list[i] - 1 < nr)
+        {
+            cnt += mol->n_atoms * molecule_cnt_list[i];
+            continue;
+        }
+        atom = &mol->atoms[nr % mol->n_atoms];
+        found = TRUE;
+        break;
+    }
+    if(!found)
+    {
+        return(TNG_FAILURE);
+    }
+    
+    strncpy(name, atom->name, max_len - 1);
+    name[max_len - 1] = 0;
+
+    if(strlen(atom->name) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
+    return(TNG_SUCCESS);
+}
+
 tng_function_status tng_particle_mapping_add
                 (tng_trajectory_t tng_data,
                  const int64_t num_first_particle,
@@ -5438,7 +5532,7 @@ tng_function_status tng_particle_mapping_add
 
     /* Sanity check of the particle ranges. Split into multiple if
      * statements for improved readability */
-    for(i=0; i<frame_set->n_mapping_blocks; i++)
+    for(i = 0; i < frame_set->n_mapping_blocks; i++)
     {
         mapping = &frame_set->mappings[i];
         if(num_first_particle >= mapping->num_first_particle &&
@@ -5650,6 +5744,7 @@ tng_function_status tng_trajectory_init(struct tng_trajectory **tng_data_p)
     
     tng_data->current_trajectory_frame_set.next_frame_set_file_pos = -1;
     tng_data->current_trajectory_frame_set.prev_frame_set_file_pos = -1;
+    tng_data->current_trajectory_frame_set.n_frames = 0;
     
     return(TNG_SUCCESS);
 }
@@ -7895,8 +7990,18 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
     header_pos = file_pos;
     frame_set = &tng_data->current_trajectory_frame_set;
 
-    fread(&datatype, sizeof(datatype), 1, tng_data->input_file);
-    fread(&dependency, sizeof(dependency), 1, tng_data->input_file);
+    if(fread(&datatype, sizeof(datatype), 1, tng_data->input_file) == 0)
+    {
+        printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }
+    if(fread(&dependency, sizeof(dependency), 1, tng_data->input_file) == 0)
+    {
+        printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }
     data.datatype = datatype;
 
     if(!(dependency & TNG_FRAME_DEPENDENT) ||
@@ -7911,18 +8016,33 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
         return(TNG_FAILURE);
     }
 
-    fread(&sparse_data, sizeof(sparse_data), 1, tng_data->input_file);
-
-    fread(&data.n_values_per_frame, sizeof(data.n_values_per_frame), 1,
-          tng_data->input_file);
+    if(fread(&sparse_data, sizeof(sparse_data), 1, tng_data->input_file) == 0)
+    {
+        printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }
+    
+    if(fread(&data.n_values_per_frame, sizeof(data.n_values_per_frame), 1,
+             tng_data->input_file) == 0)
+    {
+        printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }        
     if(tng_swap_byte_order_64(tng_data, &data.n_values_per_frame) != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
                 __FILE__, __LINE__);
     }
 
-    fread(&data.codec_id, sizeof(data.codec_id), 1,
-          tng_data->input_file);
+    if(fread(&data.codec_id, sizeof(data.codec_id), 1,
+             tng_data->input_file) == 0)
+    {
+        printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }
     if(tng_swap_byte_order_64(tng_data, &data.codec_id) != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -7931,8 +8051,14 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
 
     if(data.codec_id != TNG_UNCOMPRESSED)
     {
-        fread(&data.compression_multiplier,
-              sizeof(data.compression_multiplier), 1, tng_data->input_file);
+        if(fread(&data.compression_multiplier,
+                 sizeof(data.compression_multiplier), 1, tng_data->input_file)
+            == 0)
+        {
+            printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
         if(tng_swap_byte_order_64(tng_data, (int64_t *)
                                     &data.compression_multiplier) !=
             TNG_SUCCESS)
@@ -7948,8 +8074,13 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
 
     if(sparse_data)
     {
-        fread(&data.first_frame_with_data, sizeof(data.first_frame_with_data),
-              1, tng_data->input_file);
+        if(fread(&data.first_frame_with_data, sizeof(data.first_frame_with_data),
+                 1, tng_data->input_file) == 0)
+        {
+            printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
         if(tng_swap_byte_order_64(tng_data, &data.first_frame_with_data) !=
         TNG_SUCCESS)
         {
@@ -7957,8 +8088,13 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
                 __FILE__, __LINE__);
         }
 
-        fread(&data.stride_length, sizeof(data.stride_length),
-              1, tng_data->input_file);
+        if(fread(&data.stride_length, sizeof(data.stride_length),
+                 1, tng_data->input_file) == 0)
+        {
+            printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
         if(tng_swap_byte_order_64(tng_data, &data.stride_length) !=
         TNG_SUCCESS)
         {
@@ -8298,9 +8434,21 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
     header_pos = ftell(tng_data->output_file) - header_size;
     frame_set = &tng_data->current_trajectory_frame_set;
 
-    fread(&datatype, sizeof(datatype), 1, tng_data->input_file);
-    fread(&dependency, sizeof(dependency), 1, tng_data->input_file);
+    if(fread(&datatype, sizeof(datatype), 1, tng_data->input_file) == 0)
+    {
+        printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }
+    
     data.datatype = datatype;
+    
+    if(fread(&dependency, sizeof(dependency), 1, tng_data->input_file) == 0)
+    {
+        printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }
 
     if(!(dependency & TNG_FRAME_DEPENDENT) ||
        !(dependency & TNG_PARTICLE_DEPENDENT))
@@ -8314,18 +8462,34 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
         return(TNG_FAILURE);
     }
     
-    fread(&sparse_data, sizeof(sparse_data), 1, tng_data->input_file);
+    if(fread(&sparse_data, sizeof(sparse_data), 1, tng_data->input_file) == 0)
+    {
+        printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }        
     
-    fread(&data.n_values_per_frame, sizeof(data.n_values_per_frame), 1,
-          tng_data->input_file);
-    if(tng_swap_byte_order_64(tng_data, &data.n_values_per_frame) != TNG_SUCCESS)
+    if(fread(&data.n_values_per_frame, sizeof(data.n_values_per_frame), 1,
+             tng_data->input_file) == 0)
+    {
+        printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }
+    if(tng_swap_byte_order_64(tng_data, &data.n_values_per_frame)
+        != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
                 __FILE__, __LINE__);
     }
 
-    fread(&data.codec_id, sizeof(data.codec_id), 1,
-          tng_data->input_file);
+    if(fread(&data.codec_id, sizeof(data.codec_id), 1,
+             tng_data->input_file) == 0)
+    {
+        printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }        
     if(tng_swap_byte_order_64(tng_data, &data.codec_id) != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -8334,8 +8498,15 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
     
     if(data.codec_id != TNG_UNCOMPRESSED)
     {
-        fread(&data.compression_multiplier,
-              sizeof(data.compression_multiplier), 1, tng_data->input_file);
+        if(fread(&data.compression_multiplier,
+                 sizeof(data.compression_multiplier), 1, tng_data->input_file)
+            == 0)
+        {
+            printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
+            
         if(tng_swap_byte_order_64(tng_data, (int64_t *)
                                     &data.compression_multiplier) !=
             TNG_SUCCESS)
@@ -8351,8 +8522,14 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
 
     if(sparse_data)
     {
-        fread(&data.first_frame_with_data, sizeof(data.first_frame_with_data),
-              1, tng_data->input_file);
+        if(fread(&data.first_frame_with_data,
+                 sizeof(data.first_frame_with_data),
+                 1, tng_data->input_file) == 0)
+        {
+            printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
         if(tng_swap_byte_order_64(tng_data, &data.first_frame_with_data) !=
         TNG_SUCCESS)
         {
@@ -8360,8 +8537,13 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
                 __FILE__, __LINE__);
         }
 
-        fread(&data.stride_length, sizeof(data.stride_length),
-              1, tng_data->input_file);
+        if(fread(&data.stride_length, sizeof(data.stride_length),
+                 1, tng_data->input_file) == 0)
+        {
+            printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
         if(tng_swap_byte_order_64(tng_data, &data.stride_length) !=
         TNG_SUCCESS)
         {
@@ -8376,7 +8558,13 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
     }
     data.n_frames = tng_data->current_trajectory_frame_set.n_frames;
 
-    fread(&num_first_particle, sizeof(num_first_particle), 1, tng_data->input_file);
+    if(fread(&num_first_particle, sizeof(num_first_particle), 1,
+             tng_data->input_file) == 0)
+    {
+        printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }
     if(tng_swap_byte_order_64(tng_data, &num_first_particle) !=
     TNG_SUCCESS)
     {
@@ -8384,7 +8572,13 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
             __FILE__, __LINE__);
     }
 
-    fread(&block_n_particles, sizeof(block_n_particles), 1, tng_data->input_file);
+    if(fread(&block_n_particles, sizeof(block_n_particles), 1,
+             tng_data->input_file) == 0)
+    {
+        printf("Error reading file. %s: %d\n", __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }
     if(tng_swap_byte_order_64(tng_data, &block_n_particles) !=
     TNG_SUCCESS)
     {

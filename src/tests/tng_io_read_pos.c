@@ -12,6 +12,7 @@ int main(int argc, char **argv)
     int64_t particle = 0;
     // Set a default frame range
     int first_frame = 0, last_frame = 50;
+    char name[64];
 
     if(argc <= 1)
     {
@@ -49,6 +50,16 @@ int main(int argc, char **argv)
 
     n_frames = last_frame - first_frame + 1;
 
+    if(tng_atom_name_of_particle_nr_get(traj, particle, name, sizeof(name)) ==
+       TNG_SUCCESS)
+    {
+        printf("Particle: %s\n", name);
+    }
+    else
+    {
+        printf("Particle name not found\n");
+    }
+
     // Get the positions of all particles in the requested frame range.
     // The positions are stored in the positions array.
     // N.B. No proper error checks.
@@ -56,27 +67,34 @@ int main(int argc, char **argv)
        last_frame, TNG_USE_HASH, &positions, &n_particles, &n_values_per_frame,
        &data_type) == TNG_SUCCESS)
     {
-        // Print the positions of the wanted particle (zero based)
-        for(i=0; i<n_frames; i++)
+        if(particle >= n_particles)
         {
-            printf("%d", first_frame + i);
-            for(j=0; j<n_values_per_frame; j++)
+            printf("Chosen particle out of range. Only %"PRId64" particles in trajectory.\n", n_particles);
+        }
+        else
+        {
+            // Print the positions of the wanted particle (zero based)
+            for(i=0; i<n_frames; i++)
             {
-                switch(data_type)
+                printf("%d", first_frame + i);
+                for(j=0; j<n_values_per_frame; j++)
                 {
-                case TNG_INT_DATA:
-                    printf("\t%"PRId64"", positions[i][particle][j].i);
-                    break;
-                case TNG_FLOAT_DATA:
-                    printf("\t%f", positions[i][particle][j].f);
-                    break;
-                case TNG_DOUBLE_DATA:
-                    printf("\t%f", positions[i][particle][j].d);
-                    break;
-                default:
-                    break;
+                    switch(data_type)
+                    {
+                    case TNG_INT_DATA:
+                        printf("\t%"PRId64"", positions[i][particle][j].i);
+                        break;
+                    case TNG_FLOAT_DATA:
+                        printf("\t%f", positions[i][particle][j].f);
+                        break;
+                    case TNG_DOUBLE_DATA:
+                        printf("\t%f", positions[i][particle][j].d);
+                        break;
+                    default:
+                        break;
+                    }
+                    printf("\n");
                 }
-                printf("\n");
             }
         }
     }
