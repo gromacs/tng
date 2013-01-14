@@ -1341,6 +1341,54 @@ tng_function_status tng_molecule_name_of_particle_nr_get_
 }
 
 /**
+ * @brief Get the chain name of real particle number (number in mol system).
+ * @param tng_data is the trajectory data container containing the atom.
+ * @param nr is the real number of the particle in the molecular system.
+ * @param name is a string, which is set to the name of the chain. Memory
+ * must be reserved beforehand.
+ * @param max_len is the maximum length of name.
+ * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
+ * has occured.
+ */
+tng_function_status tng_chain_name_of_particle_nr_get
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 char *name,
+                 int max_len);
+tng_function_status tng_chain_name_of_particle_nr_get_
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 char *name,
+                 int max_len)
+{
+    return(tng_chain_name_of_particle_nr_get(tng_data, nr, name, max_len));
+}
+
+/**
+ * @brief Get the residue name of real particle number (number in mol system).
+ * @param tng_data is the trajectory data container containing the atom.
+ * @param nr is the real number of the particle in the molecular system.
+ * @param name is a string, which is set to the name of the residue. Memory
+ * must be reserved beforehand.
+ * @param max_len is the maximum length of name.
+ * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
+ * has occured.
+ */
+tng_function_status tng_residue_name_of_particle_nr_get
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 char *name,
+                 int max_len);
+tng_function_status tng_residue_name_of_particle_nr_get_
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 char *name,
+                 int max_len)
+{
+    return(tng_residue_name_of_particle_nr_get(tng_data, nr, name, max_len));
+}
+
+/**
  * @brief Get the atom name of real particle number (number in mol system).
  * @param tng_data is the trajectory data container containing the atom.
  * @param nr is the real number of the particle in the molecular system.
@@ -1362,6 +1410,30 @@ tng_function_status tng_atom_name_of_particle_nr_get_
                  int max_len)
 {
     return(tng_atom_name_of_particle_nr_get(tng_data, nr, name, max_len));
+}
+
+/**
+ * @brief Get the atom type of real particle number (number in mol system).
+ * @param tng_data is the trajectory data container containing the atom.
+ * @param nr is the real number of the particle in the molecular system.
+ * @param type is a string, which is set to the type of the atom. Memory
+ * must be reserved beforehand.
+ * @param max_len is the maximum length of type.
+ * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
+ * has occured.
+ */
+tng_function_status tng_atom_type_of_particle_nr_get
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 char *type,
+                 int max_len);
+tng_function_status tng_atom_type_of_particle_nr_get_
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 char *type,
+                 int max_len)
+{
+    return(tng_atom_type_of_particle_nr_get(tng_data, nr, type, max_len));
 }
 
 /**

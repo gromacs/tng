@@ -12,7 +12,7 @@ int main(int argc, char **argv)
     int64_t particle = 0;
     // Set a default frame range
     int first_frame = 0, last_frame = 50;
-    char name[64];
+    char atom_name[64], res_name[64];
 
     if(argc <= 1)
     {
@@ -50,10 +50,14 @@ int main(int argc, char **argv)
 
     n_frames = last_frame - first_frame + 1;
 
-    if(tng_atom_name_of_particle_nr_get(traj, particle, name, sizeof(name)) ==
+    if(tng_atom_name_of_particle_nr_get(traj, particle, atom_name,
+                                        sizeof(atom_name)) ==
+       TNG_SUCCESS &&
+       tng_residue_name_of_particle_nr_get(traj, particle, res_name,
+                                           sizeof(res_name)) ==
        TNG_SUCCESS)
     {
-        printf("Particle: %s\n", name);
+        printf("Particle: %s (%s)\n", atom_name, res_name);
     }
     else
     {

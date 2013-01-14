@@ -5471,6 +5471,110 @@ tng_function_status tng_molecule_name_of_particle_nr_get
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_chain_name_of_particle_nr_get
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 char *name,
+                 int max_len)
+{
+    int64_t cnt = 0, i, *molecule_cnt_list;
+    tng_molecule_t mol;
+    tng_atom_t atom;
+    tng_bool found = FALSE;
+
+    if(tng_data->var_num_atoms_flag)
+    {
+        molecule_cnt_list = tng_data->current_trajectory_frame_set.
+                            molecule_cnt_list;
+    }
+    else
+    {
+        molecule_cnt_list = tng_data->molecule_cnt_list;
+    }
+
+    for(i = 0; i < tng_data->n_molecules; i++)
+    {
+        mol = &tng_data->molecules[i];
+        if(cnt + mol->n_atoms * molecule_cnt_list[i] - 1 < nr)
+        {
+            cnt += mol->n_atoms * molecule_cnt_list[i];
+            continue;
+        }
+        atom = &mol->atoms[nr % mol->n_atoms];
+        found = TRUE;
+        break;
+    }
+    if(!found)
+    {
+        return(TNG_FAILURE);
+    }
+    if(!atom->residue || atom->residue->chain)
+    {
+        return(TNG_FAILURE);
+    }
+
+    strncpy(name, atom->residue->chain->name, max_len - 1);
+    name[max_len - 1] = 0;
+
+    if(strlen(atom->residue->chain->name) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_residue_name_of_particle_nr_get
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 char *name,
+                 int max_len)
+{
+    int64_t cnt = 0, i, *molecule_cnt_list;
+    tng_molecule_t mol;
+    tng_atom_t atom;
+    tng_bool found = FALSE;
+
+    if(tng_data->var_num_atoms_flag)
+    {
+        molecule_cnt_list = tng_data->current_trajectory_frame_set.
+                            molecule_cnt_list;
+    }
+    else
+    {
+        molecule_cnt_list = tng_data->molecule_cnt_list;
+    }
+
+    for(i = 0; i < tng_data->n_molecules; i++)
+    {
+        mol = &tng_data->molecules[i];
+        if(cnt + mol->n_atoms * molecule_cnt_list[i] - 1 < nr)
+        {
+            cnt += mol->n_atoms * molecule_cnt_list[i];
+            continue;
+        }
+        atom = &mol->atoms[nr % mol->n_atoms];
+        found = TRUE;
+        break;
+    }
+    if(!found)
+    {
+        return(TNG_FAILURE);
+    }
+    if(!atom->residue)
+    {
+        return(TNG_FAILURE);
+    }
+
+    strncpy(name, atom->residue->name, max_len - 1);
+    name[max_len - 1] = 0;
+
+    if(strlen(atom->residue->name) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
+    return(TNG_SUCCESS);
+}
+
 tng_function_status tng_atom_name_of_particle_nr_get
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
@@ -5513,6 +5617,54 @@ tng_function_status tng_atom_name_of_particle_nr_get
     name[max_len - 1] = 0;
 
     if(strlen(atom->name) > max_len - 1)
+    {
+        return(TNG_FAILURE);
+    }
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_atom_type_of_particle_nr_get
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 char *type,
+                 int max_len)
+{
+    int64_t cnt = 0, i, *molecule_cnt_list;
+    tng_molecule_t mol;
+    tng_atom_t atom;
+    tng_bool found = FALSE;
+
+    if(tng_data->var_num_atoms_flag)
+    {
+        molecule_cnt_list = tng_data->current_trajectory_frame_set.
+                            molecule_cnt_list;
+    }
+    else
+    {
+        molecule_cnt_list = tng_data->molecule_cnt_list;
+    }
+
+    for(i = 0; i < tng_data->n_molecules; i++)
+    {
+        mol = &tng_data->molecules[i];
+        if(cnt + mol->n_atoms * molecule_cnt_list[i] - 1 < nr)
+        {
+            cnt += mol->n_atoms * molecule_cnt_list[i];
+            continue;
+        }
+        atom = &mol->atoms[nr % mol->n_atoms];
+        found = TRUE;
+        break;
+    }
+    if(!found)
+    {
+        return(TNG_FAILURE);
+    }
+
+    strncpy(type, atom->atom_type, max_len - 1);
+    type[max_len - 1] = 0;
+
+    if(strlen(atom->atom_type) > max_len - 1)
     {
         return(TNG_FAILURE);
     }
