@@ -924,6 +924,22 @@ tng_function_status tng_num_frames_per_frame_set_get_
 }
 
 /**
+ * @brief Get the number of frame sets.
+ * @param tng_data is the trajectory from which to get the number of frame sets.
+ * @param n is pointing to a value set to the number of frame sets.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status tng_num_frame_sets_get
+                (const tng_trajectory_t tng_data,
+                 int64_t *n);
+tng_function_status tng_num_frame_sets_get_
+                (const tng_trajectory_t tng_data,
+                 int64_t *n)
+{
+    return(tng_num_frame_sets_get(tng_data, n));
+}
+
+/**
  * @brief Get the current trajectory frame set.
  * @param tng_data is the trajectory from which to get the frame set.
  * @param frame_set is pointing to the memory position of the found frame set.
@@ -939,6 +955,22 @@ tng_function_status tng_current_frame_set_get_
     return(tng_current_frame_set_get(tng_data, frame_set));
 }
 
+/**
+ * @brief Find the requested frame set number.
+ * @param tng_data is the trajectory from which to get the frame set.
+ * @param nr is the frame set number to search for.
+ * @details tng_data->current_trajectory_frame_set will contain the
+ * found trajectory if successful.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
+                                       const int64_t nr);
+tng_function_status tng_frame_set_nr_find_(tng_trajectory_t tng_data,
+                                        const int64_t *nr)
+{
+    return(tng_frame_set_nr_find(tng_data, *nr));
+}
 
 /**
  * @brief Find the frame set containing a specific frame.
@@ -949,12 +981,12 @@ tng_function_status tng_current_frame_set_get_
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status tng_frame_set_find(tng_trajectory_t tng_data,
+tng_function_status tng_frame_set_of_frame_find(tng_trajectory_t tng_data,
                                        const int64_t frame);
-tng_function_status tng_frame_set_find_(tng_trajectory_t tng_data,
+tng_function_status tng_frame_set_of_frame_find_(tng_trajectory_t tng_data,
                                         const int64_t *frame)
 {
-    return(tng_frame_set_find(tng_data, *frame));
+    return(tng_frame_set_of_frame_find(tng_data, *frame));
 }
 
 /**
