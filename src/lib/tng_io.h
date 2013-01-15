@@ -352,6 +352,22 @@ tng_function_status tng_trajectory_destroy_(tng_trajectory_t *tng_data_p)
 }
 
 /**
+ * @brief Copy a trajectory data container (dest is setup as well).
+ * @param src the original trajectory.
+ * @param dest_p a pointer to memory to initialise as a trajectory.
+ * @details Memory is allocated during initialisation.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
+tng_function_status tng_trajectory_copy(tng_trajectory_t src,
+                                        tng_trajectory_t *dest_p);
+tng_function_status tng_trajectory_copy_(tng_trajectory_t src,
+                                         tng_trajectory_t *dest_p)
+{
+    return(tng_trajectory_copy(src, dest_p));
+}
+
+/**
  * @brief Get the name of the input file.
  * @param tng_data the trajectory of which to get the input file name.
  * @param file_name the string to fill with the name of the input file,
@@ -925,9 +941,11 @@ tng_function_status tng_num_frames_per_frame_set_get_
 
 /**
  * @brief Get the number of frame sets.
+ * @details This updates tng_data->n_trajectory_frame_sets before returning it.
  * @param tng_data is the trajectory from which to get the number of frame sets.
  * @param n is pointing to a value set to the number of frame sets.
- * @return TNG_SUCCESS (0) if successful.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status tng_num_frame_sets_get
                 (const tng_trajectory_t tng_data,

@@ -303,7 +303,8 @@ struct tng_trajectory {
     long int current_trajectory_frame_set_input_file_pos;
     /** The pos in the dest file of the current frame set */
     long int current_trajectory_frame_set_output_file_pos;
-    /** The number of frame sets in the trajectory */
+    /** The number of frame sets in the trajectory N.B. Not saved in file and
+     *  cannot be trusted to be up-to-date */
     int64_t n_trajectory_frame_sets;
 
     /** The number of trajectory blocks in the file */
@@ -5773,7 +5774,7 @@ tng_function_status tng_particle_mapping_add
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_trajectory_init(struct tng_trajectory **tng_data_p)
+tng_function_status tng_trajectory_init(tng_trajectory_t *tng_data_p)
 {
     time_t seconds;
     tng_trajectory_frame_set_t frame_set;
@@ -5919,7 +5920,7 @@ tng_function_status tng_trajectory_init(struct tng_trajectory **tng_data_p)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_trajectory_destroy(struct tng_trajectory **tng_data_p)
+tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p)
 {
     int64_t n_particles;
     int i;
@@ -6156,6 +6157,113 @@ tng_function_status tng_trajectory_destroy(struct tng_trajectory **tng_data_p)
     free(*tng_data_p);
     *tng_data_p = 0;
     
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_trajectory_copy(tng_trajectory_t src,
+                                        tng_trajectory_t *dest_p)
+{
+    tng_trajectory_frame_set_t frame_set;
+    tng_trajectory_t dest;
+
+    *dest_p = malloc(sizeof(struct tng_trajectory));
+    if(!dest_p)
+    {
+        printf("Cannot allocate memory (%lu bytes). %s: %d\n",
+               sizeof(struct tng_trajectory), __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+
+    dest = *dest_p;
+
+    frame_set = &dest->current_trajectory_frame_set;
+
+    dest->input_file_path = 0;
+    if(src->input_file)
+    {
+        dest->input_file = fopen(src->input_file_path, "r");
+    }
+    else
+    {
+        dest->input_file = 0;
+    }
+    
+    dest->input_file_len = src->input_file_len;
+    dest->output_file_path = 0;
+    if(src->output_file)
+    {
+        dest->output_file = fopen(src->output_file_path, "w+");
+    }
+    else
+    {
+        dest->output_file = 0;
+    }
+
+    dest->first_program_name = 0;
+    dest->first_user_name = 0;
+    dest->first_computer_name = 0;
+    dest->first_pgp_signature = 0;
+    dest->last_program_name = 0;
+    dest->last_user_name = 0;
+    dest->last_computer_name = 0;
+    dest->last_pgp_signature = 0;
+    dest->forcefield_name = 0;
+
+    dest->var_num_atoms_flag = src->var_num_atoms_flag;
+    dest->first_trajectory_frame_set_input_file_pos =
+    src->first_trajectory_frame_set_input_file_pos;
+    dest->last_trajectory_frame_set_input_file_pos =
+    src->last_trajectory_frame_set_input_file_pos;
+    dest->current_trajectory_frame_set_input_file_pos =
+    src->current_trajectory_frame_set_input_file_pos;
+    dest->first_trajectory_frame_set_output_file_pos =
+    src->first_trajectory_frame_set_output_file_pos;
+    dest->last_trajectory_frame_set_output_file_pos =
+    src->last_trajectory_frame_set_output_file_pos;
+    dest->current_trajectory_frame_set_output_file_pos =
+    src->current_trajectory_frame_set_output_file_pos;
+    dest->frame_set_n_frames = src->frame_set_n_frames;
+    dest->n_trajectory_frame_sets = src->n_trajectory_frame_sets;
+    dest->n_trajectory_blocks = src->n_trajectory_blocks;
+    dest->medium_stride_length = src->medium_stride_length;
+    dest->long_stride_length = src->long_stride_length;
+
+    dest->n_particle_data_blocks = src->n_particle_data_blocks;
+    dest->n_data_blocks = src->n_data_blocks;
+
+    dest->non_tr_particle_data = src->non_tr_particle_data;
+    dest->non_tr_data = src->non_tr_data;
+
+    frame_set->first_frame = -1;
+    frame_set->n_mapping_blocks = 0;
+    frame_set->mappings = 0;
+    frame_set->molecule_cnt_list = 0;
+
+    frame_set->n_particle_data_blocks = 0;
+    frame_set->n_data_blocks = 0;
+
+    frame_set->tr_particle_data = 0;
+    frame_set->tr_data = 0;
+
+    frame_set->next_frame_set_file_pos = -1;
+    frame_set->prev_frame_set_file_pos = -1;
+    frame_set->medium_stride_next_frame_set_file_pos = -1;
+    frame_set->medium_stride_prev_frame_set_file_pos = -1;
+    frame_set->long_stride_next_frame_set_file_pos = -1;
+    frame_set->long_stride_prev_frame_set_file_pos = -1;
+
+    dest->n_molecules = 0;
+    dest->molecules = 0;
+    dest->molecule_cnt_list = 0;
+    dest->n_particles = src->n_particles;
+
+    dest->endianness_32 = src->endianness_32;
+    dest->endianness_64 = src->endianness_64;
+
+    dest->current_trajectory_frame_set.next_frame_set_file_pos = -1;
+    dest->current_trajectory_frame_set.prev_frame_set_file_pos = -1;
+    dest->current_trajectory_frame_set.n_frames = 0;
+
     return(TNG_SUCCESS);
 }
 
@@ -6737,7 +6845,130 @@ tng_function_status tng_num_frames_per_frame_set_get
 tng_function_status tng_num_frame_sets_get(const tng_trajectory_t tng_data,
                                            int64_t *n)
 {
-    *n = tng_data->n_trajectory_frame_sets;
+    int64_t long_stride_length, medium_stride_length;
+    int64_t file_pos;
+    tng_trajectory_frame_set_t frame_set =
+    &tng_data->current_trajectory_frame_set;
+    tng_gen_block_t block;
+    tng_function_status stat;
+    int64_t cnt = 0;
+    
+    file_pos = tng_data->first_trajectory_frame_set_input_file_pos;
+    
+    tng_block_init(&block);
+    fseek(tng_data->input_file,
+        file_pos,
+        SEEK_SET);
+    tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
+    /* Read block headers first to see what block is found. */
+    stat = tng_block_header_read(tng_data, block);
+    if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
+    {
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }
+
+    if(tng_block_read_next(tng_data, block,
+                        TNG_SKIP_HASH) != TNG_SUCCESS)
+    {
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }
+
+    ++cnt;
+    
+    file_pos = tng_data->current_trajectory_frame_set_input_file_pos;
+
+    long_stride_length = tng_data->long_stride_length;
+    medium_stride_length = tng_data->medium_stride_length;
+
+    /* Take long steps forward until a long step forward would be too long or
+     * the right frame set is found */
+    file_pos = frame_set->long_stride_next_frame_set_file_pos;
+    while(file_pos > 0)
+    {
+        if(file_pos > 0)
+        {
+            cnt += long_stride_length;
+            fseek(tng_data->input_file, file_pos, SEEK_SET);
+            /* Read block headers first to see what block is found. */
+            stat = tng_block_header_read(tng_data, block);
+            if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
+            {
+                tng_block_destroy(&block);
+                return(TNG_CRITICAL);
+            }
+
+            if(tng_block_read_next(tng_data, block,
+                                TNG_SKIP_HASH) != TNG_SUCCESS)
+            {
+                tng_block_destroy(&block);
+                return(TNG_CRITICAL);
+            }
+        }
+        file_pos = frame_set->long_stride_next_frame_set_file_pos;
+    }
+
+    /* Take medium steps forward until a medium step forward would be too long
+     * or the right frame set is found */
+    file_pos = frame_set->medium_stride_next_frame_set_file_pos;
+    while(file_pos > 0)
+    {
+        if(file_pos > 0)
+        {
+            cnt += medium_stride_length;
+            fseek(tng_data->input_file,
+                file_pos,
+                SEEK_SET);
+            /* Read block headers first to see what block is found. */
+            stat = tng_block_header_read(tng_data, block);
+            if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
+            {
+                tng_block_destroy(&block);
+                return(TNG_CRITICAL);
+            }
+
+            if(tng_block_read_next(tng_data, block,
+                                TNG_SKIP_HASH) != TNG_SUCCESS)
+            {
+                tng_block_destroy(&block);
+                return(TNG_CRITICAL);
+            }
+        }
+        file_pos = frame_set->medium_stride_next_frame_set_file_pos;
+    }
+
+    /* Take one step forward until the right frame set is found */
+    file_pos = frame_set->next_frame_set_file_pos;
+    while(file_pos > 0)
+    {
+        if(file_pos > 0)
+        {
+            ++cnt;
+            fseek(tng_data->input_file,
+                file_pos,
+                SEEK_SET);
+            /* Read block headers first to see what block is found. */
+            stat = tng_block_header_read(tng_data, block);
+            if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
+            {
+                tng_block_destroy(&block);
+                return(TNG_CRITICAL);
+            }
+
+            if(tng_block_read_next(tng_data, block,
+                                TNG_SKIP_HASH) != TNG_SUCCESS)
+            {
+                tng_block_destroy(&block);
+                return(TNG_CRITICAL);
+            }
+        }
+        file_pos = frame_set->next_frame_set_file_pos;
+    }
+
+    tng_block_destroy(&block);
+    
+    *n = tng_data->n_trajectory_frame_sets = cnt;
 
     return(TNG_SUCCESS);
 }
@@ -6755,13 +6986,15 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
                                        const int64_t nr)
 {
     int64_t long_stride_length, medium_stride_length;
-    int64_t file_pos, curr_nr = 0;
+    int64_t file_pos, curr_nr = 0, n_frame_sets;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
     tng_gen_block_t block;
     tng_function_status stat;
 
-    if(nr > tng_data->n_trajectory_frame_sets)
+    stat = tng_num_frame_sets_get(tng_data, &n_frame_sets);
+    
+    if(nr >= n_frame_sets)
     {
         return(TNG_FAILURE);
     }
@@ -6771,7 +7004,7 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
 
     /* FIXME: The frame set number of the current frame set is not stored */
 
-    if(nr < tng_data->n_trajectory_frame_sets - 1 - nr)
+    if(nr < n_frame_sets - 1 - nr)
     {
         /* Start from the beginning */
         file_pos = tng_data->first_trajectory_frame_set_input_file_pos;
@@ -6780,7 +7013,7 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
     {
         /* Start from the end */
         file_pos = tng_data->last_trajectory_frame_set_input_file_pos;
-        curr_nr = tng_data->n_trajectory_frame_sets - 1;
+        curr_nr = n_frame_sets - 1;
     }
     if(file_pos <= 0)
     {
@@ -6820,9 +7053,9 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
     while(file_pos > 0 && curr_nr + long_stride_length <= nr)
     {
         file_pos = frame_set->long_stride_next_frame_set_file_pos;
-        curr_nr += long_stride_length;
         if(file_pos > 0)
         {
+            curr_nr += long_stride_length;
             fseek(tng_data->input_file, file_pos, SEEK_SET);
             /* Read block headers first to see what block is found. */
             stat = tng_block_header_read(tng_data, block);
@@ -6838,11 +7071,11 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
             }
-        }
-        if(curr_nr == nr)
-        {
-            tng_block_destroy(&block);
-            return(TNG_SUCCESS);
+            if(curr_nr == nr)
+            {
+                tng_block_destroy(&block);
+                return(TNG_SUCCESS);
+            }
         }
     }
 
@@ -6851,9 +7084,9 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
     while(file_pos > 0 && curr_nr + medium_stride_length <= nr)
     {
         file_pos = frame_set->medium_stride_next_frame_set_file_pos;
-        curr_nr += medium_stride_length;
         if(file_pos > 0)
         {
+            curr_nr += medium_stride_length;
             fseek(tng_data->input_file,
                 file_pos,
                 SEEK_SET);
@@ -6871,11 +7104,11 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
             }
-        }
-        if(curr_nr == nr)
-        {
-            tng_block_destroy(&block);
-            return(TNG_SUCCESS);
+            if(curr_nr == nr)
+            {
+                tng_block_destroy(&block);
+                return(TNG_SUCCESS);
+            }
         }
     }
     
@@ -6883,10 +7116,10 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
     while(file_pos > 0 && curr_nr < nr)
     {
         file_pos = frame_set->next_frame_set_file_pos;
-        ++curr_nr;
         
         if(file_pos > 0)
         {
+            ++curr_nr;
             fseek(tng_data->input_file,
                 file_pos,
                 SEEK_SET);
@@ -6904,11 +7137,11 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
             }
-        }
-        if(curr_nr == nr)
-        {
-            tng_block_destroy(&block);
-            return(TNG_SUCCESS);
+            if(curr_nr == nr)
+            {
+                tng_block_destroy(&block);
+                return(TNG_SUCCESS);
+            }
         }
     }
     
@@ -6917,9 +7150,9 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
     while(file_pos > 0 && curr_nr - long_stride_length >= nr)
     {
         file_pos = frame_set->long_stride_prev_frame_set_file_pos;
-        curr_nr -= long_stride_length;
         if(file_pos > 0)
         {
+            curr_nr -= long_stride_length;
             fseek(tng_data->input_file,
                 file_pos,
                 SEEK_SET);
@@ -6937,11 +7170,11 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
             }
-        }
-        if(curr_nr == nr)
-        {
-            tng_block_destroy(&block);
-            return(TNG_SUCCESS);
+            if(curr_nr == nr)
+            {
+                tng_block_destroy(&block);
+                return(TNG_SUCCESS);
+            }
         }
     }
     
@@ -6950,9 +7183,9 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
     while(file_pos > 0 && curr_nr - medium_stride_length >= nr)
     {
         file_pos = frame_set->medium_stride_prev_frame_set_file_pos;
-        curr_nr -= medium_stride_length;
         if(file_pos > 0)
         {
+            curr_nr -= medium_stride_length;
             fseek(tng_data->input_file,
                 file_pos,
                 SEEK_SET);
@@ -6970,11 +7203,11 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
             }
-        }
-        if(curr_nr == nr)
-        {
-            tng_block_destroy(&block);
-            return(TNG_SUCCESS);
+            if(curr_nr == nr)
+            {
+                tng_block_destroy(&block);
+                return(TNG_SUCCESS);
+            }
         }
     }
     
@@ -6982,9 +7215,9 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
     while(file_pos > 0 && curr_nr > nr)
     {
         file_pos = frame_set->prev_frame_set_file_pos;
-        --curr_nr;
         if(file_pos > 0)
         {
+            --curr_nr;
             fseek(tng_data->input_file,
                 file_pos,
                 SEEK_SET);
@@ -7002,11 +7235,11 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
             }
-        }
-        if(curr_nr == nr)
-        {
-            tng_block_destroy(&block);
-            return(TNG_SUCCESS);
+            if(curr_nr == nr)
+            {
+                tng_block_destroy(&block);
+                return(TNG_SUCCESS);
+            }
         }
     }
     
@@ -7015,9 +7248,9 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
     while(file_pos > 0 && curr_nr < nr)
     {
         file_pos = frame_set->next_frame_set_file_pos;
-        ++curr_nr;
         if(file_pos > 0)
         {
+            ++curr_nr;
             fseek(tng_data->input_file,
                 file_pos,
                 SEEK_SET);
@@ -7035,11 +7268,11 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
             }
-        }
-        if(curr_nr == nr)
-        {
-            tng_block_destroy(&block);
-            return(TNG_SUCCESS);
+            if(curr_nr == nr)
+            {
+                tng_block_destroy(&block);
+                return(TNG_SUCCESS);
+            }
         }
     }
     
@@ -9273,13 +9506,16 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
                                  int64_t *n_values_per_frame,
                                  tng_data_type *type)
 {
+    int64_t file_pos;
     int i, j, block_index, len;
     tng_non_particle_data_t data, new_data;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
-    
+    tng_gen_block_t block;
+    tng_function_status stat;
+
     block_index = -1;
-    /* See if there is already a data block of this ID.
+    /* See if there is a data block of this ID.
      * Start checking the last read frame set */
     for(i = frame_set->n_data_blocks; i-- ;)
     {
@@ -9306,7 +9542,45 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
         }
         if(block_index < 0)
         {
-            return(TNG_FAILURE);
+            tng_block_init(&block);
+            file_pos = ftell(tng_data->input_file);
+            /* Read all blocks until next frame set block */
+            stat = tng_block_header_read(tng_data, block);
+            while(file_pos < tng_data->input_file_len &&
+                    stat != TNG_CRITICAL &&
+                    block->id != TNG_TRAJECTORY_FRAME_SET)
+            {
+                /* Use hash by default */
+                stat = tng_block_read_next(tng_data, block,
+                                        TNG_USE_HASH);
+                if(stat != TNG_CRITICAL)
+                {
+                    file_pos = ftell(tng_data->input_file);
+                    if(file_pos < tng_data->input_file_len)
+                    {
+                        stat = tng_block_header_read(tng_data, block);
+                    }
+                }
+            }
+            tng_block_destroy(&block);
+            if(stat == TNG_CRITICAL)
+            {
+                return(stat);
+            }
+            
+            for(i = frame_set->n_data_blocks; i-- ;)
+            {
+                data = &frame_set->tr_data[i];
+                if(data->block_id == block_id)
+                {
+                    block_index = i;
+                    break;
+                }
+            }
+            if(block_index < 0)
+            {
+                return(TNG_FAILURE);
+            }
         }
     }
 
@@ -9427,7 +9701,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
-    /* See if there is already a data block of this ID.
+    /* See if there is a data block of this ID.
      * Start checking the last read frame set */
     for(i = frame_set->n_data_blocks; i-- ;)
     {
@@ -9570,11 +9844,13 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
                                           int64_t *n_values_per_frame,
                                           tng_data_type *type)
 {
-    int64_t i, j, k, mapping;
+    int64_t i, j, k, mapping, file_pos;
     int block_index, len;
     tng_particle_data_t data, new_data;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
+    tng_gen_block_t block;
+    tng_function_status stat;
 
     tng_block_type block_type_flag;
 
@@ -9609,9 +9885,46 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
         }
         if(block_index < 0)
         {
-            printf("Could not find particle data block with id %"PRId64". %s: %d\n",
-                   block_id, __FILE__, __LINE__);
-            return(TNG_FAILURE);
+            tng_block_init(&block);
+            file_pos = ftell(tng_data->input_file);
+            /* Read all blocks until next frame set block */
+            stat = tng_block_header_read(tng_data, block);
+            while(file_pos < tng_data->input_file_len &&
+                    stat != TNG_CRITICAL &&
+                    block->id != TNG_TRAJECTORY_FRAME_SET)
+            {
+                /* Use hash by default */
+                stat = tng_block_read_next(tng_data, block,
+                                        TNG_USE_HASH);
+                if(stat != TNG_CRITICAL)
+                {
+                    file_pos = ftell(tng_data->input_file);
+                    if(file_pos < tng_data->input_file_len)
+                    {
+                        stat = tng_block_header_read(tng_data, block);
+                    }
+                }
+            }
+            tng_block_destroy(&block);
+            if(stat == TNG_CRITICAL)
+            {
+                return(stat);
+            }
+
+            for(i = frame_set->n_particle_data_blocks; i-- ;)
+            {
+                data = &frame_set->tr_particle_data[i];
+                if(data->block_id == block_id)
+                {
+                    block_index = i;
+                    block_type_flag = TNG_TRAJECTORY_BLOCK;
+                    break;
+                }
+            }
+            if(block_index < 0)
+            {
+                return(TNG_FAILURE);
+            }
         }
     }
 

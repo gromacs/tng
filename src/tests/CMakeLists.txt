@@ -19,6 +19,9 @@ target_link_libraries(md_openmp tng_io ${OpenMP_LIBS} m)
 add_executable(tng_io_read_pos tng_io_read_pos.c)
 target_link_libraries(tng_io_read_pos tng_io)
 
+add_executable(tng_parallel_read tng_parallel_read.c)
+target_link_libraries(tng_parallel_read tng_io)
+
 if(BUILD_FORTRAN)
   # This does not work due to a bug in CMake. Remove lines below if no fortran compiler is found.
   enable_language(Fortran OPTIONAL)
