@@ -353,6 +353,10 @@ tng_function_status tng_trajectory_destroy_(tng_trajectory_t *tng_data_p)
 
 /**
  * @brief Copy a trajectory data container (dest is setup as well).
+ * @details This does not copy all data - only what is absolute necessary for
+ * parallel i/o. This can be used inside pragma omp for setting up a thread
+ * local copy of src. It can be freed (using tng_trajectory_destroy at the
+ * end of the parallel block.
  * @param src the original trajectory.
  * @param dest_p a pointer to memory to initialise as a trajectory.
  * @details Memory is allocated during initialisation.
@@ -964,11 +968,11 @@ tng_function_status tng_num_frame_sets_get_
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_current_frame_set_get
-                (const tng_trajectory_t tng_data,
-                 tng_trajectory_frame_set_t frame_set);
+                (tng_trajectory_t tng_data,
+                 tng_trajectory_frame_set_t *frame_set);
 tng_function_status tng_current_frame_set_get_
-                (const tng_trajectory_t tng_data,
-                 tng_trajectory_frame_set_t frame_set)
+                (tng_trajectory_t tng_data,
+                 tng_trajectory_frame_set_t *frame_set)
 {
     return(tng_current_frame_set_get(tng_data, frame_set));
 }
@@ -1045,6 +1049,29 @@ tng_function_status tng_frame_set_prev_frame_set_file_pos_get_
                  int64_t *pos)
 {
     return(tng_frame_set_prev_frame_set_file_pos_get(tng_data, frame_set, pos));
+}
+
+/**
+ * @brief Get the first and last frames of the frame set.
+ * @param tng_data is a trajectory data container.
+ * @param frame_set is the frame set of which to get the frame range.
+ * @param first_frame is set to the first frame of the frame set.
+ * @param last_frame is set to the last frame of the frame set.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status tng_frame_set_frame_range_get
+                (const tng_trajectory_t tng_data,
+                 const tng_trajectory_frame_set_t frame_set,
+                 int64_t *first_frame,
+                 int64_t *last_frame);
+tng_function_status tng_frame_set_frame_range_get_
+                (const tng_trajectory_t tng_data,
+                 const tng_trajectory_frame_set_t frame_set,
+                 int64_t *first_frame,
+                 int64_t *last_frame)
+{
+    return(tng_frame_set_frame_range_get(tng_data, frame_set, first_frame,
+                                         last_frame));
 }
 
 /**

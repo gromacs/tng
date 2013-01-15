@@ -6228,11 +6228,12 @@ tng_function_status tng_trajectory_copy(tng_trajectory_t src,
     dest->medium_stride_length = src->medium_stride_length;
     dest->long_stride_length = src->long_stride_length;
 
-    dest->n_particle_data_blocks = src->n_particle_data_blocks;
-    dest->n_data_blocks = src->n_data_blocks;
-
-    dest->non_tr_particle_data = src->non_tr_particle_data;
-    dest->non_tr_data = src->non_tr_data;
+    /* Currently the non trajectory data blocks are not copied since it
+     * can lead to problems when freeing memory in a parallel block. */
+    dest->n_particle_data_blocks = 0;
+    dest->n_data_blocks = 0;
+    dest->non_tr_particle_data = 0;
+    dest->non_tr_data = 0;
 
     frame_set->first_frame = -1;
     frame_set->n_mapping_blocks = 0;
@@ -6974,10 +6975,10 @@ tng_function_status tng_num_frame_sets_get(const tng_trajectory_t tng_data,
 }
 
 tng_function_status tng_current_frame_set_get
-                (const tng_trajectory_t tng_data,
-                 tng_trajectory_frame_set_t frame_set)
+                (tng_trajectory_t tng_data,
+                 tng_trajectory_frame_set_t *frame_set)
 {
-    frame_set = &tng_data->current_trajectory_frame_set;
+    *frame_set = &tng_data->current_trajectory_frame_set;
 
     return(TNG_SUCCESS);
 }
@@ -7621,6 +7622,18 @@ tng_function_status tng_frame_set_prev_frame_set_file_pos_get
                  int64_t *pos)
 {
     *pos = frame_set->prev_frame_set_file_pos;
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_frame_set_frame_range_get
+                (const tng_trajectory_t tng_data,
+                 const tng_trajectory_frame_set_t frame_set,
+                 int64_t *first_frame,
+                 int64_t *last_frame)
+{
+    *first_frame = frame_set->first_frame;
+    *last_frame = *first_frame + frame_set->n_frames - 1;
 
     return(TNG_SUCCESS);
 }
