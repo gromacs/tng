@@ -689,13 +689,12 @@ void timestamp ( void )
 
     static char time_buffer[TIME_SIZE];
     const struct tm *tm;
-    size_t len;
     time_t now;
 
     now = time ( NULL );
     tm = localtime ( &now );
 
-    len = strftime ( time_buffer, TIME_SIZE, "%d %B %Y %I:%M:%S %p", tm );
+    strftime ( time_buffer, TIME_SIZE, "%d %B %Y %I:%M:%S %p", tm );
 
     printf ( "%s\n", time_buffer );
 

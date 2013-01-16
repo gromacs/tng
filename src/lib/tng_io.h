@@ -10,6 +10,13 @@
  * Each block can contain MD5 hashes to verify data integrity and the file
  * can be signed by the user to ensure that the origin is correct.
  *
+ * This is version 1.0 of the TNG API. The intention is that this version of
+ * the API and ABI should be stable, but it is still possible that future
+ * changes might make that impossible, in which case that will be clarified.
+ *
+ * The API and all examples are released without any warranties. Use them at
+ * your own risk.
+ *
  * @section authors_sec Authors
  * 
  * The TNG trajectory format is developed by:
@@ -353,7 +360,7 @@ tng_function_status tng_trajectory_destroy_(tng_trajectory_t *tng_data_p)
 
 /**
  * @brief Copy a trajectory data container (dest is setup as well).
- * @details This does not copy all data - only what is absolute necessary for
+ * @details This initialises dest and copies only what is absolute necessary for
  * parallel i/o. This can be used inside pragma omp for setting up a thread
  * local copy of src. It can be freed (using tng_trajectory_destroy at the
  * end of the parallel block.
@@ -363,12 +370,12 @@ tng_function_status tng_trajectory_destroy_(tng_trajectory_t *tng_data_p)
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
-tng_function_status tng_trajectory_copy(tng_trajectory_t src,
-                                        tng_trajectory_t *dest_p);
-tng_function_status tng_trajectory_copy_(tng_trajectory_t src,
-                                         tng_trajectory_t *dest_p)
+tng_function_status tng_trajectory_init_from_src(tng_trajectory_t src,
+                                                  tng_trajectory_t *dest_p);
+tng_function_status tng_trajectory_init_from_src_(tng_trajectory_t src,
+                                                   tng_trajectory_t *dest_p)
 {
-    return(tng_trajectory_copy(src, dest_p));
+    return(tng_trajectory_init_from_src(src, dest_p));
 }
 
 /**
@@ -964,17 +971,18 @@ tng_function_status tng_num_frame_sets_get_
 /**
  * @brief Get the current trajectory frame set.
  * @param tng_data is the trajectory from which to get the frame set.
- * @param frame_set is pointing to the memory position of the found frame set.
+ * @param frame_set_p will be set to point at the memory position of
+ * the found frame set.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status tng_current_frame_set_get
                 (tng_trajectory_t tng_data,
-                 tng_trajectory_frame_set_t *frame_set);
+                 tng_trajectory_frame_set_t *frame_set_p);
 tng_function_status tng_current_frame_set_get_
                 (tng_trajectory_t tng_data,
-                 tng_trajectory_frame_set_t *frame_set)
+                 tng_trajectory_frame_set_t *frame_set_p)
 {
-    return(tng_current_frame_set_get(tng_data, frame_set));
+    return(tng_current_frame_set_get(tng_data, frame_set_p));
 }
 
 /**

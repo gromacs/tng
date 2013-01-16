@@ -85,7 +85,7 @@ default(none)
 {
     /* Each tng_trajectory_t keeps its own file pointers and i/o positions.
      * Therefore there must be a copy for each thread. */
-    tng_trajectory_copy(traj, &local_traj);
+    tng_trajectory_init_from_src(traj, &local_traj);
 #pragma omp for
     for(i = 0; i < n_frame_sets; i++)
     {

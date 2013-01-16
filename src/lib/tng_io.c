@@ -6160,8 +6160,8 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_trajectory_copy(tng_trajectory_t src,
-                                        tng_trajectory_t *dest_p)
+tng_function_status tng_trajectory_init_from_src(tng_trajectory_t src,
+                                                 tng_trajectory_t *dest_p)
 {
     tng_trajectory_frame_set_t frame_set;
     tng_trajectory_t dest;
@@ -6976,9 +6976,9 @@ tng_function_status tng_num_frame_sets_get(const tng_trajectory_t tng_data,
 
 tng_function_status tng_current_frame_set_get
                 (tng_trajectory_t tng_data,
-                 tng_trajectory_frame_set_t *frame_set)
+                 tng_trajectory_frame_set_t *frame_set_p)
 {
-    *frame_set = &tng_data->current_trajectory_frame_set;
+    *frame_set_p = &tng_data->current_trajectory_frame_set;
 
     return(TNG_SUCCESS);
 }
