@@ -125,10 +125,11 @@ static tng_function_status tng_test_read_and_write_file
 static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
 {
     int i, j, k, nr, cnt;
-    float *data, *molpos;
+    float *data, *molpos, *charges;
     int64_t mapping[300], n_particles, n_frames_per_frame_set, tot_n_mols;
     int64_t frame_nr;
     double box_shape[9];
+    char atom_type[16];
     tng_function_status stat;
 
     tng_medium_stride_length_set(traj, 10);
@@ -148,15 +149,57 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     box_shape[8] = 155.5;
     if(tng_data_block_add(traj, TNG_TRAJ_BOX_SHAPE, "BOX SHAPE", TNG_DOUBLE_DATA,
                        TNG_NON_TRAJECTORY_BLOCK, 1, 9, 1, TNG_UNCOMPRESSED,
-                       box_shape) == TNG_CRITICAL ||
-                       tng_file_headers_write(traj, TNG_USE_HASH) == TNG_CRITICAL)
+                       box_shape) == TNG_CRITICAL)
     {
         tng_trajectory_destroy(&traj);
-        printf("  Cannot write trajectory headers and box shape.\n");
+        printf("Cannot write trajectory box shape.\n");
         exit(1);
     }
 
+    /* Set partial charges (treat the water as TIP3P. */
     tng_num_particles_get(traj, &n_particles);
+    charges = malloc(sizeof(float) * n_particles);
+    for(i = 0; i < n_particles; i++)
+    {
+        stat = tng_atom_type_of_particle_nr_get(traj, i, atom_type,
+                                                sizeof(atom_type));
+        if(stat == TNG_CRITICAL)
+        {
+            break;
+        }
+        if(atom_type[0] == 'O')
+        {
+            charges[i] = -0.834;
+        }
+        else if(atom_type[0] == 'H')
+        {
+            charges[i] = 0.417;
+        }
+    }
+    if(stat == TNG_CRITICAL)
+    {
+        free(charges);
+        printf("Failed setting partial charges.\n");
+        return(TNG_CRITICAL);
+    }
+    /* There is no ID for partial charges data in the standard. Make an ID up. */
+    stat = tng_particle_data_block_add(traj, 10099, "PARTIAL CHARGES", TNG_FLOAT_DATA,
+                       TNG_NON_TRAJECTORY_BLOCK, 1, 1, 1, 0, n_particles,
+                       TNG_UNCOMPRESSED, charges);
+    free(charges);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Failed adding partial charges\n");
+        return(TNG_CRITICAL);
+    }
+
+    /* Write file headers (includes non trajectory data blocks */
+    if(tng_file_headers_write(traj, TNG_USE_HASH) == TNG_CRITICAL)
+    {
+        printf("Cannot write file headers.\n");
+    }
+
+    
     tng_num_frames_per_frame_set_get(traj, &n_frames_per_frame_set);
     
     data = malloc(sizeof(float) * n_particles *
