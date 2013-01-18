@@ -192,11 +192,10 @@
 /** The version of this TNG build */
 #define TNG_VERSION 1
 
-/** Flag to indicate particle dependent data. */
-#define TNG_PARTICLE_DEPENDENT 1
-
 /** Flag to indicate frame dependent data. */
-#define TNG_FRAME_DEPENDENT 2
+#define TNG_FRAME_DEPENDENT 1
+/** Flag to indicate particle dependent data. */
+#define TNG_PARTICLE_DEPENDENT 2
 
 /** The maximum length of a date string */
 #define TNG_MAX_DATE_STR_LEN 24

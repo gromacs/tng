@@ -3338,19 +3338,31 @@ static tng_function_status tng_particle_data_block_write
 {
     int64_t n_particles, num_first_particle, n_frames;
     int i, j, k, offset = 0, size, len;
-    char temp, *temp_name;
+    char dependency, temp, *temp_name;
     union data_values **first_dim_values, *second_dim_values;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
     
     tng_particle_data_t data;
+    tng_block_type block_type_flag;
+
+    /* If we have already started writing frame sets it is too late to write
+     * non-trajectory data blocks */
+    if(tng_data->current_trajectory_frame_set_output_file_pos > 0)
+    {
+        block_type_flag = TNG_TRAJECTORY_BLOCK;
+    }
+    else
+    {
+        block_type_flag = TNG_NON_TRAJECTORY_BLOCK;
+    }
 
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
 
-    if(tng_data->current_trajectory_frame_set_output_file_pos > 0)
+    if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         data = &frame_set->tr_particle_data[block_index];
     }
@@ -3392,7 +3404,7 @@ static tng_function_status tng_particle_data_block_write
     strncpy(block->name, data->block_name, len);
     block->id = data->block_id;
 
-    /* If writing frame independent data data->n_frames is be 0, but n_frames
+    /* If writing frame independent data data->n_frames is 0, but n_frames
        is used for the loop writing the data (and reserving memory) and needs
        to be at least 1 */
     n_frames = max(1, data->n_frames);
@@ -3416,7 +3428,7 @@ static tng_function_status tng_particle_data_block_write
         }
     }
     
-    block->block_contents_size = sizeof(char) * 3 +
+    block->block_contents_size = sizeof(char) * 2 +
                                  sizeof(data->n_values_per_frame) +
                                  sizeof(data->codec_id) +
                                  sizeof(num_first_particle) +
@@ -3450,6 +3462,19 @@ static tng_function_status tng_particle_data_block_write
                                       data->n_values_per_frame;
     }
 
+    if(block_type_flag == TNG_TRAJECTORY_BLOCK && data->n_frames > 0)
+    {
+        dependency = TNG_FRAME_DEPENDENT + TNG_PARTICLE_DEPENDENT;
+    }
+    else
+    {
+        dependency = TNG_PARTICLE_DEPENDENT;
+    }
+    if(dependency & TNG_FRAME_DEPENDENT)
+    {
+        block->block_contents_size += sizeof(char);
+    }
+    
     if(block->block_contents)
     {
         free(block->block_contents);
@@ -3466,27 +3491,22 @@ static tng_function_status tng_particle_data_block_write
     memcpy(block->block_contents, &data->datatype, sizeof(char));
     offset += sizeof(char);
 
-    if(data->n_frames > 0)
-    {
-        temp = TNG_FRAME_DEPENDENT + TNG_PARTICLE_DEPENDENT;
-    }
-    else
-    {
-        temp = TNG_PARTICLE_DEPENDENT;
-    }
-    memcpy(block->block_contents+offset, &temp, sizeof(char));
+    memcpy(block->block_contents+offset, &dependency, sizeof(char));
     offset += sizeof(char);
 
-    if(data->n_frames > 0 && data->stride_length > 1)
+    if(dependency & TNG_FRAME_DEPENDENT)
     {
-        temp = 1;
+        if(data->stride_length > 1)
+        {
+            temp = 1;
+        }
+        else
+        {
+            temp = 0;
+        }
+        memcpy(block->block_contents+offset, &temp, sizeof(char));
+        offset += sizeof(char);
     }
-    else
-    {
-        temp = 0;
-    }
-    memcpy(block->block_contents+offset, &temp, sizeof(char));
-    offset += sizeof(char);
 
     memcpy(block->block_contents+offset, &data->n_values_per_frame,
            sizeof(data->n_values_per_frame));
@@ -4049,13 +4069,15 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
 {
     int64_t n_frames;
     int i, j, offset = 0, size, len;
-    char temp, *temp_name;
+    char temp, dependency, *temp_name;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
     
     tng_non_particle_data_t data;
     tng_block_type block_type_flag;
 
+    /* If we have already started writing frame sets it is too late to write
+     * non-trajectory data blocks */
     if(tng_data->current_trajectory_frame_set_output_file_pos > 0)
     {
         block_type_flag = TNG_TRAJECTORY_BLOCK;
@@ -4143,7 +4165,15 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         data->n_values_per_frame;
     }
 
-    if(data->n_frames > 0 || data->stride_length != 0)
+    if(block_type_flag == TNG_TRAJECTORY_BLOCK && data->n_frames > 0)
+    {
+        dependency = TNG_FRAME_DEPENDENT;
+    }
+    else
+    {
+        dependency = 0;
+    }    
+    if(dependency & TNG_FRAME_DEPENDENT)
     {
         block->block_contents_size += sizeof(char);
     }
@@ -4164,18 +4194,10 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     memcpy(block->block_contents, &data->datatype, sizeof(char));
     offset += sizeof(char);
 
-    if(data->n_frames > 0 || data->stride_length != 0)
-    {
-        temp = TNG_FRAME_DEPENDENT;
-    }
-    else
-    {
-        temp = 0;
-    }
-    memcpy(block->block_contents+offset, &temp, sizeof(char));
+    memcpy(block->block_contents+offset, &dependency, sizeof(char));
     offset += sizeof(char);
 
-    if(data->n_frames > 0)
+    if(dependency & TNG_FRAME_DEPENDENT)
     {
         if(data->stride_length > 1)
         {
@@ -6049,15 +6071,15 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p)
         for(i = tng_data->n_particle_data_blocks; i--; )
         {
             tng_particle_data_values_free(tng_data,
-                                          tng_data->non_tr_particle_data[i].
-                                          values,
-                                          tng_data->non_tr_particle_data[i].
-                                          n_frames,
-                                          n_particles,
-                                          tng_data->non_tr_particle_data[i].
-                                          n_values_per_frame,
-                                          tng_data->non_tr_particle_data[i].
-                                          datatype);
+                                       tng_data->non_tr_particle_data[i].
+                                       values,
+                                       max(1, tng_data->non_tr_particle_data[i].
+                                       n_frames),
+                                       n_particles,
+                                       tng_data->non_tr_particle_data[i].
+                                       n_values_per_frame,
+                                       tng_data->non_tr_particle_data[i].
+                                       datatype);
                                           
             if(tng_data->non_tr_particle_data[i].block_name)
             {
@@ -9469,12 +9491,13 @@ tng_function_status tng_data_values_free(const tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_particle_data_values_free(const tng_trajectory_t tng_data,
-                                                  union data_values ***values,
-                                                  const int64_t n_frames,
-                                                  const int64_t n_particles,
-                                                  const int64_t n_values_per_frame,
-                                                  const tng_data_type type)
+tng_function_status tng_particle_data_values_free
+                (const tng_trajectory_t tng_data,
+                 union data_values ***values,
+                 const int64_t n_frames,
+                 const int64_t n_particles,
+                 const int64_t n_values_per_frame,
+                 const tng_data_type type)
 {
     int i, j, k;
 
