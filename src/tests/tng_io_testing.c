@@ -109,7 +109,7 @@ static tng_function_status tng_test_read_and_write_file
         return(stat);
     }
 
-    while(stat != TNG_SUCCESS)
+    while(stat == TNG_SUCCESS)
     {
         stat = tng_frame_set_read_next(traj, TNG_USE_HASH);
         if(stat != TNG_SUCCESS)
@@ -128,6 +128,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     float *data, *molpos;
     int64_t mapping[300], n_particles, n_frames_per_frame_set, tot_n_mols;
     int64_t frame_nr;
+    double box_shape[9];
     tng_function_status stat;
 
     tng_medium_stride_length_set(traj, 10);
@@ -139,9 +140,20 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
         return(TNG_CRITICAL);
     }
 
-    if(tng_file_headers_write(traj, TNG_SKIP_HASH) == TNG_CRITICAL)
+    /* Set the box shape */
+    box_shape[1] = box_shape[2] = box_shape[3] = box_shape[5] = box_shape[6] =
+    box_shape[7] = 0;
+    box_shape[0] = 150.0;
+    box_shape[4] = 145.5;
+    box_shape[8] = 155.5;
+    if(tng_data_block_add(traj, TNG_TRAJ_BOX_SHAPE, "BOX SHAPE", TNG_DOUBLE_DATA,
+                       TNG_NON_TRAJECTORY_BLOCK, 1, 9, 1, TNG_UNCOMPRESSED,
+                       box_shape) == TNG_CRITICAL ||
+                       tng_file_headers_write(traj, TNG_USE_HASH) == TNG_CRITICAL)
     {
-        return(TNG_CRITICAL);
+        tng_trajectory_destroy(&traj);
+        printf("  Cannot write trajectory headers and box shape.\n");
+        exit(1);
     }
 
     tng_num_particles_get(traj, &n_particles);
