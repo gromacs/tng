@@ -13,9 +13,6 @@
  * of the License, or (at your option) any later version.
  */
 
-
-/* TODO: Make sure UTF-8 works properly */
-
 #include <inttypes.h>
 #include <limits.h>
 #include <stdlib.h>
