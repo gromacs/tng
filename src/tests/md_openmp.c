@@ -69,7 +69,7 @@ int main ( int argc, char *argv[] )
     double kinetic;
     double mass = 1.0;
     int nd = 3;
-    int np = 250;
+    int np = 25;
     double *pos;
     double potential;
     int proc_num;
@@ -80,6 +80,7 @@ int main ( int argc, char *argv[] )
     int step_print_index;
     int step_print_num;
     int step_save;
+    int sparse_save;
     double *vel;
     double wtime;
     tng_trajectory_t traj;
@@ -167,10 +168,12 @@ int main ( int argc, char *argv[] )
                        box_shape) == TNG_CRITICAL ||
                        tng_file_headers_write(traj, TNG_USE_HASH) == TNG_CRITICAL)
     {
+        free(box_shape);
         tng_trajectory_destroy(&traj);
         printf("  Cannot write trajectory headers and box shape.\n");
         exit(1);
     }
+    free(box_shape);
 
     printf ( "\n" );
     printf ( "  Initializing positions, velocities, and accelerations.\n" );
@@ -194,6 +197,7 @@ int main ( int argc, char *argv[] )
     step_print = 0;
     step_print_index = 0;
     step_print_num = 10;
+    sparse_save = 10;
 
 /*
     This is the main time stepping loop:
@@ -260,8 +264,19 @@ int main ( int argc, char *argv[] )
                                 TNG_TRAJECTORY_BLOCK,
                                 n_frames_per_frame_set, 3,
                                 1, 0, np,
-                                TNG_UNCOMPRESSED,
-                                0) != TNG_SUCCESS)
+                                TNG_UNCOMPRESSED, 0) != TNG_SUCCESS)
+    {
+        printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+        exit(1);
+    }
+    /* There is no standard ID for potential energy. Pick one. */
+    if(tng_data_block_add(traj, 10101,
+                          "POTENTIAL ENERGY",
+                          TNG_DOUBLE_DATA,
+                          TNG_TRAJECTORY_BLOCK,
+                          n_frames_per_frame_set, 1,
+                          sparse_save, TNG_UNCOMPRESSED,
+                          0) != TNG_SUCCESS)
     {
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
         exit(1);
@@ -310,8 +325,16 @@ int main ( int argc, char *argv[] )
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
                 exit(1);
             }
+            if(step % (step_save * sparse_save) == 0)
+            {
+                if(tng_frame_data_write(traj, frames_saved_cnt, 10101, &potential,
+                                     TNG_USE_HASH) != TNG_SUCCESS)
+                {
+                    printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+                    exit(1);
+                }
+            }
             frames_saved_cnt++;
-
         }
         update ( np, nd, pos, vel, force, acc, mass, dt );
     }

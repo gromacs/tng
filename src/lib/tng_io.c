@@ -2975,6 +2975,7 @@ static tng_function_status tng_allocate_particle_data_mem
                 (struct tng_trajectory  *tng_data,
                  tng_particle_data_t data,
                  int64_t n_frames,
+                 int64_t stride_length,
                  const int64_t n_particles,
                  const int64_t n_values_per_frame)
 {
@@ -2991,8 +2992,10 @@ static tng_function_status tng_allocate_particle_data_mem
     }
     data->n_frames = n_frames;
     n_frames = max(1, n_frames);
+    data->stride_length = max(1, stride_length);
     data->n_values_per_frame = n_values_per_frame;
-    values = realloc(data->values, sizeof(union data_values **) * n_frames);
+    values = realloc(data->values, sizeof(union data_values **) * n_frames
+                     / stride_length);
     if(!values)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -3003,7 +3006,7 @@ static tng_function_status tng_allocate_particle_data_mem
     }
     data->values = values;
 
-    for(i = n_frames; i-- ;)
+    for(i = n_frames / stride_length; i-- ;)
     {
         data->values[i] = malloc(sizeof(union data_values *) *
                                  n_particles);
@@ -3192,6 +3195,7 @@ static tng_function_status tng_particle_data_read
        data->n_values_per_frame != n_values)
     {
         if(tng_allocate_particle_data_mem(tng_data, data, n_frames,
+                                          stride_length,
                                           tot_n_particles, n_values) !=
            TNG_SUCCESS)
         {
@@ -3202,7 +3206,6 @@ static tng_function_status tng_particle_data_read
     }
 
     data->first_frame_with_data = first_frame_with_data;
-    data->stride_length = stride_length;
     
     switch(datatype)
     {
@@ -3333,7 +3336,7 @@ static tng_function_status tng_particle_data_block_write
                  const tng_particle_mapping_t mapping,
                  const tng_hash_mode hash_mode)
 {
-    int64_t n_particles, num_first_particle, n_frames;
+    int64_t n_particles, num_first_particle, n_frames, stride_length;
     int i, j, k, offset = 0, size, len;
     char dependency, temp, *temp_name;
     union data_values **first_dim_values, *second_dim_values;
@@ -3362,10 +3365,12 @@ static tng_function_status tng_particle_data_block_write
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         data = &frame_set->tr_particle_data[block_index];
+        stride_length = max(1, data->stride_length);
     }
     else
     {
         data = &tng_data->non_tr_particle_data[block_index];
+        stride_length = 1;
     }
 
     switch(data->datatype)
@@ -3431,6 +3436,12 @@ static tng_function_status tng_particle_data_block_write
                                  sizeof(num_first_particle) +
                                  sizeof(n_particles);
 
+    if(stride_length > 1)
+    {
+        block->block_contents_size += sizeof(data->first_frame_with_data) +
+                                      sizeof(data->stride_length);
+    }
+
     if(data->codec_id != TNG_UNCOMPRESSED)
     {
         block->block_contents_size += sizeof(data->compression_multiplier);
@@ -3455,8 +3466,8 @@ static tng_function_status tng_particle_data_block_write
     }
     else
     {
-        block->block_contents_size += size * n_frames * n_particles *
-                                      data->n_values_per_frame;
+        block->block_contents_size += size * n_frames / stride_length *
+                                      n_particles * data->n_values_per_frame;
     }
 
     if(block_type_flag == TNG_TRAJECTORY_BLOCK && data->n_frames > 0)
@@ -3493,7 +3504,7 @@ static tng_function_status tng_particle_data_block_write
 
     if(dependency & TNG_FRAME_DEPENDENT)
     {
-        if(data->stride_length > 1)
+        if(stride_length > 1)
         {
             temp = 1;
         }
@@ -3541,8 +3552,11 @@ static tng_function_status tng_particle_data_block_write
         offset += sizeof(data->compression_multiplier);
     }
 
-    if(data->n_frames > 0 && data->stride_length > 1)
+    if(data->n_frames > 0 && stride_length > 1)
     {
+        /* FIXME: Currently only supporting
+         * frame_set->n_frames / data->stride_length == 0 */
+        data->first_frame_with_data = frame_set->first_frame;
         memcpy(block->block_contents+offset, &data->first_frame_with_data,
                sizeof(data->first_frame_with_data));
         if(tng_swap_byte_order_64(tng_data, (int64_t *)
@@ -3554,8 +3568,8 @@ static tng_function_status tng_particle_data_block_write
         }
         offset += sizeof(data->first_frame_with_data);
 
-        memcpy(block->block_contents+offset, &data->stride_length,
-               sizeof(data->stride_length));
+        memcpy(block->block_contents+offset, &stride_length,
+               sizeof(stride_length));
         if(tng_swap_byte_order_64(tng_data, (int64_t *)
                                     (block->block_contents + offset)) !=
             TNG_SUCCESS)
@@ -3563,7 +3577,7 @@ static tng_function_status tng_particle_data_block_write
             printf("Cannot swap byte order to get big endian. %s: %d\n",
                     __FILE__, __LINE__);
         }
-        offset += sizeof(data->stride_length);
+        offset += sizeof(stride_length);
     }
 
     
@@ -3592,7 +3606,7 @@ static tng_function_status tng_particle_data_block_write
     switch(data->datatype)
     {
     case TNG_FLOAT_DATA:
-        for(i = 0; i < data->n_frames; i++)
+        for(i = 0; i < data->n_frames / stride_length; i++)
         {
             first_dim_values = data->values[i];
             for(j = num_first_particle; j < num_first_particle + n_particles;
@@ -3613,7 +3627,7 @@ static tng_function_status tng_particle_data_block_write
         break;
         
     case TNG_INT_DATA:
-        for(i = 0; i < data->n_frames; i++)
+        for(i = 0; i < data->n_frames / stride_length; i++)
         {
             first_dim_values = data->values[i];
             for(j = num_first_particle; j < num_first_particle + n_particles;
@@ -3633,7 +3647,7 @@ static tng_function_status tng_particle_data_block_write
         }
         break;
     case TNG_CHAR_DATA:
-        for(i = 0; i < data->n_frames; i++)
+        for(i = 0; i < data->n_frames / stride_length; i++)
         {
             first_dim_values = data->values[i];
             for(j = num_first_particle; j < num_first_particle + n_particles;
@@ -3652,7 +3666,7 @@ static tng_function_status tng_particle_data_block_write
         break;
     case TNG_DOUBLE_DATA:
     default:
-        for(i = 0; i < data->n_frames; i++)
+        for(i = 0; i < data->n_frames / stride_length; i++)
         {
             first_dim_values = data->values[i];
             for(j = num_first_particle; j < num_first_particle + n_particles;
@@ -3663,7 +3677,7 @@ static tng_function_status tng_particle_data_block_write
                 {
                     memcpy(block->block_contents+offset,
                            &second_dim_values[k].d,
-                            size);
+                           size);
                     tng_swap_byte_order_64(tng_data,
                         (int64_t *)(block->block_contents+offset));
                     offset += size;
@@ -3711,7 +3725,7 @@ static tng_function_status tng_data_block_create
     {
         frame_set->n_data_blocks++;
         data = realloc(frame_set->tr_data, sizeof(struct tng_non_particle_data) *
-                        frame_set->n_data_blocks);
+                       frame_set->n_data_blocks);
         if(!data)
         {
             printf("Cannot allocate memory (%lu bytes). %s: %d\n",
@@ -3758,6 +3772,7 @@ static tng_function_status tng_allocate_data_mem
                 (tng_trajectory_t tng_data,
                  tng_non_particle_data_t data,
                  int64_t n_frames,
+                 int64_t stride_length,
                  const int64_t n_values_per_frame)
 {
     union data_values **values;
@@ -3779,6 +3794,7 @@ static tng_function_status tng_allocate_data_mem
         free(data->values[i]);
     }
     data->n_frames = n_frames;
+    data->stride_length = max(1, stride_length);
     n_frames = max(1, n_frames);
     data->n_values_per_frame = n_values_per_frame;
     values = realloc(data->values,
@@ -3787,14 +3803,14 @@ static tng_function_status tng_allocate_data_mem
     if(!values)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-            sizeof(union data_values **) * n_frames,
+            sizeof(union data_values **) * n_frames / stride_length,
             __FILE__, __LINE__);
         free(data->values);
         return(TNG_CRITICAL);
     }
     data->values = values;
 
-    for(i = n_frames; i-- ;)
+    for(i = n_frames / stride_length; i-- ;)
     {
         data->values[i] = malloc(sizeof(union data_values) *
                                  n_values_per_frame);
@@ -3951,7 +3967,8 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
     if(!data->values || data->n_frames != n_frames ||
        data->n_values_per_frame != n_values)
     {
-        if(tng_allocate_data_mem(tng_data, data, n_frames, n_values) !=
+        if(tng_allocate_data_mem(tng_data, data, n_frames, stride_length,
+                                 n_values) !=
            TNG_SUCCESS)
         {
             printf("Cannot allocate memory for data. %s: %d\n",
@@ -3961,7 +3978,6 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
     }
 
     data->first_frame_with_data = first_frame_with_data;
-    data->stride_length = stride_length;
     
     n_frames = max(1, n_frames);
 
@@ -4064,7 +4080,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                                                 const int block_index,
                                                 const tng_hash_mode hash_mode)
 {
-    int64_t n_frames;
+    int64_t n_frames, stride_length;
     int i, j, offset = 0, size, len;
     char temp, dependency, *temp_name;
     tng_trajectory_frame_set_t frame_set =
@@ -4092,10 +4108,12 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         data = &frame_set->tr_data[block_index];
+        stride_length = max(1, data->stride_length);
     }
     else
     {
         data = &tng_data->non_tr_data[block_index];
+        stride_length = 1;
     }
 
     switch(data->datatype)
@@ -4141,6 +4159,12 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                                  sizeof(data->n_values_per_frame) +
                                  sizeof(data->codec_id);
 
+    if(stride_length > 1)
+    {
+        block->block_contents_size += sizeof(data->first_frame_with_data) +
+                                      sizeof(data->stride_length);
+    }
+                                 
     if(data->codec_id != TNG_UNCOMPRESSED)
     {
         block->block_contents_size += sizeof(data->compression_multiplier);
@@ -4158,7 +4182,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     }
     else
     {
-        block->block_contents_size += size * n_frames *
+        block->block_contents_size += size * n_frames / stride_length *
         data->n_values_per_frame;
     }
 
@@ -4196,7 +4220,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
 
     if(dependency & TNG_FRAME_DEPENDENT)
     {
-        if(data->stride_length > 1)
+        if(stride_length > 1)
         {
             temp = 1;
         }
@@ -4247,8 +4271,11 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         offset += sizeof(data->compression_multiplier);
     }
 
-    if(data->n_frames > 0 && data->stride_length > 1)
+    if(data->n_frames > 0 && stride_length > 1)
     {
+        /* FIXME: Currently only supporting
+         * frame_set->n_frames / data->stride_length == 0 */
+        data->first_frame_with_data = frame_set->first_frame;
         memcpy(block->block_contents+offset, &data->first_frame_with_data,
                sizeof(data->first_frame_with_data));
         if(tng_swap_byte_order_64(tng_data, (int64_t *)
@@ -4261,7 +4288,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         }
         offset += sizeof(data->first_frame_with_data);
 
-        memcpy(block->block_contents+offset, &data->stride_length,
+        memcpy(block->block_contents+offset, &stride_length,
                sizeof(data->stride_length));
         if(tng_swap_byte_order_64(tng_data, (int64_t *)
                                     (block->block_contents + offset)) !=
@@ -4277,7 +4304,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     switch(data->datatype)
     {
     case TNG_FLOAT_DATA:
-        for(i = 0; i < n_frames; i++)
+        for(i = 0; i < n_frames / stride_length; i++)
         {
             for(j = 0; j < data->n_values_per_frame; j++)
             {
@@ -4290,7 +4317,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         }
         break;
     case TNG_INT_DATA:
-        for(i = 0; i < n_frames; i++)
+        for(i = 0; i < n_frames / stride_length; i++)
         {
             for(j = 0; j < data->n_values_per_frame; j++)
             {
@@ -4303,7 +4330,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         }
         break;
     case TNG_CHAR_DATA:
-        for(i = 0; i < n_frames; i++)
+        for(i = 0; i < n_frames / stride_length; i++)
         {
             for(j = 0; j < data->n_values_per_frame; j++)
             {
@@ -4316,7 +4343,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         break;
     case TNG_DOUBLE_DATA:
     default:
-        for(i = 0; i < n_frames; i++)
+        for(i = 0; i < n_frames / stride_length; i++)
         {
             for(j = 0; j < data->n_values_per_frame; j++)
             {
@@ -4344,6 +4371,8 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         return(TNG_CRITICAL);
     }
 
+    fflush(tng_data->output_file);
+
     return(TNG_SUCCESS);
 }
 
@@ -4363,7 +4392,7 @@ static tng_function_status tng_data_block_contents_read
                  const tng_hash_mode hash_mode)
 {
     int64_t n_values, codec_id, n_frames, first_frame_with_data;
-    int64_t steps_between_data, block_n_particles, num_first_particle;
+    int64_t stride_length, block_n_particles, num_first_particle;
     double multiplier;
     char datatype, dependency, sparse_data;
     int offset = 0;
@@ -4476,27 +4505,27 @@ static tng_function_status tng_data_block_contents_read
             }
             offset += sizeof(first_frame_with_data);
             
-            memcpy(&steps_between_data, block->block_contents+offset,
-                sizeof(steps_between_data));
-            if(tng_swap_byte_order_64(tng_data, &steps_between_data) !=
+            memcpy(&stride_length, block->block_contents+offset,
+                sizeof(stride_length));
+            if(tng_swap_byte_order_64(tng_data, &stride_length) !=
                 TNG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
                         __FILE__, __LINE__);
             }
-            offset += sizeof(steps_between_data);
+            offset += sizeof(stride_length);
         }
         else
         {
             first_frame_with_data = 0;
-            steps_between_data = 0;
+            stride_length = 1;
         }
         n_frames = tng_data->current_trajectory_frame_set.n_frames;
     }
     else
     {
         first_frame_with_data = 0;
-        steps_between_data = 0;
+        stride_length = 1;
         n_frames = 0;
     }
     
@@ -4530,7 +4559,7 @@ static tng_function_status tng_data_block_contents_read
                                       num_first_particle,
                                       block_n_particles,
                                       first_frame_with_data,
-                                      steps_between_data,
+                                      stride_length,
                                       n_frames, n_values,
                                       codec_id, multiplier));
     }
@@ -4539,7 +4568,7 @@ static tng_function_status tng_data_block_contents_read
         return(tng_data_read(tng_data, block,
                              &offset, datatype,
                              first_frame_with_data,
-                             steps_between_data,
+                             stride_length,
                              n_frames, n_values,
                              codec_id, multiplier));
     }
@@ -6069,9 +6098,7 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p)
         {
             tng_particle_data_values_free(tng_data,
                                        tng_data->non_tr_particle_data[i].
-                                       values,
-                                       max(1, tng_data->non_tr_particle_data[i].
-                                       n_frames),
+                                       values, 1,
                                        n_particles,
                                        tng_data->non_tr_particle_data[i].
                                        n_values_per_frame,
@@ -6118,7 +6145,9 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p)
                                           frame_set->tr_particle_data[i].
                                           values,
                                           frame_set->tr_particle_data[i].
-                                          n_frames,
+                                          n_frames /
+                                          frame_set->tr_particle_data[i].
+                                          stride_length,
                                           n_particles,
                                           frame_set->tr_particle_data[i].
                                           n_values_per_frame,
@@ -6140,7 +6169,9 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p)
         for(i = frame_set->n_data_blocks; i--;)
         {
             tng_data_values_free(tng_data,
-                                 frame_set->tr_data[i].values, 1,
+                                 frame_set->tr_data[i].values,
+                                 frame_set->tr_data[i].n_frames /
+                                 frame_set->tr_data[i].stride_length,
                                  frame_set->tr_data[i].
                                  n_values_per_frame,
                                  frame_set->tr_data[i].datatype);
@@ -8296,7 +8327,8 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
     if(!data->values || data->n_frames != n_frames ||
        data->n_values_per_frame != n_values_per_frame)
     {
-        if(tng_allocate_data_mem(tng_data, data, n_frames, n_values_per_frame)!=
+        if(tng_allocate_data_mem(tng_data, data, n_frames, stride_length,
+                                 n_values_per_frame) !=
            TNG_SUCCESS)
         {
             printf("Cannot allocate data memory. %s: %d\n",
@@ -8328,7 +8360,7 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
         switch(datatype)
         {
         case TNG_FLOAT_DATA:
-            for(i = 0; i < n_frames; i++)
+            for(i = 0; i < n_frames / stride_length; i++)
             {
                 first_dim_values = data->values[i];
                 for(j = 0; j < n_values_per_frame; j++)
@@ -8340,7 +8372,7 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
             }
             break;
         case TNG_CHAR_DATA:
-            for(i = 0; i < n_frames; i++)
+            for(i = 0; i < n_frames / stride_length; i++)
             {
                 first_dim_values = data->values[i];
                 for(j = 0; j < n_values_per_frame; j++)
@@ -8365,7 +8397,7 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
             }
             break;
         case TNG_INT_DATA:
-            for(i = 0; i < n_frames; i++)
+            for(i = 0; i < n_frames / stride_length; i++)
             {
                 first_dim_values = data->values[i];
                 for(j = 0; j < n_values_per_frame; j++)
@@ -8378,7 +8410,7 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
             break;
         case TNG_DOUBLE_DATA:
         default:
-            for(i = 0; i < n_frames; i++)
+            for(i = 0; i < n_frames / stride_length; i++)
             {
                 first_dim_values = data->values[i];
                 for(j = 0; j < n_values_per_frame; j++)
@@ -8394,7 +8426,7 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
     }
     else
     {
-        for(i = 0; i < n_frames; i++)
+        for(i = 0; i < n_frames / stride_length; i++)
         {
             first_dim_values = data->values[i];
             for(j = 0; j < n_values_per_frame; j++)
@@ -8511,7 +8543,7 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
        data->n_values_per_frame != n_values_per_frame)
     {
         if(tng_allocate_particle_data_mem(tng_data, data, n_frames,
-                                          tot_n_particles,
+                                          stride_length, tot_n_particles,
                                           n_values_per_frame) !=
            TNG_SUCCESS)
         {
@@ -8530,7 +8562,7 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
         {
         case TNG_FLOAT_DATA:
             size = sizeof(float);
-            for(i = 0; i < n_frames; i++)
+            for(i = 0; i < n_frames / stride_length; i++)
             {
                 first_dim_values = data->values[i];
                 for(j = num_first_particle; j < num_first_particle + n_particles;
@@ -8548,7 +8580,7 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
             break;
         case TNG_INT_DATA:
             size = sizeof(int64_t);
-            for(i = 0; i < n_frames; i++)
+            for(i = 0; i < n_frames / stride_length; i++)
             {
                 first_dim_values = data->values[i];
                 for(j = num_first_particle; j < num_first_particle + n_particles;
@@ -8565,7 +8597,7 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
             }
             break;
         case TNG_CHAR_DATA:
-            for(i = 0; i < n_frames; i++)
+            for(i = 0; i < n_frames / stride_length; i++)
             {
                 first_dim_values = data->values[i];
                 for(j = num_first_particle; j < num_first_particle + n_particles;
@@ -8597,7 +8629,7 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
         case TNG_DOUBLE_DATA:
         default:
             size = sizeof(double);
-            for(i = 0; i < n_frames; i++)
+            for(i = 0; i < n_frames / stride_length; i++)
             {
                 first_dim_values = data->values[i];
                 for(j = num_first_particle; j < num_first_particle + n_particles;
@@ -8620,7 +8652,7 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
     /* Otherwise fill the data block with zeroes */
     else
     {
-        for(i = 0; i < n_frames; i++)
+        for(i = 0; i < n_frames / stride_length; i++)
         {
             first_dim_values = data->values[i];
             for(j = num_first_particle; j < num_first_particle + n_particles;
@@ -8677,6 +8709,8 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
     tng_data->input_file = tng_data->output_file;
 
     stat = tng_frame_set_of_frame_find(tng_data, frame_nr);
+
+    frame_set = &tng_data->current_trajectory_frame_set;
     
     if(stat != TNG_SUCCESS)
     {
@@ -8711,7 +8745,7 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
 
     tng_block_init(&block);
     
-    file_pos = ftell(tng_data->output_file);
+    file_pos = tng_data->current_trajectory_frame_set_output_file_pos;
     
     fseek(tng_data->output_file, 0, SEEK_END);
     output_file_len = ftell(tng_data->output_file);
@@ -9626,7 +9660,8 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
     new_data->datatype = data->datatype;
     *n_values_per_frame = data->n_values_per_frame;
     if(tng_allocate_data_mem(tng_data, new_data, data->n_frames,
-                             *n_values_per_frame) != TNG_SUCCESS)
+                             data->stride_length, *n_values_per_frame)
+       != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
     }
@@ -9759,7 +9794,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
 
     if(*values == 0)
     {
-        new_data = malloc(sizeof(struct tng_particle_data));
+        new_data = malloc(sizeof(struct tng_non_particle_data));
 
         new_data->n_values_per_frame = 0;
         new_data->n_frames = 0;
@@ -9767,6 +9802,7 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
         new_data->datatype = data->datatype;
         *n_values_per_frame = data->n_values_per_frame;
         if(tng_allocate_data_mem(tng_data, new_data, n_frames,
+                                 data->stride_length,
                                  data->n_values_per_frame) != TNG_SUCCESS)
         {
             free(new_data);
@@ -9983,8 +10019,9 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
         new_data->datatype = data->datatype;
         *n_values_per_frame = data->n_values_per_frame;
         if(tng_allocate_particle_data_mem(tng_data, new_data, data->n_frames,
-                                        *n_particles, data->n_values_per_frame) !=
-        TNG_SUCCESS)
+                                          data->stride_length,
+                                        *n_particles, data->n_values_per_frame)
+            != TNG_SUCCESS)
         {
             free(new_data);
             return(TNG_CRITICAL);
@@ -10161,6 +10198,7 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
         new_data->datatype = data->datatype;
         *n_values_per_frame = data->n_values_per_frame;
         if(tng_allocate_particle_data_mem(tng_data, new_data, n_frames,
+                                          data->stride_length, 
                                           *n_particles, data->n_values_per_frame) !=
            TNG_SUCCESS)
         {
