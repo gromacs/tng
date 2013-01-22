@@ -8940,8 +8940,8 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
 
     n_values_per_frame = data.n_values_per_frame;
 
-    file_pos = (frame_nr - (frame_set->first_frame +
-                            data.first_frame_with_data)) /
+    file_pos = (frame_nr - max(frame_set->first_frame,
+                               data.first_frame_with_data)) /
                 data.stride_length;
     file_pos *= size * n_values_per_frame;
 
@@ -9419,8 +9419,8 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
 
     n_values_per_frame = data.n_values_per_frame;
 
-    file_pos = (frame_nr - (frame_set->first_frame +
-                            data.first_frame_with_data)) /
+    file_pos = (frame_nr - max(frame_set->first_frame,
+                               data.first_frame_with_data)) /
                 data.stride_length;
     file_pos *= block_n_particles * size * n_values_per_frame;
 
