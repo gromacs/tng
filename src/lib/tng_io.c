@@ -4371,8 +4371,6 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         return(TNG_CRITICAL);
     }
 
-    fflush(tng_data->output_file);
-
     return(TNG_SUCCESS);
 }
 
