@@ -80,7 +80,7 @@ int main ( int argc, char *argv[] )
     int step_print_index;
     int step_print_num;
     int step_save;
-    int sparse_save;
+    int64_t sparse_save;
     double *vel;
     double wtime;
     tng_trajectory_t traj;
@@ -269,7 +269,10 @@ int main ( int argc, char *argv[] )
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
         exit(1);
     }
-    /* There is no standard ID for potential energy. Pick one. */
+    
+    /* There is no standard ID for potential energy. Pick one. The
+       potential energy will not be saved every frame - it is sparsely
+       saved. */
     if(tng_data_block_add(traj, 10101,
                           "POTENTIAL ENERGY",
                           TNG_DOUBLE_DATA,

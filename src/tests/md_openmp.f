@@ -67,6 +67,7 @@ c
       integer step_print_index
       integer step_print_num
       integer step_save
+      integer*8 sparse_save
       integer thread_num
       double precision vel(nd,np)
       double precision wtime
@@ -218,6 +219,7 @@ c
       step_print = 0
       step_print_index = 0
       step_print_num = 10
+      sparse_save = 10
 
       frames_saved_cnt = 0
 
@@ -262,17 +264,26 @@ c
       call tng_particle_data_block_add(traj, TNG_TRAJ_POSITIONS,
      &  "POSITIONS", TNG_DOUBLE_DATA, TNG_TRAJECTORY_BLOCK,
      &  n_frames_per_frame_set, int(3, 8), int(1, 8), int(0, 8),
-     &  tng_n_particles, TNG_UNCOMPRESSED, %VAL(0))
+     &  tng_n_particles, TNG_UNCOMPRESSED, %VAL(int(0, 8)))
       
       call tng_particle_data_block_add(traj, TNG_TRAJ_VELOCITIES,
      &  "VELOCITIES", TNG_DOUBLE_DATA, TNG_TRAJECTORY_BLOCK,
      &  n_frames_per_frame_set, int(3, 8), int(1, 8), int(0, 8),
-     &  tng_n_particles, TNG_UNCOMPRESSED, %VAL(0))
+     &  tng_n_particles, TNG_UNCOMPRESSED, %VAL(int(0, 8)))
       
       call tng_particle_data_block_add(traj, TNG_TRAJ_FORCES,
      &  "FORCES", TNG_DOUBLE_DATA, TNG_TRAJECTORY_BLOCK,
      &  n_frames_per_frame_set, int(3, 8), int(1, 8), int(0, 8),
-     &  tng_n_particles, TNG_UNCOMPRESSED, %VAL(0))
+     &  tng_n_particles, TNG_UNCOMPRESSED, %VAL(int(0, 8)))
+
+c
+c  The potential energy data block is saved sparsely.
+c     
+      call tng_data_block_add(traj, int(10101, 8),
+     &  "POTENTIAL ENERGY", TNG_DOUBLE_DATA, TNG_TRAJECTORY_BLOCK,
+     &  n_frames_per_frame_set, int(1, 8), sparse_save,
+     &  TNG_UNCOMPRESSED, %VAL(int(0, 8)))
+     
 
 c
 c  Write the frame set to disk
@@ -301,15 +312,21 @@ c  Output to TNG file at regular intervals, specified by step_save
 c
         if ( step_save .EQ. 0 .OR. mod(step, step_save) .EQ. 0 ) then
           call tng_frame_particle_data_write(traj, frames_saved_cnt,
-     &  TNG_TRAJ_POSITIONS, int(0, 8), tng_n_particles, pos,
-     &  TNG_USE_HASH)
+     &    TNG_TRAJ_POSITIONS, int(0, 8), tng_n_particles, pos,
+     &    TNG_USE_HASH)
           call tng_frame_particle_data_write(traj, frames_saved_cnt,
-     &  TNG_TRAJ_VELOCITIES, int(0, 8), tng_n_particles, vel,
-     &  TNG_USE_HASH)
+     &    TNG_TRAJ_VELOCITIES, int(0, 8), tng_n_particles, vel,
+     &    TNG_USE_HASH)
           call tng_frame_particle_data_write(traj, frames_saved_cnt,
-     &  TNG_TRAJ_FORCES, int(0, 8), tng_n_particles, force,
-     &  TNG_USE_HASH)
+     &    TNG_TRAJ_FORCES, int(0, 8), tng_n_particles, force,
+     &    TNG_USE_HASH)
           frames_saved_cnt = frames_saved_cnt + 1
+          
+          if (mod(step, step_save * sparse_save) .EQ. 0) then
+            call tng_frame_data_write(traj, frames_saved_cnt,
+     &      int(10101, 8), potential, TNG_USE_HASH)
+          end if
+          
         end if
 
         call update ( np, nd, pos, vel, force, acc, mass, dt )
