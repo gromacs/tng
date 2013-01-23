@@ -4,7 +4,7 @@
  *
  * Written by Magnus Lundborg
  * Copyright (c) 2012, The GROMACS development team.
- * check out http://www.gromacs.org for more information.
+ * Check out http://www.gromacs.org for more information.
  *
  *
  * This program is free software; you can redistribute it and/or
@@ -72,26 +72,27 @@
  *
  * @section examples_sec Examples
  *
+ * There are some examples of how to use the library in the testing located
+ * located in src/tests/
+ *
  * @subsection tng_subsec TNG files
  *
  * The build directory contains an example_files directory, which in turn
  * contains a very short example of a TNG file containing a few water molecules,
  * a box shape description and positions in 10 frames.
  *
- * It is also possible to run the bin/md_openmp testing program, which will
- * save MD simulations output to a new file (saved in the example_files
- * directory).
+ * It is also possible to run the bin/md_openmp (see src/tests/md_openmp.c)
+ * testing program, which will save MD simulations output to a new file
+ * (saved in the example_files directory).
  *
  * These files can be read using the bin/tng_io_read_pos testing program.
  *
  * @subsection c_subsec C
  *
  * \code
- * // These includes must be fixed in order to compile the example.
- * // They do not include the # in order to compile the header file.
- * include <stdlib.h>
- * include <stdio.h>
- * include <tng_io.h>
+ * #include <stdlib.h>
+ * #include <stdio.h>
+ * #include <tng_io.h>
  *
  * int main(int argc, char **argv)
  * {
