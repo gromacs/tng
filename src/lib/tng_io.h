@@ -48,6 +48,9 @@
  *
  * @section License
  *
+ * Copyright (c) 2012, Magnus Lundborg and The GROMACS development team.
+ * check out http://www.gromacs.org for more information.
+ * 
  * The TNG API is released under LGPL 2.1 and is free to redistribute according
  * to that license (or a later version of the LGPL license).
  *
