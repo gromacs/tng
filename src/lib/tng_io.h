@@ -48,7 +48,7 @@
  *
  * @section License
  *
- * Copyright (c) 2012, Magnus Lundborg and The GROMACS development team.
+ * Copyright (c) 2012, The GROMACS development team.
  * check out http://www.gromacs.org for more information.
  * 
  * The TNG API is released under LGPL 2.1 and is free to redistribute according
@@ -1880,14 +1880,14 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
                                                   const int64_t val_first_particle,
                                                   const int64_t val_n_particles,
                                                   const void *data,
-                                                 const tng_hash_mode hash_mode);
+                                                  const tng_hash_mode hash_mode);
 tng_function_status tng_frame_particle_data_write_(tng_trajectory_t tng_data,
                                                    const int64_t *frame_nr,
                                                    const int64_t *block_id,
-                                                  const int64_t *val_first_particle,
+                                                   const int64_t *val_first_particle,
                                                    const int64_t *val_n_particles,
                                                    const void *data,
-                                                 const tng_hash_mode *hash_mode)
+                                                   const tng_hash_mode *hash_mode)
 {
     return(tng_frame_particle_data_write(tng_data, *frame_nr, *block_id,
                                          *val_first_particle, *val_n_particles,

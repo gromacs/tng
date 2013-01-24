@@ -3,7 +3,7 @@
  *                      VERSION 1.0
  *
  * Written by Magnus Lundborg
- * Copyright (c) 2012, Magnus Lundborg and The GROMACS development team.
+ * Copyright (c) 2012, The GROMACS development team.
  * Check out http://www.gromacs.org for more information.
  *
  *
