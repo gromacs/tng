@@ -345,7 +345,8 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
                                        TNG_TRAJECTORY_BLOCK,
                                        n_frames_per_frame_set, 3,
                                        1, 0, n_particles,
-                                       TNG_UNCOMPRESSED,
+//                                        TNG_UNCOMPRESSED,
+                                       TNG_GZIP_COMPRESSION,
                                        data) != TNG_SUCCESS)
         {
             printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
@@ -455,15 +456,15 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
                 data[cnt++] = molpos[nr + 1] - 1;
                 data[cnt++] = molpos[nr + 2] - 1;
             }
-            if(tng_frame_particle_data_write(traj, frame_nr + i,
-                                          TNG_TRAJ_POSITIONS, j * 300, 300,
-                                          data, TNG_SKIP_HASH) != TNG_SUCCESS)
-            {
-                printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-                free(molpos);
-                free(data);
-                return(TNG_CRITICAL);
-            }
+//             if(tng_frame_particle_data_write(traj, frame_nr + i,
+//                                           TNG_TRAJ_POSITIONS, j * 300, 300,
+//                                           data, TNG_SKIP_HASH) != TNG_SUCCESS)
+//             {
+//                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+//                 free(molpos);
+//                 free(data);
+//                 return(TNG_CRITICAL);
+//             }
         }
     }
     

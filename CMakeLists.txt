@@ -18,6 +18,8 @@ if(USE_OPENMP)
   endif()
 endif()
 
+FIND_PACKAGE(ZLIB)
+
 add_subdirectory(src)
 
 file(COPY example_files DESTINATION .)
