@@ -69,7 +69,7 @@ int main ( int argc, char *argv[] )
     double kinetic;
     double mass = 1.0;
     int nd = 3;
-    int np = 25;
+    int np = 250;
     double *pos;
     double potential;
     int proc_num;
