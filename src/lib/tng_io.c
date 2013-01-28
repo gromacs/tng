@@ -7981,7 +7981,6 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
     &tng_data->current_trajectory_frame_set;
     
     tng_function_status stat;
-    
 
     tng_data->current_trajectory_frame_set_output_file_pos =
     tng_data->last_trajectory_frame_set_output_file_pos = 
@@ -7990,6 +7989,12 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
     if(tng_data->current_trajectory_frame_set_output_file_pos <= 0)
     {
         return(TNG_FAILURE);
+    }
+
+    if(tng_data->first_trajectory_frame_set_output_file_pos == -1)
+    {
+        tng_data->first_trajectory_frame_set_output_file_pos =
+        tng_data->current_trajectory_frame_set_output_file_pos;
     }
 
     tng_block_init(&block);
