@@ -3207,6 +3207,8 @@ static tng_function_status tng_particle_data_read
 
     data->first_frame_with_data = first_frame_with_data;
     
+    n_frames = max(1, n_frames / stride_length);
+
     switch(datatype)
     {
     case TNG_FLOAT_DATA:
@@ -3979,7 +3981,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
 
     data->first_frame_with_data = first_frame_with_data;
     
-    n_frames = max(1, n_frames);
+    n_frames = max(1, n_frames / stride_length);
 
     switch(datatype)
     {
@@ -4431,7 +4433,6 @@ static tng_function_status tng_data_block_contents_read
         hash_match_verify(block, &same_hash);
         if(same_hash != TRUE)
         {
-            printf("%s\n", block->hash);
             printf("Data block contents corrupt. Hashes do not match. %s: %d\n",
                 __FILE__, __LINE__);
     //         return(TNG_FAILURE);
