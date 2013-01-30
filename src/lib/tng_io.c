@@ -5573,7 +5573,7 @@ tng_function_status tng_chain_name_of_particle_nr_get
     {
         return(TNG_FAILURE);
     }
-    if(!atom->residue || atom->residue->chain)
+    if(!atom->residue || !atom->residue->chain)
     {
         return(TNG_FAILURE);
     }
