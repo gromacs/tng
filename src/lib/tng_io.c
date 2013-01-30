@@ -8798,7 +8798,7 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
     contents_size = block->block_contents_size;
     header_size = block->header_contents_size;
 
-    header_pos = file_pos;
+    header_pos = ftell(tng_data->output_file) - header_size;
     frame_set = &tng_data->current_trajectory_frame_set;
 
     if(fread(&datatype, sizeof(datatype), 1, tng_data->input_file) == 0)
@@ -8999,7 +8999,7 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
     
     /* If the last frame has been written update the hash */
     if(hash_mode == TNG_USE_HASH && (frame_nr + data.stride_length -
-       data.first_frame_with_data) / data.stride_length >=
+       data.first_frame_with_data) >=
        frame_set->n_frames)
     {
         tng_md5_hash_update(tng_data, block, header_pos, header_pos +
@@ -9478,7 +9478,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
 
     /* If the last frame has been written update the hash */
     if(hash_mode == TNG_USE_HASH && (frame_nr + data.stride_length -
-       data.first_frame_with_data) / data.stride_length >=
+       data.first_frame_with_data) >=
        frame_set->n_frames)
     {
         tng_md5_hash_update(tng_data, block, header_pos, header_pos +
