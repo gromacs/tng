@@ -74,8 +74,6 @@
  *
  * See git log for full revision history.
  *
- * v. 1.0 - First stable release of the API.
- *
  * revs - Bug fixes in tng_testing (frame sets not written before)
  *      - Write box shape, partial charges and annotation data in tng_testing
  *      - Fixed wrong values in dependency constants
@@ -87,6 +85,9 @@
  *      - Update frame set pointers properly.
  *      - Fixed bug in chain_name_of_particle_get(...)
  *      - Fixed bug when updating MD5 hashes of data blocks.
+ * 
+ * v. 1.0 - First stable release of the API.
+ *
  *
  * @section examples_sec Examples
  *
