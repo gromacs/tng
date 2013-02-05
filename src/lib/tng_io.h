@@ -70,6 +70,24 @@
  *
  * bin/tng_testing
  *
+ * @section change_sec Change Log
+ *
+ * See git log for full revision history.
+ *
+ * v. 1.0 - First stable release of the API.
+ *
+ * revs - Bug fixes in tng_testing (frame sets not written before)
+ *      - Write box shape, partial charges and annotation data in tng_testing
+ *      - Fixed wrong values in dependency constants
+ *      - Fixed bug when writing data blocks.
+ *      - Fixed memory leak for non-trajectory particle data blocks.
+ *      - Fixed bugs related to reading and writing sparse data.
+ *      - Write sparse data in mdrun examples.
+ *      - Moved fortran wrapper from header file to source file.
+ *      - Update frame set pointers properly.
+ *      - Fixed bug in chain_name_of_particle_get(...)
+ *      - Fixed bug when updating MD5 hashes of data blocks.
+ *
  * @section examples_sec Examples
  *
  * There are some examples of how to use the library in the testing located
