@@ -322,7 +322,8 @@ struct tng_trajectory {
 
 
 
-/** This function swaps the byte order of a 32 bit numerical variable.
+/** This function swaps the byte order of a 32 bit numerical variable
+ * to big endian.
  * It does not only work with integer, but e.g. floats need casting.
  * If the byte order is already big endian no change is needed.
  * @param tng_data is a trajectory data container.
@@ -330,7 +331,7 @@ struct tng_trajectory {
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the current
  * byte order is not recognised.
  */
-static inline tng_function_status tng_swap_byte_order_32
+static inline tng_function_status tng_byte_order_to_big_endian_32
                 (const tng_trajectory_t tng_data, int32_t *v)
 {
     switch(tng_data->endianness_32)
@@ -357,17 +358,18 @@ static inline tng_function_status tng_swap_byte_order_32
     }
 }
 
-/** This function swaps the byte order of a 64 bit numerical variable.
- *  It does not only work with integer, but e.g. floats need casting.
- *  The byte order swapping routine can convert four different byte
- *  orders to big endian.
+/** This function swaps the byte order of a 64 bit numerical variable
+ * to big endian.
+ * It does not only work with integer, but e.g. floats need casting.
+ * The byte order swapping routine can convert four different byte
+ * orders to big endian.
  * If the byte order is already big endian no change is needed.
  * @param tng_data is a trajectory data container.
  * @param v is a pointer to a 64 bit numerical value (double or integer).
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the current
  * byte order is not recognised.
  */
-static inline tng_function_status tng_swap_byte_order_64
+static inline tng_function_status tng_byte_order_to_big_endian_64
                 (const tng_trajectory_t tng_data, int64_t *v)
 {
     switch(tng_data->endianness_64)
@@ -638,7 +640,7 @@ static tng_function_status tng_block_header_read
         return(TNG_CRITICAL);
     }
 
-    if(tng_swap_byte_order_64(tng_data,
+    if(tng_byte_order_to_big_endian_64(tng_data,
                                 &block->header_contents_size) != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -681,7 +683,7 @@ static tng_function_status tng_block_header_read
     /* Copy the respective parameters from the header contents block */
     memcpy(&block->block_contents_size, block->header_contents+offset,
            sizeof(block->block_contents_size));
-    if(tng_swap_byte_order_64(tng_data, &block->block_contents_size)
+    if(tng_byte_order_to_big_endian_64(tng_data, &block->block_contents_size)
         != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -690,7 +692,7 @@ static tng_function_status tng_block_header_read
     offset += sizeof(block->block_contents_size);
 
     memcpy(&block->id, block->header_contents+offset, sizeof(block->id));
-    if(tng_swap_byte_order_64(tng_data, &block->id) != TNG_SUCCESS)
+    if(tng_byte_order_to_big_endian_64(tng_data, &block->id) != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
                 __FILE__, __LINE__);
@@ -721,7 +723,7 @@ static tng_function_status tng_block_header_read
 
     memcpy(&block->block_version, block->header_contents+offset,
            sizeof(block->block_version));
-    if(tng_swap_byte_order_64(tng_data, &block->block_version)
+    if(tng_byte_order_to_big_endian_64(tng_data, &block->block_version)
         != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -837,7 +839,7 @@ static tng_function_status tng_block_header_write
      * the whole block at once. */
     memcpy(block->header_contents, &block->header_contents_size,
            sizeof(block->header_contents_size));
-    if(tng_swap_byte_order_64(tng_data,
+    if(tng_byte_order_to_big_endian_64(tng_data,
                                 (int64_t *)(block->header_contents))
         != TNG_SUCCESS)
     {
@@ -848,7 +850,7 @@ static tng_function_status tng_block_header_write
     
     memcpy(block->header_contents+offset, &block->block_contents_size,
            sizeof(block->block_contents_size));
-    if(tng_swap_byte_order_64(tng_data,
+    if(tng_byte_order_to_big_endian_64(tng_data,
                                 (int64_t *)(block->header_contents+offset))
         != TNG_SUCCESS)
     {
@@ -858,7 +860,7 @@ static tng_function_status tng_block_header_write
     offset += sizeof(block->block_contents_size);
     
     memcpy(block->header_contents+offset, &block->id, sizeof(block->id));
-    if(tng_swap_byte_order_64(tng_data,
+    if(tng_byte_order_to_big_endian_64(tng_data,
                                 (int64_t *)(block->header_contents+offset))
         != TNG_SUCCESS)
     {
@@ -875,7 +877,7 @@ static tng_function_status tng_block_header_write
 
     memcpy(block->header_contents+offset, &block->block_version,
            sizeof(block->block_version));
-    if(tng_swap_byte_order_64(tng_data,
+    if(tng_byte_order_to_big_endian_64(tng_data,
                                 (int64_t *)(block->header_contents+offset))
         != TNG_SUCCESS)
     {
@@ -1070,7 +1072,7 @@ static tng_function_status tng_general_info_block_read
 
     memcpy(&tng_data->time, block->block_contents+offset,
            sizeof(tng_data->time));
-    if(tng_swap_byte_order_64(tng_data, &tng_data->time) != TNG_SUCCESS)
+    if(tng_byte_order_to_big_endian_64(tng_data, &tng_data->time) != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
                 __FILE__, __LINE__);
@@ -1083,7 +1085,7 @@ static tng_function_status tng_general_info_block_read
 
     memcpy(&tng_data->frame_set_n_frames, block->block_contents+offset,
            sizeof(tng_data->frame_set_n_frames));
-    if(tng_swap_byte_order_64(tng_data, &tng_data->frame_set_n_frames)
+    if(tng_byte_order_to_big_endian_64(tng_data, &tng_data->frame_set_n_frames)
         != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1094,7 +1096,7 @@ static tng_function_status tng_general_info_block_read
     memcpy(&tng_data->first_trajectory_frame_set_input_file_pos,
            block->block_contents+offset,
            sizeof(tng_data->first_trajectory_frame_set_input_file_pos));
-    if(tng_swap_byte_order_64(tng_data,
+    if(tng_byte_order_to_big_endian_64(tng_data,
                         &tng_data->first_trajectory_frame_set_input_file_pos)
         != TNG_SUCCESS)
     {
@@ -1109,7 +1111,7 @@ static tng_function_status tng_general_info_block_read
     memcpy(&tng_data->last_trajectory_frame_set_input_file_pos,
            block->block_contents+offset,
            sizeof(tng_data->last_trajectory_frame_set_input_file_pos));
-    if(tng_swap_byte_order_64(tng_data,
+    if(tng_byte_order_to_big_endian_64(tng_data,
                         &tng_data->last_trajectory_frame_set_input_file_pos)
         != TNG_SUCCESS)
     {
@@ -1120,7 +1122,7 @@ static tng_function_status tng_general_info_block_read
 
     memcpy(&tng_data->medium_stride_length, block->block_contents+offset,
            sizeof(tng_data->medium_stride_length));
-    if(tng_swap_byte_order_64(tng_data, &tng_data->medium_stride_length)
+    if(tng_byte_order_to_big_endian_64(tng_data, &tng_data->medium_stride_length)
         != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1130,7 +1132,7 @@ static tng_function_status tng_general_info_block_read
 
     memcpy(&tng_data->long_stride_length, block->block_contents+offset,
            sizeof(tng_data->long_stride_length));
-    if(tng_swap_byte_order_64(tng_data, &tng_data->long_stride_length)
+    if(tng_byte_order_to_big_endian_64(tng_data, &tng_data->long_stride_length)
         != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1365,7 +1367,7 @@ static tng_function_status tng_general_info_block_write
 
     memcpy(block->block_contents+offset, &tng_data->time,
            sizeof(tng_data->time));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                               (block->block_contents+offset))
         != TNG_SUCCESS)
     {
@@ -1380,7 +1382,7 @@ static tng_function_status tng_general_info_block_write
     
     memcpy(block->block_contents+offset, &tng_data->frame_set_n_frames,
            sizeof(tng_data->frame_set_n_frames));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                               (block->block_contents+offset))
         != TNG_SUCCESS)
     {
@@ -1392,7 +1394,7 @@ static tng_function_status tng_general_info_block_write
     memcpy(block->block_contents+offset,
            &tng_data->first_trajectory_frame_set_input_file_pos,
            sizeof(tng_data->first_trajectory_frame_set_input_file_pos));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                               (block->block_contents+offset))
         != TNG_SUCCESS)
     {
@@ -1404,7 +1406,7 @@ static tng_function_status tng_general_info_block_write
     memcpy(block->block_contents+offset,
            &tng_data->last_trajectory_frame_set_input_file_pos,
            sizeof(tng_data->last_trajectory_frame_set_input_file_pos));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                               (block->block_contents+offset))
         != TNG_SUCCESS)
     {
@@ -1415,7 +1417,7 @@ static tng_function_status tng_general_info_block_write
     
     memcpy(block->block_contents+offset, &tng_data->medium_stride_length,
            sizeof(tng_data->medium_stride_length));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                               (block->block_contents+offset))
         != TNG_SUCCESS)
     {
@@ -1426,7 +1428,7 @@ static tng_function_status tng_general_info_block_write
 
     memcpy(block->block_contents+offset, &tng_data->long_stride_length,
            sizeof(tng_data->long_stride_length));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                               (block->block_contents+offset))
         != TNG_SUCCESS)
     {
@@ -1530,7 +1532,7 @@ static tng_function_status tng_molecules_block_read
 
     memcpy(&tng_data->n_molecules, block->block_contents,
            sizeof(tng_data->n_molecules));
-    if(tng_swap_byte_order_64(tng_data, &tng_data->n_molecules)
+    if(tng_byte_order_to_big_endian_64(tng_data, &tng_data->n_molecules)
         != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1579,7 +1581,7 @@ static tng_function_status tng_molecules_block_read
 
         memcpy(&molecule->id, block->block_contents+offset,
                sizeof(molecule->id));
-        if(tng_swap_byte_order_64(tng_data, &molecule->id) != TNG_SUCCESS)
+        if(tng_byte_order_to_big_endian_64(tng_data, &molecule->id) != TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
                     __FILE__, __LINE__);
@@ -1594,7 +1596,7 @@ static tng_function_status tng_molecules_block_read
 
         memcpy(&molecule->quaternary_str, block->block_contents+offset,
                sizeof(molecule->quaternary_str));
-        if(tng_swap_byte_order_64(tng_data, &molecule->quaternary_str) != TNG_SUCCESS)
+        if(tng_byte_order_to_big_endian_64(tng_data, &molecule->quaternary_str) != TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
                     __FILE__, __LINE__);
@@ -1606,7 +1608,7 @@ static tng_function_status tng_molecules_block_read
             memcpy(&tng_data->molecule_cnt_list[i],
                    block->block_contents+offset,
                    sizeof(int64_t));
-            if(tng_swap_byte_order_64(tng_data,
+            if(tng_byte_order_to_big_endian_64(tng_data,
                 &tng_data->molecule_cnt_list[i]) != TNG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1618,7 +1620,7 @@ static tng_function_status tng_molecules_block_read
 
         memcpy(&molecule->n_chains, block->block_contents+offset,
                sizeof(molecule->n_chains));
-        if(tng_swap_byte_order_64(tng_data, &molecule->n_chains)
+        if(tng_byte_order_to_big_endian_64(tng_data, &molecule->n_chains)
             != TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1628,7 +1630,7 @@ static tng_function_status tng_molecules_block_read
 
         memcpy(&molecule->n_residues, block->block_contents+offset,
                sizeof(molecule->n_residues));
-        if(tng_swap_byte_order_64(tng_data, &molecule->n_residues)
+        if(tng_byte_order_to_big_endian_64(tng_data, &molecule->n_residues)
             != TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1638,7 +1640,7 @@ static tng_function_status tng_molecules_block_read
 
         memcpy(&molecule->n_atoms, block->block_contents+offset,
                sizeof(molecule->n_atoms));
-        if(tng_swap_byte_order_64(tng_data, &molecule->n_atoms)
+        if(tng_byte_order_to_big_endian_64(tng_data, &molecule->n_atoms)
             != TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1692,7 +1694,7 @@ static tng_function_status tng_molecules_block_read
             
             memcpy(&chain->id, block->block_contents+offset,
                    sizeof(chain->id));
-            if(tng_swap_byte_order_64(tng_data, &chain->id) != TNG_SUCCESS)
+            if(tng_byte_order_to_big_endian_64(tng_data, &chain->id) != TNG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
                     __FILE__, __LINE__);
@@ -1708,7 +1710,7 @@ static tng_function_status tng_molecules_block_read
 
             memcpy(&chain->n_residues, block->block_contents+offset,
                 sizeof(chain->n_residues));
-            if(tng_swap_byte_order_64(tng_data, &chain->n_residues)
+            if(tng_byte_order_to_big_endian_64(tng_data, &chain->n_residues)
                 != TNG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1723,7 +1725,7 @@ static tng_function_status tng_molecules_block_read
                 residue->chain = chain;
                 memcpy(&residue->id, block->block_contents+offset,
                     sizeof(residue->id));
-                if(tng_swap_byte_order_64(tng_data, &residue->id) != TNG_SUCCESS)
+                if(tng_byte_order_to_big_endian_64(tng_data, &residue->id) != TNG_SUCCESS)
                 {
                     printf("Cannot swap byte order to get big endian. %s: %d\n",
                         __FILE__, __LINE__);
@@ -1739,7 +1741,7 @@ static tng_function_status tng_molecules_block_read
 
                 memcpy(&residue->n_atoms, block->block_contents+offset,
                     sizeof(residue->n_atoms));
-                if(tng_swap_byte_order_64(tng_data, &residue->n_atoms)
+                if(tng_byte_order_to_big_endian_64(tng_data, &residue->n_atoms)
                     != TNG_SUCCESS)
                 {
                     printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1755,7 +1757,7 @@ static tng_function_status tng_molecules_block_read
                     
                     memcpy(&atom->id, block->block_contents+offset,
                         sizeof(atom->id));
-                    if(tng_swap_byte_order_64(tng_data, &atom->id) != TNG_SUCCESS)
+                    if(tng_byte_order_to_big_endian_64(tng_data, &atom->id) != TNG_SUCCESS)
                     {
                         printf("Cannot swap byte order to get big endian. %s: %d\n",
                             __FILE__, __LINE__);
@@ -1785,7 +1787,7 @@ static tng_function_status tng_molecules_block_read
 
         memcpy(&molecule->n_bonds, block->block_contents+offset,
                sizeof(molecule->n_bonds));
-        if(tng_swap_byte_order_64(tng_data, &molecule->n_bonds)
+        if(tng_byte_order_to_big_endian_64(tng_data, &molecule->n_bonds)
             != TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1809,7 +1811,7 @@ static tng_function_status tng_molecules_block_read
         {
             memcpy(&bond->from_atom_id, block->block_contents+offset,
                 sizeof(bond->from_atom_id));
-            if(tng_swap_byte_order_64(tng_data, &bond->from_atom_id)
+            if(tng_byte_order_to_big_endian_64(tng_data, &bond->from_atom_id)
                 != TNG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -1819,7 +1821,7 @@ static tng_function_status tng_molecules_block_read
 
             memcpy(&bond->to_atom_id, block->block_contents+offset,
                 sizeof(bond->to_atom_id));
-            if(tng_swap_byte_order_64(tng_data, &bond->to_atom_id)
+            if(tng_byte_order_to_big_endian_64(tng_data, &bond->to_atom_id)
                 != TNG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -2004,7 +2006,7 @@ static tng_function_status tng_molecules_block_write
 
     memcpy(block->block_contents+offset, &tng_data->n_molecules,
            sizeof(tng_data->n_molecules));
-    if(tng_swap_byte_order_64(tng_data,
+    if(tng_byte_order_to_big_endian_64(tng_data,
                                 (int64_t *)(block->block_contents+offset))
         != TNG_SUCCESS)
     {
@@ -2019,7 +2021,7 @@ static tng_function_status tng_molecules_block_write
 //         printf("i=%d\n", i);
         memcpy(block->block_contents+offset, &molecule->id,
                sizeof(molecule->id));
-        if(tng_swap_byte_order_64(tng_data,
+        if(tng_byte_order_to_big_endian_64(tng_data,
                                     (int64_t *)(block->block_contents+offset))
             != TNG_SUCCESS)
         {
@@ -2035,7 +2037,7 @@ static tng_function_status tng_molecules_block_write
 
         memcpy(block->block_contents+offset, &molecule->quaternary_str,
                sizeof(molecule->quaternary_str));
-        if(tng_swap_byte_order_64(tng_data,
+        if(tng_byte_order_to_big_endian_64(tng_data,
                                     (int64_t *)(block->block_contents+offset))
             != TNG_SUCCESS)
         {
@@ -2048,7 +2050,7 @@ static tng_function_status tng_molecules_block_write
         {
             memcpy(block->block_contents+offset,
                    &tng_data->molecule_cnt_list[i], sizeof(int64_t));
-            if(tng_swap_byte_order_64(tng_data,
+            if(tng_byte_order_to_big_endian_64(tng_data,
                                     (int64_t *)(block->block_contents+offset))
                 != TNG_SUCCESS)
             {
@@ -2060,7 +2062,7 @@ static tng_function_status tng_molecules_block_write
 
         memcpy(block->block_contents+offset, &molecule->n_chains,
                sizeof(molecule->n_chains));
-        if(tng_swap_byte_order_64(tng_data,
+        if(tng_byte_order_to_big_endian_64(tng_data,
                                     (int64_t *)(block->block_contents+offset))
             != TNG_SUCCESS)
         {
@@ -2071,7 +2073,7 @@ static tng_function_status tng_molecules_block_write
 
         memcpy(block->block_contents+offset, &molecule->n_residues,
                sizeof(molecule->n_residues));
-        if(tng_swap_byte_order_64(tng_data,
+        if(tng_byte_order_to_big_endian_64(tng_data,
                                     (int64_t *)(block->block_contents+offset))
             != TNG_SUCCESS)
         {
@@ -2082,7 +2084,7 @@ static tng_function_status tng_molecules_block_write
 
         memcpy(block->block_contents+offset, &molecule->n_atoms,
                sizeof(molecule->n_atoms));
-        if(tng_swap_byte_order_64(tng_data,
+        if(tng_byte_order_to_big_endian_64(tng_data,
                                     (int64_t *)(block->block_contents+offset))
             != TNG_SUCCESS)
         {
@@ -2095,7 +2097,7 @@ static tng_function_status tng_molecules_block_write
         for(j = molecule->n_chains; j--;)
         {
             memcpy(block->block_contents+offset, &chain->id, sizeof(chain->id));
-            if(tng_swap_byte_order_64(tng_data,
+            if(tng_byte_order_to_big_endian_64(tng_data,
                                     (int64_t *)(block->block_contents+offset))
                 != TNG_SUCCESS)
             {
@@ -2110,7 +2112,7 @@ static tng_function_status tng_molecules_block_write
             
             memcpy(block->block_contents+offset, &chain->n_residues,
                 sizeof(chain->n_residues));
-            if(tng_swap_byte_order_64(tng_data,
+            if(tng_byte_order_to_big_endian_64(tng_data,
                                     (int64_t *)(block->block_contents+offset))
                 != TNG_SUCCESS)
             {
@@ -2123,7 +2125,7 @@ static tng_function_status tng_molecules_block_write
             for(k = chain->n_residues; k--;)
             {
                 memcpy(block->block_contents+offset, &residue->id, sizeof(residue->id));
-                if(tng_swap_byte_order_64(tng_data,
+                if(tng_byte_order_to_big_endian_64(tng_data,
                                     (int64_t *)(block->block_contents+offset))
                     != TNG_SUCCESS)
                 {
@@ -2138,7 +2140,7 @@ static tng_function_status tng_molecules_block_write
                 
                 memcpy(block->block_contents+offset, &residue->n_atoms,
                     sizeof(residue->n_atoms));
-                if(tng_swap_byte_order_64(tng_data,
+                if(tng_byte_order_to_big_endian_64(tng_data,
                                         (int64_t *)(block->block_contents+offset))
                     != TNG_SUCCESS)
                 {
@@ -2152,7 +2154,7 @@ static tng_function_status tng_molecules_block_write
                 {
         //             printf("j=%d\n", j);
                     memcpy(block->block_contents+offset, &atom->id, sizeof(atom->id));
-                    if(tng_swap_byte_order_64(tng_data,
+                    if(tng_byte_order_to_big_endian_64(tng_data,
                                         (int64_t *)(block->block_contents+offset))
                         != TNG_SUCCESS)
                     {
@@ -2178,7 +2180,7 @@ static tng_function_status tng_molecules_block_write
                 
         memcpy(block->block_contents+offset, &molecule->n_bonds,
                sizeof(molecule->n_bonds));
-        if(tng_swap_byte_order_64(tng_data, (int64_t *)
+        if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                     (block->block_contents+offset))
             != TNG_SUCCESS)
         {
@@ -2192,7 +2194,7 @@ static tng_function_status tng_molecules_block_write
         {
             memcpy(block->block_contents+offset, &bond->from_atom_id,
                    sizeof(bond->from_atom_id));
-            if(tng_swap_byte_order_64(tng_data, (int64_t *)
+            if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                         (block->block_contents+offset))
                 != TNG_SUCCESS)
             {
@@ -2203,7 +2205,7 @@ static tng_function_status tng_molecules_block_write
             
             memcpy(block->block_contents+offset, &bond->to_atom_id,
                    sizeof(bond->to_atom_id));
-            if(tng_swap_byte_order_64(tng_data, (int64_t *)
+            if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                 (block->block_contents+offset)) != TNG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -2334,7 +2336,7 @@ static tng_function_status tng_frame_set_block_read
 
     memcpy(&frame_set->first_frame, block->block_contents,
            sizeof(frame_set->first_frame));
-    if(tng_swap_byte_order_64(tng_data, &frame_set->first_frame) !=
+    if(tng_byte_order_to_big_endian_64(tng_data, &frame_set->first_frame) !=
         TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -2344,7 +2346,7 @@ static tng_function_status tng_frame_set_block_read
     
     memcpy(&frame_set->n_frames, block->block_contents + offset,
            sizeof(frame_set->n_frames));
-    if(tng_swap_byte_order_64(tng_data, &frame_set->n_frames) !=
+    if(tng_byte_order_to_big_endian_64(tng_data, &frame_set->n_frames) !=
         TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -2376,7 +2378,7 @@ static tng_function_status tng_frame_set_block_read
             memcpy(&frame_set->molecule_cnt_list[i],
                    block->block_contents + offset,
                    sizeof(int64_t));
-            if(tng_swap_byte_order_64(tng_data,
+            if(tng_byte_order_to_big_endian_64(tng_data,
                                         &frame_set->molecule_cnt_list[i]) !=
                 TNG_SUCCESS)
             {
@@ -2396,7 +2398,7 @@ static tng_function_status tng_frame_set_block_read
     memcpy(&frame_set->next_frame_set_file_pos,
            block->block_contents + offset,
            sizeof(frame_set->next_frame_set_file_pos));
-    if(tng_swap_byte_order_64(tng_data,
+    if(tng_byte_order_to_big_endian_64(tng_data,
                                 &frame_set->next_frame_set_file_pos) !=
         TNG_SUCCESS)
     {
@@ -2408,7 +2410,7 @@ static tng_function_status tng_frame_set_block_read
     memcpy(&frame_set->prev_frame_set_file_pos,
            block->block_contents + offset,
            sizeof(frame_set->prev_frame_set_file_pos));
-    if(tng_swap_byte_order_64(tng_data,
+    if(tng_byte_order_to_big_endian_64(tng_data,
                                 &frame_set->prev_frame_set_file_pos) !=
         TNG_SUCCESS)
     {
@@ -2420,7 +2422,7 @@ static tng_function_status tng_frame_set_block_read
     memcpy(&frame_set->medium_stride_next_frame_set_file_pos,
            block->block_contents + offset,
            sizeof(frame_set->medium_stride_next_frame_set_file_pos));
-    if(tng_swap_byte_order_64(tng_data, &frame_set->
+    if(tng_byte_order_to_big_endian_64(tng_data, &frame_set->
                                 medium_stride_next_frame_set_file_pos) !=
         TNG_SUCCESS)
     {
@@ -2432,7 +2434,7 @@ static tng_function_status tng_frame_set_block_read
     memcpy(&frame_set->medium_stride_prev_frame_set_file_pos,
            block->block_contents + offset,
            sizeof(frame_set->medium_stride_prev_frame_set_file_pos));
-    if(tng_swap_byte_order_64(tng_data, &frame_set->
+    if(tng_byte_order_to_big_endian_64(tng_data, &frame_set->
                                 medium_stride_prev_frame_set_file_pos) !=
         TNG_SUCCESS)
     {
@@ -2444,7 +2446,7 @@ static tng_function_status tng_frame_set_block_read
     memcpy(&frame_set->long_stride_next_frame_set_file_pos,
            block->block_contents + offset,
            sizeof(frame_set->long_stride_next_frame_set_file_pos));
-    if(tng_swap_byte_order_64(tng_data, &frame_set->
+    if(tng_byte_order_to_big_endian_64(tng_data, &frame_set->
                                 long_stride_next_frame_set_file_pos) !=
         TNG_SUCCESS)
     {
@@ -2456,7 +2458,7 @@ static tng_function_status tng_frame_set_block_read
     memcpy(&frame_set->long_stride_prev_frame_set_file_pos,
            block->block_contents + offset,
            sizeof(frame_set->long_stride_prev_frame_set_file_pos));
-    if(tng_swap_byte_order_64(tng_data, &frame_set->
+    if(tng_byte_order_to_big_endian_64(tng_data, &frame_set->
                                 long_stride_prev_frame_set_file_pos) !=
         TNG_SUCCESS)
     {
@@ -2529,7 +2531,7 @@ static tng_function_status tng_frame_set_block_write
 
     memcpy(block->block_contents, &frame_set->first_frame,
            sizeof(frame_set->first_frame));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents)) !=
         TNG_SUCCESS)
     {
@@ -2540,7 +2542,7 @@ static tng_function_status tng_frame_set_block_write
 
     memcpy(block->block_contents+offset, &frame_set->n_frames,
            sizeof(frame_set->n_frames));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents+offset)) !=
         TNG_SUCCESS)
     {
@@ -2556,7 +2558,7 @@ static tng_function_status tng_frame_set_block_write
             memcpy(block->block_contents+offset,
                    &frame_set->molecule_cnt_list[i],
                    sizeof(int64_t));
-            if(tng_swap_byte_order_64(tng_data, (int64_t *)
+            if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                         (block->block_contents+offset)) !=
                 TNG_SUCCESS)
             {
@@ -2570,7 +2572,7 @@ static tng_function_status tng_frame_set_block_write
     
     memcpy(block->block_contents+offset, &frame_set->next_frame_set_file_pos,
            sizeof(frame_set->next_frame_set_file_pos));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                             (block->block_contents+offset)) !=
         TNG_SUCCESS)
     {
@@ -2581,7 +2583,7 @@ static tng_function_status tng_frame_set_block_write
 
     memcpy(block->block_contents+offset, &frame_set->prev_frame_set_file_pos,
            sizeof(frame_set->prev_frame_set_file_pos));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents+offset)) !=
         TNG_SUCCESS)
     {
@@ -2593,7 +2595,7 @@ static tng_function_status tng_frame_set_block_write
     memcpy(block->block_contents+offset,
            &frame_set->medium_stride_next_frame_set_file_pos,
            sizeof(frame_set->medium_stride_next_frame_set_file_pos));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents+offset)) !=
         TNG_SUCCESS)
     {
@@ -2605,7 +2607,7 @@ static tng_function_status tng_frame_set_block_write
     memcpy(block->block_contents+offset,
            &frame_set->medium_stride_prev_frame_set_file_pos,
            sizeof(frame_set->medium_stride_prev_frame_set_file_pos));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents+offset)) !=
         TNG_SUCCESS)
     {
@@ -2617,7 +2619,7 @@ static tng_function_status tng_frame_set_block_write
     memcpy(block->block_contents+offset,
            &frame_set->long_stride_next_frame_set_file_pos,
            sizeof(frame_set->long_stride_next_frame_set_file_pos));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents+offset)) !=
         TNG_SUCCESS)
     {
@@ -2629,7 +2631,7 @@ static tng_function_status tng_frame_set_block_write
     memcpy(block->block_contents+offset,
            &frame_set->long_stride_prev_frame_set_file_pos,
            sizeof(frame_set->long_stride_prev_frame_set_file_pos));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents+offset)) !=
         TNG_SUCCESS)
     {
@@ -2738,7 +2740,7 @@ static tng_function_status tng_trajectory_mapping_block_read
 
     memcpy(&mapping->num_first_particle, block->block_contents+offset,
            sizeof(mapping->num_first_particle));
-    if(tng_swap_byte_order_64(tng_data, &mapping->num_first_particle) !=
+    if(tng_byte_order_to_big_endian_64(tng_data, &mapping->num_first_particle) !=
         TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -2748,7 +2750,7 @@ static tng_function_status tng_trajectory_mapping_block_read
 
     memcpy(&mapping->n_particles, block->block_contents+offset,
            sizeof(mapping->n_particles));
-    if(tng_swap_byte_order_64(tng_data, &mapping->n_particles) !=
+    if(tng_byte_order_to_big_endian_64(tng_data, &mapping->n_particles) !=
         TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -2770,7 +2772,7 @@ static tng_function_status tng_trajectory_mapping_block_read
         memcpy(&mapping->real_particle_numbers[i],
                 block->block_contents + offset,
                 sizeof(int64_t));
-        if(tng_swap_byte_order_64(tng_data,
+        if(tng_byte_order_to_big_endian_64(tng_data,
                                     &mapping->real_particle_numbers[i]) !=
             TNG_SUCCESS)
         {
@@ -2849,7 +2851,7 @@ static tng_function_status tng_trajectory_mapping_block_write
 
     memcpy(block->block_contents, &mapping->num_first_particle,
            sizeof(mapping->num_first_particle));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents)) !=
         TNG_SUCCESS)
     {
@@ -2860,7 +2862,7 @@ static tng_function_status tng_trajectory_mapping_block_write
 
     memcpy(block->block_contents+offset, &mapping->n_particles,
            sizeof(mapping->n_particles));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents+offset)) !=
         TNG_SUCCESS)
     {
@@ -2873,7 +2875,7 @@ static tng_function_status tng_trajectory_mapping_block_write
     {
         memcpy(block->block_contents+offset, &mapping->real_particle_numbers[i],
                sizeof(int64_t));
-        if(tng_swap_byte_order_64(tng_data, (int64_t *)
+        if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                     (block->block_contents+offset)) !=
             TNG_SUCCESS)
         {
@@ -3224,7 +3226,7 @@ static tng_function_status tng_particle_data_read
                     memcpy(&second_dim_values[k].f,
                            block->block_contents+*offset,
                            size);
-                    if(tng_swap_byte_order_32(tng_data,
+                    if(tng_byte_order_to_big_endian_32(tng_data,
                     (int32_t *) &second_dim_values[k]) != TNG_SUCCESS)
                     {
                         printf("Cannot swap byte order to get big endian. "
@@ -3249,7 +3251,7 @@ static tng_function_status tng_particle_data_read
                     memcpy(&second_dim_values[k].i,
                            block->block_contents+*offset,
                            size);
-                    if(tng_swap_byte_order_64(tng_data,
+                    if(tng_byte_order_to_big_endian_64(tng_data,
                     (int64_t *) &second_dim_values[k].i) != TNG_SUCCESS)
                     {
                         printf("Cannot swap byte order to get big endian. "
@@ -3305,7 +3307,7 @@ static tng_function_status tng_particle_data_read
                     memcpy(&second_dim_values[k].d,
                            block->block_contents+*offset,
                            size);
-                    if(tng_swap_byte_order_64(tng_data,
+                    if(tng_byte_order_to_big_endian_64(tng_data,
                     (int64_t *) &second_dim_values[k].d) != TNG_SUCCESS)
                     {
                         printf("Cannot swap byte order to get big endian. "
@@ -3520,7 +3522,7 @@ static tng_function_status tng_particle_data_block_write
 
     memcpy(block->block_contents+offset, &data->n_values_per_frame,
            sizeof(data->n_values_per_frame));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents + offset)) !=
         TNG_SUCCESS)
     {
@@ -3531,7 +3533,7 @@ static tng_function_status tng_particle_data_block_write
 
     memcpy(block->block_contents+offset, &data->codec_id,
            sizeof(data->codec_id));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents + offset)) !=
         TNG_SUCCESS)
     {
@@ -3544,7 +3546,7 @@ static tng_function_status tng_particle_data_block_write
     {
         memcpy(block->block_contents+offset, &data->compression_multiplier,
                sizeof(data->compression_multiplier));
-        if(tng_swap_byte_order_64(tng_data, (int64_t *)
+        if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                     (block->block_contents + offset)) !=
             TNG_SUCCESS)
         {
@@ -3561,7 +3563,7 @@ static tng_function_status tng_particle_data_block_write
         data->first_frame_with_data = frame_set->first_frame;
         memcpy(block->block_contents+offset, &data->first_frame_with_data,
                sizeof(data->first_frame_with_data));
-        if(tng_swap_byte_order_64(tng_data, (int64_t *)
+        if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                     (block->block_contents + offset)) !=
             TNG_SUCCESS)
         {
@@ -3572,7 +3574,7 @@ static tng_function_status tng_particle_data_block_write
 
         memcpy(block->block_contents+offset, &stride_length,
                sizeof(stride_length));
-        if(tng_swap_byte_order_64(tng_data, (int64_t *)
+        if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                     (block->block_contents + offset)) !=
             TNG_SUCCESS)
         {
@@ -3585,7 +3587,7 @@ static tng_function_status tng_particle_data_block_write
     
     memcpy(block->block_contents+offset, &num_first_particle,
            sizeof(num_first_particle));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents+offset)) !=
         TNG_SUCCESS)
     {
@@ -3595,7 +3597,7 @@ static tng_function_status tng_particle_data_block_write
     offset += sizeof(num_first_particle);
 
     memcpy(block->block_contents+offset, &n_particles, sizeof(n_particles));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents+offset)) !=
         TNG_SUCCESS)
     {
@@ -3620,7 +3622,7 @@ static tng_function_status tng_particle_data_block_write
                     memcpy(block->block_contents+offset,
                            &second_dim_values[k].f,
                             size);
-                    tng_swap_byte_order_32(tng_data,
+                    tng_byte_order_to_big_endian_32(tng_data,
                         (int32_t *)(block->block_contents+offset));
                     offset += size;
                 }
@@ -3641,7 +3643,7 @@ static tng_function_status tng_particle_data_block_write
                     memcpy(block->block_contents+offset,
                            &second_dim_values[k].i,
                             size);
-                    tng_swap_byte_order_64(tng_data,
+                    tng_byte_order_to_big_endian_64(tng_data,
                         (int64_t *)(block->block_contents+offset));
                     offset += size;
                 }
@@ -3680,7 +3682,7 @@ static tng_function_status tng_particle_data_block_write
                     memcpy(block->block_contents+offset,
                            &second_dim_values[k].d,
                            size);
-                    tng_swap_byte_order_64(tng_data,
+                    tng_byte_order_to_big_endian_64(tng_data,
                         (int64_t *)(block->block_contents+offset));
                     offset += size;
                 }
@@ -3992,7 +3994,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
             {
                 memcpy(&data->values[i][j].f, block->block_contents+*offset,
                        size);
-                if(tng_swap_byte_order_32(tng_data,
+                if(tng_byte_order_to_big_endian_32(tng_data,
                 (int32_t *) &data->values[i][j]) != TNG_SUCCESS)
                 {
                     printf("Cannot swap byte order to get big endian. "
@@ -4010,7 +4012,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
             {
                 memcpy(&data->values[i][j].i, block->block_contents+*offset,
                         size);
-                if(tng_swap_byte_order_64(tng_data,
+                if(tng_byte_order_to_big_endian_64(tng_data,
                     (int64_t *) &data->values[i][j].i) != TNG_SUCCESS)
                 {
                     printf("Cannot swap byte order to get big endian. "
@@ -4053,7 +4055,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
             {
                 memcpy(&data->values[i][j].d, block->block_contents+*offset,
                        size);
-                if(tng_swap_byte_order_64(tng_data,
+                if(tng_byte_order_to_big_endian_64(tng_data,
                     (int64_t *) &data->values[i][j].d) != TNG_SUCCESS)
                 {
                     printf("Cannot swap byte order to get big endian. "
@@ -4236,7 +4238,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
 
     memcpy(block->block_contents+offset, &data->n_values_per_frame,
            sizeof(data->n_values_per_frame));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents + offset)) !=
         TNG_SUCCESS)
     {
@@ -4248,7 +4250,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
 
     memcpy(block->block_contents+offset, &data->codec_id,
            sizeof(data->codec_id));
-    if(tng_swap_byte_order_64(tng_data, (int64_t *)
+    if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                 (block->block_contents + offset)) !=
         TNG_SUCCESS)
     {
@@ -4262,7 +4264,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     {
         memcpy(block->block_contents+offset, &data->compression_multiplier,
                sizeof(data->compression_multiplier));
-        if(tng_swap_byte_order_64(tng_data, (int64_t *)
+        if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                     (block->block_contents + offset)) !=
             TNG_SUCCESS)
         {
@@ -4280,7 +4282,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         data->first_frame_with_data = frame_set->first_frame;
         memcpy(block->block_contents+offset, &data->first_frame_with_data,
                sizeof(data->first_frame_with_data));
-        if(tng_swap_byte_order_64(tng_data, (int64_t *)
+        if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                     (block->block_contents + offset)) !=
             TNG_SUCCESS)
         {
@@ -4292,7 +4294,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
 
         memcpy(block->block_contents+offset, &stride_length,
                sizeof(data->stride_length));
-        if(tng_swap_byte_order_64(tng_data, (int64_t *)
+        if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                     (block->block_contents + offset)) !=
             TNG_SUCCESS)
         {
@@ -4312,7 +4314,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
             {
                 memcpy(block->block_contents+offset, &data->values[i][j].f,
                        size);
-                tng_swap_byte_order_32(tng_data,
+                tng_byte_order_to_big_endian_32(tng_data,
                     (int32_t *)(block->block_contents+offset));
                 offset += size;
             }
@@ -4325,7 +4327,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
             {
                 memcpy(block->block_contents+offset, &data->values[i][j].i,
                        size);
-                tng_swap_byte_order_64(tng_data,
+                tng_byte_order_to_big_endian_64(tng_data,
                     (int64_t *)(block->block_contents+offset));
                 offset += size;
             }
@@ -4351,7 +4353,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
             {
                 memcpy(block->block_contents+offset, &data->values[i][j].d,
                        size);
-                tng_swap_byte_order_64(tng_data,
+                tng_byte_order_to_big_endian_64(tng_data,
                     (int64_t *)(block->block_contents+offset));
                 offset += size;
             }
@@ -4457,7 +4459,7 @@ static tng_function_status tng_data_block_contents_read
 
     memcpy(&n_values, block->block_contents+offset,
         sizeof(n_values));
-    if(tng_swap_byte_order_64(tng_data, &n_values) != TNG_SUCCESS)
+    if(tng_byte_order_to_big_endian_64(tng_data, &n_values) != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
                 __FILE__, __LINE__);
@@ -4466,7 +4468,7 @@ static tng_function_status tng_data_block_contents_read
 
     memcpy(&codec_id, block->block_contents+offset,
         sizeof(codec_id));
-    if(tng_swap_byte_order_64(tng_data, &codec_id) != TNG_SUCCESS)
+    if(tng_byte_order_to_big_endian_64(tng_data, &codec_id) != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
                 __FILE__, __LINE__);
@@ -4477,7 +4479,7 @@ static tng_function_status tng_data_block_contents_read
     {
         memcpy(&multiplier, block->block_contents+offset,
             sizeof(multiplier));
-        if(tng_swap_byte_order_64(tng_data, (int64_t *)&multiplier) !=
+        if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)&multiplier) !=
             TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -4496,7 +4498,7 @@ static tng_function_status tng_data_block_contents_read
         {
             memcpy(&first_frame_with_data, block->block_contents+offset,
                 sizeof(first_frame_with_data));
-            if(tng_swap_byte_order_64(tng_data, &first_frame_with_data) !=
+            if(tng_byte_order_to_big_endian_64(tng_data, &first_frame_with_data) !=
                 TNG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -4506,7 +4508,7 @@ static tng_function_status tng_data_block_contents_read
             
             memcpy(&stride_length, block->block_contents+offset,
                 sizeof(stride_length));
-            if(tng_swap_byte_order_64(tng_data, &stride_length) !=
+            if(tng_byte_order_to_big_endian_64(tng_data, &stride_length) !=
                 TNG_SUCCESS)
             {
                 printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -4532,7 +4534,7 @@ static tng_function_status tng_data_block_contents_read
     {
         memcpy(&num_first_particle, block->block_contents+offset,
             sizeof(num_first_particle));
-        if(tng_swap_byte_order_64(tng_data, &num_first_particle) !=
+        if(tng_byte_order_to_big_endian_64(tng_data, &num_first_particle) !=
             TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -4542,7 +4544,7 @@ static tng_function_status tng_data_block_contents_read
 
         memcpy(&block_n_particles, block->block_contents+offset,
             sizeof(block_n_particles));
-        if(tng_swap_byte_order_64(tng_data, &block_n_particles) !=
+        if(tng_byte_order_to_big_endian_64(tng_data, &block_n_particles) !=
             TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -4657,7 +4659,7 @@ static tng_function_status tng_header_pointers_update
 
     pos = tng_data->first_trajectory_frame_set_output_file_pos;
     
-    if(tng_swap_byte_order_64(tng_data, &pos) != TNG_SUCCESS)
+    if(tng_byte_order_to_big_endian_64(tng_data, &pos) != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
                 __FILE__, __LINE__);
@@ -4671,7 +4673,7 @@ static tng_function_status tng_header_pointers_update
     
     pos = tng_data->last_trajectory_frame_set_output_file_pos;
     
-    if(tng_swap_byte_order_64(tng_data, &pos) != TNG_SUCCESS)
+    if(tng_byte_order_to_big_endian_64(tng_data, &pos) != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
                 __FILE__, __LINE__);
@@ -4751,7 +4753,7 @@ static tng_function_status tng_frame_set_pointers_update
 
         pos = tng_data->current_trajectory_frame_set_output_file_pos;
 
-        if(tng_swap_byte_order_64(tng_data, &pos) != TNG_SUCCESS)
+        if(tng_byte_order_to_big_endian_64(tng_data, &pos) != TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
                     __FILE__, __LINE__);
@@ -4797,7 +4799,7 @@ static tng_function_status tng_frame_set_pointers_update
 
         pos = tng_data->current_trajectory_frame_set_output_file_pos;
 
-        if(tng_swap_byte_order_64(tng_data, &pos) != TNG_SUCCESS)
+        if(tng_byte_order_to_big_endian_64(tng_data, &pos) != TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
                     __FILE__, __LINE__);
@@ -4842,7 +4844,7 @@ static tng_function_status tng_frame_set_pointers_update
 
         pos = tng_data->current_trajectory_frame_set_output_file_pos;
 
-        if(tng_swap_byte_order_64(tng_data, &pos) != TNG_SUCCESS)
+        if(tng_byte_order_to_big_endian_64(tng_data, &pos) != TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
                     __FILE__, __LINE__);
@@ -8144,7 +8146,7 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
                 return(TNG_CRITICAL);
             }
 
-            if(tng_swap_byte_order_64(tng_data,
+            if(tng_byte_order_to_big_endian_64(tng_data,
                                         &frame_set->
                                         medium_stride_prev_frame_set_file_pos)
                 != TNG_SUCCESS)
@@ -8200,7 +8202,7 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
                         return(TNG_CRITICAL);
                     }
 
-                    if(tng_swap_byte_order_64(tng_data,
+                    if(tng_byte_order_to_big_endian_64(tng_data,
                                             &frame_set->
                                             long_stride_prev_frame_set_file_pos)
                     != TNG_SUCCESS)
@@ -8841,7 +8843,7 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }        
-    if(tng_swap_byte_order_64(tng_data, &data.n_values_per_frame) != TNG_SUCCESS)
+    if(tng_byte_order_to_big_endian_64(tng_data, &data.n_values_per_frame) != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
                 __FILE__, __LINE__);
@@ -8854,7 +8856,7 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
-    if(tng_swap_byte_order_64(tng_data, &data.codec_id) != TNG_SUCCESS)
+    if(tng_byte_order_to_big_endian_64(tng_data, &data.codec_id) != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
                 __FILE__, __LINE__);
@@ -8870,7 +8872,7 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
         }
-        if(tng_swap_byte_order_64(tng_data, (int64_t *)
+        if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                     &data.compression_multiplier) !=
             TNG_SUCCESS)
         {
@@ -8892,7 +8894,7 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
         }
-        if(tng_swap_byte_order_64(tng_data, &data.first_frame_with_data) !=
+        if(tng_byte_order_to_big_endian_64(tng_data, &data.first_frame_with_data) !=
         TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -8906,7 +8908,7 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
         }
-        if(tng_swap_byte_order_64(tng_data, &data.stride_length) !=
+        if(tng_byte_order_to_big_endian_64(tng_data, &data.stride_length) !=
         TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -8970,7 +8972,7 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
         memcpy(copy, values, n_values_per_frame * size);
         for(i = 0; i < n_values_per_frame; i++)
         {
-            tng_swap_byte_order_64(tng_data, (int64_t *)copy+i);
+            tng_byte_order_to_big_endian_64(tng_data, (int64_t *)copy+i);
         }
         fwrite(copy, n_values_per_frame, size,
                tng_data->output_file);
@@ -8983,7 +8985,7 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
         memcpy(copy, values, n_values_per_frame * size);
         for(i = 0; i < n_values_per_frame; i++)
         {
-            tng_swap_byte_order_32(tng_data, (int32_t *)copy+i);
+            tng_byte_order_to_big_endian_32(tng_data, (int32_t *)copy+i);
         }
         fwrite(copy, n_values_per_frame, size,
                tng_data->output_file);
@@ -9287,7 +9289,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
-    if(tng_swap_byte_order_64(tng_data, &data.n_values_per_frame)
+    if(tng_byte_order_to_big_endian_64(tng_data, &data.n_values_per_frame)
         != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -9301,7 +9303,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }        
-    if(tng_swap_byte_order_64(tng_data, &data.codec_id) != TNG_SUCCESS)
+    if(tng_byte_order_to_big_endian_64(tng_data, &data.codec_id) != TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
                 __FILE__, __LINE__);
@@ -9318,7 +9320,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
             return(TNG_CRITICAL);
         }
             
-        if(tng_swap_byte_order_64(tng_data, (int64_t *)
+        if(tng_byte_order_to_big_endian_64(tng_data, (int64_t *)
                                     &data.compression_multiplier) !=
             TNG_SUCCESS)
         {
@@ -9341,7 +9343,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
         }
-        if(tng_swap_byte_order_64(tng_data, &data.first_frame_with_data) !=
+        if(tng_byte_order_to_big_endian_64(tng_data, &data.first_frame_with_data) !=
         TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -9355,7 +9357,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
         }
-        if(tng_swap_byte_order_64(tng_data, &data.stride_length) !=
+        if(tng_byte_order_to_big_endian_64(tng_data, &data.stride_length) !=
         TNG_SUCCESS)
         {
             printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -9376,7 +9378,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
-    if(tng_swap_byte_order_64(tng_data, &num_first_particle) !=
+    if(tng_byte_order_to_big_endian_64(tng_data, &num_first_particle) !=
     TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -9390,7 +9392,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
-    if(tng_swap_byte_order_64(tng_data, &block_n_particles) !=
+    if(tng_byte_order_to_big_endian_64(tng_data, &block_n_particles) !=
     TNG_SUCCESS)
     {
         printf("Cannot swap byte order to get big endian. %s: %d\n",
@@ -9449,7 +9451,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
         memcpy(copy, values, val_n_particles * n_values_per_frame * size);
         for(i = 0; i < val_n_particles * n_values_per_frame; i++)
         {
-            tng_swap_byte_order_64(tng_data, (int64_t *)copy+i);
+            tng_byte_order_to_big_endian_64(tng_data, (int64_t *)copy+i);
         }
         fwrite(copy, val_n_particles * n_values_per_frame, size,
                tng_data->output_file);
@@ -9462,7 +9464,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
         memcpy(copy, values, val_n_particles * n_values_per_frame * size);
         for(i = 0; i < val_n_particles * n_values_per_frame; i++)
         {
-            tng_swap_byte_order_32(tng_data, (int32_t *)copy+i);
+            tng_byte_order_to_big_endian_32(tng_data, (int32_t *)copy+i);
         }
         fwrite(copy, val_n_particles * n_values_per_frame, size,
                tng_data->output_file);
