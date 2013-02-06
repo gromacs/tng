@@ -236,6 +236,10 @@ struct tng_trajectory {
     char *output_file_path;
     /** A handle to the output file */
     FILE *output_file;
+    /** The endianness of the input file */
+    tng_file_endianness input_endianness;
+    /** The endianness of the output file */
+    tng_file_endianness output_endianness;
     /** The endianness of 32 bit values of the current computer */
     tng_endianness_32 endianness_32;
     /** The endianness of 64 bit values of the current computer */
@@ -346,7 +350,7 @@ static inline tng_function_status tng_byte_order_to_big_endian_32
 
     case TNG_BYTE_PAIR_SWAP_32: // byte pair swap
         *v = ((*v & 0xFFFF0000) >> 16) |
-            ((*v & 0x0000FFFF) << 16);
+             ((*v & 0x0000FFFF) << 16);
 
         return(TNG_SUCCESS);
 
@@ -412,6 +416,101 @@ static inline tng_function_status tng_byte_order_to_big_endian_64
     }
 }
 
+/** This function swaps the byte order of a 32 bit numerical variable
+ * to little endian.
+ * It does not only work with integer, but e.g. floats need casting.
+ * If the byte order is already little endian no change is needed.
+ * @param tng_data is a trajectory data container.
+ * @param v is a pointer to a 32 bit numerical value (float or integer).
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the current
+ * byte order is not recognised.
+ */
+static inline tng_function_status tng_byte_order_to_little_endian_32
+                (const tng_trajectory_t tng_data, int32_t *v)
+{
+    switch(tng_data->endianness_32)
+    {
+    case TNG_LITTLE_ENDIAN_32: // Already correct
+        return(TNG_SUCCESS);
+
+    case TNG_BYTE_PAIR_SWAP_32: // byte pair swapped big endian to little endian
+        *v = ((*v & 0xFF00FF00) >> 8) |
+             ((*v & 0x00FF00FF) << 8);
+
+        return(TNG_SUCCESS);
+
+    case TNG_BIG_ENDIAN_32: // Byte order is reversed.
+        *v = ((*v & 0xFF000000) >> 24) | // Move first byte to end
+             ((*v & 0x00FF0000) >> 8) |  // Move 2nd byte to pos 3
+             ((*v & 0x0000FF00) << 8) |  // Move 3rd byte to pos 2
+             ((*v & 0x000000FF) << 24);  // Move last byte to first
+
+        return(TNG_SUCCESS);
+
+    default:
+        return(TNG_FAILURE);
+    }
+}
+
+/** This function swaps the byte order of a 64 bit numerical variable
+ * to little endian.
+ * It does not only work with integer, but e.g. floats need casting.
+ * The byte order swapping routine can convert four different byte
+ * orders to little endian.
+ * If the byte order is already little endian no change is needed.
+ * @param tng_data is a trajectory data container.
+ * @param v is a pointer to a 64 bit numerical value (double or integer).
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the current
+ * byte order is not recognised.
+ */
+static inline tng_function_status tng_byte_order_to_little_endian_64
+                (const tng_trajectory_t tng_data, int64_t *v)
+{
+    switch(tng_data->endianness_64)
+    {
+    case TNG_LITTLE_ENDIAN_64: // Already correct
+        return(TNG_SUCCESS);
+
+    case TNG_QUAD_SWAP_64: // Byte quad swapped big endian to little endian
+        *v = ((*v & 0xFF000000FF000000) >> 24) |
+             ((*v & 0x00FF000000FF0000) >> 8) |
+             ((*v & 0x0000FF000000FF00) << 8) |
+             ((*v & 0x000000FF000000FF) << 24);
+
+        return(TNG_SUCCESS);
+
+    case TNG_BYTE_PAIR_SWAP_64: // Byte pair swapped big endian to little endian
+        *v = ((*v & 0xFF00FF0000000000) >> 40) |
+             ((*v & 0x00FF00FF00000000) >> 24) |
+             ((*v & 0x00000000FF00FF00) << 24) |
+             ((*v & 0x0000000000FF00FF) << 40);
+
+        return(TNG_SUCCESS);
+
+    case TNG_BYTE_SWAP_64: // Byte swapped big endian to little endian
+        *v = ((*v & 0xFFFF000000000000) >> 48) |
+             ((*v & 0x0000FFFF00000000) >> 16) |
+             ((*v & 0x00000000FFFF0000) << 16) |
+             ((*v & 0x000000000000FFFF) << 48);
+
+        return(TNG_SUCCESS);
+
+    case TNG_BIG_ENDIAN_64: // Byte order is reversed.
+        *v = ((*v & 0xFF00000000000000) >> 56) | // Move first byte to end
+             ((*v & 0x00FF000000000000) >> 40) | // Move 2nd byte to pos 7
+             ((*v & 0x0000FF0000000000) >> 24) | // Move 3rd byte to pos 6
+             ((*v & 0x000000FF00000000) >> 8 ) | // Move 4th byte to pos 5
+             ((*v & 0x00000000FF000000) << 8 ) | // Move 5th byte to pos 4
+             ((*v & 0x0000000000FF0000) << 24) | // Move 6th byte to pos 3
+             ((*v & 0x000000000000FF00) << 40) | // Move 7th byte to pos 2
+             ((*v & 0x00000000000000FF) << 56);  // Move last byte to first
+
+        return(TNG_SUCCESS);
+
+    default:
+        return(TNG_FAILURE);
+    }
+}
 /** Generate the md5 hash of a block.
  * The hash is created based on the actual block contents.
  * @param block is a general block container.
@@ -5961,6 +6060,17 @@ tng_function_status tng_trajectory_init(tng_trajectory_t *tng_data_p)
         tng_data->endianness_64 = TNG_BYTE_SWAP_64;
     }
 
+    if(tng_data->endianness_32 == TNG_LITTLE_ENDIAN_32 ||
+       tng_data->endianness_64 == TNG_LITTLE_ENDIAN_64)
+    {
+        tng_data->input_endianness = TNG_LITTLE_ENDIAN;
+        tng_data->output_endianness = TNG_LITTLE_ENDIAN;
+    }
+    else
+    {
+        tng_data->input_endianness = TNG_BIG_ENDIAN;
+        tng_data->output_endianness = TNG_BIG_ENDIAN;
+    }
     
     tng_data->current_trajectory_frame_set.next_frame_set_file_pos = -1;
     tng_data->current_trajectory_frame_set.prev_frame_set_file_pos = -1;
@@ -6311,6 +6421,8 @@ tng_function_status tng_trajectory_init_from_src(tng_trajectory_t src,
 
     dest->endianness_32 = src->endianness_32;
     dest->endianness_64 = src->endianness_64;
+    dest->input_endianness = src->input_endianness;
+    dest->output_endianness = src->output_endianness;
 
     dest->current_trajectory_frame_set.next_frame_set_file_pos = -1;
     dest->current_trajectory_frame_set.prev_frame_set_file_pos = -1;

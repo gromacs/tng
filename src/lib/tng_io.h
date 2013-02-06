@@ -255,6 +255,10 @@
        __typeof__ (b) _b = (b); \
        _a > _b ? _a : _b; })
 
+/** Flag to specify the endianness of a TNG file */
+typedef enum {TNG_BIG_ENDIAN,
+              TNG_LITTLE_ENDIAN} tng_file_endianness;
+
 /** Flag to specify the endianness of 32 bit values of the current architecture.
  *  Output is always converted to big endian */
 typedef enum {TNG_BIG_ENDIAN_32,
