@@ -228,7 +228,7 @@
 #include <inttypes.h>
 
 /** The version of this TNG build */
-#define TNG_VERSION 1
+#define TNG_VERSION 2
 
 /** Flag to indicate frame dependent data. */
 #define TNG_FRAME_DEPENDENT 1
