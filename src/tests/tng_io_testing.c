@@ -197,8 +197,8 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
         printf("Failed setting partial charges.\n");
         return(TNG_CRITICAL);
     }
-    /* There is no ID for partial charges data in the standard. Make an ID up.*/
-    stat = tng_particle_data_block_add(traj, 10099, "PARTIAL CHARGES",
+    
+    stat = tng_particle_data_block_add(traj, TNG_TRAJ_PARTIAL_CHARGES, "PARTIAL CHARGES",
                                        TNG_FLOAT_DATA, TNG_NON_TRAJECTORY_BLOCK,
                                        1, 1, 1, 0, n_particles,
                                        TNG_UNCOMPRESSED, charges);

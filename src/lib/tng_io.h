@@ -287,12 +287,13 @@ typedef enum {TNG_GENERAL_INFO,
               TNG_TRAJECTORY_FRAME_SET,
               TNG_PARTICLE_MAPPING} tng_non_trajectory_block_ids;
 
-/** Block IDs of standard trajectory blocks. Box shape can be either a
- *  trajectory block or a non-trajectory block */
+/** Block IDs of standard trajectory blocks. Box shape and partial charges can
+ * be either trajectory blocks or non-trajectory blocks */
 typedef enum {TNG_TRAJ_BOX_SHAPE = 10000,
               TNG_TRAJ_POSITIONS,
               TNG_TRAJ_VELOCITIES,
-              TNG_TRAJ_FORCES} tng_trajectory_block_ids;
+              TNG_TRAJ_FORCES,
+              TNG_TRAJ_PARTIAL_CHARGES} tng_trajectory_block_ids;
               
 /** Flag to specify if a data block contains data related to particles or not.*/
 typedef enum {TNG_NON_PARTICLE_BLOCK_DATA,
