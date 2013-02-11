@@ -7021,6 +7021,140 @@ tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
     return(tng_output_file_init(tng_data));
 }
 
+tng_function_status tng_output_file_endianness_get
+                (tng_trajectory_t tng_data, tng_file_endianness *endianness)
+{
+    tng_endianness_32 end_32;
+    tng_endianness_64 end_64;
+    
+    if(tng_data->output_endianness_swap_func_32)
+    {
+        /* If other endianness variants are added they must be added here as well */
+        if(tng_data->output_endianness_swap_func_32 ==
+           &tng_swap_byte_order_big_endian_32)
+        {
+            end_32 = TNG_BIG_ENDIAN_32;
+        }
+        else if(tng_data->output_endianness_swap_func_32 ==
+                &tng_swap_byte_order_little_endian_32)
+        {
+            end_32 = TNG_LITTLE_ENDIAN_32;
+        }
+        else
+        {
+            return(TNG_FAILURE);
+        }
+    }
+    else
+    {
+        end_32 = tng_data->endianness_32;
+    }
+    
+    if(tng_data->output_endianness_swap_func_64)
+    {
+        /* If other endianness variants are added they must be added here as well */
+        if(tng_data->output_endianness_swap_func_64 ==
+           &tng_swap_byte_order_big_endian_64)
+        {
+            end_64 = TNG_BIG_ENDIAN_64;
+        }
+        else if(tng_data->output_endianness_swap_func_64 ==
+                &tng_swap_byte_order_little_endian_64)
+        {
+            end_64 = TNG_LITTLE_ENDIAN_64;
+        }
+        else
+        {
+            return(TNG_FAILURE);
+        }
+    }
+    else
+    {
+        end_64 = tng_data->endianness_64;
+    }
+
+    if(end_32 != end_64)
+    {
+        return(TNG_FAILURE);
+    }
+
+    if(end_32 == TNG_LITTLE_ENDIAN_32)
+    {
+        *endianness = TNG_LITTLE_ENDIAN;
+    }
+
+    else if(end_32 == TNG_BIG_ENDIAN_32)
+    {
+        *endianness = TNG_BIG_ENDIAN;
+    }
+    else
+    {
+        return(TNG_FAILURE);
+    }
+    
+    return(TNG_SUCCESS);
+}
+
+tng_function_status tng_output_file_endianness_set
+                (tng_trajectory_t tng_data,
+                 const tng_file_endianness endianness)
+{
+    /* Tne endianness cannot be changed if the data has already been written
+     * to the output file. */
+    if(ftell(tng_data->output_file) > 0)
+    {
+        return(TNG_FAILURE);
+    }
+
+    if(endianness == TNG_BIG_ENDIAN)
+    {
+        if(tng_data->endianness_32 == TNG_BIG_ENDIAN_32)
+        {
+            tng_data->output_endianness_swap_func_32 = 0;
+        }
+        else
+        {
+            tng_data->output_endianness_swap_func_32 =
+            &tng_swap_byte_order_big_endian_32;
+        }
+        if(tng_data->endianness_64 == TNG_BIG_ENDIAN_64)
+        {
+            tng_data->output_endianness_swap_func_64 = 0;
+        }
+        else
+        {
+            tng_data->output_endianness_swap_func_64 =
+            &tng_swap_byte_order_big_endian_64;
+        }
+        return(TNG_SUCCESS);
+    }
+    else if(endianness == TNG_LITTLE_ENDIAN)
+    {
+        if(tng_data->endianness_32 == TNG_LITTLE_ENDIAN_32)
+        {
+            tng_data->output_endianness_swap_func_32 = 0;
+        }
+        else
+        {
+            tng_data->output_endianness_swap_func_32 =
+            &tng_swap_byte_order_little_endian_32;
+        }
+        if(tng_data->endianness_64 == TNG_LITTLE_ENDIAN_64)
+        {
+            tng_data->output_endianness_swap_func_64 = 0;
+        }
+        else
+        {
+            tng_data->output_endianness_swap_func_64 =
+            &tng_swap_byte_order_little_endian_64;
+        }
+        return(TNG_SUCCESS);
+    }
+
+    /* If the specified endianness is neither big nor little endian return a
+     * failure. */
+    return(TNG_FAILURE);
+}
 
 tng_function_status tng_first_program_name_get(const tng_trajectory_t tng_data,
                                                char *name, const int max_len)
@@ -11089,6 +11223,18 @@ tng_function_status tng_first_program_name_get_(const tng_trajectory_t tng_data,
                                                 char *name, const int max_len)
 {
     return(tng_first_program_name_get(tng_data, name, max_len));
+}
+
+tng_function_status tng_output_file_endianness_get_
+                (tng_trajectory_t tng_data, tng_file_endianness *endianness)
+{
+    return(tng_output_file_endianness_get(tng_data, endianness));
+}
+
+tng_function_status tng_output_file_endianness_set_
+                (tng_trajectory_t tng_data, const tng_file_endianness *endianness)
+{
+    return(tng_output_file_endianness_set(tng_data, *endianness));
 }
 
 tng_function_status tng_first_program_name_set_(tng_trajectory_t tng_data,

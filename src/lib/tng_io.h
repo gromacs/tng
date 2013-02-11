@@ -454,6 +454,31 @@ tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
                                         const char *file_name);
 
 /**
+ * @brief Get the endianness of the output file.
+ * @param tng_data the trajectory of which to get the endianness of the current
+ * output file.
+ * @param endianness will contain the enumeration of the endianness.
+ * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the endianness
+ * could not be retrieved.
+ */
+tng_function_status tng_output_file_endianness_get
+                (tng_trajectory_t tng_data, tng_file_endianness *endianness);
+
+/**
+ * @brief Set the endianness of the output file.
+ * @param tng_data the trajectory of which to set the endianness of the current
+ * output file.
+ * @param endianness the enumeration of the endianness, can be either
+ * TNG_BIG_ENDIAN (0) or TNG_LITTLE_ENDIAN (1).
+ * @details The endianness cannot be changed after file output has started.
+ * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the endianness
+ * could not be set.
+ */
+tng_function_status tng_output_file_endianness_set
+                (tng_trajectory_t tng_data,
+                 const tng_file_endianness endianness);
+
+/**
  * @brief Get the name of the program used when creating the trajectory.
  * @param tng_data the trajectory of which to get the program name.
  * @param name the string to fill with the name of the program,
