@@ -244,13 +244,13 @@
 
 
 /** Inline function for finding the lowest of two values */
-#define min(a,b) \
+#define tng_min(a,b) \
     ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
        _a < _b ? _a : _b; })
      
 /** Inline function for finding the highest of two values */
-#define max(a,b) \
+#define tng_max(a,b) \
     ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
        _a > _b ? _a : _b; })
