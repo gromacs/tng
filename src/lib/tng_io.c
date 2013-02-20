@@ -540,8 +540,8 @@ static tng_function_status tng_block_hash_generate(tng_gen_block_t block)
  * calculated from the current contents.
  * If the current hash is not set skip the comparison.
  * @param block is a general block container.
- * @param results If the hashes match results is set to TRUE, otherwise it is
- * set to FALSE. If the hash was not set results is set to TRUE.
+ * @param results If the hashes match results is set to TNG_TRUE, otherwise it is
+ * set to TNG_FALSE. If the hash was not set results is set to TNG_TRUE.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the hash was not
  * set.
  */
@@ -553,7 +553,7 @@ static tng_function_status hash_match_verify(tng_gen_block_t block,
 
     if(strlen(block->hash) == 0)
     {
-        *results = TRUE;
+        *results = TNG_TRUE;
         return(TNG_FAILURE);
     }
     md5_init(&md5_state);
@@ -563,7 +563,7 @@ static tng_function_status hash_match_verify(tng_gen_block_t block,
 
     if(strncmp(block->hash, hash, 16) != 0)
     {
-        *results = FALSE;
+        *results = TNG_FALSE;
 //         int i;
 //         printf("Hash in file:  ");
 //         for(i = 0; i<16; i++)
@@ -587,7 +587,7 @@ static tng_function_status hash_match_verify(tng_gen_block_t block,
     }
     else
     {
-        *results = TRUE;
+        *results = TNG_TRUE;
     }
     
     return(TNG_SUCCESS);
@@ -1138,7 +1138,7 @@ static tng_function_status tng_general_info_block_read
     if(hash_mode == TNG_USE_HASH)
     {
         hash_match_verify(block, &same_hash);
-        if(same_hash != TRUE)
+        if(same_hash != TNG_TRUE)
         {
             printf("General info block contents corrupt. Hashes do not match. "
                 "%s: %d\n",
@@ -1747,7 +1747,7 @@ static tng_function_status tng_molecules_block_read
     if(hash_mode == TNG_USE_HASH)
     {
         hash_match_verify(block, &same_hash);
-        if(same_hash != TRUE)
+        if(same_hash != TNG_TRUE)
         {
             printf("Molecules block contents corrupt. Hashes do not match. "
                 "%s: %d\n",
@@ -2644,7 +2644,7 @@ static tng_function_status tng_frame_set_block_read
     if(hash_mode == TNG_USE_HASH)
     {
         hash_match_verify(block, &same_hash);
-        if(same_hash != TRUE)
+        if(same_hash != TNG_TRUE)
         {
             printf("Frame set block contents corrupt. File pos %d Hashes do not match. "
                 "%s: %d\n",
@@ -3118,7 +3118,7 @@ static tng_function_status tng_trajectory_mapping_block_read
     if(hash_mode == TNG_USE_HASH)
     {
         hash_match_verify(block, &same_hash);
-        if(same_hash != TRUE)
+        if(same_hash != TNG_TRUE)
         {
             printf("Particle mapping block contents corrupt. Hashes do not match. "
                 "%s: %d\n",
@@ -4976,7 +4976,7 @@ static tng_function_status tng_data_block_contents_read
     if(hash_mode == TNG_USE_HASH)
     {
         hash_match_verify(block, &same_hash);
-        if(same_hash != TRUE)
+        if(same_hash != TNG_TRUE)
         {
             printf("Data block contents corrupt. Hashes do not match. %s: %d\n",
                 __FILE__, __LINE__);
@@ -5611,7 +5611,7 @@ tng_function_status tng_molecule_add(tng_trajectory_t tng_data,
     tng_molecule_t new_molecules;
     int64_t *new_molecule_cnt_list;
     int id, i;
-    tng_bool found_id = TRUE;
+    tng_bool found_id = TNG_TRUE;
     
     new_molecules = realloc(tng_data->molecules,
                             sizeof(struct tng_molecule) *
@@ -5654,12 +5654,12 @@ tng_function_status tng_molecule_add(tng_trajectory_t tng_data,
     id = 0;
     while(found_id)
     {
-        found_id = FALSE;
+        found_id = TNG_FALSE;
         for(i = tng_data->n_molecules; i--;)
         {
             if(tng_data->molecules[i].id == id)
             {
-                found_id = TRUE;
+                found_id = TNG_TRUE;
                 i = 0;
             }
         }
@@ -6099,7 +6099,7 @@ tng_function_status tng_molecule_name_of_particle_nr_get
 {
     int64_t cnt = 0, i, *molecule_cnt_list;
     tng_molecule_t mol;
-    tng_bool found = FALSE;
+    tng_bool found = TNG_FALSE;
 
     if(tng_data->var_num_atoms_flag)
     {
@@ -6119,7 +6119,7 @@ tng_function_status tng_molecule_name_of_particle_nr_get
             cnt += mol->n_atoms * molecule_cnt_list[i];
             continue;
         }
-        found = TRUE;
+        found = TNG_TRUE;
         break;
     }
     if(!found)
@@ -6146,7 +6146,7 @@ tng_function_status tng_chain_name_of_particle_nr_get
     int64_t cnt = 0, i, *molecule_cnt_list;
     tng_molecule_t mol;
     tng_atom_t atom;
-    tng_bool found = FALSE;
+    tng_bool found = TNG_FALSE;
 
     if(tng_data->var_num_atoms_flag)
     {
@@ -6167,7 +6167,7 @@ tng_function_status tng_chain_name_of_particle_nr_get
             continue;
         }
         atom = &mol->atoms[nr % mol->n_atoms];
-        found = TRUE;
+        found = TNG_TRUE;
         break;
     }
     if(!found)
@@ -6198,7 +6198,7 @@ tng_function_status tng_residue_name_of_particle_nr_get
     int64_t cnt = 0, i, *molecule_cnt_list;
     tng_molecule_t mol;
     tng_atom_t atom;
-    tng_bool found = FALSE;
+    tng_bool found = TNG_FALSE;
 
     if(tng_data->var_num_atoms_flag)
     {
@@ -6219,7 +6219,7 @@ tng_function_status tng_residue_name_of_particle_nr_get
             continue;
         }
         atom = &mol->atoms[nr % mol->n_atoms];
-        found = TRUE;
+        found = TNG_TRUE;
         break;
     }
     if(!found)
@@ -6250,7 +6250,7 @@ tng_function_status tng_atom_name_of_particle_nr_get
     int64_t cnt = 0, i, *molecule_cnt_list;
     tng_molecule_t mol;
     tng_atom_t atom;
-    tng_bool found = FALSE;
+    tng_bool found = TNG_FALSE;
 
     if(tng_data->var_num_atoms_flag)
     {
@@ -6271,7 +6271,7 @@ tng_function_status tng_atom_name_of_particle_nr_get
             continue;
         }
         atom = &mol->atoms[nr % mol->n_atoms];
-        found = TRUE;
+        found = TNG_TRUE;
         break;
     }
     if(!found)
@@ -6298,7 +6298,7 @@ tng_function_status tng_atom_type_of_particle_nr_get
     int64_t cnt = 0, i, *molecule_cnt_list;
     tng_molecule_t mol;
     tng_atom_t atom;
-    tng_bool found = FALSE;
+    tng_bool found = TNG_FALSE;
 
     if(tng_data->var_num_atoms_flag)
     {
@@ -6319,7 +6319,7 @@ tng_function_status tng_atom_type_of_particle_nr_get
             continue;
         }
         atom = &mol->atoms[nr % mol->n_atoms];
-        found = TRUE;
+        found = TNG_TRUE;
         break;
     }
     if(!found)
@@ -7073,7 +7073,7 @@ tng_function_status tng_output_file_endianness_get
         end_64 = tng_data->endianness_64;
     }
 
-    if(end_32 != end_64)
+    if((int)end_32 != (int)end_64)
     {
         return(TNG_FAILURE);
     }

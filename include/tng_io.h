@@ -300,7 +300,7 @@ typedef enum {TNG_NON_PARTICLE_BLOCK_DATA,
               TNG_PARTICLE_BLOCK_DATA} tng_particle_block_data;
 
               
-typedef enum {FALSE, TRUE} tng_bool;
+typedef enum {TNG_FALSE, TNG_TRUE} tng_bool;
 
 /** Flag to specify if the number of atoms change throughout the trajectory or
  *  if it is constant. */
