@@ -24,7 +24,6 @@
 #include "md5.h"
 
 
-
 struct tng_bond {
     /** One of the atoms of the bond */
     int64_t from_atom_id;
@@ -5757,10 +5756,37 @@ tng_function_status tng_molecule_cnt_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_molecule_chain_find(tng_trajectory_t tng_data,
+                                            tng_molecule_t molecule,
+                                            const char *name,
+                                            int64_t id,
+                                            tng_chain_t *chain)
+{
+    int i, n_chains;
+    
+    n_chains = molecule->n_chains;
+    
+    for(i = 0; i < n_chains; i++)
+    {
+        *chain = &molecule->chains[i];
+        if(name[0] != 0 || strcmp(name, (*chain)->name) == 0)
+        {
+            if(id == -1 || id == (*chain)->id)
+            {
+                return(TNG_SUCCESS);
+            }
+        }
+    }
+    
+    *chain = 0;
+    
+    return(TNG_FAILURE);
+}
+
 tng_function_status tng_molecule_chain_add(tng_trajectory_t tng_data,
-                                              tng_molecule_t molecule,
-                                              const char *name,
-                                              tng_chain_t *chain)
+                                           tng_molecule_t molecule,
+                                           const char *name,
+                                           tng_chain_t *chain)
 {
     tng_chain_t new_chains;
 
@@ -11566,6 +11592,23 @@ tng_function_status tng_molecule_cnt_set_(tng_trajectory_t tng_data,
                                           int64_t *cnt)
 {
     return(tng_molecule_cnt_set(tng_data, molecule, *cnt));
+}
+
+tng_function_status tng_molecule_chain_find_(tng_trajectory_t tng_data,
+                                             tng_molecule_t molecule,
+                                             const char *name,
+                                             int64_t id,
+                                             tng_chain_t *chain,
+                                             int name_len)
+{
+    char *n = malloc(name_len + 1);
+    tng_function_status stat;
+    
+    strncpy(n, name, name_len);
+    n[name_len] = 0;
+    stat = tng_molecule_chain_find(tng_data, molecule, n, id, chain);
+    free(n);
+    return(stat);
 }
 
 tng_function_status tng_molecule_chain_add_(tng_trajectory_t tng_data,

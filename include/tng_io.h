@@ -923,6 +923,26 @@ tng_function_status tng_molecule_cnt_set(tng_trajectory_t tng_data,
                                          int64_t cnt);
 
 /**
+ * @brief Find a chain in a molecule.
+ * @param tng_data is the trajectory data container containing the molecule..
+ * @param molecule is the molecule in which to search for the chain.
+ * @param name is a string containing the name of the chain. If name is empty
+ * only id will be used for finding the chain.
+ * @param id is the id of the chain to look for. If id is -1 only the name of
+ * the chain will be used for finding the chain.
+ * @param chain is a pointer to the chain if it was found - otherwise 0.
+ * @return TNG_SUCCESS (0) if the chain is found or TNG_FAILURE (1) if the
+ * chain is not found.
+ * @details If name is an empty string and id is -1 the first chain will be
+ * found.
+ */
+tng_function_status tng_molecule_chain_find(tng_trajectory_t tng_data,
+                                            tng_molecule_t molecule,
+                                            const char *name,
+                                            int64_t id,
+                                            tng_chain_t *chain);
+
+/**
  * @brief Add a chain to a molecule.
  * @param tng_data is the trajectory data container containing the molecule..
  * @param molecule is the molecule to add a chain to.
