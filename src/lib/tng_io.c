@@ -5958,7 +5958,7 @@ tng_function_status tng_molecule_cnt_set(tng_trajectory_t tng_data,
 tng_function_status tng_molecule_chain_find(tng_trajectory_t tng_data,
                                             tng_molecule_t molecule,
                                             const char *name,
-                                            int64_t id,
+                                            int64_t nr,
                                             tng_chain_t *chain)
 {
     int i, n_chains;
@@ -5970,7 +5970,7 @@ tng_function_status tng_molecule_chain_find(tng_trajectory_t tng_data,
         *chain = &molecule->chains[i];
         if(name[0] != 0 || strcmp(name, (*chain)->name) == 0)
         {
-            if(id == -1 || id == (*chain)->id)
+            if(nr == -1 || nr == (*chain)->id)
             {
                 return(TNG_SUCCESS);
             }
@@ -6052,6 +6052,7 @@ tng_function_status tng_chain_name_set(tng_trajectory_t tng_data,
 tng_function_status tng_chain_residue_find(tng_trajectory_t tng_data,
                                            tng_chain_t chain,
                                            const char *name,
+                                           int64_t nr,
                                            tng_residue_t *residue)
 {
     int i, n_residues;
@@ -6063,7 +6064,10 @@ tng_function_status tng_chain_residue_find(tng_trajectory_t tng_data,
         *residue = &chain->residues[i];
         if(name[0] != 0 || strcmp(name, (*residue)->name) == 0)
         {
-            return(TNG_SUCCESS);
+            if(nr == -1 || nr == (*residue)->id)
+            {
+                return(TNG_SUCCESS);
+            }
         }
     }
 
