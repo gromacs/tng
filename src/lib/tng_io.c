@@ -5850,6 +5850,29 @@ tng_function_status tng_chain_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_chain_residue_find(tng_trajectory_t tng_data,
+                                           tng_chain_t chain,
+                                           const char *name,
+                                           tng_residue_t *residue)
+{
+    int i, n_residues;
+
+    n_residues = chain->n_residues;
+
+    for(i = 0; i < n_residues; i++)
+    {
+        *residue = &chain->residues[i];
+        if(name[0] != 0 || strcmp(name, (*residue)->name) == 0)
+        {
+            return(TNG_SUCCESS);
+        }
+    }
+
+    *residue = 0;
+
+    return(TNG_FAILURE);
+}
+
 tng_function_status tng_chain_residue_add(tng_trajectory_t tng_data,
                                              tng_chain_t chain,
                                              const char *name,
