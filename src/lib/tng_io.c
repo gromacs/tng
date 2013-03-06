@@ -5982,6 +5982,7 @@ tng_function_status tng_molecule_chain_find(tng_trajectory_t tng_data,
     return(TNG_FAILURE);
 }
 
+/* FIXME: For v. 2 the chain nr should also be possible to specify. */
 tng_function_status tng_molecule_chain_add(tng_trajectory_t tng_data,
                                            tng_molecule_t molecule,
                                            const char *name,
@@ -6010,11 +6011,12 @@ tng_function_status tng_molecule_chain_add(tng_trajectory_t tng_data,
     tng_chain_name_set(tng_data, *chain, name);
 
     (*chain)->molecule = molecule;
-    (*chain)->id = molecule->n_chains;
     (*chain)->n_residues = 0;
 
     molecule->n_chains++;
 
+    (*chain)->id = molecule->n_chains;
+    
     return(TNG_SUCCESS);
 }
 
@@ -6076,6 +6078,7 @@ tng_function_status tng_chain_residue_find(tng_trajectory_t tng_data,
     return(TNG_FAILURE);
 }
 
+/* FIXME: For v. 2 the residue nr should also be possible to specify. */
 tng_function_status tng_chain_residue_add(tng_trajectory_t tng_data,
                                              tng_chain_t chain,
                                              const char *name,
@@ -6144,13 +6147,14 @@ tng_function_status tng_chain_residue_add(tng_trajectory_t tng_data,
     tng_residue_name_set(tng_data, *residue, name);
 
     (*residue)->chain = chain;
-    (*residue)->id = chain->n_residues;
     (*residue)->n_atoms = 0;
     (*residue)->atoms = 0;
 
     chain->n_residues++;
     molecule->n_residues++;
 
+    (*residue)->id = chain->n_residues;
+    
     return(TNG_SUCCESS);
 }
 
@@ -6185,6 +6189,7 @@ tng_function_status tng_residue_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+/* FIXME: For v. 2 the atom nr should also be possible to specify. */
 tng_function_status tng_residue_atom_add(tng_trajectory_t tng_data,
                                          tng_residue_t residue,
                                          const char *atom_name,
@@ -6255,10 +6260,11 @@ tng_function_status tng_residue_atom_add(tng_trajectory_t tng_data,
     tng_atom_type_set(tng_data, *atom, atom_type);
 
     (*atom)->residue = residue;
-    (*atom)->id = molecule->n_atoms;
 
     residue->n_atoms++;
     molecule->n_atoms++;
+    
+    (*atom)->id = molecule->n_atoms;
     
     return(TNG_SUCCESS);
 }
