@@ -3632,8 +3632,8 @@ static tng_function_status tng_allocate_particle_data_mem
     n_frames = tng_max(1, n_frames);
     data->stride_length = tng_max(1, stride_length);
     data->n_values_per_frame = n_values_per_frame;
-    values = realloc(data->values, sizeof(union data_values **) * n_frames
-                     / stride_length);
+    values = realloc(data->values, sizeof(union data_values **) * n_frames);
+
     if(!values)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -3644,7 +3644,7 @@ static tng_function_status tng_allocate_particle_data_mem
     }
     data->values = values;
 
-    for(i = n_frames / stride_length; i-- ;)
+    for(i = n_frames; i-- ;)
     {
         data->values[i] = malloc(sizeof(union data_values *) *
                                  n_particles);
@@ -4501,14 +4501,14 @@ static tng_function_status tng_allocate_data_mem
     if(!values)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-            sizeof(union data_values **) * n_frames / stride_length,
+            sizeof(union data_values *) * n_frames,
             __FILE__, __LINE__);
         free(data->values);
         return(TNG_CRITICAL);
     }
     data->values = values;
 
-    for(i = n_frames / stride_length; i-- ;)
+    for(i = n_frames; i-- ;)
     {
         data->values[i] = malloc(sizeof(union data_values) *
                                  n_values_per_frame);
@@ -7010,9 +7010,7 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p)
                                           frame_set->tr_particle_data[i].
                                           values,
                                           frame_set->tr_particle_data[i].
-                                          n_frames /
-                                          frame_set->tr_particle_data[i].
-                                          stride_length,
+                                          n_frames,
                                           n_particles,
                                           frame_set->tr_particle_data[i].
                                           n_values_per_frame,
@@ -7035,8 +7033,7 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p)
         {
             tng_data_values_free(tng_data,
                                  frame_set->tr_data[i].values,
-                                 frame_set->tr_data[i].n_frames /
-                                 frame_set->tr_data[i].stride_length,
+                                 frame_set->tr_data[i].n_frames,
                                  frame_set->tr_data[i].
                                  n_values_per_frame,
                                  frame_set->tr_data[i].datatype);
