@@ -7,14 +7,14 @@
 #include "tng_io_testing.h"
 
 int main ( int argc, char *argv[] );
-void compute ( int np, int nd, double pos[], double vel[], 
+void compute ( int np, int nd, double pos[], double vel[],
     double mass, double f[], double *pot, double *kin );
 double dist ( int nd, double r1[], double r2[], double dr[] );
-void initialize ( int np, int nd, double box[], int *seed, double pos[], 
+void initialize ( int np, int nd, double box[], int *seed, double pos[],
     double vel[], double acc[] );
 double r8_uniform_01 ( int *seed );
 void timestamp ( void );
-void update ( int np, int nd, double pos[], double vel[], double f[], 
+void update ( int np, int nd, double pos[], double vel[], double f[],
     double acc[], double mass, double dt );
 
 /******************************************************************************/
@@ -75,7 +75,7 @@ int main ( int argc, char *argv[] )
     int proc_num;
     int seed = 123456789;
     int step;
-    int step_num = 1000;
+    int step_num = 1050;
     int step_print;
     int step_print_index;
     int step_print_num;
@@ -117,7 +117,7 @@ int main ( int argc, char *argv[] )
     printf ( "  Number of processors available = %d\n", proc_num );
     printf ( "  Number of threads =              %d\n", omp_get_max_threads ( ) );
 
-    
+
     printf("\n");
     printf("  Initializing trajectory storage.\n");
     if(tng_trajectory_init(&traj) != TNG_SUCCESS)
@@ -147,7 +147,7 @@ int main ( int argc, char *argv[] )
     }
     tng_molecule_cnt_set(traj, molecule, np);
 
-    
+
 /*
     Set the dimensions of the box.
 */
@@ -190,7 +190,7 @@ int main ( int argc, char *argv[] )
     compute ( np, nd, pos, vel, mass, force, &potential, &kinetic );
 
     e0 = potential + kinetic;
-    
+
     /* Saving frequency */
     step_save = 5;
 
@@ -232,7 +232,7 @@ int main ( int argc, char *argv[] )
                 i, __FILE__, __LINE__);
         exit(1);
     }
-    
+
     /* Add empty data blocks */
     if(tng_particle_data_block_add(traj, TNG_TRAJ_POSITIONS,
                                 "POSITIONS",
@@ -269,7 +269,7 @@ int main ( int argc, char *argv[] )
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
         exit(1);
     }
-    
+
     /* There is no standard ID for potential energy. Pick one. The
        potential energy will not be saved every frame - it is sparsely
        saved. */
@@ -284,14 +284,14 @@ int main ( int argc, char *argv[] )
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
         exit(1);
     }
-    
+
     /* Write the frame set to disk */
     if(tng_frame_set_write(traj, TNG_USE_HASH) != TNG_SUCCESS)
     {
         printf("Error writing frame set. %s: %d\n", __FILE__, __LINE__);
         exit(1);
     }
-        
+
     wtime = omp_get_wtime ( );
 
     for ( step = 1; step <= step_num; step++ )
@@ -368,7 +368,7 @@ int main ( int argc, char *argv[] )
 }
 /******************************************************************************/
 
-void compute ( int np, int nd, double pos[], double vel[], 
+void compute ( int np, int nd, double pos[], double vel[],
     double mass, double f[], double *pot, double *kin )
 
 /******************************************************************************/
@@ -439,7 +439,7 @@ void compute ( int np, int nd, double pos[], double vel[],
 # pragma omp parallel \
     shared ( f, nd, np, pos, vel ) \
     private ( i, j, k, rij, d, d2 )
-    
+
 
 # pragma omp for reduction ( + : pe, ke )
     for ( k = 0; k < np; k++ )
@@ -487,7 +487,7 @@ void compute ( int np, int nd, double pos[], double vel[],
     }
 
     ke = ke * 0.5 * mass;
-    
+
     *pot = pe;
     *kin = ke;
 
@@ -542,7 +542,7 @@ double dist ( int nd, double r1[], double r2[], double dr[] )
 }
 /******************************************************************************/
 
-void initialize ( int np, int nd, double box[], int *seed, double pos[], 
+void initialize ( int np, int nd, double box[], int *seed, double pos[],
     double vel[], double acc[] )
 
 /******************************************************************************/
@@ -729,7 +729,7 @@ void timestamp ( void )
 }
 /******************************************************************************/
 
-void update ( int np, int nd, double pos[], double vel[], double f[], 
+void update ( int np, int nd, double pos[], double vel[], double f[],
     double acc[], double mass, double dt )
 
 /******************************************************************************/
