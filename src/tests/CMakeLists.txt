@@ -13,6 +13,10 @@ include_directories(${CMAKE_BINARY_DIR}/generated/)
 add_executable(tng_testing tng_io_testing.c)
 target_link_libraries(tng_testing tng_io)
 
+if(HAVE_INTTYPES_H)
+  set_target_properties(tng_testing PROPERTIES COMPILE_DEFINITIONS USE_STD_INTTYPES_H=1)
+endif()
+
 if(OPENMP_FOUND)
   add_executable(md_openmp md_openmp.c)
   target_link_libraries(md_openmp tng_io ${OpenMP_LIBS} m)

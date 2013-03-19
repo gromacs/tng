@@ -11,14 +11,17 @@ option(BUILD_FORTRAN "Build Fortran examples" OFF)
 
 option(USE_OPENMP "Try to use the OpenMP library (if available)" ON)
 if(USE_OPENMP)
-  FIND_PACKAGE(OpenMP)
+  find_package(OpenMP)
   if(OPENMP_FOUND)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
   endif()
 endif()
 
-FIND_PACKAGE(ZLIB)
+find_package(ZLIB)
+
+include(CheckIncludeFile)
+check_include_file(inttypes.h   HAVE_INTTYPES_H)
 
 add_subdirectory(src)
 
@@ -27,7 +30,7 @@ file(COPY example_files DESTINATION .)
 #-- Add an Option to toggle the generation of the API documentation
 option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 if(BUILD_DOCUMENTATION)
-  FIND_PACKAGE(Doxygen)
+  find_package(Doxygen)
   if (NOT DOXYGEN_FOUND)
     message(FATAL_ERROR
       "Doxygen is needed to build the documentation. Please install it correctly")
