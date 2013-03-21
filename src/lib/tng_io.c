@@ -11987,6 +11987,7 @@ tng_function_status tng_time_get_str(const tng_trajectory_t tng_data,
 }
 
 
+#ifdef BUILD_FORTRAN
 /* The following is for calling the library from fortran */
 
 tng_function_status tng_trajectory_init_(tng_trajectory_t *tng_data_p)
@@ -12771,3 +12772,4 @@ tng_function_status tng_time_get_str_(const tng_trajectory_t tng_data,
 {
     return(tng_time_get_str(tng_data, time));
 }
+#endif
