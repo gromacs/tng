@@ -6095,7 +6095,8 @@ static tng_function_status tng_frame_set_align(tng_trajectory_t tng_data)
     {
         if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
         {
-            printf("Cannot read block header. %s: %d\n", __FILE__, __LINE__);
+            printf("Cannot read block header at pos %"PRId64". %s: %d\n", pos,
+                   __FILE__, __LINE__);
             tng_data->input_file = temp;
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
@@ -6183,7 +6184,8 @@ static tng_function_status tng_frame_set_finalize
     {
         if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
         {
-            printf("Cannot read block header. %s: %d\n", __FILE__, __LINE__);
+            printf("Cannot read block header at pos %"PRId64". %s: %d\n", pos,
+                   __FILE__, __LINE__);
             tng_data->input_file = temp;
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
