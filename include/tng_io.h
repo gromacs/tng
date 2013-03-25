@@ -243,7 +243,9 @@ typedef int                     int32_t;
 # if __WORDSIZE == 64
 typedef long int                int64_t;
 # else
+#ifdef __GNUC__
 __extension__
+#endif
 typedef long long int           int64_t;
 # endif
 #endif
@@ -257,7 +259,9 @@ typedef unsigned int            uint32_t;
 #if __WORDSIZE == 64
 typedef unsigned long int       uint64_t;
 #else
+#ifdef __GNUC__
 __extension__
+#endif
 typedef unsigned long long int  uint64_t;
 #endif
 
