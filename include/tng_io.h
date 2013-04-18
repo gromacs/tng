@@ -358,9 +358,9 @@ typedef enum {TNG_TRAJ_BOX_SHAPE = 10000,
               TNG_TRAJ_VELOCITIES,
               TNG_TRAJ_FORCES,
               TNG_TRAJ_PARTIAL_CHARGES,
-              TNG_FORMAL_CHARGES,
-              TNG_B-FACTORS,
-              TNG_OCCUPANCY} tng_trajectory_block_ids;
+              TNG_TRAJ_FORMAL_CHARGES,
+              TNG_TRAJ_B-FACTORS,
+              TNG_TRAJ_OCCUPANCY} tng_trajectory_block_ids;
 
 /** Flag to specify if a data block contains data related to particles or not.*/
 typedef enum {TNG_NON_PARTICLE_BLOCK_DATA,
