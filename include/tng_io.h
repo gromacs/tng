@@ -797,6 +797,16 @@ tng_function_status tng_input_file_len_get(const tng_trajectory_t tng_data,
                                            int64_t *len);
 
 /**
+ * @brief Get the number of frames in the trajectory
+ * @param tng_data the trajectory of which to get the number of frames.
+ * @param n is pointing to a value set to the number of frames.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (could not find last frame set).
+ */
+tng_function_status tng_num_frames_get(const tng_trajectory_t tng_data,
+                                     int64_t *n);
+
+/**
  * @brief Get the current number of particles.
  * @param tng_data is the trajectory from which to get the number of particles.
  * @param n is pointing to a value set to the number of particles.

@@ -8348,6 +8348,48 @@ tng_function_status tng_input_file_len_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_num_frames_get(const tng_trajectory_t tng_data,
+                                       int64_t *n)
+{
+    tng_gen_block_t block;
+    tng_function_status stat;
+    int64_t file_pos;
+
+    file_pos = tng_data->last_trajectory_frame_set_input_file_pos;
+
+    if(file_pos <= 0)
+    {
+        return(TNG_FAILURE);
+    }
+
+    tng_block_init(&block);
+    fseek(tng_data->input_file,
+        file_pos,
+        SEEK_SET);
+    tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
+    /* Read block headers first to see what block is found. */
+    stat = tng_block_header_read(tng_data, block);
+    if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
+    {
+        tng_block_destroy(&block);
+        return(TNG_FAILURE);
+    }
+
+    stat = tng_block_read_next(tng_data, block,
+                               TNG_SKIP_HASH);
+    tng_block_destroy(&block);
+
+    if(stat != TNG_SUCCESS)
+    {
+        return(TNG_FAILURE);
+    }
+
+    *n = tng_data->current_trajectory_frame_set.first_frame +
+         tng_data->current_trajectory_frame_set.n_frames;
+
+    return(TNG_SUCCESS);
+}
+
 tng_function_status tng_num_particles_get(const tng_trajectory_t tng_data,
                                           int64_t *n)
 {
@@ -12264,6 +12306,12 @@ tng_function_status tng_input_file_len_get_(const tng_trajectory_t tng_data,
                                             int64_t *len)
 {
     return(tng_input_file_len_get(tng_data, len));
+}
+
+tng_function_status tng_num_frames_get_(const tng_trajectory_t tng_data,
+                                     int64_t *n)
+{
+    return(tng_num_frames_get(tng_data, n));
 }
 
 tng_function_status tng_num_particles_get_(const tng_trajectory_t tng_data,

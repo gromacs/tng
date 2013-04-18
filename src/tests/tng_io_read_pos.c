@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 {
     tng_trajectory_t traj;
     union data_values ***positions = 0; // A 3-dimensional array to be populated
-    int64_t n_particles, n_values_per_frame, n_frames;
+    int64_t n_particles, n_values_per_frame, n_frames, tot_n_frames;
     tng_data_type data_type;
     int i, j;
     int64_t particle = 0;
@@ -61,6 +61,20 @@ int main(int argc, char **argv)
                 last_frame = strtoll(argv[4], 0, 10);
             }
         }
+    }
+
+    if(tng_num_frames_get(traj, &tot_n_frames) != TNG_SUCCESS)
+    {
+        printf("Cannot determine the number of frames in the file\n");
+        tng_trajectory_destroy(&traj);
+        exit(1);
+    }
+
+    printf("%"PRId64" frames in file\n", tot_n_frames);
+
+    if(last_frame > tot_n_frames - 1)
+    {
+        last_frame = tot_n_frames - 1;
     }
 
     n_frames = last_frame - first_frame + 1;
