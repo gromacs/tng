@@ -62,20 +62,20 @@ int main ( int argc, char *argv[] )
     double *acc;
     double *box;
     double *box_shape;
-    double dt = 0.0001;
+    double dt = 0.0002;
     double e0;
     double *force;
     int i;
     double kinetic;
     double mass = 1.0;
     int nd = 3;
-    int np = 250;
+    int np = 50;
     double *pos;
     double potential;
     int proc_num;
     int seed = 123456789;
     int step;
-    int step_num = 1050;
+    int step_num = 50000;
     int step_print;
     int step_print_index;
     int step_print_num;
@@ -192,12 +192,12 @@ int main ( int argc, char *argv[] )
     e0 = potential + kinetic;
 
     /* Saving frequency */
-    step_save = 5;
+    step_save = 500;
 
     step_print = 0;
     step_print_index = 0;
     step_print_num = 10;
-    sparse_save = 10;
+    sparse_save = 100;
 
 /*
     This is the main time stepping loop:
