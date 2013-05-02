@@ -1,5 +1,5 @@
 #ifndef _TNGIO_HPP
-#define _TNGIO_HPP     
+#define _TNGIO_HPP
 
 #include "tng_io.h"
 
@@ -31,7 +31,7 @@ public:
 	friend class Residue;
 	friend class Chain;
 	friend class Molecule;
-	
+
 	//! Normal constructor
 	Trajectory()
 	{ status = tng_trajectory_init(&traj); }
@@ -448,6 +448,18 @@ public:
 		return status = tng_num_frames_per_frame_set_get(traj,n);
 	}
 
+        /**
+        * @brief Set the number of frames per frame set.
+        * @param n is the number of frames per frame set.
+        * @details This does not affect already existing frame sets. For
+        * consistency the number of frames per frame set should be set
+        * betfore creating any frame sets.
+        * @return TNG_SUCCESS (0) if successful.
+        */
+        tng_function_status setNumFramesPerFrameSet(const int64_t n)
+        {
+                return status = tng_num_frames_per_frame_set_set(traj,n);
+        }
 
 	/**
 	* @brief Get the number of frame sets.
@@ -1072,7 +1084,7 @@ public:
 	Molecule(Trajectory * trajectory)
 	{
 		traj = trajectory;
-		
+
 		//status = tng_molecule_init(traj->traj,mol);
 	}
 	/**
@@ -1291,4 +1303,4 @@ public:
 };
 
 }
-#endif 
+#endif

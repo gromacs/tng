@@ -843,6 +843,20 @@ tng_function_status tng_num_frames_per_frame_set_get
                  int64_t *n);
 
 /**
+ * @brief Set the number of frames per frame set.
+ * @param tng_data is the trajectory of which to set the number of frames
+ * per frame set.
+ * @param n is the number of frames per frame set.
+ * @details This does not affect already existing frame sets. For
+ * consistency the number of frames per frame set should be set
+ * betfore creating any frame sets.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status tng_num_frames_per_frame_set_set
+                (const tng_trajectory_t tng_data,
+                 const int64_t n);
+
+/**
  * @brief Get the number of frame sets.
  * @details This updates tng_data->n_trajectory_frame_sets before returning it.
  * @param tng_data is the trajectory from which to get the number of frame sets.

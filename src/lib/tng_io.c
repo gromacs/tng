@@ -8438,6 +8438,15 @@ tng_function_status tng_num_frames_per_frame_set_get
     return(TNG_SUCCESS);
 }
 
+tng_function_status tng_num_frames_per_frame_set_set
+                (const tng_trajectory_t tng_data,
+                 const int64_t n)
+{
+    tng_data->frame_set_n_frames = n;
+
+    return(TNG_SUCCESS);
+}
+
 tng_function_status tng_num_frame_sets_get(const tng_trajectory_t tng_data,
                                            int64_t *n)
 {
@@ -12331,6 +12340,13 @@ tng_function_status tng_num_frames_per_frame_set_get_
                  int64_t *n)
 {
     return(tng_num_frames_per_frame_set_get(tng_data, n));
+}
+
+tng_function_status tng_num_frames_per_frame_set_set_
+                (const tng_trajectory_t tng_data,
+                 int64_t *n)
+{
+    return(tng_num_frames_per_frame_set_set(tng_data, *n));
 }
 
 tng_function_status tng_num_frame_sets_get_
