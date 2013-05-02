@@ -3613,7 +3613,7 @@ static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
 {
     Bytef *dest;
     char *temp;
-    ulong max_len, stat;
+    uLong max_len, stat;
 
     max_len = compressBound(len);
     dest = malloc(max_len);
