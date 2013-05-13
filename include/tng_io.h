@@ -74,17 +74,22 @@
  *
  * See git log for full revision history.
  *
- * revs - Bug fixes in tng_testing (frame sets not written before)
- *      - Write box shape, partial charges and annotation data in tng_testing
- *      - Fixed wrong values in dependency constants
- *      - Fixed bug when writing data blocks.
- *      - Fixed memory leak for non-trajectory particle data blocks.
- *      - Fixed bugs related to reading and writing sparse data.
- *      - Write sparse data in mdrun examples.
- *      - Moved fortran wrapper from header file to source file.
- *      - Update frame set pointers properly.
- *      - Fixed bug in chain_name_of_particle_get(...)
+ * revs - Avoid memory allocation if no data is submitted when adding data
+ *        blocks.
+ *      - Added function tng_num_frames_per_frame_set_set
+ *      - Added data block IDs for charges, b-factors and occupancy.
+ *      - GZIP compression added.
  *      - Fixed bug when updating MD5 hashes of data blocks.
+ *      - Fixed bug in chain_name_of_particle_get(...)
+ *      - Update frame set pointers properly.
+ *      - Moved fortran wrapper from header file to source file.
+ *      - Write sparse data in mdrun examples.
+ *      - Fixed bugs related to reading and writing sparse data.
+ *      - Fixed memory leak for non-trajectory particle data blocks.
+ *      - Fixed bug when writing data blocks.
+ *      - Fixed wrong values in dependency constants
+ *      - Write box shape, partial charges and annotation data in tng_testing
+ *      - Bug fixes in tng_testing (frame sets not written before)
  *
  * v. 1.0 - First stable release of the API.
  *
@@ -117,12 +122,13 @@
  * {
  *     tng_trajectory_t traj;
  *     union data_values ***positions = 0; // A 3-dimensional array to be populated
- *     int64_t n_particles, n_values_per_frame, n_frames;
+ *     int64_t n_particles, n_values_per_frame, n_frames, tot_n_frames;
  *     tng_data_type data_type;
  *     int i, j;
  *     int64_t particle = 0;
  *     // Set a default frame range
  *     int first_frame = 0, last_frame = 50;
+ *     char atom_name[64], res_name[64], chain_name[64];
  *
  *     if(argc <= 1)
  *     {
@@ -158,42 +164,80 @@
  *         }
  *     }
  *
+ *     if(tng_num_frames_get(traj, &tot_n_frames) != TNG_SUCCESS)
+ *     {
+ *         printf("Cannot determine the number of frames in the file\n");
+ *         tng_trajectory_destroy(&traj);
+ *         exit(1);
+ *     }
+ *
+ *     printf("%"PRId64" frames in file\n", tot_n_frames);
+ *
+ *     if(last_frame > tot_n_frames - 1)
+ *     {
+ *         last_frame = tot_n_frames - 1;
+ *     }
+ *
  *     n_frames = last_frame - first_frame + 1;
+ *
+ *     if(tng_atom_name_of_particle_nr_get(traj, particle, atom_name,
+ *                                         sizeof(atom_name)) ==
+ *        TNG_SUCCESS &&
+ *        tng_residue_name_of_particle_nr_get(traj, particle, res_name,
+ *                                            sizeof(res_name)) ==
+ *        TNG_SUCCESS &&
+ *        tng_chain_name_of_particle_nr_get(traj, particle, chain_name,
+ *                                          sizeof(chain_name)) ==
+ *        TNG_SUCCESS)
+ *     {
+ *         printf("Particle: %s (%s: %s)\n", atom_name, chain_name, res_name);
+ *     }
+ *     else
+ *     {
+ *         printf("Particle name not found\n");
+ *     }
  *
  *     // Get the positions of all particles in the requested frame range.
  *     // The positions are stored in the positions array.
  *     // N.B. No proper error checks.
  *     if(tng_particle_data_interval_get(traj, TNG_TRAJ_POSITIONS, first_frame,
  *        last_frame, TNG_USE_HASH, &positions, &n_particles, &n_values_per_frame,
- *        &data_type) != TNG_SUCCESS)
+ *        &data_type) == TNG_SUCCESS)
  *     {
- *         printf("Cannot read positions\n");
+ *         if(particle >= n_particles)
+ *         {
+ *             printf("Chosen particle out of range. Only %"PRId64" particles in trajectory.\n", n_particles);
+ *         }
+ *         else
+ *         {
+ *             // Print the positions of the wanted particle (zero based)
+ *             for(i=0; i<n_frames; i++)
+ *             {
+ *                 printf("%d", first_frame + i);
+ *                 for(j=0; j<n_values_per_frame; j++)
+ *                 {
+ *                     switch(data_type)
+ *                     {
+ *                     case TNG_INT_DATA:
+ *                         printf("\t%"PRId64"", positions[i][particle][j].i);
+ *                         break;
+ *                     case TNG_FLOAT_DATA:
+ *                         printf("\t%f", positions[i][particle][j].f);
+ *                         break;
+ *                     case TNG_DOUBLE_DATA:
+ *                         printf("\t%f", positions[i][particle][j].d);
+ *                         break;
+ *                     default:
+ *                         break;
+ *                     }
+ *                     printf("\n");
+ *                 }
+ *             }
+ *         }
  *     }
  *     else
  *     {
- *         // Print the positions of the wanted particle (zero based)
- *         for(i=first_frame; i<=last_frame; i++)
- *         {
- *             printf("%d", i);
- *             for(j=0; j<n_values_per_frame; j++)
- *             {
- *                 switch(data_type)
- *                 {
- *                 case TNG_INT_DATA:
- *                     printf("\t%"PRId64"", positions[i][particle][j].i);
- *                     break;
- *                 case TNG_FLOAT_DATA:
- *                     printf("\t%f", positions[i][particle][j].f);
- *                     break;
- *                 case TNG_DOUBLE_DATA:
- *                     printf("\t%f", positions[i][particle][j].d);
- *                     break;
- *                 default:
- *                     break;
- *                 }
- *                 printf("\n");
- *             }
- *         }
+ *         printf("Cannot read positions\n");
  *     }
  *
  *     // Free memory
@@ -472,7 +516,7 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p);
  * error has occured.
  */
 tng_function_status tng_trajectory_init_from_src(tng_trajectory_t src,
-                                                  tng_trajectory_t *dest_p);
+                                                 tng_trajectory_t *dest_p);
 
 /**
  * @brief Get the name of the input file.
