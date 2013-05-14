@@ -9547,7 +9547,7 @@ tng_function_status tng_frame_set_read_next(tng_trajectory_t tng_data,
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
     {
-        printf("Cannot read block header at pos %"PRId64". %s: %d\n",
+        printf("Cannot read block header at pos %ld. %s: %d\n",
                file_pos, __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
@@ -9579,7 +9579,7 @@ tng_function_status tng_frame_set_read_next(tng_trajectory_t tng_data,
         }
         if(stat == TNG_CRITICAL)
         {
-            printf("Cannot read block header at pos %"PRId64". %s: %d\n",
+            printf("Cannot read block header at pos %ld. %s: %d\n",
                    file_pos, __FILE__, __LINE__);
             tng_block_destroy(&block);
             return(stat);
