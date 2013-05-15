@@ -10,10 +10,6 @@
  * of the License, or (at your option) any later version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <stdio.h>
 #include <math.h>
 #include "fixpoint.h"

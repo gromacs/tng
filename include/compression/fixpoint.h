@@ -13,10 +13,6 @@
 #ifndef FIXPOINT_H
 #define FIXPOINT_H
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "my64bit.h"
 
 /* There are at least 32 bits available in a long. */
