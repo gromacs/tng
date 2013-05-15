@@ -13,7 +13,7 @@ configure_file(tng_io_testing.h.in ${CMAKE_BINARY_DIR}/generated/tng_io_testing.
 include_directories(${CMAKE_BINARY_DIR}/generated/)
 
 add_executable(tng_testing tng_io_testing.c)
-target_link_libraries(tng_testing tng_io)
+target_link_libraries(tng_testing tng_io m)
 
 if(HAVE_INTTYPES_H)
   set_target_properties(tng_testing PROPERTIES COMPILE_DEFINITIONS USE_STD_INTTYPES_H=1)
@@ -25,10 +25,10 @@ if(OPENMP_FOUND)
 endif()
 
 add_executable(tng_io_read_pos tng_io_read_pos.c)
-target_link_libraries(tng_io_read_pos tng_io)
+target_link_libraries(tng_io_read_pos tng_io m)
 
 add_executable(tng_parallel_read tng_parallel_read.c)
-target_link_libraries(tng_parallel_read tng_io)
+target_link_libraries(tng_parallel_read tng_io m)
 
 if(BUILD_FORTRAN)
   # This does not work due to a bug in CMake. Remove lines below if no fortran compiler is found.
