@@ -1,14 +1,1 @@
-add_library(tng_io SHARED tng_io.c md5.c)
-
-if(HAVE_INTTYPES_H)
-  set_property(TARGET tng_io APPEND PROPERTY COMPILE_DEFINITIONS USE_STD_INTTYPES_H)
-endif()
-
-if(BUILD_FORTRAN)
-  set_property(TARGET tng_io APPEND PROPERTY COMPILE_DEFINITIONS BUILD_FORTRAN)
-endif()
-
-if(ZLIB_FOUND)
-  set_property(TARGET tng_io APPEND PROPERTY COMPILE_DEFINITIONS USE_ZLIB)
-  target_link_libraries(tng_io ${ZLIB_LIBRARIES})
-endif()
+add_library(tng_compress SHARED bwlzh.c bwt.c coder.c dict.c fixpoint.c huffman.c huffmem.c lz77.c merge_sort.c mtf.c rle.c tng_compress.c vals16.c warnmalloc.c widemuldiv.c xtc2.c xtc3.c)

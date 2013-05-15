@@ -1,3 +1,5 @@
+add_subdirectory(compression)
+
 if(NOT OPENMP_FOUND)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 endif()
