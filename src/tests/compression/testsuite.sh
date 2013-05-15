@@ -5,9 +5,11 @@ if [ -n "$1" ]; then
 fi
 STARTTEST=1
 ENDTEST=57
-#CFLAGS="-O2 -Wall"
-CFLAGS="-O2 -g"
-LIBS="-lm"
+#CFLAGS="-Wall -O2 -I../../../include/compress"
+CFLAGS="-O2 -I../../../include/compression"
+LIBS="-L../../../build/lib -ltng_compress -lm"
+LD_LIBRARY_PATH="../../../build/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH
 #CFLAGS="-O0 -Wall -g"
 #LIBS="-lm -lefence"
 CC="gcc"
@@ -18,12 +20,12 @@ for testnum in $(seq $STARTTEST $ENDTEST); do
     sed "s/TESTPARAM/\"test$testnum.h\"/" <testsuite.c >test$testnum.c
     if [ -n "$do_write_test" ]; then
         echo Write test $testnum: $testname
-        $CC -DGEN $CFLAGS -I../ -L../ -o gen$testnum test$testnum.c -ltng_compress $LIBS
+        $CC -DGEN $CFLAGS -o gen$testnum test$testnum.c -ltng_compress $LIBS
         ./gen$testnum
         rm -f gen$testnum
     fi
     echo Read test $testnum: $testname
-    $CC $CFLAGS -I../ -L../ -o read$testnum test$testnum.c -ltng_compress $LIBS
+    $CC $CFLAGS -o read$testnum test$testnum.c -ltng_compress $LIBS
     ./read$testnum
     rm -f read$testnum
     rm -f test$testnum.c
