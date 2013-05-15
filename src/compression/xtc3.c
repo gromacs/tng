@@ -20,9 +20,6 @@
 /* The cost estimates are ripped right out of xtc2.c, so take these
    with a grain (truckload) of salt. */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
