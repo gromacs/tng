@@ -169,8 +169,11 @@
 #define T63    0x2ad7d2bb
 #define T64 /* 0xeb86d391 */ (T_MASK ^ 0x14792c6e)
 
-
+#ifdef USE_WINDOWS
 static inline void
+#else
+static __inline void
+#endif
 md5_process(md5_state_t *pms, const md5_byte_t *data /*[64]*/)
 {
     md5_word_t

@@ -49,6 +49,12 @@
 #ifndef md5_INCLUDED
 #  define md5_INCLUDED
 
+#ifndef USE_WINDOWS
+#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
+#define USE_WINDOWS
+#endif /* win32... */
+#endif /* not defined USE_WINDOWS */
+
 /*
  * This package supports both compile-time and run-time determination of CPU
  * byte order.  If ARCH_IS_BIG_ENDIAN is defined as 0, the code will be
