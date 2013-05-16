@@ -1,5 +1,5 @@
-#define TESTNAME "Coding. Test write float, read double."
-#define FILENAME "test59.tng_compress"
+#define TESTNAME "Coding. Test write double, read float."
+#define FILENAME "test60.tng_compress"
 #define ALGOTEST
 #define NATOMS 1000
 #define CHUNKY 100
@@ -22,7 +22,7 @@
 #define INTMAX2 10000
 #define INTMAX3 10000
 #define NFRAMES 1000
-#ifdef GEN
+#ifndef GEN
 #define TEST_FLOAT
 #endif
 #define EXPECTED_FILESIZE 6986313.

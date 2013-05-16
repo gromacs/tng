@@ -284,6 +284,8 @@ struct tng_file
   int writevel;
   REAL *pos;
   REAL *vel;
+  int *ipos;
+  int *ivel;
 };
 
 static size_t fwrite_int_le(int *x,FILE *f)
@@ -328,6 +330,51 @@ static struct tng_file *open_tng_file_write(char *filename,
   struct tng_file *tng_file=malloc(sizeof *tng_file);
   tng_file->pos=NULL;
   tng_file->vel=NULL;
+  tng_file->ipos=NULL;
+  tng_file->ivel=NULL;
+  tng_file->nframes=0;
+  tng_file->chunky=chunky;
+  tng_file->precision=precision;
+  tng_file->natoms=natoms;
+  tng_file->writevel=writevel;
+  tng_file->velprecision=velprecision;
+  tng_file->initial_coding=initial_coding;
+  tng_file->initial_coding_parameter=initial_coding_parameter;
+  tng_file->coding=coding;
+  tng_file->coding_parameter=coding_parameter;
+  tng_file->initial_velcoding=initial_velcoding;
+  tng_file->initial_velcoding_parameter=initial_velcoding_parameter;
+  tng_file->velcoding=velcoding;
+  tng_file->velcoding_parameter=velcoding_parameter;
+  tng_file->speed=speed;
+  tng_file->pos=malloc(natoms*chunky*3*sizeof *tng_file->pos);
+  tng_file->f=fopen(filename,"wb");
+  if (writevel)
+    tng_file->vel=malloc(natoms*chunky*3*sizeof *tng_file->vel);
+  fwrite_int_le(&natoms,tng_file->f);
+  return tng_file;
+}
+
+static struct tng_file *open_tng_file_write_int(char *filename,
+						int natoms,int chunky,
+						unsigned long prec_hi, unsigned long prec_lo,
+						int writevel,
+						unsigned long velprec_hi, unsigned long velprec_lo,
+						int initial_coding,
+						int initial_coding_parameter,
+						int coding,
+						int coding_parameter,
+						int initial_velcoding,
+						int initial_velcoding_parameter,
+						int velcoding,
+						int velcoding_parameter,
+						int speed)
+{
+  struct tng_file *tng_file=malloc(sizeof *tng_file);
+  tng_file->pos=NULL;
+  tng_file->vel=NULL;
+  tng_file->ipos=NULL;
+  tng_file->ivel=NULL;
   tng_file->nframes=0;
   tng_file->chunky=chunky;
   tng_file->precision=precision;
@@ -437,6 +484,8 @@ static struct tng_file *open_tng_file_read(char *filename, int writevel)
   struct tng_file *tng_file=malloc(sizeof *tng_file);
   tng_file->pos=NULL;
   tng_file->vel=NULL;
+  tng_file->ipos=NULL;
+  tng_file->ivel=NULL;
   tng_file->f=fopen(filename,"rb");
   tng_file->nframes=0;
   tng_file->nframes_delivered=0;
@@ -561,6 +610,10 @@ static int algotest()
   int i;
   int *intbox=malloc(NATOMS*3*sizeof *intbox);
   int *intvelbox=malloc(NATOMS*3*sizeof *intvelbox);
+#ifdef RECOMPRESS
+  unsigned long pos_prec_hi,pos_prec_lo;
+  unsigned long vel_prec_hi,vel_prec_lo;
+#endif
   REAL *box1=malloc(NATOMS*STRIDE1*sizeof *box1);
   REAL *velbox1=malloc(NATOMS*STRIDE1*sizeof *velbox1);
   REAL time1, lambda1;
@@ -588,6 +641,11 @@ static int algotest()
 #else
   void *dumpfile=open_tng_file_read(TNG_COMPRESS_FILES_DIR FILENAME,WRITEVEL);
 #endif
+#ifdef RECOMPRESS
+  void *dumpfile_recompress=open_tng_file_read_int(TNG_COMPRESS_FILES_DIR RECOMPRESS,WRITEVEL);
+  if (!dumpfile_recompress)
+    return 1;
+#endif
   if (!dumpfile)
     return 1;
   for (i=0; i<9; i++)
@@ -597,16 +655,30 @@ static int algotest()
   H1[8]=INTMAX3*PRECISION*SCALE;
   for (i=startframe; i<endframe; i++)
     {
+#ifndef RECOMPRES
       genibox(intbox,i);
       realbox(intbox,box1,STRIDE1);
 #if WRITEVEL
       genivelbox(intvelbox,i);
       realvelbox(intvelbox,velbox1,STRIDE1);
 #endif
+#else
+#ifdef GEN
+      if (read_tng_file_int(dumpfile_recompress,intbox,intvelbox))
+	return 1;
+#else
+      if (read_tng_file(dumpfile_recompress,box1,velbox1))
+	return 1;
+#endif
+#endif
       time1=(REAL)i;
       lambda1=(REAL)(i+100);
 #ifdef GEN
+#ifdef RECOMPRESS
+      write_tng_file_int(dumpfile,intbox,intvelbox);
+#else
       write_tng_file(dumpfile,box1,velbox1);
+#endif
 #else
       readreturn=read_tng_file(dumpfile,box2,velbox2);
       if (readreturn==1) /* general read error  */
@@ -626,6 +698,9 @@ static int algotest()
   close_tng_file_write(dumpfile);
 #else
   close_tng_file_read(dumpfile);
+#endif
+#ifdef RECOMPRESS
+  close_tng_file_read(dumpfile_recompress);
 #endif
 #ifdef GEN
   /* Check against expected filesize for this test. */
