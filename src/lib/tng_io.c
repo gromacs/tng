@@ -27,6 +27,7 @@
 
 #include "tng_io.h"
 #include "md5.h"
+#include "compression/tng_compress.h"
 
 
 struct tng_bond {
@@ -337,6 +338,11 @@ struct tng_trajectory {
     int n_data_blocks;
     /** A list of frame and particle indepdendent data blocks */
     struct tng_non_particle_data *non_tr_data;
+
+    /** TNG compression algorithm for compressing positions */
+    int *compress_algo_pos;
+    /** TNG compression algorithm for compressing velocities */
+    int *compress_algo_vel;
 };
 
 
@@ -3606,10 +3612,135 @@ static tng_function_status tng_particle_data_block_create
     return(TNG_SUCCESS);
 }
 
+static tng_function_status tng_compress(tng_trajectory_t tng_data,
+                                        tng_gen_block_t block,
+                                        int64_t n_frames,
+                                        int64_t n_particles,
+                                        void *start_pos, int len)
+{
+    int nalgo;
+    int new_len;
+    char *dest, *temp;
+
+    if(block->id != TNG_TRAJ_POSITIONS &&
+       block->id != TNG_TRAJ_VELOCITIES)
+    {
+        printf("Can only compress positions and velocities with the"
+               "TNG method.\n");
+        return(TNG_FAILURE);
+    }
+
+    if(block->id == TNG_TRAJ_POSITIONS)
+    {
+        if(!tng_data->compress_algo_pos)
+        {
+            nalgo = tng_compress_nalgo();
+            tng_data->compress_algo_pos=malloc(nalgo *
+                                           sizeof *tng_data->compress_algo_pos);
+            dest = tng_compress_pos_find_algo(start_pos, n_particles,
+                                              n_frames,
+                                              0.01, 0,
+                                              tng_data->compress_algo_pos,
+                                              &new_len);       
+        }
+        else
+        {
+            dest = tng_compress_pos(start_pos, n_particles,
+                                    n_frames, 0.01, 0,
+                                    tng_data->compress_algo_pos, &new_len);
+        }
+    }
+    else
+    {
+        if(!tng_data->compress_algo_vel)
+        {
+            nalgo = tng_compress_nalgo();
+            tng_data->compress_algo_vel=malloc(nalgo *
+                                           sizeof *tng_data->compress_algo_vel);
+            dest = tng_compress_vel_find_algo(start_pos, n_particles,
+                                              n_frames,
+                                              0.01, 0,
+                                              tng_data->compress_algo_vel,
+                                              &new_len);
+        }
+        else
+        {
+            dest = tng_compress_vel(start_pos, n_particles,
+                                    n_frames, 0.01, 0,
+                                    tng_data->compress_algo_vel, &new_len);
+        }
+    }
+
+    memcpy(start_pos, dest, new_len);
+
+    free(dest);
+
+    block->block_contents_size = new_len + (block->block_contents_size - len);
+
+    temp = realloc(block->block_contents, block->block_contents_size);
+    if(!temp)
+    {
+        free(block->block_contents);
+        printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+               block->block_contents_size, __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+
+    block->block_contents = temp;
+
+    return(TNG_SUCCESS);
+}
+
+static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
+                                          tng_gen_block_t block,
+                                          void *start_pos,
+                                          unsigned long uncompressed_len)
+{
+    char *temp;
+    double *dest = 0;
+    int offset;
+
+    if(block->id != TNG_TRAJ_POSITIONS &&
+       block->id != TNG_TRAJ_VELOCITIES)
+    {
+        printf("Can only uncompress positions and velocities with the"
+               "TNG method.\n");
+        return(TNG_FAILURE);
+    }
+
+    if(tng_compress_uncompress(start_pos, dest) == 1)
+    {
+        printf("Cannot uncompress TNG compressed block.\n");
+        return(TNG_FAILURE);
+    }
+    
+    offset = start_pos - (void *)block->block_contents;
+
+
+    block->block_contents_size = uncompressed_len + offset;
+
+    temp = realloc(block->block_contents, uncompressed_len + offset);
+    if(!temp)
+    {
+        free(block->block_contents);
+        free(dest);
+        printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+               block->block_contents_size, __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+
+    memcpy(temp + offset, dest, uncompressed_len);
+
+    block->block_contents = temp;
+
+    free(dest);
+    return(TNG_SUCCESS);
+}
+
 #ifdef USE_ZLIB
 static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
                                              tng_gen_block_t block,
-                                             void *start_pos, int len)
+                                             void *start_pos, const int len)
 {
     Bytef *dest;
     char *temp;
@@ -4924,12 +5055,6 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
         data_size = (n_frames / stride_length) * size * n_values;
         switch(codec_id)
         {
-        case TNG_XTC_COMPRESSION:
-            printf("XTC compression not implemented yet.\n");
-            break;
-        case TNG_TNG_COMPRESSION:
-            printf("TNG compression not implemented yet.\n");
-            break;
     #ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
     //         printf("Before compression: %"PRId64"\n", block->block_contents_size);
@@ -5458,12 +5583,6 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
 
     switch(data->codec_id)
     {
-    case TNG_XTC_COMPRESSION:
-        printf("XTC compression not implemented yet.\n");
-        break;
-    case TNG_TNG_COMPRESSION:
-        printf("TNG compression not implemented yet.\n");
-        break;
 #ifdef USE_ZLIB
     case TNG_GZIP_COMPRESSION:
 //         printf("Before compression: %"PRId64"\n", block->block_contents_size);
@@ -7263,6 +7382,9 @@ tng_function_status tng_trajectory_init(tng_trajectory_t *tng_data_p)
     tng_data->non_tr_particle_data = 0;
     tng_data->non_tr_data = 0;
 
+    tng_data->compress_algo_pos = 0;
+    tng_data->compress_algo_vel = 0;
+
     frame_set->first_frame = -1;
     frame_set->n_mapping_blocks = 0;
     frame_set->mappings = 0;
@@ -7527,6 +7649,17 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p)
     tng_data->n_particle_data_blocks = 0;
     tng_data->n_data_blocks = 0;
 
+    if(tng_data->compress_algo_pos)
+    {
+        free(tng_data->compress_algo_pos);
+        tng_data->compress_algo_pos = 0;
+    }
+    if(tng_data->compress_algo_vel)
+    {
+        free(tng_data->compress_algo_vel);
+        tng_data->compress_algo_vel = 0;
+    }
+
     if(frame_set->tr_particle_data)
     {
         for(i = frame_set->n_particle_data_blocks; i--; )
@@ -7671,6 +7804,9 @@ tng_function_status tng_trajectory_init_from_src(tng_trajectory_t src,
     dest->n_data_blocks = 0;
     dest->non_tr_particle_data = 0;
     dest->non_tr_data = 0;
+
+    dest->compress_algo_pos = 0;
+    dest->compress_algo_vel = 0;
 
     frame_set->first_frame = -1;
     frame_set->n_mapping_blocks = 0;
