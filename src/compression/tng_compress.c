@@ -37,13 +37,17 @@ static void quantize(double *x, int natoms, int nframes,
     for (i=0; i<natoms; i++)
       for (j=0; j<3; j++)
 	quant[iframe*natoms*3+i*3+j]=(int)floor((x[iframe*natoms*3+i*3+j]/precision)+0.5);
-#if 0
-  printf("Q precision=%g\n",precision);
+}
+
+static void quantize_float(float *x, int natoms, int nframes,
+			   float precision,
+			   int *quant)
+{
+  int iframe, i, j;
   for (iframe=0; iframe<nframes; iframe++)
     for (i=0; i<natoms; i++)
       for (j=0; j<3; j++)
-	printf("Q: %d %d %d: %d %g\n",iframe,i,j,quant[iframe*natoms*3+i*3+j],x[iframe*natoms*3+i*3+j]);
-#endif
+	quant[iframe*natoms*3+i*3+j]=(int)floor((x[iframe*natoms*3+i*3+j]/precision)+0.5);
 }
 
 static void quant_inter_differences(int *quant, int natoms, int nframes,
@@ -88,6 +92,17 @@ static void unquantize(double *x, int natoms, int nframes,
 	x[iframe*natoms*3+i*3+j]=(double)quant[iframe*natoms*3+i*3+j]*precision;
 }
 
+static void unquantize_float(float *x, int natoms, int nframes,
+			     float precision,
+			     int *quant)
+{
+  int iframe, i, j;
+  for (iframe=0; iframe<nframes; iframe++)
+    for (i=0; i<natoms; i++)
+      for (j=0; j<3; j++)
+	x[iframe*natoms*3+i*3+j]=(float)quant[iframe*natoms*3+i*3+j]*precision;
+}
+
 static void unquantize_inter_differences(double *x, int natoms, int nframes,
 					 double precision,
 					 int *quant)
@@ -102,6 +117,41 @@ static void unquantize_inter_differences(double *x, int natoms, int nframes,
 	  {
 	    q+=quant[iframe*natoms*3+i*3+j];
 	    x[iframe*natoms*3+i*3+j]=(double)q*precision;
+	  }
+      }
+}
+
+static void unquantize_inter_differences_float(float *x, int natoms, int nframes,
+					       float precision,
+					       int *quant)
+{
+  int iframe, i, j;
+  for (i=0; i<natoms; i++)
+    for (j=0; j<3; j++)
+      {
+	int q=quant[i*3+j]; /* First value. */
+	x[i*3+j]=(float)q*precision;
+	for (iframe=1; iframe<nframes; iframe++)
+	  {
+	    q+=quant[iframe*natoms*3+i*3+j];
+	    x[iframe*natoms*3+i*3+j]=(float)q*precision;
+	  }
+      }
+}
+
+static void unquantize_inter_differences_int(int *x, int natoms, int nframes,
+					     int *quant)
+{
+  int iframe, i, j;
+  for (i=0; i<natoms; i++)
+    for (j=0; j<3; j++)
+      {
+	int q=quant[i*3+j]; /* First value. */
+	x[i*3+j]=q;
+	for (iframe=1; iframe<nframes; iframe++)
+	  {
+	    q+=quant[iframe*natoms*3+i*3+j];
+	    x[iframe*natoms*3+i*3+j]=q;
 	  }
       }
 }
@@ -146,6 +196,41 @@ static void unquantize_intra_differences(double *x, int natoms, int nframes,
 	  {
 	    q+=quant[iframe*natoms*3+i*3+j];
 	    x[iframe*natoms*3+i*3+j]=(double)q*precision;
+	  }
+      }
+}
+
+static void unquantize_intra_differences_float(float *x, int natoms, int nframes,
+					       float precision,
+					       int *quant)
+{
+  int iframe, i, j;
+  for (iframe=0; iframe<nframes; iframe++)
+    for (j=0; j<3; j++)
+      {
+	int q=quant[iframe*natoms*3+j];
+	x[iframe*natoms*3+j]=(float)q*precision;
+	for (i=1; i<natoms; i++)
+	  {
+	    q+=quant[iframe*natoms*3+i*3+j];
+	    x[iframe*natoms*3+i*3+j]=(float)q*precision;
+	  }
+      }
+}
+
+static void unquantize_intra_differences_int(int *x, int natoms, int nframes,
+					     int *quant)
+{
+  int iframe, i, j;
+  for (iframe=0; iframe<nframes; iframe++)
+    for (j=0; j<3; j++)
+      {
+	int q=quant[iframe*natoms*3+j];
+	x[iframe*natoms*3+j]=q;
+	for (i=1; i<natoms; i++)
+	  {
+	    q+=quant[iframe*natoms*3+i*3+j];
+	    x[iframe*natoms*3+i*3+j]=q;
 	  }
       }
 }
@@ -1008,22 +1093,20 @@ static void determine_best_vel_coding(int *quant, int *quant_inter, int natoms, 
     }
 }
 
-char DECLSPECDLLEXPORT *tng_compress_pos(double *pos, int natoms, int nframes,
-					 double desired_precision, 
-					 int speed,int *algo,
-					 int *nitems)
+char DECLSPECDLLEXPORT *tng_compress_pos_int(int *pos, int natoms, int nframes,
+					     unsigned long prec_hi, unsigned long prec_lo,
+					     int speed,int *algo,
+					     int *nitems)
 {
   char *data=malloc(natoms*nframes*14+11*4); /* 12 bytes are required to store 4 32 bit integers
 					       This is 17% extra. The final 11*4 is to store information
 					       needed for decompression. */
-  int *quant=malloc(natoms*nframes*3*sizeof *quant);
+  int *quant=pos; /* Already quantized positions. */
   int *quant_intra=malloc(natoms*nframes*3*sizeof *quant_intra);
   int *quant_inter=malloc(natoms*nframes*3*sizeof *quant_inter);
 
   int initial_coding, initial_coding_parameter;
   int coding, coding_parameter;
-  fix_t prec_hi, prec_lo;
-  Ptngc_d_to_i32x2(desired_precision,&prec_hi,&prec_lo);
   if (speed==0)
     speed=SPEED_DEFAULT; /* Set the default speed. */
   /* Boundaries of speed. */
@@ -1036,7 +1119,6 @@ char DECLSPECDLLEXPORT *tng_compress_pos(double *pos, int natoms, int nframes,
   coding=algo[2];
   coding_parameter=algo[3];
 
-  quantize(pos,natoms,nframes,PRECISION(prec_hi,prec_lo),quant);
   quant_inter_differences(quant,natoms,nframes,quant_inter);
   quant_intra_differences(quant,natoms,nframes,quant_intra);
 
@@ -1080,7 +1162,6 @@ char DECLSPECDLLEXPORT *tng_compress_pos(double *pos, int natoms, int nframes,
 			 prec_hi,prec_lo,nitems,data);
   free(quant_inter);
   free(quant_intra);
-  free(quant);
   if (algo[0]==-1)
     algo[0]=initial_coding;
   if (algo[1]==-1)
@@ -1089,6 +1170,38 @@ char DECLSPECDLLEXPORT *tng_compress_pos(double *pos, int natoms, int nframes,
     algo[2]=coding;
   if (algo[3]==-1)
     algo[3]=coding_parameter;
+  return data;
+}
+
+char DECLSPECDLLEXPORT *tng_compress_pos(double *pos, int natoms, int nframes,
+					 double desired_precision, 
+					 int speed,int *algo,
+					 int *nitems)
+{
+  int *quant=malloc(natoms*nframes*3*sizeof *quant);
+  char *data;
+  fix_t prec_hi, prec_lo;
+  Ptngc_d_to_i32x2(desired_precision,&prec_hi,&prec_lo);
+
+  quantize(pos,natoms,nframes,PRECISION(prec_hi,prec_lo),quant);
+  data=tng_compress_pos_int(quant,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
+  free(quant);
+  return data;
+}
+
+char DECLSPECDLLEXPORT *tng_compress_pos_float(float *pos, int natoms, int nframes,
+					       float desired_precision, 
+					       int speed,int *algo,
+					       int *nitems)
+{
+  int *quant=malloc(natoms*nframes*3*sizeof *quant);
+  char *data;
+  fix_t prec_hi, prec_lo;
+  Ptngc_d_to_i32x2((double)desired_precision,&prec_hi,&prec_lo);
+
+  quantize_float(pos,natoms,nframes,(float)PRECISION(prec_hi,prec_lo),quant);
+  data=tng_compress_pos_int(quant,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
+  free(quant);
   return data;
 }
 
@@ -1105,6 +1218,33 @@ char DECLSPECDLLEXPORT *tng_compress_pos_find_algo(double *pos, int natoms, int 
   return tng_compress_pos(pos,natoms,nframes,desired_precision,speed,algo,nitems);
 }
 
+char DECLSPECDLLEXPORT *tng_compress_pos_float_find_algo(float *pos, int natoms, int nframes,
+							 float desired_precision,
+							 int speed,
+							 int *algo,
+							 int *nitems)
+{
+  algo[0]=-1;
+  algo[1]=-1;
+  algo[2]=-1;
+  algo[3]=-1;
+  return tng_compress_pos_float(pos,natoms,nframes,desired_precision,speed,algo,nitems);
+}
+
+char DECLSPECDLLEXPORT *tng_compress_pos_int_find_algo(int *pos, int natoms, int nframes,
+						       unsigned long prec_hi, unsigned long prec_lo,
+						       int speed,int *algo,
+						       int *nitems)
+{
+  algo[0]=-1;
+  algo[1]=-1;
+  algo[2]=-1;
+  algo[3]=-1;
+  return tng_compress_pos_int(pos,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
+}
+
+
+
 int DECLSPECDLLEXPORT tng_compress_nalgo(void)
 {
   return 4; /* There are currently four parameters required:
@@ -1115,21 +1255,19 @@ int DECLSPECDLLEXPORT tng_compress_nalgo(void)
  4) One parameter to the algorithm for the remaining frames (the coding parameter). */
 }
 
-char DECLSPECDLLEXPORT *tng_compress_vel(double *vel, int natoms, int nframes,
-					 double desired_precision,
-					 int speed, int *algo,
-					 int *nitems)
+char DECLSPECDLLEXPORT *tng_compress_vel_int(int *vel, int natoms, int nframes,
+					     unsigned long prec_hi, unsigned long prec_lo,
+					     int speed, int *algo,
+					     int *nitems)
 {
   char *data=malloc(natoms*nframes*14+11*4); /* 12 bytes are required to store 4 32 bit integers
 					       This is 17% extra. The final 11*4 is to store information
 					       needed for decompression. */
-  int *quant=malloc(natoms*nframes*3*sizeof *quant);
+  int *quant=vel;
   int *quant_inter=malloc(natoms*nframes*3*sizeof *quant_inter);
 
   int initial_coding, initial_coding_parameter;
   int coding, coding_parameter;
-  fix_t prec_hi, prec_lo;
-  Ptngc_d_to_i32x2(desired_precision,&prec_hi,&prec_lo);
   if (speed==0)
     speed=SPEED_DEFAULT; /* Set the default speed. */
   /* Boundaries of speed. */
@@ -1142,7 +1280,6 @@ char DECLSPECDLLEXPORT *tng_compress_vel(double *vel, int natoms, int nframes,
   coding=algo[2];
   coding_parameter=algo[3];
 
-  quantize(vel,natoms,nframes,PRECISION(prec_hi,prec_lo),quant);
   quant_inter_differences(quant,natoms,nframes,quant_inter);
 
   /* If any of the above codings / coding parameters are == -1, the optimal parameters must be found */
@@ -1184,7 +1321,6 @@ char DECLSPECDLLEXPORT *tng_compress_vel(double *vel, int natoms, int nframes,
 			 coding,coding_parameter,
 			 prec_hi,prec_lo,nitems,data);
   free(quant_inter);
-  free(quant);
   if (algo[0]==-1)
     algo[0]=initial_coding;
   if (algo[1]==-1)
@@ -1193,6 +1329,36 @@ char DECLSPECDLLEXPORT *tng_compress_vel(double *vel, int natoms, int nframes,
     algo[2]=coding;
   if (algo[3]==-1)
     algo[3]=coding_parameter;
+  return data;
+}
+
+char DECLSPECDLLEXPORT *tng_compress_vel(double *vel, int natoms, int nframes,
+					 double desired_precision,
+					 int speed, int *algo,
+					 int *nitems)
+{
+  int *quant=malloc(natoms*nframes*3*sizeof *quant);
+  char *data;
+  fix_t prec_hi, prec_lo;
+  Ptngc_d_to_i32x2(desired_precision,&prec_hi,&prec_lo);
+  quantize(vel,natoms,nframes,PRECISION(prec_hi,prec_lo),quant);
+  data=tng_compress_vel_int(quant,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
+  free(quant);
+  return data;
+}
+
+char DECLSPECDLLEXPORT *tng_compress_vel_float(float *vel, int natoms, int nframes,
+					       float desired_precision,
+					       int speed, int *algo,
+					       int *nitems)
+{
+  int *quant=malloc(natoms*nframes*3*sizeof *quant);
+  char *data;
+  fix_t prec_hi, prec_lo;
+  Ptngc_d_to_i32x2((double)desired_precision,&prec_hi,&prec_lo);
+  quantize_float(vel,natoms,nframes,(float)PRECISION(prec_hi,prec_lo),quant);
+  data=tng_compress_vel_int(quant,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
+  free(quant);
   return data;
 }
 
@@ -1207,6 +1373,32 @@ char DECLSPECDLLEXPORT *tng_compress_vel_find_algo(double *vel, int natoms, int 
   algo[2]=-1;
   algo[3]=-1;
   return tng_compress_vel(vel,natoms,nframes,desired_precision,speed,algo,nitems);
+}
+
+char DECLSPECDLLEXPORT *tng_compress_vel_float_find_algo(float *vel, int natoms, int nframes,
+							 float desired_precision,
+							 int speed,
+							 int *algo,
+							 int *nitems)
+{
+  algo[0]=-1;
+  algo[1]=-1;
+  algo[2]=-1;
+  algo[3]=-1;
+  return tng_compress_vel_float(vel,natoms,nframes,desired_precision,speed,algo,nitems);
+}
+
+char DECLSPECDLLEXPORT *tng_compress_vel_int_find_algo(int *vel, int natoms, int nframes,
+						       unsigned long prec_hi, unsigned long prec_lo,
+						       int speed,
+						       int *algo,
+						       int *nitems)
+{
+  algo[0]=-1;
+  algo[1]=-1;
+  algo[2]=-1;
+  algo[3]=-1;
+  return tng_compress_vel_int(vel,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
 }
 
 int DECLSPECDLLEXPORT tng_compress_inquire(char *data,int *vel, int *natoms,
@@ -1257,10 +1449,9 @@ int DECLSPECDLLEXPORT tng_compress_inquire(char *data,int *vel, int *natoms,
   return 0;
 }
 
-static int tng_compress_uncompress_pos(char *data,double *pos)
+static int tng_compress_uncompress_pos_gen(char *data,double *posd,float *posf,int *posi,unsigned long *prec_hi, unsigned long *prec_lo)
 {
   int bufloc=0;
-  fix_t prec_hi, prec_lo;
   int length;
   int natoms, nframes;
   int initial_coding, initial_coding_parameter;
@@ -1296,9 +1487,9 @@ static int tng_compress_uncompress_pos(char *data,double *pos)
   coding_parameter=(int)readbufferfix((unsigned char *)data+bufloc,4);
   bufloc+=4;
   /* Precision. */
-  prec_lo=readbufferfix((unsigned char *)data+bufloc,4);
+  *prec_lo=readbufferfix((unsigned char *)data+bufloc,4);
   bufloc+=4;
-  prec_hi=readbufferfix((unsigned char *)data+bufloc,4);
+  *prec_hi=readbufferfix((unsigned char *)data+bufloc,4);
   bufloc+=4;
   /* Allocate the memory for the quantized positions */
   quant=malloc(natoms*nframes*3*sizeof *quant);
@@ -1319,12 +1510,22 @@ static int tng_compress_uncompress_pos(char *data,double *pos)
       (initial_coding==TNG_COMPRESS_ALGO_POS_TRIPLET_ONETOONE) ||
       (initial_coding==TNG_COMPRESS_ALGO_POS_XTC3))
     {
-      unquantize(pos,natoms,1,PRECISION(prec_hi,prec_lo),quant);
+      if (posd)
+	unquantize(posd,natoms,1,PRECISION(*prec_hi,*prec_lo),quant);
+      else if (posf)
+	unquantize_float(posf,natoms,1,(float)PRECISION(*prec_hi,*prec_lo),quant);
+      else if (posi)
+	memcpy(posi,quant,natoms*3*sizeof *posi);
     }
   else if ((initial_coding==TNG_COMPRESS_ALGO_POS_TRIPLET_INTRA) ||
 	   (initial_coding==TNG_COMPRESS_ALGO_POS_BWLZH_INTRA))
     {
-      unquantize_intra_differences(pos,natoms,1,PRECISION(prec_hi,prec_lo),quant);
+      if (posd)
+	unquantize_intra_differences(posd,natoms,1,PRECISION(*prec_hi,*prec_lo),quant);
+      else if (posf)
+	unquantize_intra_differences_float(posf,natoms,1,(float)PRECISION(*prec_hi,*prec_lo),quant);
+      else if (posi)
+	unquantize_intra_differences_int(posi,natoms,1,quant);
       unquant_intra_differences_first_frame(quant,natoms);
     }
   /* The remaining frames. */
@@ -1346,18 +1547,33 @@ static int tng_compress_uncompress_pos(char *data,double *pos)
 	  /* This requires that the first frame is already in one-to-one format, even if intra-frame
 	     compression was done there. Therefore the unquant_intra_differences_first_frame should be called
 	     before to convert it correctly. */
-	  unquantize_inter_differences(pos,natoms,nframes,PRECISION(prec_hi,prec_lo),quant);
+	  if (posd)
+	    unquantize_inter_differences(posd,natoms,nframes,PRECISION(*prec_hi,*prec_lo),quant);
+	  else if (posf)
+	    unquantize_inter_differences_float(posf,natoms,nframes,(float)PRECISION(*prec_hi,*prec_lo),quant);
+	  else if (posi)
+	    unquantize_inter_differences_int(posi,natoms,nframes,quant);
 	}
       else if ((coding==TNG_COMPRESS_ALGO_POS_XTC2) ||
 	       (coding==TNG_COMPRESS_ALGO_POS_XTC3) ||
 	       (coding==TNG_COMPRESS_ALGO_POS_TRIPLET_ONETOONE))
 	{
-	  unquantize(pos+natoms*3,natoms,nframes-1,PRECISION(prec_hi,prec_lo),quant+natoms*3);
+	  if (posd)
+	    unquantize(posd+natoms*3,natoms,nframes-1,PRECISION(*prec_hi,*prec_lo),quant+natoms*3);
+	  else if (posf)
+	    unquantize_float(posf+natoms*3,natoms,nframes-1,(float)PRECISION(*prec_hi,*prec_lo),quant+natoms*3);
+	  else if (posi)
+	    memcpy(posi+natoms*3,quant+natoms*3,natoms*3*(nframes-1)*sizeof *posi);
 	}
       else if ((coding==TNG_COMPRESS_ALGO_POS_TRIPLET_INTRA) ||
 	       (coding==TNG_COMPRESS_ALGO_POS_BWLZH_INTRA))
 	{
-	  unquantize_intra_differences(pos+natoms*3,natoms,nframes-1,PRECISION(prec_hi,prec_lo),quant+natoms*3);
+	  if (posd)
+	    unquantize_intra_differences(posd+natoms*3,natoms,nframes-1,PRECISION(*prec_hi,*prec_lo),quant+natoms*3);
+	  else if (posf)
+	    unquantize_intra_differences_float(posf+natoms*3,natoms,nframes-1,(float)PRECISION(*prec_hi,*prec_lo),quant+natoms*3);
+	  else if (posi)
+	    unquantize_intra_differences_int(posi+natoms*3,natoms,nframes-1,quant+natoms*3);
 	}
     }
  error:
@@ -1365,10 +1581,26 @@ static int tng_compress_uncompress_pos(char *data,double *pos)
   return rval;
 }
 
-static int tng_compress_uncompress_vel(char *data,double *vel)
+static int tng_compress_uncompress_pos(char *data,double *pos)
+{
+  unsigned long prec_hi, prec_lo;
+  return tng_compress_uncompress_pos_gen(data,pos,NULL,NULL,&prec_hi,&prec_lo);
+}
+
+static int tng_compress_uncompress_pos_float(char *data,float *pos)
+{
+  unsigned long prec_hi, prec_lo;
+  return tng_compress_uncompress_pos_gen(data,NULL,pos,NULL,&prec_hi,&prec_lo);
+}
+
+static int tng_compress_uncompress_pos_int(char *data,int *pos, unsigned long *prec_hi, unsigned long *prec_lo)
+{
+  return tng_compress_uncompress_pos_gen(data,NULL,NULL,pos,prec_hi,prec_lo);
+}
+
+static int tng_compress_uncompress_vel_gen(char *data,double *veld,float *velf,int *veli,unsigned long *prec_hi, unsigned long *prec_lo)
 {
   int bufloc=0;
-  fix_t prec_hi, prec_lo;
   int length;
   int natoms, nframes;
   int initial_coding, initial_coding_parameter;
@@ -1404,9 +1636,9 @@ static int tng_compress_uncompress_vel(char *data,double *vel)
   coding_parameter=(int)readbufferfix((unsigned char *)data+bufloc,4);
   bufloc+=4;
   /* Precision. */
-  prec_lo=readbufferfix((unsigned char *)data+bufloc,4);
+  *prec_lo=readbufferfix((unsigned char *)data+bufloc,4);
   bufloc+=4;
-  prec_hi=readbufferfix((unsigned char *)data+bufloc,4);
+  *prec_hi=readbufferfix((unsigned char *)data+bufloc,4);
   bufloc+=4;
   /* Allocate the memory for the quantized positions */
   quant=malloc(natoms*nframes*3*sizeof *quant);
@@ -1427,7 +1659,12 @@ static int tng_compress_uncompress_vel(char *data,double *vel)
       (initial_coding==TNG_COMPRESS_ALGO_VEL_TRIPLET_ONETOONE) ||
       (initial_coding==TNG_COMPRESS_ALGO_VEL_BWLZH_ONETOONE))
     {
-      unquantize(vel,natoms,1,PRECISION(prec_hi,prec_lo),quant);
+      if (veld)
+	unquantize(veld,natoms,1,PRECISION(*prec_hi,*prec_lo),quant);
+      else if (velf)
+	unquantize_float(velf,natoms,1,(float)PRECISION(*prec_hi,*prec_lo),quant);
+      else if (veli)
+	memcpy(veli,quant,natoms*3*sizeof *veli);
     }
   /* The remaining frames. */
   if (nframes>1)
@@ -1447,19 +1684,46 @@ static int tng_compress_uncompress_vel(char *data,double *vel)
 	  (coding==TNG_COMPRESS_ALGO_VEL_BWLZH_INTER))
 	{
 	  /* This requires that the first frame is already in one-to-one format. */
-	  unquantize_inter_differences(vel,natoms,nframes,PRECISION(prec_hi,prec_lo),quant);
+	  if (veld)
+	    unquantize_inter_differences(veld,natoms,nframes,PRECISION(*prec_hi,*prec_lo),quant);
+	  else if (velf)
+	    unquantize_inter_differences_float(velf,natoms,nframes,(float)PRECISION(*prec_hi,*prec_lo),quant);
+	  else if (veli)
+	    unquantize_inter_differences_int(veli,natoms,nframes,quant);
 	}
       /* One-to-one compression? */
       else if ((coding==TNG_COMPRESS_ALGO_VEL_STOPBIT_ONETOONE) ||
 	       (coding==TNG_COMPRESS_ALGO_VEL_TRIPLET_ONETOONE) ||
 	       (coding==TNG_COMPRESS_ALGO_VEL_BWLZH_ONETOONE))
 	{
-	  unquantize(vel+natoms*3,natoms,nframes-1,PRECISION(prec_hi,prec_lo),quant+natoms*3);
+	  if (veld)
+	    unquantize(veld+natoms*3,natoms,nframes-1,PRECISION(*prec_hi,*prec_lo),quant+natoms*3);
+	  else if (velf)
+	    unquantize_float(velf+natoms*3,natoms,nframes-1,(float)PRECISION(*prec_hi,*prec_lo),quant+natoms*3);
+	  else if (veli)
+	    memcpy(veli+natoms*3,quant+natoms*3,natoms*3*(nframes-1)*sizeof *veli);
 	}
     }
  error:
   free(quant);
   return rval;
+}
+
+static int tng_compress_uncompress_vel(char *data,double *vel)
+{
+  unsigned long prec_hi, prec_lo;
+  return tng_compress_uncompress_vel_gen(data,vel,NULL,NULL,&prec_hi,&prec_lo);
+}
+
+static int tng_compress_uncompress_vel_float(char *data,float *vel)
+{
+  unsigned long prec_hi, prec_lo;
+  return tng_compress_uncompress_vel_gen(data,NULL,vel,NULL,&prec_hi,&prec_lo);
+}
+
+static int tng_compress_uncompress_vel_int(char *data,int *vel, unsigned long *prec_hi, unsigned long *prec_lo)
+{
+  return tng_compress_uncompress_vel_gen(data,NULL,NULL,vel,prec_hi,prec_lo);
 }
 
 /* Uncompresses any tng compress block, positions or velocities. It determines whether it is positions or velocities from the data buffer. The return value is 0 if ok, and 1 if not.
@@ -1472,6 +1736,30 @@ int DECLSPECDLLEXPORT tng_compress_uncompress(char *data,double *posvel)
     return tng_compress_uncompress_pos(data,posvel);
   else if (magic_int==MAGIC_INT_VEL)
     return tng_compress_uncompress_vel(data,posvel);
+  else
+    return 1;
+}
+
+int DECLSPECDLLEXPORT tng_compress_uncompress_float(char *data,float *posvel)
+{
+  int magic_int;
+  magic_int=(int)readbufferfix((unsigned char *)data,4);
+  if (magic_int==MAGIC_INT_POS)
+    return tng_compress_uncompress_pos_float(data,posvel);
+  else if (magic_int==MAGIC_INT_VEL)
+    return tng_compress_uncompress_vel_float(data,posvel);
+  else
+    return 1;
+}
+
+int DECLSPECDLLEXPORT tng_compress_uncompress_int(char *data,int *posvel, unsigned long *prec_hi, unsigned long *prec_lo)
+{
+  int magic_int;
+  magic_int=(int)readbufferfix((unsigned char *)data,4);
+  if (magic_int==MAGIC_INT_POS)
+    return tng_compress_uncompress_pos_int(data,posvel,prec_hi,prec_lo);
+  else if (magic_int==MAGIC_INT_VEL)
+    return tng_compress_uncompress_vel_int(data,posvel,prec_hi,prec_lo);
   else
     return 1;
 }

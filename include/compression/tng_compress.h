@@ -52,7 +52,16 @@ char DECLSPECDLLEXPORT *tng_compress_pos(double *pos, int natoms, int nframes,
 					 double desired_precision, 
 					 int speed, int *algo,
 					 int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_pos_float(float *pos, int natoms, int nframes,
+					       float desired_precision, 
+					       int speed, int *algo,
+					       int *nitems);
    
+char DECLSPECDLLEXPORT *tng_compress_pos_int(int *pos, int natoms, int nframes,
+					     unsigned long prec_hi, unsigned long prec_lo,
+					     int speed,int *algo,
+					     int *nitems);
 
 /* The tng_compress_pos_find_algo works the same as tng_compress_pos, but
    it performs benchmarking to find the algorithms with the best
@@ -84,6 +93,17 @@ char DECLSPECDLLEXPORT *tng_compress_pos_find_algo(double *pos, int natoms, int 
 						   int speed,
 						   int *algo,
 						   int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_pos_float_find_algo(float *pos, int natoms, int nframes,
+							 float desired_precision,
+							 int speed,
+							 int *algo,
+							 int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_pos_int_find_algo(int *pos, int natoms, int nframes,
+						       unsigned long prec_hi, unsigned long prec_lo,
+						       int speed,int *algo,
+						       int *nitems);
    
 /* This returns the number of integers required for the storage of the algorithm
    with the best compression ratio. */
@@ -98,12 +118,34 @@ char DECLSPECDLLEXPORT *tng_compress_vel(double *vel, int natoms, int nframes,
 					 double desired_precision,
 					 int speed, int *algo,
 					 int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_vel_float(float *vel, int natoms, int nframes,
+					       float desired_precision,
+					       int speed, int *algo,
+					       int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_vel_int(int *vel, int natoms, int nframes,
+					     unsigned long prec_hi, unsigned long prec_lo,
+					     int speed, int *algo,
+					     int *nitems);
    
 char DECLSPECDLLEXPORT *tng_compress_vel_find_algo(double *vel, int natoms, int nframes,
 						   double desired_precision,
 						   int speed,
 						   int *algo,
 						   int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_vel_float_find_algo(float *vel, int natoms, int nframes,
+							 float desired_precision,
+							 int speed,
+							 int *algo,
+							 int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_vel_int_find_algo(int *vel, int natoms, int nframes,
+						       unsigned long prec_hi, unsigned long prec_lo,
+						       int speed,
+						       int *algo,
+						       int *nitems);
 
 /* From a compressed block, obtain information about
    whether it is a position or velocity block: 
@@ -119,6 +161,10 @@ int DECLSPECDLLEXPORT tng_compress_inquire(char *data,int *vel, int *natoms,
 /* Uncompresses any tng compress block, positions or velocities. It determines whether it is positions or velocities from the data buffer. The return value is 0 if ok, and 1 if not.
 */
 int DECLSPECDLLEXPORT tng_compress_uncompress(char *data,double *posvel);
+
+int DECLSPECDLLEXPORT tng_compress_uncompress_float(char *data,float *posvel);
+
+int DECLSPECDLLEXPORT tng_compress_uncompress_int(char *data,int *posvel, unsigned long *prec_hi, unsigned long *prec_lo);
 
 
    /* Compression algorithms (matching the original trajng
