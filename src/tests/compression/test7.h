@@ -1,5 +1,5 @@
 #define TESTNAME "Coding. Stopbit interframe algorithm. Cubic cell."
-#define FILENAME "test7.tng"
+#define FILENAME "test7.tng_compress"
 #define ALGOTEST
 #define NATOMS 1000
 #define CHUNKY 100

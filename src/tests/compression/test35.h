@@ -1,5 +1,5 @@
 #define TESTNAME "Position coding. Inter frame triple algorithm. Large system. Cubic cell."
-#define FILENAME "test35.tng"
+#define FILENAME "test35.tng_compress"
 #define ALGOTEST
 #define NATOMS 5000000
 #define CHUNKY 2

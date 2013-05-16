@@ -1,5 +1,5 @@
 #define TESTNAME "XTC2 algorithm. Orthorhombic cell."
-#define FILENAME "test26.tng"
+#define FILENAME "test26.tng_compress"
 #define ALGOTEST
 #define NATOMS 1000
 #define CHUNKY 100

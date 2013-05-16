@@ -1,5 +1,5 @@
 #define TESTNAME "Initial coding. Autoselect algorithm. Repetitive molecule. Cubic cell."
-#define FILENAME "test28.tng"
+#define FILENAME "test28.tng_compress"
 #define ALGOTEST
 #define NATOMS 1000
 #define CHUNKY 1

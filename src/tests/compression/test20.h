@@ -1,5 +1,5 @@
 #define TESTNAME "Coding of velocities. Stopbit one-to-one. Cubic cell."
-#define FILENAME "test20.tng"
+#define FILENAME "test20.tng_compress"
 #define ALGOTEST
 #define NATOMS 1000
 #define CHUNKY 100

@@ -1,5 +1,5 @@
 #define TESTNAME "Coding. Triple one-to-one algorithm. Cubic cell."
-#define FILENAME "test11.tng"
+#define FILENAME "test11.tng_compress"
 #define ALGOTEST
 #define NATOMS 1000
 #define CHUNKY 100
