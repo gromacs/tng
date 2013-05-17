@@ -1,5 +1,5 @@
-#define TESTNAME "Coding. Recompression test. Stage 1: Generate"
-#define FILENAME "test61.tng_compress"
+#define TESTNAME "Coding. Read int and convert to float."
+#define FILENAME "test64.tng_compress"
 #define ALGOTEST
 #define NATOMS 1000
 #define CHUNKY 100
@@ -22,4 +22,6 @@
 #define INTMAX2 10000
 #define INTMAX3 10000
 #define NFRAMES 100
+#define INTTOFLOAT
+#define TEST_FLOAT
 #define EXPECTED_FILESIZE 698801.

@@ -1764,6 +1764,20 @@ int DECLSPECDLLEXPORT tng_compress_uncompress_int(char *data,int *posvel, unsign
     return 1;
 }
 
+void DECLSPECDLLEXPORT tng_compress_int_to_double(int *posvel_int,unsigned long prec_hi, unsigned long prec_lo,
+						  int natoms,int nframes,
+						  double *posvel_double)
+{
+  unquantize(posvel_double,natoms,nframes,PRECISION(prec_hi,prec_lo),posvel_int);
+}
+
+void DECLSPECDLLEXPORT tng_compress_int_to_float(int *posvel_int,unsigned long prec_hi, unsigned long prec_lo,
+						 int natoms,int nframes,
+						 float *posvel_float)
+{
+  unquantize_float(posvel_float,natoms,nframes,(float)PRECISION(prec_hi,prec_lo),posvel_int);
+}
+
 static char *compress_algo_pos[TNG_COMPRESS_ALGO_MAX]={
   "Positions invalid algorithm",
   "Positions stopbits interframe",

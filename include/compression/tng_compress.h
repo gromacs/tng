@@ -166,11 +166,21 @@ int DECLSPECDLLEXPORT tng_compress_uncompress_float(char *data,float *posvel);
 
 int DECLSPECDLLEXPORT tng_compress_uncompress_int(char *data,int *posvel, unsigned long *prec_hi, unsigned long *prec_lo);
 
+/* This converts a block of integers, as obtained from tng_compress_uncompress_int, to floating point values
+   either double precision or single precision. */
+void DECLSPECDLLEXPORT tng_compress_int_to_double(int *posvel_int,unsigned long prec_hi, unsigned long prec_lo,
+						  int natoms,int nframes,
+						  double *posvel_double);
 
-   /* Compression algorithms (matching the original trajng
-      assignments) The compression backends require that some of the
-      algorithms must have the same value. */
+void DECLSPECDLLEXPORT tng_compress_int_to_float(int *posvel_int,unsigned long prec_hi, unsigned long prec_lo,
+						 int natoms,int nframes,
+						 float *posvel_float);
 
+
+/* Compression algorithms (matching the original trajng
+   assignments) The compression backends require that some of the
+   algorithms must have the same value. */
+   
 #define TNG_COMPRESS_ALGO_STOPBIT 1
 #define TNG_COMPRESS_ALGO_TRIPLET 2
 #define TNG_COMPRESS_ALGO_BWLZH1  8
