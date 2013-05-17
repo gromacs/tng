@@ -483,6 +483,89 @@ extern "C"
 {
 #endif
 
+tng_function_status tng_util_trajectory_open(const char *filename,
+                                             const char mode,
+                                             tng_trajectory_t *tng_data_p);
+
+tng_function_status tng_util_trajectory_close(tng_trajectory_t *tng_data_p);
+
+tng_function_status tng_util_trajectory_molecules_get(tng_trajectory_t tng_data,
+                                                      int64_t *n_mols,
+                                                      int64_t *molecule_cnt_list,
+                                                      tng_molecule_t *mols);
+
+tng_function_status tng_util_trajectory_molecule_add(tng_trajectory_t tng_data,
+                                                     const char *name,
+                                                     const int64_t cnt,
+                                                     tng_molecule_t *mol);
+
+tng_function_status tng_util_molecule_particles_get(tng_trajectory_t tng_data,
+                                                    const tng_molecule_t mol,
+                                                    int64_t *n_particles,
+                                                    char ***names,
+                                                    char ***types,
+                                                    char ***res_names,
+                                                    int64_t **res_ids,
+                                                    char ***chain_names,
+                                                    int64_t **chain_ids);
+
+tng_function_status tng_util_molecule_particles_set(tng_trajectory_t tng_data,
+                                                    tng_molecule_t mol,
+                                                    const int64_t n_particles,
+                                                    const char **names,
+                                                    const char **types,
+                                                    const char **res_names,
+                                                    const int64_t *res_ids,
+                                                    const char **chain_names,
+                                                    const int64_t *chain_ids);
+
+tng_function_status tng_util_pos_read(tng_trajectory_t tng_data,
+                                      float *positions);
+
+tng_function_status tng_util_vel_read(tng_trajectory_t tng_data,
+                                      float *velocities);
+
+tng_function_status tng_util_force_read(tng_trajectory_t tng_data,
+                                        float *forces);
+
+tng_function_status tng_util_box_shape_read(tng_trajectory_t tng_data,
+                                            float *box_shape);
+
+tng_function_status tng_util_pos_read_range(tng_trajectory_t tng_data,
+                                            const int64_t first_frame,
+                                            const int64_t last_frame,
+                                            float *positions);
+
+tng_function_status tng_util_vel_read_range(tng_trajectory_t tng_data,
+                                            const int64_t first_frame,
+                                            const int64_t last_frame,
+                                            float *velocities);
+
+tng_function_status tng_util_force_read_range(tng_trajectory_t tng_data,
+                                              const int64_t first_frame,
+                                              const int64_t last_frame,
+                                              float *forces);
+
+tng_function_status tng_util_box_shape_read_range(tng_trajectory_t tng_data,
+                                                  const int64_t first_frame,
+                                                  const int64_t last_frame,
+                                                  float *box_shape);
+
+tng_function_status tng_util_pos_write(tng_trajectory_t tng_data,
+                                       const int64_t frame_nr,
+                                       const float *positions);
+
+tng_function_status tng_util_vel_write(tng_trajectory_t tng_data,
+                                       const int64_t frame_nr,
+                                       const float *velocities);
+
+tng_function_status tng_util_force_write(tng_trajectory_t tng_data,
+                                         const int64_t frame_nr,
+                                         const float *forces);
+
+tng_function_status tng_util_box_shape_write(tng_trajectory_t tng_data,
+                                             const int64_t frame_nr,
+                                             const float *box_shape);
 
 
 /**
@@ -1505,7 +1588,7 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
                                                   const tng_hash_mode hash_mode);
 
 /**
- * @brief Free data is an array of values (2D).
+ * @brief Free data of an array of values (2D).
  * @param tng_data is a trajectory data container.
  * @param values is the 2D array to free and will be set to 0 afterwards.
  * @param n_frames is the number of frames in the data array.
@@ -1520,7 +1603,7 @@ tng_function_status tng_data_values_free(const tng_trajectory_t tng_data,
                                          const tng_data_type type);
 
 /**
- * @brief Free data is an array of values (3D).
+ * @brief Free data of an array of values (3D).
  * @param tng_data is a trajectory data container.
  * @param values is the array to free and will be set to 0 afterwards.
  * @param n_frames is the number of frames in the data array.
@@ -1561,6 +1644,32 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
                                  int64_t *n_frames,
                                  int64_t *n_values_per_frame,
                                  tng_data_type *type);
+
+/**
+ * @brief Retrieve a vector (1D array) of non-particle data, from the last read frame set.
+ * @param tng_data is a trajectory data container. tng_data->input_file_path specifies
+ * which file to read from. If the file (input_file) is not open it will be
+ * opened.
+ * @param block_id is the id number of the particle data block to read.
+ * @param values is a pointer to a 1-dimensional array (memory unallocated), which
+ * will be filled with data. The length of the array will be (n_frames * n_values_per_frame).
+ * Since **values is allocated in this function it is the callers
+ * responsibility to free the memory.
+ * @param n_frames is set to the number of particles in the returned data. This is
+ * needed to properly reach and/or free the data afterwards.
+ * @param n_values_per_frame is set to the number of values per frame in the data.
+ * This is needed to properly reach and/or free the data afterwards.
+ * @param type is set to the data type of the data in the array.
+ * @details This does only work for numerical (int, float, double) data.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
+                                        const int64_t block_id,
+                                        void **values,
+                                        int64_t *n_frames,
+                                        int64_t *n_values_per_frame,
+                                        tng_data_type *type);
 
 /**
  * @brief Read and retrieve non-particle data, in a specific interval.
