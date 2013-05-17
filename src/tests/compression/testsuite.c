@@ -782,28 +782,32 @@ static int algotest()
       write_tng_file(dumpfile,box1,velbox1);
 #else /* GEN */
 #ifdef INTTOFLOAT
-      unsigned long prec_hi, prec_lo;
-      unsigned long velprec_hi, velprec_lo;
-      readreturn=read_tng_file_int(dumpfile,intbox,intvelbox,&prec_hi,&prec_lo,&velprec_hi,&velprec_lo);
-      if (!readreturn)
-	{
-	  tng_compress_int_to_float(intbox,prec_hi,prec_lo,NATOMS,1,box2);
+      {
+	unsigned long prec_hi, prec_lo;
+	unsigned long velprec_hi, velprec_lo;
+	readreturn=read_tng_file_int(dumpfile,intbox,intvelbox,&prec_hi,&prec_lo,&velprec_hi,&velprec_lo);
+	if (!readreturn)
+	  {
+	    tng_compress_int_to_float(intbox,prec_hi,prec_lo,NATOMS,1,box2);
 #if WRITEVEL
-	  tng_compress_int_to_float(intvelbox,velprec_hi,velprec_lo,NATOMS,1,velbox2);
+	    tng_compress_int_to_float(intvelbox,velprec_hi,velprec_lo,NATOMS,1,velbox2);
 #endif
-	}
+	  }
+      }
 #else /* INTTOFLOAT */
 #ifdef INTTODOUBLE
-      unsigned long prec_hi, prec_lo;
-      unsigned long velprec_hi, velprec_lo;
-      readreturn=read_tng_file_int(dumpfile,intbox,intvelbox,&prec_hi,&prec_lo,&velprec_hi,&velprec_lo);
-      if (!readreturn)
-	{
-	  tng_compress_int_to_double(intbox,prec_hi,prec_lo,NATOMS,1,box2);
+      {
+	unsigned long prec_hi, prec_lo;
+	unsigned long velprec_hi, velprec_lo;
+	readreturn=read_tng_file_int(dumpfile,intbox,intvelbox,&prec_hi,&prec_lo,&velprec_hi,&velprec_lo);
+	if (!readreturn)
+	  {
+	    tng_compress_int_to_double(intbox,prec_hi,prec_lo,NATOMS,1,box2);
 #if WRITEVEL
-	  tng_compress_int_to_double(intvelbox,velprec_hi,velprec_lo,NATOMS,1,velbox2);
+	    tng_compress_int_to_double(intvelbox,velprec_hi,velprec_lo,NATOMS,1,velbox2);
 #endif
-	}
+	  }
+      }
 #else /* INTTODOUBLE */
       readreturn=read_tng_file(dumpfile,box2,velbox2);
 #endif /* INTTODOUBLE */

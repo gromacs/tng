@@ -12,8 +12,9 @@ configure_file(${TRAJECTORY_SOURCE_DIR}/include/tng_io_testing.h.in ${CMAKE_BINA
 include_directories(${CMAKE_BINARY_DIR}/generated/)
 
 add_executable(tng_testing tng_io_testing.c)
+target_link_libraries(tng_testing tng_io)
 if(UNIX)
-target_link_libraries(tng_testing tng_io m)
+target_link_libraries(tng_testing m)
 endif()
 
 if(HAVE_INTTYPES_H)
@@ -29,13 +30,15 @@ if(OPENMP_FOUND)
 endif()
 
 add_executable(tng_io_read_pos tng_io_read_pos.c)
+target_link_libraries(tng_io_read_pos tng_io)
 if(UNIX)
-target_link_libraries(tng_io_read_pos tng_io m)
+target_link_libraries(tng_io_read_pos m)
 endif()
 
 add_executable(tng_parallel_read tng_parallel_read.c)
+target_link_libraries(tng_parallel_read tng_io)
 if(UNIX)
-target_link_libraries(tng_parallel_read tng_io m)
+target_link_libraries(tng_parallel_read m)
 endif()
 
 if(BUILD_FORTRAN)
