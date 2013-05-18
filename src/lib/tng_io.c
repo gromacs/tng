@@ -339,8 +339,35 @@ struct tng_trajectory {
     struct tng_non_particle_data *non_tr_data;
 };
 
+#ifndef USE_WINDOWS
+#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
+#define USE_WINDOWS
+#endif /* win32... */
+#endif /* not defined USE_WINDOWS */
 
+#ifdef USE_WINDOWS
+#define TNG_INLINE __inline
+#define TNG_SNPRINTF _snprintf
+#else
+#define TNG_INLINE inline
+#define TNG_SNPRINTF snprintf
+#endif
 
+static TNG_INLINE int tng_min(int a, int b)
+{
+  int r=a;
+  if (b<a)
+    r=b;
+  return r;
+}
+
+static TNG_INLINE int tng_max(int a, int b)
+{
+  int r=a;
+  if (b>a)
+    r=b;
+  return r;
+}
 
 /** This function swaps the byte order of a 32 bit numerical variable
  * to big endian.
@@ -536,10 +563,10 @@ static tng_function_status tng_block_hash_generate(tng_gen_block_t block)
 {
     md5_state_t md5_state;
 
-    md5_init(&md5_state);
-    md5_append(&md5_state, (md5_byte_t *)block->block_contents,
+    tng_md5_init(&md5_state);
+    tng_md5_append(&md5_state, (md5_byte_t *)block->block_contents,
                block->block_contents_size);
-    md5_finish(&md5_state, (md5_byte_t *)block->hash);
+    tng_md5_finish(&md5_state, (md5_byte_t *)block->hash);
 
     return(TNG_SUCCESS);
 }
@@ -564,10 +591,10 @@ static tng_function_status hash_match_verify(tng_gen_block_t block,
         *results = TNG_TRUE;
         return(TNG_FAILURE);
     }
-    md5_init(&md5_state);
-    md5_append(&md5_state, (md5_byte_t *)block->block_contents,
+    tng_md5_init(&md5_state);
+    tng_md5_append(&md5_state, (md5_byte_t *)block->block_contents,
                block->block_contents_size);
-    md5_finish(&md5_state, (md5_byte_t *)hash);
+    tng_md5_finish(&md5_state, (md5_byte_t *)hash);
 
     if(strncmp(block->hash, hash, 16) != 0)
     {
@@ -823,7 +850,7 @@ static tng_function_status tng_block_header_read
     }
 
     /* Move the reading position to the beginning of the header. */
-    fseek(tng_data->input_file, -sizeof(block->header_contents_size),
+    fseek(tng_data->input_file, -(long)sizeof(block->header_contents_size),
           SEEK_CUR);
 
     /* If there is already memory allocated for the contents free it (we do not
@@ -6358,9 +6385,9 @@ static tng_function_status tng_atom_destroy(tng_atom_t atom)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_molecule_add(tng_trajectory_t tng_data,
-                                     const char *name,
-                                     tng_molecule_t *molecule)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_add(tng_trajectory_t tng_data,
+						       const char *name,
+						       tng_molecule_t *molecule)
 {
     tng_molecule_t new_molecules;
     int64_t *new_molecule_cnt_list;
@@ -6430,9 +6457,9 @@ tng_function_status tng_molecule_add(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_molecule_name_set(tng_trajectory_t tng_data,
-                                          tng_molecule_t molecule,
-                                          const char *new_name)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_name_set(tng_trajectory_t tng_data,
+							    tng_molecule_t molecule,
+							    const char *new_name)
 {
     int len;
 
@@ -6461,9 +6488,9 @@ tng_function_status tng_molecule_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_molecule_cnt_get(tng_trajectory_t tng_data,
-                                         tng_molecule_t molecule,
-                                         int64_t *cnt)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_get(tng_trajectory_t tng_data,
+							   tng_molecule_t molecule,
+							   int64_t *cnt)
 {
     int i, index = -1;
 
@@ -6484,9 +6511,9 @@ tng_function_status tng_molecule_cnt_get(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_molecule_cnt_set(tng_trajectory_t tng_data,
-                                         tng_molecule_t molecule,
-                                         const int64_t cnt)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set(tng_trajectory_t tng_data,
+							   tng_molecule_t molecule,
+							   const int64_t cnt)
 {
     int i, index = -1, old_cnt;
 
@@ -6511,11 +6538,11 @@ tng_function_status tng_molecule_cnt_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_molecule_chain_find(tng_trajectory_t tng_data,
-                                            tng_molecule_t molecule,
-                                            const char *name,
-                                            int64_t nr,
-                                            tng_chain_t *chain)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find(tng_trajectory_t tng_data,
+							      tng_molecule_t molecule,
+							      const char *name,
+							      int64_t nr,
+							      tng_chain_t *chain)
 {
     int i, n_chains;
 
@@ -6539,10 +6566,10 @@ tng_function_status tng_molecule_chain_find(tng_trajectory_t tng_data,
 }
 
 /* FIXME: For v. 2 the chain nr should also be possible to specify. */
-tng_function_status tng_molecule_chain_add(tng_trajectory_t tng_data,
-                                           tng_molecule_t molecule,
-                                           const char *name,
-                                           tng_chain_t *chain)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_add(tng_trajectory_t tng_data,
+							     tng_molecule_t molecule,
+							     const char *name,
+							     tng_chain_t *chain)
 {
     tng_chain_t new_chains;
 
@@ -6576,9 +6603,9 @@ tng_function_status tng_molecule_chain_add(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_chain_name_set(tng_trajectory_t tng_data,
-                                       tng_chain_t chain,
-                                       const char *new_name)
+tng_function_status DECLSPECDLLEXPORT tng_chain_name_set(tng_trajectory_t tng_data,
+							 tng_chain_t chain,
+							 const char *new_name)
 {
     int len;
 
@@ -6607,11 +6634,11 @@ tng_function_status tng_chain_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_chain_residue_find(tng_trajectory_t tng_data,
-                                           tng_chain_t chain,
-                                           const char *name,
-                                           int64_t nr,
-                                           tng_residue_t *residue)
+tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find(tng_trajectory_t tng_data,
+							     tng_chain_t chain,
+							     const char *name,
+							     int64_t nr,
+							     tng_residue_t *residue)
 {
     int i, n_residues;
 
@@ -6635,10 +6662,10 @@ tng_function_status tng_chain_residue_find(tng_trajectory_t tng_data,
 }
 
 /* FIXME: For v. 2 the residue nr should also be possible to specify. */
-tng_function_status tng_chain_residue_add(tng_trajectory_t tng_data,
-                                             tng_chain_t chain,
-                                             const char *name,
-                                             tng_residue_t *residue)
+tng_function_status DECLSPECDLLEXPORT tng_chain_residue_add(tng_trajectory_t tng_data,
+							    tng_chain_t chain,
+							    const char *name,
+							    tng_residue_t *residue)
 {
     int curr_index;
     tng_residue_t new_residues, temp_residue, last_residue;
@@ -6713,9 +6740,9 @@ tng_function_status tng_chain_residue_add(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_residue_name_set(tng_trajectory_t tng_data,
-                                         tng_residue_t residue,
-                                         const char *new_name)
+tng_function_status DECLSPECDLLEXPORT tng_residue_name_set(tng_trajectory_t tng_data,
+							   tng_residue_t residue,
+							   const char *new_name)
 {
     int len;
 
@@ -6745,11 +6772,11 @@ tng_function_status tng_residue_name_set(tng_trajectory_t tng_data,
 }
 
 /* FIXME: For v. 2 the atom nr should also be possible to specify. */
-tng_function_status tng_residue_atom_add(tng_trajectory_t tng_data,
-                                         tng_residue_t residue,
-                                         const char *atom_name,
-                                         const char *atom_type,
-                                         tng_atom_t *atom)
+tng_function_status DECLSPECDLLEXPORT tng_residue_atom_add(tng_trajectory_t tng_data,
+							   tng_residue_t residue,
+							   const char *atom_name,
+							   const char *atom_type,
+							   tng_atom_t *atom)
 {
     tng_atom_t new_atoms;
     tng_molecule_t molecule = residue->chain->molecule;
@@ -6791,8 +6818,8 @@ tng_function_status tng_residue_atom_add(tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_molecule_init(const tng_trajectory_t tng_data,
-                                      tng_molecule_t molecule)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_init(const tng_trajectory_t tng_data,
+							tng_molecule_t molecule)
 {
     molecule->quaternary_str = 1;
     molecule->name = 0;
@@ -6808,8 +6835,8 @@ tng_function_status tng_molecule_init(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_molecule_destroy(const tng_trajectory_t tng_data,
-                                         tng_molecule_t molecule)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_destroy(const tng_trajectory_t tng_data,
+							   tng_molecule_t molecule)
 {
     int i;
 
@@ -6870,11 +6897,11 @@ tng_function_status tng_molecule_destroy(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_molecule_name_of_particle_nr_get
+tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
                 (const tng_trajectory_t tng_data,
-                 const int64_t nr,
-                 char *name,
-                 int max_len)
+		 const int64_t nr,
+		 char *name,
+		 int max_len)
 {
     int64_t cnt = 0, i, *molecule_cnt_list;
     tng_molecule_t mol;
@@ -6916,7 +6943,7 @@ tng_function_status tng_molecule_name_of_particle_nr_get
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_chain_name_of_particle_nr_get
+tng_function_status DECLSPECDLLEXPORT tng_chain_name_of_particle_nr_get
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  char *name,
@@ -6968,7 +6995,7 @@ tng_function_status tng_chain_name_of_particle_nr_get
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_residue_name_of_particle_nr_get
+tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  char *name,
@@ -7020,7 +7047,7 @@ tng_function_status tng_residue_name_of_particle_nr_get
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_atom_name_of_particle_nr_get
+tng_function_status DECLSPECDLLEXPORT tng_atom_name_of_particle_nr_get
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  char *name,
@@ -7116,7 +7143,7 @@ tng_function_status tng_atom_type_of_particle_nr_get
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_particle_mapping_add
+tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
                 (tng_trajectory_t tng_data,
                  const int64_t num_first_particle,
                  const int64_t n_particles,
@@ -7200,7 +7227,7 @@ tng_function_status tng_particle_mapping_add
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_trajectory_init(tng_trajectory_t *tng_data_p)
+tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_data_p)
 {
     time_t seconds;
     tng_trajectory_frame_set_t frame_set;
@@ -7288,56 +7315,59 @@ tng_function_status tng_trajectory_init(tng_trajectory_t *tng_data_p)
     tng_data->molecule_cnt_list = 0;
     tng_data->n_particles = 0;
 
-    /* Check the endianness of the computer */
-    static int32_t endianness_32 = 0x01234567;
-    /* 0x01234567 */
-    if ( *(const uint8_t*)&endianness_32 == 0x01 )
     {
-        tng_data->endianness_32 = TNG_BIG_ENDIAN_32;
+      /* Check the endianness of the computer */
+      static int32_t endianness_32 = 0x01234567;
+      /* 0x01234567 */
+      if ( *(const uint8_t*)&endianness_32 == 0x01 )
+	{
+	  tng_data->endianness_32 = TNG_BIG_ENDIAN_32;
+	}
+
+      /* 0x67452301 */
+      else if( *(const uint8_t*)&endianness_32 == 0x67 )
+	{
+	  tng_data->endianness_32 = TNG_LITTLE_ENDIAN_32;
+	  
+	}
+      
+      /* 0x45670123 */
+      else if ( *(const uint8_t*)&endianness_32 == 0x45 )
+	{
+	  tng_data->endianness_32 = TNG_BYTE_PAIR_SWAP_32;
+	}
     }
-
-    /* 0x67452301 */
-    else if( *(const uint8_t*)&endianness_32 == 0x67 )
     {
-        tng_data->endianness_32 = TNG_LITTLE_ENDIAN_32;
+      static int64_t endianness_64 = 0x0123456789ABCDEF;
+      /* 0x0123456789ABCDEF */
+      if ( *(const uint8_t*)&endianness_64 == 0x01 )
+	{
+	  tng_data->endianness_64 = TNG_BIG_ENDIAN_64;
+	}
 
-    }
+      /* 0xEFCDAB8967452301 */
+      else if ( *(const uint8_t*)&endianness_64 == 0xEF )
+	{
+	  tng_data->endianness_64 = TNG_LITTLE_ENDIAN_64;
+	}
 
-    /* 0x45670123 */
-    else if ( *(const uint8_t*)&endianness_32 == 0x45 )
-    {
-        tng_data->endianness_32 = TNG_BYTE_PAIR_SWAP_32;
-    }
+      /* 0x89ABCDEF01234567 */
+      else if ( *(const uint8_t*)&endianness_64 == 0x89 )
+	{
+	  tng_data->endianness_64 = TNG_QUAD_SWAP_64;
+	}
 
-    static int64_t endianness_64 = 0x0123456789ABCDEF;
-    /* 0x0123456789ABCDEF */
-    if ( *(const uint8_t*)&endianness_64 == 0x01 )
-    {
-        tng_data->endianness_64 = TNG_BIG_ENDIAN_64;
-    }
+      /* 0x45670123CDEF89AB */
+      else if ( *(const uint8_t*)&endianness_64 == 0x45 )
+	{
+	  tng_data->endianness_64 = TNG_BYTE_PAIR_SWAP_64;
+	}
 
-    /* 0xEFCDAB8967452301 */
-    else if ( *(const uint8_t*)&endianness_64 == 0xEF )
-    {
-        tng_data->endianness_64 = TNG_LITTLE_ENDIAN_64;
-    }
-
-    /* 0x89ABCDEF01234567 */
-    else if ( *(const uint8_t*)&endianness_64 == 0x89 )
-    {
-        tng_data->endianness_64 = TNG_QUAD_SWAP_64;
-    }
-
-    /* 0x45670123CDEF89AB */
-    else if ( *(const uint8_t*)&endianness_64 == 0x45 )
-    {
-        tng_data->endianness_64 = TNG_BYTE_PAIR_SWAP_64;
-    }
-
-    /* 0x23016745AB89EFCD */
-    else if ( *(const uint8_t*)&endianness_64 == 0x23 )
-    {
-        tng_data->endianness_64 = TNG_BYTE_SWAP_64;
+      /* 0x23016745AB89EFCD */
+      else if ( *(const uint8_t*)&endianness_64 == 0x23 )
+	{
+	  tng_data->endianness_64 = TNG_BYTE_SWAP_64;
+	}
     }
 
     /* By default do not swap the byte order, i.e. keep the byte order of the
@@ -7356,7 +7386,7 @@ tng_function_status tng_trajectory_init(tng_trajectory_t *tng_data_p)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p)
+tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy(tng_trajectory_t *tng_data_p)
 {
     int64_t n_particles;
     int i;
@@ -7597,7 +7627,7 @@ tng_function_status tng_trajectory_destroy(tng_trajectory_t *tng_data_p)
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_trajectory_init_from_src(tng_trajectory_t src,
+tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajectory_t src,
                                                  tng_trajectory_t *dest_p)
 {
     tng_trajectory_frame_set_t frame_set;
@@ -7709,7 +7739,7 @@ tng_function_status tng_trajectory_init_from_src(tng_trajectory_t src,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_input_file_get(const tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_input_file_get(const tng_trajectory_t tng_data,
                                        char *file_name, const int max_len)
 {
     strncpy(file_name, tng_data->input_file_path, max_len - 1);
@@ -7722,8 +7752,8 @@ tng_function_status tng_input_file_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_input_file_set(tng_trajectory_t tng_data,
-                                       const char *file_name)
+tng_function_status DECLSPECDLLEXPORT tng_input_file_set(tng_trajectory_t tng_data,
+							 const char *file_name)
 {
     int len;
     char *temp;
@@ -7768,8 +7798,8 @@ tng_function_status tng_output_file_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
-                                        const char *file_name)
+tng_function_status DECLSPECDLLEXPORT tng_output_file_set(tng_trajectory_t tng_data,
+							  const char *file_name)
 {
     int len;
     char *temp;
@@ -7801,7 +7831,7 @@ tng_function_status tng_output_file_set(tng_trajectory_t tng_data,
     return(tng_output_file_init(tng_data));
 }
 
-tng_function_status tng_output_file_endianness_get
+tng_function_status DECLSPECDLLEXPORT tng_output_file_endianness_get
                 (tng_trajectory_t tng_data, tng_file_endianness *endianness)
 {
     tng_endianness_32 end_32;
@@ -7875,7 +7905,7 @@ tng_function_status tng_output_file_endianness_get
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_output_file_endianness_set
+tng_function_status DECLSPECDLLEXPORT tng_output_file_endianness_set
                 (tng_trajectory_t tng_data,
                  const tng_file_endianness endianness)
 {
@@ -7936,8 +7966,9 @@ tng_function_status tng_output_file_endianness_set
     return(TNG_FAILURE);
 }
 
-tng_function_status tng_first_program_name_get(const tng_trajectory_t tng_data,
-                                               char *name, const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_first_program_name_get
+                    (const tng_trajectory_t tng_data,
+		     char *name, const int max_len)
 {
     strncpy(name, tng_data->first_program_name, max_len - 1);
     name[max_len - 1] = 0;
@@ -7949,8 +7980,8 @@ tng_function_status tng_first_program_name_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_first_program_name_set(tng_trajectory_t tng_data,
-                                               const char *new_name)
+tng_function_status DECLSPECDLLEXPORT tng_first_program_name_set(tng_trajectory_t tng_data,
+								 const char *new_name)
 {
     int len;
 
@@ -7977,8 +8008,9 @@ tng_function_status tng_first_program_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_last_program_name_get(const tng_trajectory_t tng_data,
-                                              char *name, const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_last_program_name_get
+                    (const tng_trajectory_t tng_data,
+		     char *name, const int max_len)
 {
     strncpy(name, tng_data->last_program_name, max_len - 1);
     name[max_len - 1] = 0;
@@ -7990,8 +8022,9 @@ tng_function_status tng_last_program_name_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_last_program_name_set(tng_trajectory_t tng_data,
-                                              const char *new_name)
+tng_function_status DECLSPECDLLEXPORT tng_last_program_name_set
+                    (tng_trajectory_t tng_data,
+		     const char *new_name)
 {
     int len;
 
@@ -8018,8 +8051,9 @@ tng_function_status tng_last_program_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_first_user_name_get(const tng_trajectory_t tng_data,
-                                            char *name, const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_first_user_name_get
+                    (const tng_trajectory_t tng_data,
+		     char *name, const int max_len)
 {
     strncpy(name, tng_data->first_user_name, max_len - 1);
     name[max_len - 1] = 0;
@@ -8031,8 +8065,9 @@ tng_function_status tng_first_user_name_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_first_user_name_set(tng_trajectory_t tng_data,
-                                            const char *new_name)
+tng_function_status DECLSPECDLLEXPORT tng_first_user_name_set
+                    (tng_trajectory_t tng_data,
+		     const char *new_name)
 {
     int len;
 
@@ -8061,8 +8096,9 @@ tng_function_status tng_first_user_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_last_user_name_get(const tng_trajectory_t tng_data,
-                                           char *name, const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_last_user_name_get
+                    (const tng_trajectory_t tng_data,
+		     char *name, const int max_len)
 {
     strncpy(name, tng_data->last_user_name, max_len - 1);
     name[max_len - 1] = 0;
@@ -8074,8 +8110,9 @@ tng_function_status tng_last_user_name_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_last_user_name_set(tng_trajectory_t tng_data,
-                                           const char *new_name)
+tng_function_status DECLSPECDLLEXPORT tng_last_user_name_set
+                    (tng_trajectory_t tng_data,
+		     const char *new_name)
 {
     int len;
 
@@ -8104,8 +8141,9 @@ tng_function_status tng_last_user_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_first_computer_name_get(const tng_trajectory_t tng_data,
-                                                char *name, const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_get
+                    (const tng_trajectory_t tng_data,
+		     char *name, const int max_len)
 {
     strncpy(name, tng_data->first_computer_name, max_len - 1);
     name[max_len - 1] = 0;
@@ -8117,8 +8155,9 @@ tng_function_status tng_first_computer_name_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_first_computer_name_set(tng_trajectory_t tng_data,
-                                                const char *new_name)
+tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_set
+                    (tng_trajectory_t tng_data,
+		     const char *new_name)
 {
     int len;
 
@@ -8147,8 +8186,9 @@ tng_function_status tng_first_computer_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_last_computer_name_get(const tng_trajectory_t tng_data,
-                                               char *name, const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_get
+                    (const tng_trajectory_t tng_data,
+		     char *name, const int max_len)
 {
     strncpy(name, tng_data->last_computer_name, max_len - 1);
     name[max_len - 1] = 0;
@@ -8160,8 +8200,9 @@ tng_function_status tng_last_computer_name_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_last_computer_name_set(tng_trajectory_t tng_data,
-                                               const char *new_name)
+tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_set
+                    (tng_trajectory_t tng_data,
+		     const char *new_name)
 {
     int len;
 
@@ -8191,8 +8232,9 @@ tng_function_status tng_last_computer_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_first_signature_get(const tng_trajectory_t tng_data,
-                                            char *signature, const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_first_signature_get
+                    (const tng_trajectory_t tng_data,
+		     char *signature, const int max_len)
 {
     strncpy(signature, tng_data->first_pgp_signature, max_len - 1);
     signature[max_len - 1] = 0;
@@ -8204,8 +8246,9 @@ tng_function_status tng_first_signature_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_first_signature_set(tng_trajectory_t tng_data,
-                                            const char *signature)
+tng_function_status DECLSPECDLLEXPORT tng_first_signature_set
+                    (tng_trajectory_t tng_data,
+		     const char *signature)
 {
     int len;
 
@@ -8235,8 +8278,9 @@ tng_function_status tng_first_signature_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_last_signature_get(const tng_trajectory_t tng_data,
-                                           char *signature, const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_last_signature_get
+                    (const tng_trajectory_t tng_data,
+		     char *signature, const int max_len)
 {
     strncpy(signature, tng_data->last_pgp_signature, max_len - 1);
     signature[max_len - 1] = 0;
@@ -8248,8 +8292,9 @@ tng_function_status tng_last_signature_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_last_signature_set(tng_trajectory_t tng_data,
-                                           const char *signature)
+tng_function_status DECLSPECDLLEXPORT tng_last_signature_set
+                    (tng_trajectory_t tng_data,
+		     const char *signature)
 {
     int len;
 
@@ -8279,8 +8324,9 @@ tng_function_status tng_last_signature_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_forcefield_name_get(const tng_trajectory_t tng_data,
-                                            char *name, const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_get
+                    (const tng_trajectory_t tng_data,
+		     char *name, const int max_len)
 {
     strncpy(name, tng_data->forcefield_name, max_len - 1);
     name[max_len - 1] = 0;
@@ -8292,8 +8338,9 @@ tng_function_status tng_forcefield_name_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
-                                            const char *new_name)
+tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_set
+                    (tng_trajectory_t tng_data,
+		     const char *new_name)
 {
     int len;
 
@@ -8322,16 +8369,18 @@ tng_function_status tng_forcefield_name_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_medium_stride_length_get(const tng_trajectory_t tng_data,
-                                                 int64_t *len)
+tng_function_status DECLSPECDLLEXPORT tng_medium_stride_length_get
+                    (const tng_trajectory_t tng_data,
+		     int64_t *len)
 {
     *len = tng_data->medium_stride_length;
 
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_medium_stride_length_set(tng_trajectory_t tng_data,
-                                                 const int64_t len)
+tng_function_status DECLSPECDLLEXPORT tng_medium_stride_length_set
+                    (tng_trajectory_t tng_data,
+		     const int64_t len)
 {
     if(len >= tng_data->long_stride_length)
     {
@@ -8342,16 +8391,18 @@ tng_function_status tng_medium_stride_length_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_long_stride_length_get(const tng_trajectory_t tng_data,
-                                               int64_t *len)
+tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_get
+                    (const tng_trajectory_t tng_data,
+		     int64_t *len)
 {
     *len = tng_data->long_stride_length;
 
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
-                                               const int64_t len)
+tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_set
+                    (tng_trajectory_t tng_data,
+		     const int64_t len)
 {
     if(len <= tng_data->medium_stride_length)
     {
@@ -8362,16 +8413,18 @@ tng_function_status tng_long_stride_length_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_input_file_len_get(const tng_trajectory_t tng_data,
-                                           int64_t *len)
+tng_function_status DECLSPECDLLEXPORT tng_input_file_len_get
+                    (const tng_trajectory_t tng_data,
+		     int64_t *len)
 {
     *len = tng_data->input_file_len;
 
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_num_frames_get(const tng_trajectory_t tng_data,
-                                       int64_t *n)
+tng_function_status DECLSPECDLLEXPORT tng_num_frames_get
+                    (const tng_trajectory_t tng_data,
+		     int64_t *n)
 {
     tng_gen_block_t block;
     tng_function_status stat;
@@ -8414,8 +8467,9 @@ tng_function_status tng_num_frames_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_num_particles_get(const tng_trajectory_t tng_data,
-                                          int64_t *n)
+tng_function_status DECLSPECDLLEXPORT tng_num_particles_get
+                    (const tng_trajectory_t tng_data,
+		     int64_t *n)
 {
     if(tng_data->var_num_atoms_flag == TNG_CONSTANT_N_ATOMS)
     {
@@ -8429,8 +8483,9 @@ tng_function_status tng_num_particles_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_num_molecules_get(const tng_trajectory_t tng_data,
-                                          int64_t *n)
+tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
+                    (const tng_trajectory_t tng_data,
+		     int64_t *n)
 {
     int64_t *cnt_list, cnt = 0, i;
 
@@ -8453,7 +8508,7 @@ tng_function_status tng_num_molecules_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_num_frames_per_frame_set_get
+tng_function_status DECLSPECDLLEXPORT tng_num_frames_per_frame_set_get
                 (const tng_trajectory_t tng_data,
                  int64_t *n)
 {
@@ -8462,7 +8517,7 @@ tng_function_status tng_num_frames_per_frame_set_get
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_num_frames_per_frame_set_set
+tng_function_status DECLSPECDLLEXPORT tng_num_frames_per_frame_set_set
                 (const tng_trajectory_t tng_data,
                  const int64_t n)
 {
@@ -8471,8 +8526,9 @@ tng_function_status tng_num_frames_per_frame_set_set
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_num_frame_sets_get(const tng_trajectory_t tng_data,
-                                           int64_t *n)
+tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
+                (const tng_trajectory_t tng_data,
+		 int64_t *n)
 {
     int64_t long_stride_length, medium_stride_length;
     int64_t file_pos;
@@ -8610,7 +8666,7 @@ tng_function_status tng_num_frame_sets_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_current_frame_set_get
+tng_function_status DECLSPECDLLEXPORT tng_current_frame_set_get
                 (tng_trajectory_t tng_data,
                  tng_trajectory_frame_set_t *frame_set_p)
 {
@@ -8619,8 +8675,9 @@ tng_function_status tng_current_frame_set_get
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
-                                       const int64_t nr)
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
+                (tng_trajectory_t tng_data,
+		 const int64_t nr)
 {
     int64_t long_stride_length, medium_stride_length;
     int64_t file_pos, curr_nr = 0, n_frame_sets;
@@ -8933,8 +8990,9 @@ tng_function_status tng_frame_set_nr_find(tng_trajectory_t tng_data,
     return(TNG_FAILURE);
 }
 
-tng_function_status tng_frame_set_of_frame_find(tng_trajectory_t tng_data,
-                                       const int64_t frame)
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
+                (tng_trajectory_t tng_data,
+		 const int64_t frame)
 {
     int64_t first_frame, last_frame, n_frames_per_frame_set;
     int64_t long_stride_length, medium_stride_length;
@@ -9274,7 +9332,7 @@ tng_function_status tng_frame_set_of_frame_find(tng_trajectory_t tng_data,
     return(TNG_FAILURE);
 }
 
-tng_function_status tng_frame_set_next_frame_set_file_pos_get
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_next_frame_set_file_pos_get
                 (const tng_trajectory_t tng_data,
                  const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
@@ -9284,7 +9342,7 @@ tng_function_status tng_frame_set_next_frame_set_file_pos_get
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_frame_set_prev_frame_set_file_pos_get
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_prev_frame_set_file_pos_get
                 (const tng_trajectory_t tng_data,
                  const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
@@ -9294,7 +9352,7 @@ tng_function_status tng_frame_set_prev_frame_set_file_pos_get
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_frame_set_frame_range_get
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_frame_range_get
                 (const tng_trajectory_t tng_data,
                  const tng_trajectory_frame_set_t frame_set,
                  int64_t *first_frame,
@@ -9314,7 +9372,7 @@ tng_function_status tng_frame_set_frame_range_get
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the mapping
  * cannot be found.
  */
-static inline tng_function_status tng_particle_mapping_get_real_particle
+static TNG_INLINE tng_function_status tng_particle_mapping_get_real_particle
                 (const tng_trajectory_frame_set_t frame_set,
                  const int64_t local,
                  int64_t *real)
@@ -9350,7 +9408,7 @@ static inline tng_function_status tng_particle_mapping_get_real_particle
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the mapping
  * cannot be found.
  */
-static inline tng_function_status tng_particle_mapping_get_local_particle
+static TNG_INLINE tng_function_status tng_particle_mapping_get_local_particle
                 (const tng_trajectory_frame_set_t frame_set,
                  const int64_t real,
                  int64_t *local)
@@ -9378,7 +9436,7 @@ static inline tng_function_status tng_particle_mapping_get_local_particle
 }
 
 
-tng_function_status tng_file_headers_read(tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_file_headers_read(tng_trajectory_t tng_data,
                                           const tng_hash_mode hash_mode)
 {
     int cnt = 0, prev_pos = 0;
@@ -9425,7 +9483,7 @@ tng_function_status tng_file_headers_read(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_file_headers_write(tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_file_headers_write(tng_trajectory_t tng_data,
                                            const tng_hash_mode hash_mode)
 {
     int i;
@@ -9475,7 +9533,7 @@ tng_function_status tng_file_headers_write(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_block_read_next(tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_block_read_next(tng_trajectory_t tng_data,
                                         tng_gen_block_t block,
                                         const tng_hash_mode hash_mode)
 {
@@ -9504,7 +9562,7 @@ tng_function_status tng_block_read_next(tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_frame_set_read_next(tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next(tng_trajectory_t tng_data,
                                             const tng_hash_mode hash_mode)
 {
     long int file_pos;
@@ -9678,9 +9736,10 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
-                                      const int64_t first_frame,
-                                      const int64_t n_frames)
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
+                (tng_trajectory_t tng_data,
+		 const int64_t first_frame,
+		 const int64_t n_frames)
 {
     int i;
     tng_gen_block_t block;
@@ -9870,22 +9929,24 @@ tng_function_status tng_frame_set_new(tng_trajectory_t tng_data,
 
 
 
-tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
-                                        const int64_t id,
-                                        const char *block_name,
-                                        const tng_data_type datatype,
-                                        const tng_block_type block_type_flag,
-                                        int64_t n_frames,
-                                        const int64_t n_values_per_frame,
-                                        int64_t stride_length,
-                                        const int64_t codec_id,
-                                        void *new_data)
+tng_function_status DECLSPECDLLEXPORT tng_data_block_add
+                (tng_trajectory_t tng_data,
+		 const int64_t id,
+		 const char *block_name,
+		 const tng_data_type datatype,
+		 const tng_block_type block_type_flag,
+		 int64_t n_frames,
+		 const int64_t n_values_per_frame,
+		 int64_t stride_length,
+		 const int64_t codec_id,
+		 void *new_data)
 {
     int i, j, block_index, size, len;
     tng_trajectory_frame_set_t frame_set;
     tng_non_particle_data_t data;
     union data_values *first_dim_values;
-    void *orig;
+    char *orig;
+    char *new_data_c=new_data;
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
@@ -9977,7 +10038,7 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
         break;
     }
 
-    if(new_data)
+    if(new_data_c)
     {
         /* Allocate memory */
         if(tng_allocate_data_mem(tng_data, data, n_frames, stride_length,
@@ -9989,7 +10050,7 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
             return(TNG_CRITICAL);
         }
 
-        orig = new_data;
+        orig = new_data_c;
 
         if(n_frames > frame_set->n_written_frames)
         {
@@ -10005,8 +10066,8 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
                 for(j = 0; j < n_values_per_frame; j++)
                 {
                     memcpy(&first_dim_values[j].f,
-                            new_data, size);
-                    new_data += size;
+                            new_data_c, size);
+                    new_data_c += size;
                 }
             }
             break;
@@ -10016,7 +10077,7 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
                 first_dim_values = data->values[i];
                 for(j = 0; j < n_values_per_frame; j++)
                 {
-                    len = tng_min(strlen(new_data) + 1,
+                    len = tng_min(strlen(new_data_c) + 1,
                                 TNG_MAX_STR_LEN);
                     if(first_dim_values[j].c)
                     {
@@ -10030,8 +10091,8 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
                         return(TNG_CRITICAL);
                     }
                     strncpy(first_dim_values[j].c,
-                            new_data, len);
-                    new_data += len;
+                            new_data_c, len);
+                    new_data_c += len;
                 }
             }
             break;
@@ -10042,8 +10103,8 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
                 for(j = 0; j < n_values_per_frame; j++)
                 {
                     memcpy(&first_dim_values[j].i,
-                            new_data, size);
-                    new_data += size;
+                            new_data_c, size);
+                    new_data_c += size;
                 }
             }
             break;
@@ -10055,13 +10116,13 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
                 for(j = 0; j < n_values_per_frame; j++)
                 {
                     memcpy(&first_dim_values[j].d,
-                            new_data, size);
-                    new_data += size;
+                            new_data_c, size);
+                    new_data_c += size;
                 }
             }
         }
 
-        new_data = orig;
+        new_data_c = orig;
     }
 //     else
 //     {
@@ -10078,25 +10139,27 @@ tng_function_status tng_data_block_add(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
-                                        const int64_t id,
-                                        const char *block_name,
-                                        const tng_data_type datatype,
-                                        const tng_block_type block_type_flag,
-                                        int64_t n_frames,
-                                        const int64_t n_values_per_frame,
-                                        int64_t stride_length,
-                                        const int64_t num_first_particle,
-                                        const int64_t n_particles,
-                                        const int64_t codec_id,
-                                        void *new_data)
+tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
+                (tng_trajectory_t tng_data,
+		 const int64_t id,
+		 const char *block_name,
+		 const tng_data_type datatype,
+		 const tng_block_type block_type_flag,
+		 int64_t n_frames,
+		 const int64_t n_values_per_frame,
+		 int64_t stride_length,
+		 const int64_t num_first_particle,
+		 const int64_t n_particles,
+		 const int64_t codec_id,
+		 void *new_data)
 {
     int i, j, k, block_index, size, len;
     int64_t tot_n_particles;
     union data_values **first_dim_values, *second_dim_values;
     tng_trajectory_frame_set_t frame_set;
     tng_particle_data_t data;
-    void *orig;
+    char *orig;
+    char *new_data_c=new_data;
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
@@ -10184,7 +10247,7 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
     }
 
     /* If data values are supplied add that data to the data block. */
-    if(new_data)
+    if(new_data_c)
     {
         /* Allocate memory */
         if(tng_allocate_particle_data_mem(tng_data, data, n_frames,
@@ -10197,7 +10260,7 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
             return(TNG_CRITICAL);
         }
 
-        orig = new_data;
+        orig = new_data_c;
 
         if(n_frames > frame_set->n_written_frames)
         {
@@ -10218,8 +10281,8 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                     for(k = 0; k < n_values_per_frame; k++)
                     {
                         memcpy(&second_dim_values[k].f,
-                                new_data, size);
-                        new_data += size;
+                                new_data_c, size);
+                        new_data_c += size;
                     }
                 }
             }
@@ -10236,8 +10299,8 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                     for(k = 0; k < n_values_per_frame; k++)
                     {
                         memcpy(&second_dim_values[k].i,
-                                new_data, size);
-                        new_data += size;
+                                new_data_c, size);
+                        new_data_c += size;
                     }
                 }
             }
@@ -10252,7 +10315,7 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                     second_dim_values = first_dim_values[j];
                     for(k = 0; k < n_values_per_frame; k++)
                     {
-                        len = tng_min(strlen(new_data) + 1,
+                        len = tng_min(strlen(new_data_c) + 1,
                                 TNG_MAX_STR_LEN);
                         if(second_dim_values[k].c)
                         {
@@ -10266,8 +10329,8 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                             return(TNG_CRITICAL);
                         }
                         strncpy(second_dim_values[k].c,
-                                new_data, len);
-                        new_data += len;
+                                new_data_c, len);
+                        new_data_c += len;
                     }
                 }
             }
@@ -10285,15 +10348,15 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
                     for(k = 0; k < n_values_per_frame; k++)
                     {
                         memcpy(&second_dim_values[k].d,
-                                new_data, size);
-                        new_data += size;
+                                new_data_c, size);
+                        new_data_c += size;
                     }
                 }
             }
             break;
         }
 
-        new_data = orig;
+        new_data_c = orig;
     }
     /* Otherwise fill the data block with zeroes */
 //     else
@@ -10317,11 +10380,12 @@ tng_function_status tng_particle_data_block_add(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
-                                        const int64_t frame_nr,
-                                        const int64_t block_id,
-                                        const void *values,
-                                        const tng_hash_mode hash_mode)
+tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
+                (tng_trajectory_t tng_data,
+		 const int64_t frame_nr,
+		 const int64_t block_id,
+		 const void *values,
+		 const tng_hash_mode hash_mode)
 {
     int64_t header_pos, file_pos;
     int64_t output_file_len, n_values_per_frame, size, contents_size;
@@ -10727,13 +10791,14 @@ tng_function_status tng_frame_data_write(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
-                                                  const int64_t frame_nr,
-                                                  const int64_t block_id,
-                                                  const int64_t val_first_particle,
-                                                  const int64_t val_n_particles,
-                                                  const void *values,
-                                                  const tng_hash_mode hash_mode)
+tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
+                (tng_trajectory_t tng_data,
+		 const int64_t frame_nr,
+		 const int64_t block_id,
+		 const int64_t val_first_particle,
+		 const int64_t val_n_particles,
+		 const void *values,
+		 const tng_hash_mode hash_mode)
 {
     int64_t header_pos, file_pos, tot_n_particles;
     int64_t output_file_len, n_values_per_frame, size, contents_size;
@@ -11257,11 +11322,12 @@ tng_function_status tng_frame_particle_data_write(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_data_values_free(const tng_trajectory_t tng_data,
-                                         union data_values **values,
-                                         const int64_t n_frames,
-                                         const int64_t n_values_per_frame,
-                                         const tng_data_type type)
+tng_function_status DECLSPECDLLEXPORT tng_data_values_free
+                (const tng_trajectory_t tng_data,
+		 union data_values **values,
+		 const int64_t n_frames,
+		 const int64_t n_values_per_frame,
+		 const tng_data_type type)
 {
     int i, j;
 
@@ -11294,7 +11360,7 @@ tng_function_status tng_data_values_free(const tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_particle_data_values_free
+tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free
                 (const tng_trajectory_t tng_data,
                  union data_values ***values,
                  const int64_t n_frames,
@@ -11338,12 +11404,13 @@ tng_function_status tng_particle_data_values_free
 }
 
 
-tng_function_status tng_data_get(tng_trajectory_t tng_data,
-                                 const int64_t block_id,
-                                 union data_values ***values,
-                                 int64_t *n_frames,
-                                 int64_t *n_values_per_frame,
-                                 tng_data_type *type)
+tng_function_status DECLSPECDLLEXPORT tng_data_get
+                (tng_trajectory_t tng_data,
+		 const int64_t block_id,
+		 union data_values ***values,
+		 int64_t *n_frames,
+		 int64_t *n_values_per_frame,
+		 tng_data_type *type)
 {
     int64_t file_pos;
     int i, j, block_index, len;
@@ -11491,14 +11558,15 @@ tng_function_status tng_data_get(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
-                                          const int64_t block_id,
-                                          const int64_t start_frame_nr,
-                                          const int64_t end_frame_nr,
-                                          const tng_hash_mode hash_mode,
-                                          union data_values ***values,
-                                          int64_t *n_values_per_frame,
-                                          tng_data_type *type)
+tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
+                (tng_trajectory_t tng_data,
+		 const int64_t block_id,
+		 const int64_t start_frame_nr,
+		 const int64_t end_frame_nr,
+		 const tng_hash_mode hash_mode,
+		 union data_values ***values,
+		 int64_t *n_values_per_frame,
+		 tng_data_type *type)
 {
     int64_t i, j, n_frames, file_pos, current_frame_pos;
     int block_index, len;
@@ -11681,13 +11749,14 @@ tng_function_status tng_data_interval_get(tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
-                                          const int64_t block_id,
-                                          union data_values ****values,
-                                          int64_t *n_frames,
-                                          int64_t *n_particles,
-                                          int64_t *n_values_per_frame,
-                                          tng_data_type *type)
+tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
+                (tng_trajectory_t tng_data,
+		 const int64_t block_id,
+		 union data_values ****values,
+		 int64_t *n_frames,
+		 int64_t *n_particles,
+		 int64_t *n_values_per_frame,
+		 tng_data_type *type)
 {
     int64_t i, j, k, mapping, file_pos;
     int block_index, len;
@@ -11878,15 +11947,16 @@ tng_function_status tng_particle_data_get(tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
-                                                  const int64_t block_id,
-                                                  const int64_t start_frame_nr,
-                                                  const int64_t end_frame_nr,
-                                                  const tng_hash_mode hash_mode,
-                                                  union data_values ****values,
-                                                  int64_t *n_particles,
-                                                  int64_t *n_values_per_frame,
-                                                  tng_data_type *type)
+tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
+                (tng_trajectory_t tng_data,
+		 const int64_t block_id,
+		 const int64_t start_frame_nr,
+		 const int64_t end_frame_nr,
+		 const tng_hash_mode hash_mode,
+		 union data_values ****values,
+		 int64_t *n_particles,
+		 int64_t *n_values_per_frame,
+		 tng_data_type *type)
 {
     int64_t i, j, k, mapping, n_frames, file_pos, current_frame_pos;
     int block_index, len;
@@ -12098,8 +12168,9 @@ tng_function_status tng_particle_data_interval_get(tng_trajectory_t tng_data,
 }
 
 
-tng_function_status tng_time_get_str(const tng_trajectory_t tng_data,
-                                     char *time)
+tng_function_status DECLSPECDLLEXPORT tng_time_get_str
+                (const tng_trajectory_t tng_data,
+		 char *time)
 {
     struct tm *time_data;
     time_t secs;
@@ -12107,7 +12178,7 @@ tng_function_status tng_time_get_str(const tng_trajectory_t tng_data,
     secs = tng_data->time;
 
     time_data = localtime(&secs); // Returns a statically allocated variable.
-    snprintf(time, TNG_MAX_DATE_STR_LEN,
+    TNG_SNPRINTF(time, TNG_MAX_DATE_STR_LEN,
              "%4d-%02d-%02d %02d:%02d:%02d",
              time_data->tm_year+1900, time_data->tm_mon+1, time_data->tm_mday,
              time_data->tm_hour, time_data->tm_min, time_data->tm_sec);
@@ -12119,29 +12190,29 @@ tng_function_status tng_time_get_str(const tng_trajectory_t tng_data,
 #ifdef BUILD_FORTRAN
 /* The following is for calling the library from fortran */
 
-tng_function_status tng_trajectory_init_(tng_trajectory_t *tng_data_p)
+tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_(tng_trajectory_t *tng_data_p)
 {
     return(tng_trajectory_init(tng_data_p));
 }
 
-tng_function_status tng_trajectory_destroy_(tng_trajectory_t *tng_data_p)
+tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy_(tng_trajectory_t *tng_data_p)
 {
     return(tng_trajectory_destroy(tng_data_p));
 }
 
-tng_function_status tng_trajectory_init_from_src_(tng_trajectory_t src,
+tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src_(tng_trajectory_t src,
                                                    tng_trajectory_t *dest_p)
 {
     return(tng_trajectory_init_from_src(src, dest_p));
 }
 
-tng_function_status tng_input_file_get_(const tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_input_file_get_(const tng_trajectory_t tng_data,
                                         char *file_name, const int max_len)
 {
     return(tng_input_file_get(tng_data, file_name, max_len));
 }
 
-tng_function_status tng_input_file_set_(tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_input_file_set_(tng_trajectory_t tng_data,
                                         const char *file_name, int name_len)
 {
     char *name = malloc(name_len + 1);
@@ -12154,13 +12225,13 @@ tng_function_status tng_input_file_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_output_file_get_(const tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_output_file_get_(const tng_trajectory_t tng_data,
                                          char *file_name, const int max_len)
 {
     return(tng_output_file_get(tng_data, file_name, max_len));
 }
 
-tng_function_status tng_output_file_set_(tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_output_file_set_(tng_trajectory_t tng_data,
                                          const char *file_name, int name_len)
 {
     char *name = malloc(name_len + 1);
@@ -12173,25 +12244,25 @@ tng_function_status tng_output_file_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_first_program_name_get_(const tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_first_program_name_get_(const tng_trajectory_t tng_data,
                                                 char *name, const int max_len)
 {
     return(tng_first_program_name_get(tng_data, name, max_len));
 }
 
-tng_function_status tng_output_file_endianness_get_
+tng_function_status DECLSPECDLLEXPORT tng_output_file_endianness_get_
                 (tng_trajectory_t tng_data, tng_file_endianness *endianness)
 {
     return(tng_output_file_endianness_get(tng_data, endianness));
 }
 
-tng_function_status tng_output_file_endianness_set_
+tng_function_status DECLSPECDLLEXPORT tng_output_file_endianness_set_
                 (tng_trajectory_t tng_data, const tng_file_endianness *endianness)
 {
     return(tng_output_file_endianness_set(tng_data, *endianness));
 }
 
-tng_function_status tng_first_program_name_set_(tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_first_program_name_set_(tng_trajectory_t tng_data,
                                                 const char *new_name,
                                                 int name_len)
 {
@@ -12205,13 +12276,13 @@ tng_function_status tng_first_program_name_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_last_program_name_get_(const tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_last_program_name_get_(const tng_trajectory_t tng_data,
                                                 char *name, const int max_len)
 {
     return(tng_last_program_name_get(tng_data, name, max_len));
 }
 
-tng_function_status tng_last_program_name_set_(tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_last_program_name_set_(tng_trajectory_t tng_data,
                                                const char *new_name,
                                                int name_len)
 {
@@ -12225,13 +12296,13 @@ tng_function_status tng_last_program_name_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_first_user_name_get_(const tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_first_user_name_get_(const tng_trajectory_t tng_data,
                                              char *name, const int max_len)
 {
     return(tng_first_user_name_get(tng_data, name, max_len));
 }
 
-tng_function_status tng_first_user_name_set_(tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_first_user_name_set_(tng_trajectory_t tng_data,
                                              const char *new_name,
                                              int name_len)
 {
@@ -12245,13 +12316,13 @@ tng_function_status tng_first_user_name_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_last_user_name_get_(const tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_last_user_name_get_(const tng_trajectory_t tng_data,
                                             char *name, const int max_len)
 {
     return(tng_last_user_name_get(tng_data, name, max_len));
 }
 
-tng_function_status tng_last_user_name_set_(tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_last_user_name_set_(tng_trajectory_t tng_data,
                                             const char *new_name,
                                             int name_len)
 {
@@ -12265,13 +12336,13 @@ tng_function_status tng_last_user_name_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_first_computer_name_get_(const tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_get_(const tng_trajectory_t tng_data,
                                                  char *name, const int max_len)
 {
     return(tng_first_computer_name_get(tng_data, name, max_len));
 }
 
-tng_function_status tng_first_computer_name_set_(tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_set_(tng_trajectory_t tng_data,
                                                  const char *new_name,
                                                  int name_len)
 {
@@ -12285,13 +12356,13 @@ tng_function_status tng_first_computer_name_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_last_computer_name_get_(const tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_get_(const tng_trajectory_t tng_data,
                                                  char *name, const int max_len)
 {
     return(tng_last_computer_name_get(tng_data, name, max_len));
 }
 
-tng_function_status tng_last_computer_name_set_(tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_set_(tng_trajectory_t tng_data,
                                                 const char *new_name,
                                                 int name_len)
 {
@@ -12305,13 +12376,14 @@ tng_function_status tng_last_computer_name_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_first_signature_get_(const tng_trajectory_t tng_data,
-                                             char *signature, const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_first_signature_get_
+                (const tng_trajectory_t tng_data,
+		 char *signature, const int max_len)
 {
     return(tng_first_signature_get(tng_data, signature, max_len));
 }
 
-tng_function_status tng_first_signature_set_(tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_first_signature_set_(tng_trajectory_t tng_data,
                                              const char *signature,
                                              int sign_len)
 {
@@ -12325,15 +12397,17 @@ tng_function_status tng_first_signature_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_last_signature_get_(const tng_trajectory_t tng_data,
-                                             char *signature, const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_last_signature_get_
+                (const tng_trajectory_t tng_data,
+		 char *signature, const int max_len)
 {
     return(tng_last_signature_get(tng_data, signature, max_len));
 }
 
-tng_function_status tng_last_signature_set_(tng_trajectory_t tng_data,
-                                            const char *signature,
-                                            int sign_len)
+tng_function_status DECLSPECDLLEXPORT tng_last_signature_set_
+                (tng_trajectory_t tng_data,
+		 const char *signature,
+		 int sign_len)
 {
     char *sign = malloc(sign_len + 1);
     tng_function_status stat;
@@ -12345,15 +12419,17 @@ tng_function_status tng_last_signature_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_forcefield_name_get_(const tng_trajectory_t tng_data,
-                                             char *name, const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_get_
+                (const tng_trajectory_t tng_data,
+		 char *name, const int max_len)
 {
     return(tng_forcefield_name_get(tng_data, name, max_len));
 }
 
-tng_function_status tng_forcefield_name_set_(tng_trajectory_t tng_data,
-                                             const char *new_name,
-                                             int name_len)
+tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_set_
+                (tng_trajectory_t tng_data,
+		 const char *new_name,
+		 int name_len)
 {
     char *name = malloc(name_len + 1);
     tng_function_status stat;
@@ -12365,95 +12441,104 @@ tng_function_status tng_forcefield_name_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_medium_stride_length_get_(const tng_trajectory_t tng_data,
-                                                  int64_t *len)
+tng_function_status DECLSPECDLLEXPORT tng_medium_stride_length_get_
+                (const tng_trajectory_t tng_data,
+		 int64_t *len)
 {
     return(tng_medium_stride_length_get(tng_data, len));
 }
 
-tng_function_status tng_medium_stride_length_set_(tng_trajectory_t tng_data,
-                                                  const int64_t *len)
+tng_function_status DECLSPECDLLEXPORT tng_medium_stride_length_set_
+                (tng_trajectory_t tng_data,
+		 const int64_t *len)
 {
     return(tng_medium_stride_length_set(tng_data, *len));
 }
 
-tng_function_status tng_long_stride_length_get_(const tng_trajectory_t tng_data,
-                                                int64_t *len)
+tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_get_
+                (const tng_trajectory_t tng_data,
+		 int64_t *len)
 {
     return(tng_long_stride_length_get(tng_data, len));
 }
 
-tng_function_status tng_long_stride_length_set_(tng_trajectory_t tng_data,
-                                                const int64_t *len)
+tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_set_
+                (tng_trajectory_t tng_data,
+		 const int64_t *len)
 {
     return(tng_long_stride_length_set(tng_data, *len));
 }
 
-tng_function_status tng_input_file_len_get_(const tng_trajectory_t tng_data,
-                                            int64_t *len)
+tng_function_status DECLSPECDLLEXPORT tng_input_file_len_get_
+                (const tng_trajectory_t tng_data,
+		 int64_t *len)
 {
     return(tng_input_file_len_get(tng_data, len));
 }
 
-tng_function_status tng_num_frames_get_(const tng_trajectory_t tng_data,
-                                     int64_t *n)
+tng_function_status DECLSPECDLLEXPORT tng_num_frames_get_
+                (const tng_trajectory_t tng_data,
+		 int64_t *n)
 {
     return(tng_num_frames_get(tng_data, n));
 }
 
-tng_function_status tng_num_particles_get_(const tng_trajectory_t tng_data,
-                                           int64_t *n)
+tng_function_status DECLSPECDLLEXPORT tng_num_particles_get_
+                (const tng_trajectory_t tng_data,
+		 int64_t *n)
 {
     return(tng_num_particles_get(tng_data, n));
 }
 
-tng_function_status tng_num_molecules_get_(const tng_trajectory_t tng_data,
-                                           int64_t *n)
+tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get_
+                (const tng_trajectory_t tng_data,
+		 int64_t *n)
 {
     return(tng_num_molecules_get(tng_data, n));
 }
 
-tng_function_status tng_num_frames_per_frame_set_get_
+tng_function_status DECLSPECDLLEXPORT tng_num_frames_per_frame_set_get_
                 (const tng_trajectory_t tng_data,
                  int64_t *n)
 {
     return(tng_num_frames_per_frame_set_get(tng_data, n));
 }
 
-tng_function_status tng_num_frames_per_frame_set_set_
+tng_function_status DECLSPECDLLEXPORT tng_num_frames_per_frame_set_set_
                 (const tng_trajectory_t tng_data,
                  int64_t *n)
 {
     return(tng_num_frames_per_frame_set_set(tng_data, *n));
 }
 
-tng_function_status tng_num_frame_sets_get_
+tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get_
                 (const tng_trajectory_t tng_data,
                  int64_t *n)
 {
     return(tng_num_frame_sets_get(tng_data, n));
 }
 
-tng_function_status tng_current_frame_set_get_
+tng_function_status DECLSPECDLLEXPORT tng_current_frame_set_get_
                 (tng_trajectory_t tng_data,
                  tng_trajectory_frame_set_t *frame_set_p)
 {
     return(tng_current_frame_set_get(tng_data, frame_set_p));
 }
 
-tng_function_status tng_frame_set_nr_find_(tng_trajectory_t tng_data,
-                                        const int64_t *nr)
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find_(tng_trajectory_t tng_data,
+							     const int64_t *nr)
 {
     return(tng_frame_set_nr_find(tng_data, *nr));
 }
 
-tng_function_status tng_frame_set_of_frame_find_(tng_trajectory_t tng_data,
-                                        const int64_t *frame)
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find_
+                (tng_trajectory_t tng_data,
+		 const int64_t *frame)
 {
     return(tng_frame_set_of_frame_find(tng_data, *frame));
 }
 
-tng_function_status tng_frame_set_next_frame_set_file_pos_get_
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_next_frame_set_file_pos_get_
                 (const tng_trajectory_t tng_data,
                  const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
@@ -12461,7 +12546,7 @@ tng_function_status tng_frame_set_next_frame_set_file_pos_get_
     return(tng_frame_set_next_frame_set_file_pos_get(tng_data, frame_set, pos));
 }
 
-tng_function_status tng_frame_set_prev_frame_set_file_pos_get_
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_prev_frame_set_file_pos_get_
                 (const tng_trajectory_t tng_data,
                  const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
@@ -12469,7 +12554,7 @@ tng_function_status tng_frame_set_prev_frame_set_file_pos_get_
     return(tng_frame_set_prev_frame_set_file_pos_get(tng_data, frame_set, pos));
 }
 
-tng_function_status tng_frame_set_frame_range_get_
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_frame_range_get_
                 (const tng_trajectory_t tng_data,
                  const tng_trajectory_frame_set_t frame_set,
                  int64_t *first_frame,
@@ -12479,22 +12564,23 @@ tng_function_status tng_frame_set_frame_range_get_
                                          last_frame));
 }
 
-tng_function_status tng_molecule_init_(const tng_trajectory_t tng_data,
+tng_function_status DECLSPECDLLEXPORT tng_molecule_init_(const tng_trajectory_t tng_data,
                                        tng_molecule_t molecule)
 {
     return(tng_molecule_init(tng_data, molecule));
 }
 
-tng_function_status tng_molecule_destroy_(const tng_trajectory_t tng_data,
-                                          tng_molecule_t molecule)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_destroy_
+                (const tng_trajectory_t tng_data,
+		 tng_molecule_t molecule)
 {
     return(tng_molecule_destroy(tng_data, molecule));
 }
 
-tng_function_status tng_molecule_add_(tng_trajectory_t tng_data,
-                                     const char *name,
-                                     tng_molecule_t *molecule,
-                                     int name_len)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_add_(tng_trajectory_t tng_data,
+							const char *name,
+							tng_molecule_t *molecule,
+							int name_len)
 {
     char *n = malloc(name_len + 1);
     tng_function_status stat;
@@ -12506,10 +12592,10 @@ tng_function_status tng_molecule_add_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_molecule_name_set_(tng_trajectory_t tng_data,
-                                           tng_molecule_t molecule,
-                                           const char *new_name,
-                                           int name_len)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_name_set_(tng_trajectory_t tng_data,
+							     tng_molecule_t molecule,
+							     const char *new_name,
+							     int name_len)
 {
     char *name = malloc(name_len + 1);
     tng_function_status stat;
@@ -12521,26 +12607,26 @@ tng_function_status tng_molecule_name_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_molecule_cnt_get_(tng_trajectory_t tng_data,
-                                          tng_molecule_t molecule,
-                                          int64_t *cnt)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_get_(tng_trajectory_t tng_data,
+							    tng_molecule_t molecule,
+							    int64_t *cnt)
 {
     return(tng_molecule_cnt_get(tng_data, molecule, cnt));
 }
 
-tng_function_status tng_molecule_cnt_set_(tng_trajectory_t tng_data,
-                                          tng_molecule_t molecule,
-                                          int64_t *cnt)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set_(tng_trajectory_t tng_data,
+							    tng_molecule_t molecule,
+							    int64_t *cnt)
 {
     return(tng_molecule_cnt_set(tng_data, molecule, *cnt));
 }
 
-tng_function_status tng_molecule_chain_find_(tng_trajectory_t tng_data,
-                                             tng_molecule_t molecule,
-                                             const char *name,
-                                             int64_t id,
-                                             tng_chain_t *chain,
-                                             int name_len)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find_(tng_trajectory_t tng_data,
+							       tng_molecule_t molecule,
+							       const char *name,
+							       int64_t id,
+							       tng_chain_t *chain,
+							       int name_len)
 {
     char *n = malloc(name_len + 1);
     tng_function_status stat;
@@ -12552,11 +12638,11 @@ tng_function_status tng_molecule_chain_find_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_molecule_chain_add_(tng_trajectory_t tng_data,
-                                            tng_molecule_t molecule,
-                                            const char *name,
-                                            tng_chain_t *chain,
-                                            int name_len)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_add_(tng_trajectory_t tng_data,
+							      tng_molecule_t molecule,
+							      const char *name,
+							      tng_chain_t *chain,
+							      int name_len)
 {
     char *n = malloc(name_len + 1);
     tng_function_status stat;
@@ -12568,10 +12654,10 @@ tng_function_status tng_molecule_chain_add_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_chain_name_set_(tng_trajectory_t tng_data,
-                                        tng_chain_t chain,
-                                        const char *new_name,
-                                        int name_len)
+tng_function_status DECLSPECDLLEXPORT tng_chain_name_set_(tng_trajectory_t tng_data,
+							  tng_chain_t chain,
+							  const char *new_name,
+							  int name_len)
 {
     char *name = malloc(name_len + 1);
     tng_function_status stat;
@@ -12583,11 +12669,11 @@ tng_function_status tng_chain_name_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_chain_residue_add_(tng_trajectory_t tng_data,
-                                           tng_chain_t chain,
-                                           const char *name,
-                                           tng_residue_t *residue,
-                                           int name_len)
+tng_function_status DECLSPECDLLEXPORT tng_chain_residue_add_(tng_trajectory_t tng_data,
+							     tng_chain_t chain,
+							     const char *name,
+							     tng_residue_t *residue,
+							     int name_len)
 {
     char *n = malloc(name_len + 1);
     tng_function_status stat;
@@ -12599,10 +12685,10 @@ tng_function_status tng_chain_residue_add_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_residue_name_set_(tng_trajectory_t tng_data,
-                                          tng_residue_t residue,
-                                          const char *new_name,
-                                          int name_len)
+tng_function_status DECLSPECDLLEXPORT tng_residue_name_set_(tng_trajectory_t tng_data,
+							    tng_residue_t residue,
+							    const char *new_name,
+							    int name_len)
 {
     char *name = malloc(name_len + 1);
     tng_function_status stat;
@@ -12614,13 +12700,13 @@ tng_function_status tng_residue_name_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_residue_atom_add_(tng_trajectory_t tng_data,
-                                          tng_residue_t residue,
-                                          const char *atom_name,
-                                          const char *atom_type,
-                                          tng_atom_t *atom,
-                                          int name_len,
-                                          int type_len)
+tng_function_status DECLSPECDLLEXPORT tng_residue_atom_add_(tng_trajectory_t tng_data,
+							    tng_residue_t residue,
+							    const char *atom_name,
+							    const char *atom_type,
+							    tng_atom_t *atom,
+							    int name_len,
+							    int type_len)
 {
     char *name = malloc(name_len + 1);
     char *type = malloc(type_len + 1);
@@ -12636,10 +12722,10 @@ tng_function_status tng_residue_atom_add_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_atom_name_set_(tng_trajectory_t tng_data,
-                                       tng_atom_t atom,
-                                       const char *new_name,
-                                       int name_len)
+tng_function_status DECLSPECDLLEXPORT tng_atom_name_set_(tng_trajectory_t tng_data,
+							 tng_atom_t atom,
+							 const char *new_name,
+							 int name_len)
 {
     char *name = malloc(name_len + 1);
     tng_function_status stat;
@@ -12651,10 +12737,10 @@ tng_function_status tng_atom_name_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_atom_type_set_(tng_trajectory_t tng_data,
-                                       tng_atom_t atom,
-                                       const char *new_type,
-                                       int type_len)
+tng_function_status DECLSPECDLLEXPORT tng_atom_type_set_(tng_trajectory_t tng_data,
+							 tng_atom_t atom,
+							 const char *new_type,
+							 int type_len)
 {
     char *type = malloc(type_len + 1);
     tng_function_status stat;
@@ -12666,16 +12752,16 @@ tng_function_status tng_atom_type_set_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_molecule_name_of_particle_nr_get_
+tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get_
                 (const tng_trajectory_t tng_data,
-                 const int64_t nr,
-                 char *name,
+		 const int64_t nr,
+		 char *name,
                  int max_len)
 {
     return(tng_molecule_name_of_particle_nr_get(tng_data, nr, name, max_len));
 }
 
-tng_function_status tng_chain_name_of_particle_nr_get_
+tng_function_status DECLSPECDLLEXPORT tng_chain_name_of_particle_nr_get_
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  char *name,
@@ -12684,7 +12770,7 @@ tng_function_status tng_chain_name_of_particle_nr_get_
     return(tng_chain_name_of_particle_nr_get(tng_data, nr, name, max_len));
 }
 
-tng_function_status tng_residue_name_of_particle_nr_get_
+tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get_
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  char *name,
@@ -12693,7 +12779,7 @@ tng_function_status tng_residue_name_of_particle_nr_get_
     return(tng_residue_name_of_particle_nr_get(tng_data, nr, name, max_len));
 }
 
-tng_function_status tng_atom_name_of_particle_nr_get_
+tng_function_status DECLSPECDLLEXPORT tng_atom_name_of_particle_nr_get_
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  char *name,
@@ -12702,7 +12788,7 @@ tng_function_status tng_atom_name_of_particle_nr_get_
     return(tng_atom_name_of_particle_nr_get(tng_data, nr, name, max_len));
 }
 
-tng_function_status tng_atom_type_of_particle_nr_get_
+tng_function_status DECLSPECDLLEXPORT tng_atom_type_of_particle_nr_get_
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  char *type,
@@ -12711,7 +12797,7 @@ tng_function_status tng_atom_type_of_particle_nr_get_
     return(tng_atom_type_of_particle_nr_get(tng_data, nr, type, max_len));
 }
 
-tng_function_status tng_particle_mapping_add_
+tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add_
                 (tng_trajectory_t tng_data,
                  const int64_t *first_particle_number,
                  const int64_t *n_particles,
@@ -12721,55 +12807,59 @@ tng_function_status tng_particle_mapping_add_
                                     *n_particles, mapping_table));
 }
 
-tng_function_status tng_file_headers_read_(tng_trajectory_t tng_data,
-                                           const tng_hash_mode *hash_mode)
+tng_function_status DECLSPECDLLEXPORT tng_file_headers_read_(tng_trajectory_t tng_data,
+							     const tng_hash_mode *hash_mode)
 {
     return(tng_file_headers_read(tng_data, *hash_mode));
 }
 
-tng_function_status tng_file_headers_write_(tng_trajectory_t tng_data,
-                                            const tng_hash_mode *hash_mode)
+tng_function_status DECLSPECDLLEXPORT tng_file_headers_write_
+                (tng_trajectory_t tng_data,
+		 const tng_hash_mode *hash_mode)
 {
     return(tng_file_headers_write(tng_data, *hash_mode));
 }
 
-tng_function_status tng_block_read_next_(tng_trajectory_t tng_data,
-                                         tng_gen_block_t block_data,
-                                         const tng_hash_mode *hash_mode)
+tng_function_status DECLSPECDLLEXPORT tng_block_read_next_
+                (tng_trajectory_t tng_data,
+		 tng_gen_block_t block_data,
+		 const tng_hash_mode *hash_mode)
 {
     return(tng_block_read_next(tng_data, block_data, *hash_mode));
 }
 
-tng_function_status tng_frame_set_read_next_(tng_trajectory_t tng_data,
-                                             const tng_hash_mode *hash_mode)
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next_
+                (tng_trajectory_t tng_data,
+		 const tng_hash_mode *hash_mode)
 {
     return(tng_frame_set_read_next(tng_data, *hash_mode));
 }
 
-tng_function_status tng_frame_set_write_(tng_trajectory_t tng_data,
-                                         const tng_hash_mode *hash_mode)
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_write_(tng_trajectory_t tng_data,
+							   const tng_hash_mode *hash_mode)
 {
     return(tng_frame_set_write(tng_data, *hash_mode));
 }
 
-tng_function_status tng_frame_set_new_(tng_trajectory_t tng_data,
-                                       const int64_t *first_frame,
-                                       const int64_t *n_frames)
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_new_(tng_trajectory_t tng_data,
+							 const int64_t *first_frame,
+							 const int64_t *n_frames)
 {
     return(tng_frame_set_new(tng_data, *first_frame, *n_frames));
 }
 
-tng_function_status tng_data_block_add_(tng_trajectory_t tng_data,
-                                        const int64_t *id,
-                                        const char *block_name,
-                                        const tng_data_type *datatype,
-                                        const tng_block_type *block_type_flag,
-                                        int64_t *n_frames,
-                                        const int64_t *n_values_per_frame,
-                                        const int64_t *stride_length,
-                                        const int64_t *codec_id,
-                                        void *new_data,
-                                        int name_len)
+tng_function_status DECLSPECDLLEXPORT tng_data_block_add_
+                (tng_trajectory_t tng_data,
+		 const int64_t *id,
+		 const char *block_name,
+		 const tng_data_type *datatype,
+		 const tng_block_type *block_type_flag,
+		 int64_t *n_frames,
+		 const int64_t *n_values_per_frame,
+		 const int64_t *stride_length,
+		 const int64_t *codec_id,
+		 void *new_data,
+		 int name_len)
 {
     char *name = malloc(name_len + 1);
     tng_function_status stat;
@@ -12783,7 +12873,7 @@ tng_function_status tng_data_block_add_(tng_trajectory_t tng_data,
     return(stat);
 }
 
-tng_function_status tng_particle_data_block_add_
+tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add_
                 (tng_trajectory_t tng_data,
                  const int64_t *id,
                  const char *block_name,
@@ -12812,96 +12902,104 @@ tng_function_status tng_particle_data_block_add_
     return(stat);
 }
 
-tng_function_status tng_frame_data_write_(tng_trajectory_t tng_data,
-                                          const int64_t *frame_nr,
-                                          const int64_t *block_id,
-                                          const void *data,
-                                          const tng_hash_mode *hash_mode)
+tng_function_status DECLSPECDLLEXPORT tng_frame_data_write_
+                (tng_trajectory_t tng_data,
+		 const int64_t *frame_nr,
+		 const int64_t *block_id,
+		 const void *data,
+		 const tng_hash_mode *hash_mode)
 {
     return(tng_frame_data_write(tng_data, *frame_nr, *block_id, data,
                                 *hash_mode));
 }
 
-tng_function_status tng_frame_particle_data_write_(tng_trajectory_t tng_data,
-                                                   const int64_t *frame_nr,
-                                                   const int64_t *block_id,
-                                                   const int64_t *val_first_particle,
-                                                   const int64_t *val_n_particles,
-                                                   const void *data,
-                                                   const tng_hash_mode *hash_mode)
+tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write_
+                (tng_trajectory_t tng_data,
+		 const int64_t *frame_nr,
+		 const int64_t *block_id,
+		 const int64_t *val_first_particle,
+		 const int64_t *val_n_particles,
+		 const void *data,
+		 const tng_hash_mode *hash_mode)
 {
     return(tng_frame_particle_data_write(tng_data, *frame_nr, *block_id,
                                          *val_first_particle, *val_n_particles,
                                          data, *hash_mode));
 }
 
-tng_function_status tng_data_values_free_(const tng_trajectory_t tng_data,
-                                          union data_values **values,
-                                          const int64_t *n_frames,
-                                          const int64_t *n_values_per_frame,
-                                          const tng_data_type *type)
+tng_function_status DECLSPECDLLEXPORT tng_data_values_free_
+                (const tng_trajectory_t tng_data,
+		 union data_values **values,
+		 const int64_t *n_frames,
+		 const int64_t *n_values_per_frame,
+		 const tng_data_type *type)
 {
     return(tng_data_values_free(tng_data, values, *n_frames,
                                 *n_values_per_frame, *type));
 }
 
-tng_function_status tng_particle_data_values_free_(const tng_trajectory_t tng_data,
-                                                   union data_values ***values,
-                                                   const int64_t *n_frames,
-                                                   const int64_t *n_particles,
-                                                   const int64_t *n_values_per_frame,
-                                                   const tng_data_type *type)
+tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free_
+                (const tng_trajectory_t tng_data,
+		 union data_values ***values,
+		 const int64_t *n_frames,
+		 const int64_t *n_particles,
+		 const int64_t *n_values_per_frame,
+		 const tng_data_type *type)
 {
     return(tng_particle_data_values_free(tng_data, values, *n_frames, *n_particles,
                                          *n_values_per_frame, *type));
 }
 
-tng_function_status tng_data_get_(tng_trajectory_t tng_data,
-                                  const int64_t *block_id,
-                                  union data_values ***values,
-                                  int64_t *n_frames,
-                                  int64_t *n_values_per_frame,
-                                  tng_data_type *type)
+tng_function_status DECLSPECDLLEXPORT tng_data_get_
+                (tng_trajectory_t tng_data,
+		 const int64_t *block_id,
+		 union data_values ***values,
+		 int64_t *n_frames,
+		 int64_t *n_values_per_frame,
+		 tng_data_type *type)
 {
     return(tng_data_get(tng_data, *block_id, values, n_frames,
                         n_values_per_frame, type));
 }
 
-tng_function_status tng_data_interval_get_(tng_trajectory_t tng_data,
-                                           const int64_t *block_id,
-                                           const int64_t *start_frame_nr,
-                                           const int64_t *end_frame_nr,
-                                           const tng_hash_mode *hash_mode,
-                                           union data_values ***values,
-                                           int64_t *n_values_per_frame,
-                                           tng_data_type *type)
+tng_function_status DECLSPECDLLEXPORT tng_data_interval_get_
+                (tng_trajectory_t tng_data,
+		 const int64_t *block_id,
+		 const int64_t *start_frame_nr,
+		 const int64_t *end_frame_nr,
+		 const tng_hash_mode *hash_mode,
+		 union data_values ***values,
+		 int64_t *n_values_per_frame,
+		 tng_data_type *type)
 {
     return(tng_data_interval_get(tng_data, *block_id, *start_frame_nr,
                                  *end_frame_nr, *hash_mode, values,
                                  n_values_per_frame, type));
 }
 
-tng_function_status tng_particle_data_get_(tng_trajectory_t tng_data,
-                                           const int64_t *block_id,
-                                           union data_values ****values,
-                                           int64_t *n_frames,
-                                           int64_t *n_particles,
-                                           int64_t *n_values_per_frame,
-                                           tng_data_type *type)
+tng_function_status DECLSPECDLLEXPORT tng_particle_data_get_
+                (tng_trajectory_t tng_data,
+		 const int64_t *block_id,
+		 union data_values ****values,
+		 int64_t *n_frames,
+		 int64_t *n_particles,
+		 int64_t *n_values_per_frame,
+		 tng_data_type *type)
 {
     return(tng_particle_data_get(tng_data, *block_id, values, n_frames,
                                  n_particles, n_values_per_frame, type));
 }
 
-tng_function_status tng_particle_data_interval_get_(tng_trajectory_t tng_data,
-                                                    const int64_t *block_id,
-                                                    const int64_t *start_frame_nr,
-                                                    const int64_t *end_frame_nr,
-                                                    const tng_hash_mode *hash_mode,
-                                                    union data_values ****values,
-                                                    int64_t *n_particles,
-                                                    int64_t *n_values_per_frame,
-                                                    tng_data_type *type)
+tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get_
+                (tng_trajectory_t tng_data,
+		 const int64_t *block_id,
+		 const int64_t *start_frame_nr,
+		 const int64_t *end_frame_nr,
+		 const tng_hash_mode *hash_mode,
+		 union data_values ****values,
+		 int64_t *n_particles,
+		 int64_t *n_values_per_frame,
+		 tng_data_type *type)
 {
     return(tng_particle_data_interval_get(tng_data, *block_id, *start_frame_nr,
                                           *end_frame_nr, *hash_mode, values,
@@ -12909,8 +13007,9 @@ tng_function_status tng_particle_data_interval_get_(tng_trajectory_t tng_data,
                                           type));
 }
 
-tng_function_status tng_time_get_str_(const tng_trajectory_t tng_data,
-                                      char *time, int64_t str_len)
+tng_function_status DECLSPECDLLEXPORT tng_time_get_str_
+                (const tng_trajectory_t tng_data,
+		 char *time, int64_t str_len)
 {
     return(tng_time_get_str(tng_data, time));
 }

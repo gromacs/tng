@@ -19,11 +19,13 @@
 #endif /* win32... */
 #endif /* not defined USE_WINDOWS */
 
+#ifndef DECLSPECDLLEXPORT
 #ifdef USE_WINDOWS
 #define DECLSPECDLLEXPORT __declspec(dllexport)
-#else
+#else /* USE_WINDOWS */
 #define DECLSPECDLLEXPORT
-#endif
+#endif /* USE_WINDOWS */
+#endif /* DECLSPECDLLEXPORT */
 
 #ifdef __cplusplus
  extern "C" {
