@@ -41,6 +41,18 @@
 #define ARCH_IS_BIG_ENDIAN 0
 #endif
 
+#ifndef USE_WINDOWS
+#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
+#define USE_WINDOWS
+#endif /* win32... */
+#endif /* not defined USE_WINDOWS */
+
+#ifdef USE_WINDOWS
+#define TNG_INLINE __inline
+#else
+#define TNG_INLINE inline
+#endif
+
 /*
   Copyright (C) 1999, 2000, 2002 Aladdin Enterprises.  All rights reserved.
 
@@ -169,11 +181,7 @@
 #define T63    0x2ad7d2bb
 #define T64 /* 0xeb86d391 */ (T_MASK ^ 0x14792c6e)
 
-#ifdef USE_WINDOWS
-static inline void
-#else
-static __inline void
-#endif
+static TNG_INLINE void
 md5_process(md5_state_t *pms, const md5_byte_t *data /*[64]*/)
 {
     md5_word_t
@@ -355,8 +363,8 @@ md5_process(md5_state_t *pms, const md5_byte_t *data /*[64]*/)
     pms->abcd[3] += d;
 }
 
-void
-md5_init(md5_state_t *pms)
+void DECLSPECDLLEXPORT 
+tng_md5_init(md5_state_t *pms)
 {
     pms->count[0] = pms->count[1] = 0;
     pms->abcd[0] = 0x67452301;
@@ -365,8 +373,8 @@ md5_init(md5_state_t *pms)
     pms->abcd[3] = 0x10325476;
 }
 
-void
-md5_append(md5_state_t *pms, const md5_byte_t *data, int nbytes)
+void DECLSPECDLLEXPORT 
+tng_md5_append(md5_state_t *pms, const md5_byte_t *data, int nbytes)
 {
     const md5_byte_t *p = data;
     int left = nbytes;
@@ -403,8 +411,8 @@ md5_append(md5_state_t *pms, const md5_byte_t *data, int nbytes)
 	memcpy(pms->buf, p, left);
 }
 
-void
-md5_finish(md5_state_t *pms, md5_byte_t digest[16])
+void DECLSPECDLLEXPORT
+tng_md5_finish(md5_state_t *pms, md5_byte_t digest[16])
 {
     static const md5_byte_t pad[64] = {
 	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -419,9 +427,9 @@ md5_finish(md5_state_t *pms, md5_byte_t digest[16])
     for (i = 0; i < 8; ++i)
 	data[i] = (md5_byte_t)(pms->count[i >> 2] >> ((i & 3) << 3));
     /* Pad to 56 bytes mod 64. */
-    md5_append(pms, pad, ((55 - (pms->count[0] >> 3)) & 63) + 1);
+    tng_md5_append(pms, pad, ((55 - (pms->count[0] >> 3)) & 63) + 1);
     /* Append the length. */
-    md5_append(pms, data, 8);
+    tng_md5_append(pms, data, 8);
     for (i = 0; i < 16; ++i)
 	digest[i] = (md5_byte_t)(pms->abcd[i >> 2] >> ((i & 3) << 3));
 }

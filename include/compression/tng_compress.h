@@ -19,11 +19,13 @@
 #endif /* win32... */
 #endif /* not defined USE_WINDOWS */
 
+#ifndef DECLSPECDLLEXPORT
 #ifdef USE_WINDOWS
 #define DECLSPECDLLEXPORT __declspec(dllexport)
-#else
+#else /* USE_WINDOWS */
 #define DECLSPECDLLEXPORT
-#endif
+#endif /* USE_WINDOWS */
+#endif /* DECLSPECDLLEXPORT */
 
 #ifdef __cplusplus
  extern "C" {
@@ -52,7 +54,16 @@ char DECLSPECDLLEXPORT *tng_compress_pos(double *pos, int natoms, int nframes,
 					 double desired_precision, 
 					 int speed, int *algo,
 					 int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_pos_float(float *pos, int natoms, int nframes,
+					       float desired_precision, 
+					       int speed, int *algo,
+					       int *nitems);
    
+char DECLSPECDLLEXPORT *tng_compress_pos_int(int *pos, int natoms, int nframes,
+					     unsigned long prec_hi, unsigned long prec_lo,
+					     int speed,int *algo,
+					     int *nitems);
 
 /* The tng_compress_pos_find_algo works the same as tng_compress_pos, but
    it performs benchmarking to find the algorithms with the best
@@ -84,6 +95,17 @@ char DECLSPECDLLEXPORT *tng_compress_pos_find_algo(double *pos, int natoms, int 
 						   int speed,
 						   int *algo,
 						   int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_pos_float_find_algo(float *pos, int natoms, int nframes,
+							 float desired_precision,
+							 int speed,
+							 int *algo,
+							 int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_pos_int_find_algo(int *pos, int natoms, int nframes,
+						       unsigned long prec_hi, unsigned long prec_lo,
+						       int speed,int *algo,
+						       int *nitems);
    
 /* This returns the number of integers required for the storage of the algorithm
    with the best compression ratio. */
@@ -98,12 +120,34 @@ char DECLSPECDLLEXPORT *tng_compress_vel(double *vel, int natoms, int nframes,
 					 double desired_precision,
 					 int speed, int *algo,
 					 int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_vel_float(float *vel, int natoms, int nframes,
+					       float desired_precision,
+					       int speed, int *algo,
+					       int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_vel_int(int *vel, int natoms, int nframes,
+					     unsigned long prec_hi, unsigned long prec_lo,
+					     int speed, int *algo,
+					     int *nitems);
    
 char DECLSPECDLLEXPORT *tng_compress_vel_find_algo(double *vel, int natoms, int nframes,
 						   double desired_precision,
 						   int speed,
 						   int *algo,
 						   int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_vel_float_find_algo(float *vel, int natoms, int nframes,
+							 float desired_precision,
+							 int speed,
+							 int *algo,
+							 int *nitems);
+
+char DECLSPECDLLEXPORT *tng_compress_vel_int_find_algo(int *vel, int natoms, int nframes,
+						       unsigned long prec_hi, unsigned long prec_lo,
+						       int speed,
+						       int *algo,
+						       int *nitems);
 
 /* From a compressed block, obtain information about
    whether it is a position or velocity block: 
@@ -120,11 +164,25 @@ int DECLSPECDLLEXPORT tng_compress_inquire(char *data,int *vel, int *natoms,
 */
 int DECLSPECDLLEXPORT tng_compress_uncompress(char *data,double *posvel);
 
+int DECLSPECDLLEXPORT tng_compress_uncompress_float(char *data,float *posvel);
 
-   /* Compression algorithms (matching the original trajng
-      assignments) The compression backends require that some of the
-      algorithms must have the same value. */
+int DECLSPECDLLEXPORT tng_compress_uncompress_int(char *data,int *posvel, unsigned long *prec_hi, unsigned long *prec_lo);
 
+/* This converts a block of integers, as obtained from tng_compress_uncompress_int, to floating point values
+   either double precision or single precision. */
+void DECLSPECDLLEXPORT tng_compress_int_to_double(int *posvel_int,unsigned long prec_hi, unsigned long prec_lo,
+						  int natoms,int nframes,
+						  double *posvel_double);
+
+void DECLSPECDLLEXPORT tng_compress_int_to_float(int *posvel_int,unsigned long prec_hi, unsigned long prec_lo,
+						 int natoms,int nframes,
+						 float *posvel_float);
+
+
+/* Compression algorithms (matching the original trajng
+   assignments) The compression backends require that some of the
+   algorithms must have the same value. */
+   
 #define TNG_COMPRESS_ALGO_STOPBIT 1
 #define TNG_COMPRESS_ALGO_TRIPLET 2
 #define TNG_COMPRESS_ALGO_BWLZH1  8

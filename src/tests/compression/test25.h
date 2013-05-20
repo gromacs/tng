@@ -1,5 +1,5 @@
 #define TESTNAME "Coding of velocities. BWLZH one-to-one. Cubic cell."
-#define FILENAME "test25.tng"
+#define FILENAME "test25.tng_compress"
 #define ALGOTEST
 #define NATOMS 1000
 #define CHUNKY 25

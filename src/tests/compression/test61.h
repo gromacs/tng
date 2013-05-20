@@ -1,5 +1,5 @@
-#define TESTNAME "Coding of velocities. Triplet one-to-one. Cubic cell."
-#define FILENAME "test22.tng_compress"
+#define TESTNAME "Coding. Recompression test. Stage 1: Generate"
+#define FILENAME "test61.tng_compress"
 #define ALGOTEST
 #define NATOMS 1000
 #define CHUNKY 100
@@ -11,7 +11,7 @@
 #define INITIALCODINGPARAMETER 0
 #define CODING 5
 #define CODINGPARAMETER 0
-#define INITIALVELCODING 1
+#define INITIALVELCODING 3
 #define INITIALVELCODINGPARAMETER -1
 #define VELCODING 3
 #define VELCODINGPARAMETER -1
@@ -21,5 +21,5 @@
 #define INTMAX1 10000
 #define INTMAX2 10000
 #define INTMAX3 10000
-#define NFRAMES 1000
-#define EXPECTED_FILESIZE 6988699.
+#define NFRAMES 100
+#define EXPECTED_FILESIZE 698801.

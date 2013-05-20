@@ -1,5 +1,5 @@
 #define TESTNAME "Initial coding. XTC2 algorithm. High accuracy. Cubic cell."
-#define FILENAME "test42.tng"
+#define FILENAME "test42.tng_compress"
 #define ALGOTEST
 #define NATOMS 100000
 #define CHUNKY 1

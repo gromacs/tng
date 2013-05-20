@@ -1,5 +1,5 @@
 #define TESTNAME "Coding of velocities. Triplet inter. Cubic cell."
-#define FILENAME "test21.tng"
+#define FILENAME "test21.tng_compress"
 #define ALGOTEST
 #define NATOMS 1000
 #define CHUNKY 100

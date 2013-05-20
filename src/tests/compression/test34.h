@@ -1,5 +1,5 @@
 #define TESTNAME "Position coding. Stop bits algorithm. Large system. Cubic cell."
-#define FILENAME "test34.tng"
+#define FILENAME "test34.tng_compress"
 #define ALGOTEST
 #define NATOMS 5000000
 #define CHUNKY 2

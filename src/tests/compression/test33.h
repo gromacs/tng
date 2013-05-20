@@ -1,5 +1,5 @@
 #define TESTNAME "Initial coding. Intra frame BWLZH algorithm. Large system. Cubic cell."
-#define FILENAME "test33.tng"
+#define FILENAME "test33.tng_compress"
 #define ALGOTEST
 #define NATOMS 5000000
 #define CHUNKY 1
