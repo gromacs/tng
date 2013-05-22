@@ -459,15 +459,15 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
                 data[cnt++] = molpos[nr + 1] - 1;
                 data[cnt++] = molpos[nr + 2] - 1;
             }
-//             if(tng_frame_particle_data_write(traj, frame_nr + i,
-//                                           TNG_TRAJ_POSITIONS, j * 300, 300,
-//                                           data, TNG_SKIP_HASH) != TNG_SUCCESS)
-//             {
-//                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-//                 free(molpos);
-//                 free(data);
-//                 return(TNG_CRITICAL);
-//             }
+            if(tng_frame_particle_data_write(traj, frame_nr + i,
+                                          TNG_TRAJ_POSITIONS, j * 300, 300,
+                                          data, TNG_SKIP_HASH) != TNG_SUCCESS)
+            {
+                printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+                free(molpos);
+                free(data);
+                return(TNG_CRITICAL);
+            }
         }
     }
     
