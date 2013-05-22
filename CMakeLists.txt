@@ -9,6 +9,9 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 option(BUILD_FORTRAN "Build Fortran compatible library and examples for testing" OFF)
 
+option(BUILD_TNG_EXAMPLES "Build examples showing usage of the TNG API" ON)
+option(BUILD_COMPRESSION_TESTS "Build tests of the TNG compression library" OFF)
+
 option(USE_OPENMP "Try to use the OpenMP library (if available)" ON)
 if(USE_OPENMP)
   find_package(OpenMP)
