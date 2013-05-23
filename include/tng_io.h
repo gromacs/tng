@@ -1729,6 +1729,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                  const int64_t end_frame_nr,
                  const tng_hash_mode hash_mode,
                  union data_values ***values,
+                 int64_t *stride_length,
                  int64_t *n_values_per_frame,
                  tng_data_type *type);
 
@@ -1875,6 +1876,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                  const tng_hash_mode hash_mode,
                  void **values,
                  int64_t *n_particles,
+                 int64_t *stride_length,
                  int64_t *n_values_per_frame,
                  tng_data_type *type);
 
@@ -1933,43 +1935,51 @@ tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_set
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_read
                 (tng_trajectory_t tng_data,
-                 float *positions);
+                 float **positions,
+                 int64_t *stride_length);
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_read
                 (tng_trajectory_t tng_data,
-                 float *velocities);
+                 float **velocities,
+                 int64_t *stride_length);
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_read
                 (tng_trajectory_t tng_data,
-                 float *forces);
+                 float **forces,
+                 int64_t *stride_length);
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
                 (tng_trajectory_t tng_data,
-                 float *box_shape);
+                 float **box_shape,
+                 int64_t *stride_length);
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_read_range
                 (tng_trajectory_t tng_data,
                  const int64_t first_frame,
                  const int64_t last_frame,
-                 float *positions);
+                 float **positions,
+                 int64_t *stride_length);
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_read_range
                 (tng_trajectory_t tng_data,
                  const int64_t first_frame,
                  const int64_t last_frame,
-                 float *velocities);
+                 float **velocities,
+                 int64_t *stride_length);
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
                 (tng_trajectory_t tng_data,
                  const int64_t first_frame,
                  const int64_t last_frame,
-                 float *forces);
+                 float **forces,
+                 int64_t *stride_length);
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
                 (tng_trajectory_t tng_data,
                  const int64_t first_frame,
                  const int64_t last_frame,
-                 float *box_shape);
+                 float **box_shape,
+                 int64_t *stride_length);
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequence_set
                 (tng_trajectory_t tng_data,

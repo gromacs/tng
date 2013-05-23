@@ -7,15 +7,15 @@
 #include "tng_io_testing.h"
 
 int main ( int argc, char *argv[] );
-void compute ( int np, int nd, double pos[], double vel[],
-    double mass, double f[], double *pot, double *kin );
-double dist ( int nd, double r1[], double r2[], double dr[] );
-void initialize ( int np, int nd, double box[], int *seed, double pos[],
-    double vel[], double acc[] );
-double r8_uniform_01 ( int *seed );
+void compute ( int np, int nd, float pos[], float vel[],
+    float mass, float f[], float *pot, float *kin );
+float dist ( int nd, float r1[], float r2[], float dr[] );
+void initialize ( int np, int nd, float box[], int *seed, float pos[],
+    float vel[], float acc[] );
+float r8_uniform_01 ( int *seed );
 void timestamp ( void );
-void update ( int np, int nd, double pos[], double vel[], double f[],
-    double acc[], double mass, double dt );
+void update ( int np, int nd, float pos[], float vel[], float f[],
+    float acc[], float mass, float dt );
 
 /******************************************************************************/
 
@@ -38,7 +38,8 @@ int main ( int argc, char *argv[] )
         The particles interact with a central pair potential.
 
         Output of the program is saved in the TNG format, which is why this
-        code is included in the TNG API release.
+        code is included in the TNG API release. The high-level API of the
+        TNG API is used where appropriate.
 
     Licensing:
 
@@ -59,19 +60,19 @@ int main ( int argc, char *argv[] )
         None
 */
 {
-    double *acc;
-    double *box;
-    double *box_shape;
-    double dt = 0.0002;
-    double e0;
-    double *force;
+    float *acc;
+    float *box;
+    float *box_shape;
+    float dt = 0.0002;
+    float e0;
+    float *force;
     int i;
-    double kinetic;
-    double mass = 1.0;
+    float kinetic;
+    float mass = 1.0;
     int nd = 3;
     int np = 50;
-    double *pos;
-    double potential;
+    float *pos;
+    float potential;
     int proc_num;
     int seed = 123456789;
     int step;
@@ -80,27 +81,24 @@ int main ( int argc, char *argv[] )
     int step_print_index;
     int step_print_num;
     int step_save;
-    int64_t sparse_save;
-    double *vel;
-    double wtime;
+    float *vel;
+    float wtime;
     tng_trajectory_t traj;
     tng_molecule_t molecule;
     tng_chain_t chain;
     tng_residue_t residue;
     tng_atom_t atom;
-    int64_t n_frames_per_frame_set;
-    int frames_saved_cnt = 0;
 
     timestamp ( );
 
     proc_num = omp_get_num_procs ( );
 
-    acc = ( double * ) malloc ( nd * np * sizeof ( double ) );
-    box = ( double * ) malloc ( nd * sizeof ( double ) );
-    box_shape = (double *) malloc (9 * sizeof (double));
-    force = ( double * ) malloc ( nd * np * sizeof ( double ) );
-    pos = ( double * ) malloc ( nd * np * sizeof ( double ) );
-    vel = ( double * ) malloc ( nd * np * sizeof ( double ) );
+    acc = ( float * ) malloc ( nd * np * sizeof ( float ) );
+    box = ( float * ) malloc ( nd * sizeof ( float ) );
+    box_shape = (float *) malloc (9 * sizeof (float));
+    force = ( float * ) malloc ( nd * np * sizeof ( float ) );
+    pos = ( float * ) malloc ( nd * np * sizeof ( float ) );
+    vel = ( float * ) malloc ( nd * np * sizeof ( float ) );
 
     printf ( "\n" );
     printf ( "MD_OPENMP\n" );
@@ -120,16 +118,10 @@ int main ( int argc, char *argv[] )
 
     printf("\n");
     printf("  Initializing trajectory storage.\n");
-    if(tng_trajectory_init(&traj) != TNG_SUCCESS)
-    {
-        tng_trajectory_destroy(&traj);
-        printf("  Cannot init trajectory.\n");
-        exit(1);
-    }
 #ifdef EXAMPLE_FILES_DIR
-    tng_output_file_set(traj, EXAMPLE_FILES_DIR "tng_md_out.tng");
+    tng_util_trajectory_open(EXAMPLE_FILES_DIR "tng_md_out.tng", 'w', &traj);
 #else
-    tng_output_file_set(traj, "/tmp/tng_md_out.tng");
+    tng_util_trajectory_open("/tmp/tng_md_out.tng", 'w', &traj);
 #endif
 
 
@@ -141,7 +133,7 @@ int main ( int argc, char *argv[] )
     tng_chain_residue_add(traj, chain, "WAT", &residue);
     if(tng_residue_atom_add(traj, residue, "O", "O", &atom) == TNG_CRITICAL)
     {
-        tng_trajectory_destroy(&traj);
+        tng_util_trajectory_close(&traj);
         printf("  Cannot create molecules.\n");
         exit(1);
     }
@@ -169,7 +161,7 @@ int main ( int argc, char *argv[] )
                        tng_file_headers_write(traj, TNG_USE_HASH) == TNG_CRITICAL)
     {
         free(box_shape);
-        tng_trajectory_destroy(&traj);
+        tng_util_trajectory_close(&traj);
         printf("  Cannot write trajectory headers and box shape.\n");
         exit(1);
     }
@@ -192,12 +184,11 @@ int main ( int argc, char *argv[] )
     e0 = potential + kinetic;
 
     /* Saving frequency */
-    step_save = 500;
+    step_save = 100;
 
     step_print = 0;
     step_print_index = 0;
     step_print_num = 10;
-    sparse_save = 100;
 
 /*
     This is the main time stepping loop:
@@ -223,72 +214,9 @@ int main ( int argc, char *argv[] )
     step_print_index++;
     step_print = ( step_print_index * step_num ) / step_print_num;
 
-    /* Create a frame set for writing data */
-    tng_num_frames_per_frame_set_get(traj, &n_frames_per_frame_set);
-    if(tng_frame_set_new(traj, 0,
-        n_frames_per_frame_set) != TNG_SUCCESS)
-    {
-        printf("Error creating frame set %d. %s: %d\n",
-                i, __FILE__, __LINE__);
-        exit(1);
-    }
-
-    /* Add empty data blocks */
-    if(tng_particle_data_block_add(traj, TNG_TRAJ_POSITIONS,
-                                "POSITIONS",
-                                TNG_DOUBLE_DATA,
-                                TNG_TRAJECTORY_BLOCK,
-                                n_frames_per_frame_set, 3,
-                                1, 0, np,
-                                TNG_TNG_COMPRESSION,
-                                0) != TNG_SUCCESS)
+    if(tng_util_pos_write(traj, 0, pos) != TNG_SUCCESS)
     {
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-        exit(1);
-    }
-    if(tng_particle_data_block_add(traj, TNG_TRAJ_VELOCITIES,
-                                "VELOCITIES",
-                                TNG_DOUBLE_DATA,
-                                TNG_TRAJECTORY_BLOCK,
-                                n_frames_per_frame_set, 3,
-                                1, 0, np,
-                                TNG_TNG_COMPRESSION,
-                                0) != TNG_SUCCESS)
-    {
-        printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-        exit(1);
-    }
-    if(tng_particle_data_block_add(traj, TNG_TRAJ_FORCES,
-                                "FORCES",
-                                TNG_DOUBLE_DATA,
-                                TNG_TRAJECTORY_BLOCK,
-                                n_frames_per_frame_set, 3,
-                                1, 0, np,
-                                TNG_UNCOMPRESSED, 0) != TNG_SUCCESS)
-    {
-        printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-        exit(1);
-    }
-
-    /* There is no standard ID for potential energy. Pick one. The
-       potential energy will not be saved every frame - it is sparsely
-       saved. */
-    if(tng_data_block_add(traj, 10101,
-                          "POTENTIAL ENERGY",
-                          TNG_DOUBLE_DATA,
-                          TNG_TRAJECTORY_BLOCK,
-                          n_frames_per_frame_set, 1,
-                          sparse_save, TNG_UNCOMPRESSED,
-                          0) != TNG_SUCCESS)
-    {
-        printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-        exit(1);
-    }
-
-    /* Write the frame set to disk */
-    if(tng_frame_set_write(traj, TNG_USE_HASH) != TNG_SUCCESS)
-    {
-        printf("Error writing frame set. %s: %d\n", __FILE__, __LINE__);
         exit(1);
     }
 
@@ -307,37 +235,11 @@ int main ( int argc, char *argv[] )
         }
         if(step % step_save == 0)
         {
-            if(tng_frame_particle_data_write(traj, frames_saved_cnt,
-                                            TNG_TRAJ_POSITIONS, 0, np,
-                                            pos, TNG_USE_HASH) != TNG_SUCCESS)
+            if(tng_util_pos_write(traj, step, pos) != TNG_SUCCESS)
             {
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
                 exit(1);
             }
-            if(tng_frame_particle_data_write(traj, frames_saved_cnt,
-                                            TNG_TRAJ_VELOCITIES, 0, np,
-                                            vel, TNG_USE_HASH) != TNG_SUCCESS)
-            {
-                printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-                exit(1);
-            }
-            if(tng_frame_particle_data_write(traj, frames_saved_cnt,
-                                            TNG_TRAJ_FORCES, 0, np,
-                                            force, TNG_USE_HASH) != TNG_SUCCESS)
-            {
-                printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-                exit(1);
-            }
-            if(step % (step_save * sparse_save) == 0)
-            {
-                if(tng_frame_data_write(traj, frames_saved_cnt, 10101, &potential,
-                                     TNG_USE_HASH) != TNG_SUCCESS)
-                {
-                    printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-                    exit(1);
-                }
-            }
-            frames_saved_cnt++;
         }
         update ( np, nd, pos, vel, force, acc, mass, dt );
     }
@@ -355,7 +257,7 @@ int main ( int argc, char *argv[] )
 /*
     Terminate.
 */
-    tng_trajectory_destroy(&traj);
+    tng_util_trajectory_close(&traj);
 
     printf ( "\n" );
     printf ( "MD_OPENMP\n" );
@@ -368,8 +270,8 @@ int main ( int argc, char *argv[] )
 }
 /******************************************************************************/
 
-void compute ( int np, int nd, double pos[], double vel[],
-    double mass, double f[], double *pot, double *kin )
+void compute ( int np, int nd, float pos[], float vel[],
+    float mass, float f[], float *pot, float *kin )
 
 /******************************************************************************/
 /*
@@ -410,28 +312,28 @@ void compute ( int np, int nd, double pos[], double vel[],
 
         Input, int ND, the number of spatial dimensions.
 
-        Input, double POS[ND*NP], the position of each particle.
+        Input, float POS[ND*NP], the position of each particle.
 
-        Input, double VEL[ND*NP], the velocity of each particle.
+        Input, float VEL[ND*NP], the velocity of each particle.
 
-        Input, double MASS, the mass of each particle.
+        Input, float MASS, the mass of each particle.
 
-        Output, double F[ND*NP], the forces.
+        Output, float F[ND*NP], the forces.
 
-        Output, double *POT, the total potential energy.
+        Output, float *POT, the total potential energy.
 
-        Output, double *KIN, the total kinetic energy.
+        Output, float *KIN, the total kinetic energy.
 */
 {
-    double d;
-    double d2;
+    float d;
+    float d2;
     int i;
     int j;
     int k;
-    double ke;
-    double pe;
-    double PI2 = 3.141592653589793 / 2.0;
-    double rij[3];
+    float ke;
+    float pe;
+    float PI2 = 3.141592653589793 / 2.0;
+    float rij[3];
 
     pe = 0.0;
     ke = 0.0;
@@ -495,7 +397,7 @@ void compute ( int np, int nd, double pos[], double vel[],
 }
 /******************************************************************************/
 
-double dist ( int nd, double r1[], double r2[], double dr[] )
+float dist ( int nd, float r1[], float r2[], float dr[] )
 
 /******************************************************************************/
 /*
@@ -520,14 +422,14 @@ double dist ( int nd, double r1[], double r2[], double dr[] )
 
         Input, int ND, the number of spatial dimensions.
 
-        Input, double R1[ND], R2[ND], the positions of the particles.
+        Input, float R1[ND], R2[ND], the positions of the particles.
 
-        Output, double DR[ND], the displacement vector.
+        Output, float DR[ND], the displacement vector.
 
-        Output, double D, the Euclidean norm of the displacement.
+        Output, float D, the Euclidean norm of the displacement.
 */
 {
-    double d;
+    float d;
     int i;
 
     d = 0.0;
@@ -542,8 +444,8 @@ double dist ( int nd, double r1[], double r2[], double dr[] )
 }
 /******************************************************************************/
 
-void initialize ( int np, int nd, double box[], int *seed, double pos[],
-    double vel[], double acc[] )
+void initialize ( int np, int nd, float box[], int *seed, float pos[],
+    float vel[], float acc[] )
 
 /******************************************************************************/
 /*
@@ -570,16 +472,16 @@ void initialize ( int np, int nd, double box[], int *seed, double pos[],
 
         Input, int ND, the number of spatial dimensions.
 
-        Input, double BOX[ND], specifies the maximum position
+        Input, float BOX[ND], specifies the maximum position
         of particles in each dimension.
 
         Input, int *SEED, a seed for the random number generator.
 
-        Output, double POS[ND*NP], the position of each particle.
+        Output, float POS[ND*NP], the position of each particle.
 
-        Output, double VEL[ND*NP], the velocity of each particle.
+        Output, float VEL[ND*NP], the velocity of each particle.
 
-        Output, double ACC[ND*NP], the acceleration of each particle.
+        Output, float ACC[ND*NP], the acceleration of each particle.
 */
 {
     int i;
@@ -613,7 +515,7 @@ void initialize ( int np, int nd, double box[], int *seed, double pos[],
 }
 /******************************************************************************/
 
-double r8_uniform_01 ( int *seed )
+float r8_uniform_01 ( int *seed )
 
 /******************************************************************************/
 /*
@@ -660,12 +562,12 @@ double r8_uniform_01 ( int *seed )
 
         Input/output, int *SEED, a seed for the random number generator.
 
-        Output, double R8_UNIFORM_01, a new pseudorandom variate, strictly between
+        Output, float R8_UNIFORM_01, a new pseudorandom variate, strictly between
         0 and 1.
 */
 {
     int k;
-    double r;
+    float r;
 
     k = *seed / 127773;
 
@@ -676,7 +578,7 @@ double r8_uniform_01 ( int *seed )
         *seed = *seed + 2147483647;
     }
 
-    r = ( double ) ( *seed ) * 4.656612875E-10;
+    r = ( float ) ( *seed ) * 4.656612875E-10;
 
     return r;
 }
@@ -729,8 +631,8 @@ void timestamp ( void )
 }
 /******************************************************************************/
 
-void update ( int np, int nd, double pos[], double vel[], double f[],
-    double acc[], double mass, double dt )
+void update ( int np, int nd, float pos[], float vel[], float f[],
+    float acc[], float mass, float dt )
 
 /******************************************************************************/
 /*
@@ -767,22 +669,22 @@ void update ( int np, int nd, double pos[], double vel[], double f[],
 
         Input, int ND, the number of spatial dimensions.
 
-        Input/output, double POS[ND*NP], the position of each particle.
+        Input/output, float POS[ND*NP], the position of each particle.
 
-        Input/output, double VEL[ND*NP], the velocity of each particle.
+        Input/output, float VEL[ND*NP], the velocity of each particle.
 
-        Input, double F[ND*NP], the force on each particle.
+        Input, float F[ND*NP], the force on each particle.
 
-        Input/output, double ACC[ND*NP], the acceleration of each particle.
+        Input/output, float ACC[ND*NP], the acceleration of each particle.
 
-        Input, double MASS, the mass of each particle.
+        Input, float MASS, the mass of each particle.
 
-        Input, double DT, the time step.
+        Input, float DT, the time step.
 */
 {
     int i;
     int j;
-    double rmass;
+    float rmass;
 
     rmass = 1.0 / mass;
 
