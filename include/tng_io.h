@@ -1981,16 +1981,36 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
                  float **box_shape,
                  int64_t *stride_length);
 
-tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequence_set
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
+                (tng_trajectory_t tng_data,
+                 const int64_t f,
+                 const int64_t block_id,
+                 const char *block_name,
+                 const tng_compression compression);
+
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequency_set
                 (tng_trajectory_t tng_data,
                  const int64_t f);
 
-tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_frequence_set
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_frequency_set
                 (tng_trajectory_t tng_data,
                  const int64_t f);
 
-tng_function_status DECLSPECDLLEXPORT tng_util_force_write_frequence_set
-                (tng_trajectory_t tng_data, const int64_t f);
+tng_function_status DECLSPECDLLEXPORT tng_util_force_write_frequency_set
+                (tng_trajectory_t tng_data,
+                 const int64_t f);
+
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_frequency_set
+                (tng_trajectory_t tng_data,
+                 const int64_t f);
+
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const float *values,
+                 const int64_t block_id,
+                 const char *block_name,
+                 const tng_compression compression);
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_write
                 (tng_trajectory_t tng_data,

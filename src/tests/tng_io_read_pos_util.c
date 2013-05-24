@@ -22,8 +22,9 @@
 int main(int argc, char **argv)
 {
     tng_trajectory_t traj;
-    float *positions = 0; // A 1-dimensional array
-                                      // to be populated
+    /* Assume that the data is stored as floats. The data is placed in 1-D
+     * arrays */
+    float *positions = 0, *velocities = 0, *forces = 0;
     int64_t n_particles, n_frames, tot_n_frames, stride_length, i, j;
     // Set a default frame range
     int64_t first_frame = 0, last_frame = 5000;
@@ -41,7 +42,7 @@ int main(int argc, char **argv)
 
     // A reference must be passed to allocate memory
     tng_util_trajectory_open(argv[1], 'r', &traj);
-    
+
     if(argc >= 3)
     {
         first_frame = strtoll(argv[2], 0, 10);
@@ -64,7 +65,7 @@ int main(int argc, char **argv)
         tng_util_trajectory_close(&traj);
         exit(1);
     }
-    
+
     printf("%"PRId64" frames in file\n", tot_n_frames);
 
     if(last_frame > tot_n_frames - 1)

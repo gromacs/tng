@@ -155,17 +155,17 @@ int main ( int argc, char *argv[] )
 
 
     /* Add the box shape data block and write the file headers */
-    if(tng_data_block_add(traj, TNG_TRAJ_BOX_SHAPE, "BOX SHAPE", TNG_DOUBLE_DATA,
-                       TNG_NON_TRAJECTORY_BLOCK, 1, 9, 1, TNG_UNCOMPRESSED,
-                       box_shape) == TNG_CRITICAL ||
-                       tng_file_headers_write(traj, TNG_USE_HASH) == TNG_CRITICAL)
-    {
-        free(box_shape);
-        tng_util_trajectory_close(&traj);
-        printf("  Cannot write trajectory headers and box shape.\n");
-        exit(1);
-    }
-    free(box_shape);
+//     if(tng_data_block_add(traj, TNG_TRAJ_BOX_SHAPE, "BOX SHAPE", TNG_DOUBLE_DATA,
+//                        TNG_NON_TRAJECTORY_BLOCK, 1, 9, 1, TNG_UNCOMPRESSED,
+//                        box_shape) == TNG_CRITICAL ||
+//                        tng_file_headers_write(traj, TNG_USE_HASH) == TNG_CRITICAL)
+//     {
+//         free(box_shape);
+//         tng_util_trajectory_close(&traj);
+//         printf("  Cannot write trajectory headers and box shape.\n");
+//         exit(1);
+//     }
+//     free(box_shape);
 
     printf ( "\n" );
     printf ( "  Initializing positions, velocities, and accelerations.\n" );
@@ -184,11 +184,11 @@ int main ( int argc, char *argv[] )
     e0 = potential + kinetic;
 
     /* Saving frequency */
-    step_save = 100;
+    step_save = 400;
 
     step_print = 0;
     step_print_index = 0;
-    step_print_num = 10;
+    step_print_num = 100;
 
 /*
     This is the main time stepping loop:
@@ -214,7 +214,36 @@ int main ( int argc, char *argv[] )
     step_print_index++;
     step_print = ( step_print_index * step_num ) / step_print_num;
 
+    if(tng_util_pos_write_frequency_set(traj, step_save) != TNG_SUCCESS)
+    {
+        printf("Error setting writing frequency data. %s: %d\n",
+               __FILE__, __LINE__);
+        exit(1);
+    }
+    if(tng_util_vel_write_frequency_set(traj, step_save) != TNG_SUCCESS)
+    {
+        printf("Error setting writing frequency data. %s: %d\n",
+               __FILE__, __LINE__);
+        exit(1);
+    }
+    if(tng_util_force_write_frequency_set(traj, step_save) != TNG_SUCCESS)
+    {
+        printf("Error setting writing frequency data. %s: %d\n",
+               __FILE__, __LINE__);
+        exit(1);
+    }
+
     if(tng_util_pos_write(traj, 0, pos) != TNG_SUCCESS)
+    {
+        printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+        exit(1);
+    }
+    if(tng_util_vel_write(traj, 0, vel) != TNG_SUCCESS)
+    {
+        printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+        exit(1);
+    }
+    if(tng_util_force_write(traj, 0, force) != TNG_SUCCESS)
     {
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
         exit(1);
@@ -222,7 +251,7 @@ int main ( int argc, char *argv[] )
 
     wtime = omp_get_wtime ( );
 
-    for ( step = 1; step <= step_num; step++ )
+    for ( step = 1; step < step_num; step++ )
     {
         compute ( np, nd, pos, vel, mass, force, &potential, &kinetic );
 
@@ -236,6 +265,16 @@ int main ( int argc, char *argv[] )
         if(step % step_save == 0)
         {
             if(tng_util_pos_write(traj, step, pos) != TNG_SUCCESS)
+            {
+                printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+                exit(1);
+            }
+            if(tng_util_vel_write(traj, step, vel) != TNG_SUCCESS)
+            {
+                printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+                exit(1);
+            }
+            if(tng_util_force_write(traj, step, force) != TNG_SUCCESS)
             {
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
                 exit(1);

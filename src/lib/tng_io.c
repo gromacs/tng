@@ -3825,7 +3825,7 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
                 uncompressed_len, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
-        
+
         result = tng_compress_uncompress_float(start_pos, f_dest);
     }
     else
@@ -4813,8 +4813,40 @@ static tng_function_status tng_particle_data_block_write
     }
     else if(data->values)
     {
+
+        if(block->id == TNG_TRAJ_VELOCITIES)
+        {
+            for(i=0; i<n_frames / stride_length; i++)
+            {
+                printf("%d\n", i);
+                for(j=0; j<n_particles; j++)
+                {
+                    printf("%d: %f %f %f    %"PRId64"\n", j, *(float *)(data->values + sizeof(float) * (i * n_particles * 3 + j * 3)),
+                        *(float *)(data->values + sizeof(float) * (i * n_particles * 3 + j * 3 +1)),
+                        *(float *)(data->values + sizeof(float) * (i * n_particles * 3 + j * 3 +2)),
+                        sizeof(float) * (i * n_particles * 3 + j * 3));
+                }
+            }
+        }
+
         memcpy(block->block_contents + offset, data->values,
                block->block_contents_size - offset);
+
+        if(block->id == TNG_TRAJ_VELOCITIES)
+        {
+            for(i=0; i<n_frames / stride_length; i++)
+            {
+                printf("%d\n", i);
+                for(j=0; j<n_particles; j++)
+                {
+                    printf("%d: %f %f %f    %"PRId64"\n", j, *(float *)(block->block_contents + offset + sizeof(float) * (i * n_particles * 3 + j * 3)),
+                        *(float *)(block->block_contents + offset + sizeof(float) * (i * n_particles * 3 + j * 3 +1)),
+                        *(float *)(block->block_contents + offset + sizeof(float) * (i * n_particles * 3 + j * 3 +2)),
+                        sizeof(float) * (i * n_particles * 3 + j * 3));
+                }
+            }
+        }
+
         switch(data->datatype)
         {
         case TNG_FLOAT_DATA:
@@ -10085,6 +10117,13 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
+    curr_pos = ftell(tng_data->output_file);
+
+    if(curr_pos <= 10)
+    {
+        tng_file_headers_write(tng_data, TNG_USE_HASH);
+    }
+
     /* Set pointer to previous frame set to the one that was loaded
      * before.
      * FIXME: This is a bit risky. If they are not added in order
@@ -10330,7 +10369,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
     data->n_frames = n_frames;
     data->codec_id = codec_id;
     data->compression_multiplier = 1.0;
-    
+
     switch(datatype)
     {
     case TNG_FLOAT_DATA:
@@ -10463,7 +10502,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
         /* FIXME: Memory leak from strings. */
         data->strings = 0;
     }
-    
+
     data->stride_length = tng_max(stride_length, 1);
     data->n_values_per_frame = n_values_per_frame;
     data->n_frames = n_frames;
@@ -12883,7 +12922,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
         last_frame_pos = tng_min(frame_set->first_frame + n_frames -
                                  *stride_length,
                                  end_frame_nr - frame_set->first_frame);
-        
+
         memcpy(*values + (current_frame_pos - start_frame_nr) *frame_size /
                *stride_length,
                current_values,
@@ -12960,7 +12999,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
         frame_set->n_frames = frame_set->n_unwritten_frames;
         tng_frame_set_write(*tng_data_p, TNG_USE_HASH);
     }
-    
+
     return(tng_trajectory_destroy(tng_data_p));
 }
 
@@ -13233,15 +13272,17 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
     return(stat);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_util_pos_write
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
                 (tng_trajectory_t tng_data,
-                 const int64_t frame_nr,
-                 const float *positions)
+                 const int64_t f,
+                 const int64_t block_id,
+                 const char *block_name,
+                 const tng_compression compression)
 {
     tng_trajectory_frame_set_t frame_set = &tng_data->
                                            current_trajectory_frame_set;
     tng_particle_data_t data;
-    int64_t n_particles, n_frames = 10000, stride_length = 100, frame_pos;
+    int64_t n_particles, n_frames = 10000;
     tng_function_status stat;
 
     if(!frame_set || tng_data->n_trajectory_frame_sets <= 0)
@@ -13254,7 +13295,109 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write
             return(stat);
         }
     }
-    if(frame_nr >= frame_set->first_frame + n_frames)
+    else
+    {
+        n_frames = frame_set->n_frames;
+    }
+
+    tng_num_particles_get(tng_data, &n_particles);
+
+    if(tng_particle_data_find(tng_data, block_id, &data)
+       != TNG_SUCCESS)
+    {
+        stat = tng_particle_data_block_add(tng_data, block_id,
+                                           block_name,
+                                           TNG_FLOAT_DATA,
+                                           TNG_TRAJECTORY_BLOCK,
+                                           n_frames, 3, f,
+                                           0, n_particles,
+                                           compression, 0);
+        if(stat != TNG_SUCCESS)
+        {
+            printf("Error adding positions data block. %s: %d\n", __FILE__,
+                   __LINE__);
+            return(stat);
+        }
+        data = &frame_set->tr_particle_data[frame_set->
+                                            n_particle_data_blocks - 1];
+        stat = tng_allocate_particle_data_mem(tng_data, data, n_frames,
+                                              f, n_particles,
+                                              3);
+    }
+    else
+    {
+        data->stride_length = f;
+    }
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequency_set
+                (tng_trajectory_t tng_data,
+                 const int64_t f)
+{
+    return(tng_util_generic_write_frequency_set(tng_data, f,
+                                                TNG_TRAJ_POSITIONS,
+                                                "POSITIONS",
+                                                TNG_TNG_COMPRESSION));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_frequency_set
+                (tng_trajectory_t tng_data,
+                 const int64_t f)
+{
+    return(tng_util_generic_write_frequency_set(tng_data, f,
+                                                TNG_TRAJ_VELOCITIES,
+                                                "VELOCITIES",
+                                                TNG_TNG_COMPRESSION));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_force_write_frequency_set
+                (tng_trajectory_t tng_data,
+                 const int64_t f)
+{
+    return(tng_util_generic_write_frequency_set(tng_data, f,
+                                                TNG_TRAJ_FORCES,
+                                                "FORCES",
+                                                TNG_GZIP_COMPRESSION));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_frequency_set
+                (tng_trajectory_t tng_data,
+                 const int64_t f)
+{
+    return(tng_util_generic_write_frequency_set(tng_data, f,
+                                                TNG_TRAJ_BOX_SHAPE,
+                                                "BOX SHAPE",
+                                                TNG_GZIP_COMPRESSION));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const float *values,
+                 const int64_t block_id,
+                 const char *block_name,
+                 const tng_compression compression)
+{
+    tng_trajectory_frame_set_t frame_set = &tng_data->
+                                           current_trajectory_frame_set;
+    tng_particle_data_t data;
+    int64_t n_particles, n_frames = 10000, stride_length = 400, frame_pos;
+    tng_function_status stat;
+
+    if(!frame_set || tng_data->n_trajectory_frame_sets <= 0)
+    {
+        stat = tng_frame_set_new(tng_data, 0, n_frames);
+        if(stat != TNG_SUCCESS)
+        {
+            printf("Cannot create frame set.  %s: %d\n", __FILE__,
+                   __LINE__);
+            return(stat);
+        }
+        frame_set->n_unwritten_frames = frame_nr - frame_set->first_frame + 1;
+    }
+    else if(frame_nr >= frame_set->first_frame + n_frames)
     {
         stat = tng_frame_set_write(tng_data, TNG_USE_HASH);
         if(stat != TNG_SUCCESS)
@@ -13264,29 +13407,35 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write
             return(stat);
         }
         stat = tng_frame_set_new(tng_data, frame_set->first_frame +
-                                 n_frames, n_frames);
+                                 frame_set->n_frames, n_frames);
         if(stat != TNG_SUCCESS)
         {
             printf("Cannot create frame set.  %s: %d\n", __FILE__,
                    __LINE__);
             return(stat);
         }
+        frame_set->n_unwritten_frames = frame_nr - frame_set->first_frame + 1;
+    }
+    else
+    {
+        frame_set->n_unwritten_frames += stride_length;
+        n_frames = frame_set->n_frames;
     }
 
     frame_pos = (frame_nr - frame_set->first_frame) / stride_length;
 
     tng_num_particles_get(tng_data, &n_particles);
 
-    if(tng_particle_data_find(tng_data, TNG_TRAJ_POSITIONS, &data)
+    if(tng_particle_data_find(tng_data, block_id, &data)
        != TNG_SUCCESS)
     {
-        stat = tng_particle_data_block_add(tng_data, TNG_TRAJ_POSITIONS,
-                                           "POSITIONS",
+        stat = tng_particle_data_block_add(tng_data, block_id,
+                                           block_name,
                                            TNG_FLOAT_DATA,
                                            TNG_TRAJECTORY_BLOCK,
                                            n_frames, 3, stride_length,
                                            0, n_particles,
-                                           TNG_TNG_COMPRESSION, 0);
+                                           compression, 0);
         if(stat != TNG_SUCCESS)
         {
             printf("Error adding positions data block. %s: %d\n", __FILE__,
@@ -13299,12 +13448,23 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write
                                               stride_length, n_particles,
                                               3);
     }
+    printf("frame nr: %"PRId64" first frame: %"PRId64" stride_length: %"PRId64" frame pos: %"PRId64"\n",
+           frame_nr, frame_set->first_frame, stride_length, frame_pos);
+    printf("pos: %"PRId64" length: %"PRId64"\n", sizeof(float) * frame_pos * n_particles * 3, sizeof(float) * n_particles * 3);
     memcpy(data->values + sizeof(float) * frame_pos * n_particles * 3,
-           positions, sizeof(float) * n_particles * 3);
-
-    frame_set->n_unwritten_frames += stride_length;
+           values, sizeof(float) * n_particles * 3);
 
     return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const float *positions)
+{
+    return(tng_util_generic_write(tng_data, frame_nr, positions,
+                                  TNG_TRAJ_POSITIONS, "POSITIONS",
+                                  TNG_TNG_COMPRESSION));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_write
@@ -13312,6 +13472,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write
                  const int64_t frame_nr,
                  const float *velocities)
 {
+    return(tng_util_generic_write(tng_data, frame_nr, velocities,
+                                  TNG_TRAJ_VELOCITIES, "VELOCITIES",
+                                  TNG_TNG_COMPRESSION));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_write
@@ -13319,6 +13482,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write
              const int64_t frame_nr,
              const float *forces)
 {
+    return(tng_util_generic_write(tng_data, frame_nr, forces,
+                                  TNG_TRAJ_FORCES, "FORCES",
+                                  TNG_GZIP_COMPRESSION));
 }
 
 

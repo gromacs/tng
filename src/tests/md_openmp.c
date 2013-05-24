@@ -240,7 +240,7 @@ int main ( int argc, char *argv[] )
                                 TNG_TRAJECTORY_BLOCK,
                                 n_frames_per_frame_set, 3,
                                 1, 0, np,
-                                TNG_TNG_COMPRESSION,
+                                TNG_UNCOMPRESSED,
                                 0) != TNG_SUCCESS)
     {
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
@@ -252,7 +252,7 @@ int main ( int argc, char *argv[] )
                                 TNG_TRAJECTORY_BLOCK,
                                 n_frames_per_frame_set, 3,
                                 1, 0, np,
-                                TNG_TNG_COMPRESSION,
+                                TNG_UNCOMPRESSED,
                                 0) != TNG_SUCCESS)
     {
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
@@ -294,7 +294,39 @@ int main ( int argc, char *argv[] )
 
     wtime = omp_get_wtime ( );
 
-    for ( step = 1; step <= step_num; step++ )
+    if(tng_frame_particle_data_write(traj, frames_saved_cnt,
+                                    TNG_TRAJ_POSITIONS, 0, np,
+                                    pos, TNG_USE_HASH) != TNG_SUCCESS)
+    {
+        printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+        exit(1);
+    }
+    if(tng_frame_particle_data_write(traj, frames_saved_cnt,
+                                    TNG_TRAJ_VELOCITIES, 0, np,
+                                    vel, TNG_USE_HASH) != TNG_SUCCESS)
+    {
+        printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+        exit(1);
+    }
+    if(tng_frame_particle_data_write(traj, frames_saved_cnt,
+                                    TNG_TRAJ_FORCES, 0, np,
+                                    force, TNG_USE_HASH) != TNG_SUCCESS)
+    {
+        printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+        exit(1);
+    }
+    if(step % (step_save * sparse_save) == 0)
+    {
+        if(tng_frame_data_write(traj, frames_saved_cnt, 10101, &potential,
+                                TNG_USE_HASH) != TNG_SUCCESS)
+        {
+            printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+            exit(1);
+        }
+    }
+    frames_saved_cnt++;
+
+    for ( step = 1; step < step_num; step++ )
     {
         compute ( np, nd, pos, vel, mass, force, &potential, &kinetic );
 
