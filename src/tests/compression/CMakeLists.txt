@@ -9,7 +9,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include/compression)
 include_directories(${CMAKE_BINARY_DIR}/generated/)
 
 set(number 0)
-set(numtests 64)
+set(numtests 78)
 
 while( number LESS ${numtests})
 

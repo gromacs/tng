@@ -28,7 +28,49 @@
 
 #define PRECISION(hi,lo) (Ptngc_i32x2_to_d(hi,lo))
 
-static void quantize(double *x, int natoms, int nframes,
+#define MAX_FVAL 2147483647.
+
+static int verify_input_data(double *x, int natoms, int nframes, double precision)
+{
+  int iframe, i, j;
+  for (iframe=0; iframe<nframes; iframe++)
+    for (i=0; i<natoms; i++)
+      for (j=0; j<3; j++)
+	if (fabs(x[iframe*natoms*3+i*3+j]/precision+0.5)>=MAX_FVAL)
+	  goto error;
+  return 0;
+ error:
+#if 1
+  for (iframe=0; iframe<nframes; iframe++)
+    for (i=0; i<natoms; i++)
+      for (j=0; j<3; j++)
+	if (fabs(x[iframe*natoms*3+i*3+j]/precision+0.5)>=MAX_FVAL)
+	  printf("ERROR. Too large value: %d %d %d: %g %g %g\n",iframe,i,j,x[iframe*natoms*3+i*3+j],precision,x[iframe*natoms*3+i*3+j]/precision/MAX_FVAL);
+#endif
+  return 1;
+}
+
+static int verify_input_data_float(float *x, int natoms, int nframes, float precision)
+{
+  int iframe, i, j;
+  for (iframe=0; iframe<nframes; iframe++)
+    for (i=0; i<natoms; i++)
+      for (j=0; j<3; j++)
+	if (fabs(x[iframe*natoms*3+i*3+j]/precision+0.5)>=MAX_FVAL)
+	  goto error;
+  return 0;
+ error:
+#if 1
+  for (iframe=0; iframe<nframes; iframe++)
+    for (i=0; i<natoms; i++)
+      for (j=0; j<3; j++)
+	if (fabs(x[iframe*natoms*3+i*3+j]/precision+0.5)>=MAX_FVAL)
+	  printf("ERROR. Too large value: %d %d %d: %g %g %g\n",iframe,i,j,x[iframe*natoms*3+i*3+j],precision,x[iframe*natoms*3+i*3+j]/precision/MAX_FVAL);
+#endif
+  return 1;
+}
+
+static int quantize(double *x, int natoms, int nframes,
 		     double precision,
 		     int *quant)
 {
@@ -37,9 +79,10 @@ static void quantize(double *x, int natoms, int nframes,
     for (i=0; i<natoms; i++)
       for (j=0; j<3; j++)
 	quant[iframe*natoms*3+i*3+j]=(int)floor((x[iframe*natoms*3+i*3+j]/precision)+0.5);
+  return verify_input_data(x,natoms,nframes,precision);
 }
 
-static void quantize_float(float *x, int natoms, int nframes,
+static int quantize_float(float *x, int natoms, int nframes,
 			   float precision,
 			   int *quant)
 {
@@ -48,6 +91,7 @@ static void quantize_float(float *x, int natoms, int nframes,
     for (i=0; i<natoms; i++)
       for (j=0; j<3; j++)
 	quant[iframe*natoms*3+i*3+j]=(int)floor((x[iframe*natoms*3+i*3+j]/precision)+0.5);
+  return verify_input_data_float(x,natoms,nframes,precision);
 }
 
 static void quant_inter_differences(int *quant, int natoms, int nframes,
@@ -1183,8 +1227,10 @@ char DECLSPECDLLEXPORT *tng_compress_pos(double *pos, int natoms, int nframes,
   fix_t prec_hi, prec_lo;
   Ptngc_d_to_i32x2(desired_precision,&prec_hi,&prec_lo);
 
-  quantize(pos,natoms,nframes,PRECISION(prec_hi,prec_lo),quant);
-  data=tng_compress_pos_int(quant,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
+  if (quantize(pos,natoms,nframes,PRECISION(prec_hi,prec_lo),quant))
+    data=NULL; /* Error occured. Too large input values. */
+  else
+    data=tng_compress_pos_int(quant,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
   free(quant);
   return data;
 }
@@ -1199,8 +1245,10 @@ char DECLSPECDLLEXPORT *tng_compress_pos_float(float *pos, int natoms, int nfram
   fix_t prec_hi, prec_lo;
   Ptngc_d_to_i32x2((double)desired_precision,&prec_hi,&prec_lo);
 
-  quantize_float(pos,natoms,nframes,(float)PRECISION(prec_hi,prec_lo),quant);
-  data=tng_compress_pos_int(quant,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
+  if (quantize_float(pos,natoms,nframes,(float)PRECISION(prec_hi,prec_lo),quant))
+    data=NULL; /* Error occured. Too large input values. */
+  else
+    data=tng_compress_pos_int(quant,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
   free(quant);
   return data;
 }
@@ -1341,8 +1389,10 @@ char DECLSPECDLLEXPORT *tng_compress_vel(double *vel, int natoms, int nframes,
   char *data;
   fix_t prec_hi, prec_lo;
   Ptngc_d_to_i32x2(desired_precision,&prec_hi,&prec_lo);
-  quantize(vel,natoms,nframes,PRECISION(prec_hi,prec_lo),quant);
-  data=tng_compress_vel_int(quant,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
+  if (quantize(vel,natoms,nframes,PRECISION(prec_hi,prec_lo),quant))
+    data=NULL; /* Error occured. Too large input values. */
+  else
+    data=tng_compress_vel_int(quant,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
   free(quant);
   return data;
 }
@@ -1356,8 +1406,10 @@ char DECLSPECDLLEXPORT *tng_compress_vel_float(float *vel, int natoms, int nfram
   char *data;
   fix_t prec_hi, prec_lo;
   Ptngc_d_to_i32x2((double)desired_precision,&prec_hi,&prec_lo);
-  quantize_float(vel,natoms,nframes,(float)PRECISION(prec_hi,prec_lo),quant);
-  data=tng_compress_vel_int(quant,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
+  if (quantize_float(vel,natoms,nframes,(float)PRECISION(prec_hi,prec_lo),quant))
+    data=NULL; /* Error occured. Too large input values. */
+  else
+    data=tng_compress_vel_int(quant,natoms,nframes,prec_hi,prec_lo,speed,algo,nitems);
   free(quant);
   return data;
 }

@@ -48,6 +48,8 @@
    The compressed data is returned in a malloced pointer (so free can
    be called to free the memory), the number of chars in the compressed
    data is put into *nitems.
+
+   If too large values are input (compared to the precision), NULL is returned.
 */
    
 char DECLSPECDLLEXPORT *tng_compress_pos(double *pos, int natoms, int nframes,

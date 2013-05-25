@@ -1,4 +1,4 @@
-#define TESTNAME "Initial coding. BWLZH one-to-one algorithm. Cubic cell."
+#define TESTNAME "Initial coding. BWLZH intra algorithm. Cubic cell."
 #define FILENAME "test4.tng_compress"
 #define ALGOTEST
 #define NATOMS 1000
