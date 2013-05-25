@@ -3734,6 +3734,19 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
 
             if(type == TNG_FLOAT_DATA)
             {
+#if 1
+	      {
+		int iframe,i,j;
+		for (iframe=0; iframe<n_frames; iframe++)
+		  for (i=0; i<n_particles; i++)
+		    {
+		      printf("vel tng_io: %d %d: ",iframe,i);
+		      for (j=0; j<3; j++)
+			printf(" %g",((float*)start_pos)[iframe*n_particles*3+i*3+j]);
+		      printf("\n");
+		    }
+	      }
+#endif
                 dest = tng_compress_vel_float_find_algo(start_pos, n_particles,
                                                         n_frames,
                                                         0.01, 0,

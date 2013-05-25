@@ -269,6 +269,21 @@ int main ( int argc, char *argv[] )
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
                 exit(1);
             }
+#if 1
+	    {
+	      int j,i;
+    for ( j = 0; j < np; j++ )
+    {
+      printf("vel in md for %d %d:",step,j);
+        for ( i = 0; i < nd; i++ )
+        {
+	  printf (" %g",vel[i+j*nd]);
+	}
+	printf("\n");
+    }
+	    }
+#endif
+
             if(tng_util_vel_write(traj, step, vel) != TNG_SUCCESS)
             {
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
@@ -741,6 +756,7 @@ void update ( int np, int nd, float pos[], float vel[], float f[],
             acc[i+j*nd] = f[i+j*nd] * rmass;
         }
     }
+
 
     return;
 }

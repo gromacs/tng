@@ -63,6 +63,16 @@ static int verify_input_data_float(float *x, int natoms, int nframes, float prec
 #if 1
   for (iframe=0; iframe<nframes; iframe++)
     for (i=0; i<natoms; i++)
+      {
+	printf("vel test: %d %d:",iframe,i);
+      for (j=0; j<3; j++)
+	printf(" %g",x[iframe*natoms*3+i*3+j]);
+      printf("\n");
+      }
+#endif
+#if 1
+  for (iframe=0; iframe<nframes; iframe++)
+    for (i=0; i<natoms; i++)
       for (j=0; j<3; j++)
 	if (fabs(x[iframe*natoms*3+i*3+j]/precision+0.5)>=MAX_FVAL)
 	  printf("ERROR. Too large value: %d %d %d: %g %g %g\n",iframe,i,j,x[iframe*natoms*3+i*3+j],precision,x[iframe*natoms*3+i*3+j]/precision/MAX_FVAL);
