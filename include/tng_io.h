@@ -1728,7 +1728,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
                  const tng_hash_mode hash_mode,
-                 union data_values ***values,
+                 void **values,
                  int64_t *stride_length,
                  int64_t *n_values_per_frame,
                  tng_data_type *type);

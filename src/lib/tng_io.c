@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 #ifdef USE_ZLIB
 #include <zlib.h>
 #endif
@@ -3681,6 +3682,20 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
         return(TNG_FAILURE);
     }
 
+// #if 1
+//     {
+//     int iframe,i,j;
+//     for (iframe=0; iframe<n_frames; iframe++)
+//         for (i=0; i<n_particles; i++)
+//         {
+//             printf("tng_io: %d %d: ",iframe,i);
+//             for (j=0; j<3; j++)
+//             printf(" %g",((float*)start_pos)[iframe*n_particles*3+i*3+j]);
+//             printf("\n");
+//         }
+//     }
+// #endif
+
     if(block->id == TNG_TRAJ_POSITIONS)
     {
         if(!tng_data->compress_algo_pos)
@@ -3734,19 +3749,6 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
 
             if(type == TNG_FLOAT_DATA)
             {
-#if 1
-	      {
-		int iframe,i,j;
-		for (iframe=0; iframe<n_frames; iframe++)
-		  for (i=0; i<n_particles; i++)
-		    {
-		      printf("vel tng_io: %d %d: ",iframe,i);
-		      for (j=0; j<3; j++)
-			printf(" %g",((float*)start_pos)[iframe*n_particles*3+i*3+j]);
-		      printf("\n");
-		    }
-	      }
-#endif
                 dest = tng_compress_vel_float_find_algo(start_pos, n_particles,
                                                         n_frames,
                                                         0.01, 0,
@@ -3785,9 +3787,17 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
         }
     }
 
-    memcpy(start_pos, dest, new_len);
+    if(dest)
+    {
+        memcpy(start_pos, dest, new_len);
 
-    free(dest);
+        free(dest);
+    }
+    else
+    {
+        printf("Error during TNG compression. %s: %d\n", __FILE__, __LINE__);
+        return(TNG_FAILURE);
+    }
 
     block->block_contents_size = new_len + (block->block_contents_size - len);
 
@@ -4031,7 +4041,7 @@ static tng_function_status tng_allocate_particle_data_mem
                  const int64_t n_values_per_frame)
 {
     void ***values;
-    int64_t i, j, k, size;
+    int64_t i, j, k, size, frame_alloc;
 
     if(data->strings && data->datatype == TNG_CHAR_DATA)
     {
@@ -4057,11 +4067,12 @@ static tng_function_status tng_allocate_particle_data_mem
     n_frames = tng_max(1, n_frames);
     data->stride_length = tng_max(1, stride_length);
     data->n_values_per_frame = n_values_per_frame;
+    frame_alloc = tng_max(1, n_frames/data->stride_length);
 
     if(data->datatype == TNG_CHAR_DATA)
     {
-        data->strings = malloc(sizeof(char ***) * n_frames);
-        for(i = n_frames; i-- ;)
+        data->strings = malloc(sizeof(char ***) * frame_alloc);
+        for(i = frame_alloc; i-- ;)
         {
             data->strings[i] = malloc(sizeof(char **) *
                                     n_particles);
@@ -4106,12 +4117,12 @@ static tng_function_status tng_allocate_particle_data_mem
         }
 
         values = realloc(data->values,
-                         size * (n_frames/data->stride_length) *
+                         size * frame_alloc *
                          n_particles * n_values_per_frame);
         if(!values)
         {
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                   size * (n_frames/data->stride_length) *
+                   size * frame_alloc *
                    n_particles * n_values_per_frame,
                    __FILE__, __LINE__);
             free(data->values);
@@ -4826,39 +4837,8 @@ static tng_function_status tng_particle_data_block_write
     }
     else if(data->values)
     {
-
-        if(block->id == TNG_TRAJ_VELOCITIES)
-        {
-            for(i=0; i<n_frames / stride_length; i++)
-            {
-                printf("%d\n", i);
-                for(j=0; j<n_particles; j++)
-                {
-                    printf("%d: %f %f %f    %"PRId64"\n", j, *(float *)(data->values + sizeof(float) * (i * n_particles * 3 + j * 3)),
-                        *(float *)(data->values + sizeof(float) * (i * n_particles * 3 + j * 3 +1)),
-                        *(float *)(data->values + sizeof(float) * (i * n_particles * 3 + j * 3 +2)),
-                        sizeof(float) * (i * n_particles * 3 + j * 3));
-                }
-            }
-        }
-
         memcpy(block->block_contents + offset, data->values,
                block->block_contents_size - offset);
-
-        if(block->id == TNG_TRAJ_VELOCITIES)
-        {
-            for(i=0; i<n_frames / stride_length; i++)
-            {
-                printf("%d\n", i);
-                for(j=0; j<n_particles; j++)
-                {
-                    printf("%d: %f %f %f    %"PRId64"\n", j, *(float *)(block->block_contents + offset + sizeof(float) * (i * n_particles * 3 + j * 3)),
-                        *(float *)(block->block_contents + offset + sizeof(float) * (i * n_particles * 3 + j * 3 +1)),
-                        *(float *)(block->block_contents + offset + sizeof(float) * (i * n_particles * 3 + j * 3 +2)),
-                        sizeof(float) * (i * n_particles * 3 + j * 3));
-                }
-            }
-        }
 
         switch(data->datatype)
         {
@@ -4867,7 +4847,7 @@ static tng_function_status tng_particle_data_block_write
             {
                 if(tng_data->input_endianness_swap_func_32)
                 {
-                    for(i = 0; i < (block->block_contents_size - offset) / size; i++)
+                    for(i = offset; i < block->block_contents_size; i+=size)
                     {
                         if(tng_data->input_endianness_swap_func_32(tng_data,
                            (int32_t *)(block->block_contents + i))
@@ -4882,16 +4862,20 @@ static tng_function_status tng_particle_data_block_write
             else
             {
                 multiplier = data->compression_multiplier;
-                for(i = 0; i < (block->block_contents_size - offset) / size; i++)
+                if(fabs(multiplier - 1.0) > 0.00001 ||
+                   tng_data->input_endianness_swap_func_32)
                 {
-                    *(float *)(block->block_contents + i) *= multiplier;
-                    if(tng_data->input_endianness_swap_func_32 &&
-                       tng_data->input_endianness_swap_func_32(tng_data,
-                       (int32_t *)(block->block_contents + i))
-                       != TNG_SUCCESS)
+                    for(i = offset; i < block->block_contents_size; i+=size)
                     {
-                        printf("Cannot swap byte order. %s: %d\n",
-                                __FILE__, __LINE__);
+                        *(float *)(block->block_contents + i) *= multiplier;
+                        if(tng_data->input_endianness_swap_func_32 &&
+                        tng_data->input_endianness_swap_func_32(tng_data,
+                        (int32_t *)(block->block_contents + i))
+                        != TNG_SUCCESS)
+                        {
+                            printf("Cannot swap byte order. %s: %d\n",
+                                    __FILE__, __LINE__);
+                        }
                     }
                 }
             }
@@ -4931,16 +4915,20 @@ static tng_function_status tng_particle_data_block_write
             else
             {
                 multiplier = data->compression_multiplier;
-                for(i = offset; i < block->block_contents_size; i+=size)
+                if(fabs(multiplier - 1.0) > 0.00001 ||
+                   tng_data->input_endianness_swap_func_64)
                 {
-                    *(double *)(block->block_contents + i) *= multiplier;
-                    if(tng_data->input_endianness_swap_func_64 &&
-                       tng_data->input_endianness_swap_func_64(tng_data,
-                       (int64_t *)(block->block_contents + i))
-                       != TNG_SUCCESS)
+                    for(i = offset; i < block->block_contents_size; i+=size)
                     {
-                        printf("Cannot swap byte order. %s: %d\n",
-                                __FILE__, __LINE__);
+                        *(double *)(block->block_contents + i) *= multiplier;
+                        if(tng_data->input_endianness_swap_func_64 &&
+                        tng_data->input_endianness_swap_func_64(tng_data,
+                        (int64_t *)(block->block_contents + i))
+                        != TNG_SUCCESS)
+                        {
+                            printf("Cannot swap byte order. %s: %d\n",
+                                    __FILE__, __LINE__);
+                        }
                     }
                 }
             }
@@ -5084,7 +5072,7 @@ static tng_function_status tng_allocate_data_mem
                  const int64_t n_values_per_frame)
 {
     void **values;
-    int64_t i, j, size;
+    int64_t i, j, size, frame_alloc;
 
     if(data->strings && data->datatype == TNG_CHAR_DATA)
     {
@@ -5106,11 +5094,12 @@ static tng_function_status tng_allocate_data_mem
     data->stride_length = tng_max(1, stride_length);
     n_frames = tng_max(1, n_frames);
     data->n_values_per_frame = n_values_per_frame;
+    frame_alloc = tng_max(1, n_frames/data->stride_length) + 1;
 
     if(data->datatype == TNG_CHAR_DATA)
     {
-        data->strings = malloc(sizeof(char **) * n_frames);
-        for(i = n_frames; i-- ;)
+        data->strings = malloc(sizeof(char **) * frame_alloc);
+        for(i = frame_alloc; i-- ;)
         {
             data->strings[i] = malloc(sizeof(char *) * n_values_per_frame);
             if(!data->strings[i])
@@ -5142,12 +5131,12 @@ static tng_function_status tng_allocate_data_mem
         }
 
         values = realloc(data->values,
-                         size * (n_frames/data->stride_length) *
+                         size * frame_alloc *
                          n_values_per_frame);
         if(!values)
         {
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                   size * (n_frames/data->stride_length) *
+                   size * frame_alloc *
                    n_values_per_frame,
                    __FILE__, __LINE__);
             free(data->values);
@@ -12165,7 +12154,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
                  const tng_hash_mode hash_mode,
-                 union data_values ***values,
+                 void **values,
                  int64_t *stride_length,
                  int64_t *n_values_per_frame,
                  tng_data_type *type)
@@ -13216,6 +13205,31 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read
     return(stat);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
+                (tng_trajectory_t tng_data,
+                 float **box_shape,
+                 int64_t *stride_length)
+{
+    int64_t n_frames, n_values_per_frame;
+    tng_data_type type;
+    tng_function_status stat;
+
+    stat = tng_num_frames_get(tng_data, &n_frames);
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+
+    stat = tng_data_vector_interval_get(tng_data, TNG_TRAJ_BOX_SHAPE,
+                                        0, n_frames - 1, TNG_USE_HASH,
+                                        (void **)box_shape,
+                                        stride_length,
+                                        &n_values_per_frame,
+                                        &type);
+
+    return(stat);
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_read_range
                 (tng_trajectory_t tng_data,
                  const int64_t first_frame,
@@ -13281,6 +13295,28 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
                                                  stride_length,
                                                  &n_values_per_frame,
                                                  &type);
+
+    return(stat);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
+                (tng_trajectory_t tng_data,
+                 const int64_t first_frame,
+                 const int64_t last_frame,
+                 float **box_shape,
+                 int64_t *stride_length)
+{
+    int64_t n_values_per_frame;
+    tng_data_type type;
+    tng_function_status stat;
+
+    stat = tng_data_vector_interval_get(tng_data, TNG_TRAJ_BOX_SHAPE,
+                                        first_frame, last_frame,
+                                        TNG_USE_HASH,
+                                        (void **)box_shape,
+                                        stride_length,
+                                        &n_values_per_frame,
+                                        &type);
 
     return(stat);
 }
@@ -13439,6 +13475,22 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
 
     tng_num_particles_get(tng_data, &n_particles);
 
+// #if 1
+//     if(block_id == TNG_TRAJ_VELOCITIES)
+//     {
+//         int i,j;
+//         for (i=0; i<n_particles; i++)
+//         {
+//             printf("generic write input: %"PRId64" %d: ",frame_nr,i);
+//             for (j=0; j<3; j++)
+//             {
+//                 printf(" %g",((float *)values)[i*3+j]);
+//             }
+//             printf("\n");
+//         }
+//     }
+// #endif
+
     if(tng_particle_data_find(tng_data, block_id, &data)
        != TNG_SUCCESS)
     {
@@ -13461,9 +13513,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                                               stride_length, n_particles,
                                               3);
     }
-    printf("frame nr: %"PRId64" first frame: %"PRId64" stride_length: %"PRId64" frame pos: %"PRId64"\n",
-           frame_nr, frame_set->first_frame, stride_length, frame_pos);
-    printf("pos: %"PRId64" length: %"PRId64"\n", sizeof(float) * frame_pos * n_particles * 3, sizeof(float) * n_particles * 3);
     memcpy(data->values + sizeof(float) * frame_pos * n_particles * 3,
            values, sizeof(float) * n_particles * 3);
 
@@ -13491,12 +13540,22 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_write
-            (tng_trajectory_t tng_data,
-             const int64_t frame_nr,
-             const float *forces)
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const float *forces)
 {
     return(tng_util_generic_write(tng_data, frame_nr, forces,
                                   TNG_TRAJ_FORCES, "FORCES",
+                                  TNG_GZIP_COMPRESSION));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const float *box_shape)
+{
+    return(tng_util_generic_write(tng_data, frame_nr, box_shape,
+                                  TNG_TRAJ_BOX_SHAPE, "BOX SHAPE",
                                   TNG_GZIP_COMPRESSION));
 }
 

@@ -70,7 +70,7 @@ int main ( int argc, char *argv[] )
     float kinetic;
     float mass = 1.0;
     int nd = 3;
-    int np = 50;
+    int np = 10;
     float *pos;
     float potential;
     int proc_num;
@@ -188,7 +188,7 @@ int main ( int argc, char *argv[] )
 
     step_print = 0;
     step_print_index = 0;
-    step_print_num = 100;
+    step_print_num = 10;
 
 /*
     This is the main time stepping loop:
@@ -269,21 +269,6 @@ int main ( int argc, char *argv[] )
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
                 exit(1);
             }
-#if 1
-	    {
-	      int j,i;
-    for ( j = 0; j < np; j++ )
-    {
-      printf("vel in md for %d %d:",step,j);
-        for ( i = 0; i < nd; i++ )
-        {
-	  printf (" %g",vel[i+j*nd]);
-	}
-	printf("\n");
-    }
-	    }
-#endif
-
             if(tng_util_vel_write(traj, step, vel) != TNG_SUCCESS)
             {
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
@@ -305,6 +290,7 @@ int main ( int argc, char *argv[] )
 
     free ( acc );
     free ( box );
+    free ( box_shape );
     free ( force );
     free ( pos );
     free ( vel );
