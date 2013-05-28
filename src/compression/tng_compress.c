@@ -63,16 +63,6 @@ static int verify_input_data_float(float *x, int natoms, int nframes, float prec
 #if 1
   for (iframe=0; iframe<nframes; iframe++)
     for (i=0; i<natoms; i++)
-      {
-	printf("vel test: %d %d:",iframe,i);
-      for (j=0; j<3; j++)
-	printf(" %g",x[iframe*natoms*3+i*3+j]);
-      printf("\n");
-      }
-#endif
-#if 1
-  for (iframe=0; iframe<nframes; iframe++)
-    for (i=0; i<natoms; i++)
       for (j=0; j<3; j++)
 	if (fabs(x[iframe*natoms*3+i*3+j]/precision+0.5)>=MAX_FVAL)
 	  printf("ERROR. Too large value: %d %d %d: %g %g %g\n",iframe,i,j,x[iframe*natoms*3+i*3+j],precision,x[iframe*natoms*3+i*3+j]/precision/MAX_FVAL);
@@ -116,7 +106,7 @@ static void quant_inter_differences(int *quant, int natoms, int nframes,
   for (iframe=1; iframe<nframes; iframe++)
     for (i=0; i<natoms; i++)
       for (j=0; j<3; j++)
-	quant_inter[iframe*natoms*3+i*3+j]=quant[iframe*natoms*3+i*3+j]-quant[(iframe-1)*natoms*3+i*3+j];  
+	quant_inter[iframe*natoms*3+i*3+j]=quant[iframe*natoms*3+i*3+j]-quant[(iframe-1)*natoms*3+i*3+j];
 }
 
 static void quant_intra_differences(int *quant, int natoms, int nframes,
@@ -232,7 +222,7 @@ static void unquant_intra_differences_first_frame(int *quant, int natoms)
       }
 #endif
 }
-					
+
 static void unquantize_intra_differences(double *x, int natoms, int nframes,
 					 double precision,
 					 int *quant)
@@ -334,7 +324,7 @@ static void compress_quantized_pos(int *quant, int *quant_inter, int *quant_intr
   /* Information needed for decompression. */
   if (data)
     bufferfix((unsigned char*)data+bufloc,(fix_t)MAGIC_INT_POS,4);
-  bufloc+=4;  
+  bufloc+=4;
   /* Number of atoms. */
   if (data)
     bufferfix((unsigned char*)data+bufloc,(fix_t)natoms,4);
@@ -384,7 +374,7 @@ static void compress_quantized_pos(int *quant, int *quant_inter, int *quant_intr
       length=natoms*3;
       datablock=(char*)Ptngc_pack_array(coder,quant_intra,&length,
 					    initial_coding,initial_coding_parameter,natoms,speed);
-      Ptngc_coder_deinit(coder);      
+      Ptngc_coder_deinit(coder);
     }
   /* Block length. */
   if (data)
@@ -408,7 +398,7 @@ static void compress_quantized_pos(int *quant, int *quant_inter, int *quant_intr
 	  length=natoms*3*(nframes-1);
 	  datablock=(char*)Ptngc_pack_array(coder,quant_inter+natoms*3,&length,
 						coding,coding_parameter,natoms,speed);
-	  Ptngc_coder_deinit(coder);      
+	  Ptngc_coder_deinit(coder);
 	}
       /* One-to-one compression? */
       else if ((coding==TNG_COMPRESS_ALGO_POS_XTC2) ||
@@ -459,7 +449,7 @@ static void compress_quantized_vel(int *quant, int *quant_inter,
   /* Information needed for decompression. */
   if (data)
     bufferfix((unsigned char*)data+bufloc,(fix_t)MAGIC_INT_VEL,4);
-  bufloc+=4;  
+  bufloc+=4;
   /* Number of atoms. */
   if (data)
     bufferfix((unsigned char*)data+bufloc,(fix_t)natoms,4);
@@ -666,7 +656,7 @@ static void determine_best_pos_initial_coding(int *quant, int *quant_intra, int 
 	    }
 	}
       Ptngc_coder_deinit(coder);
-      
+
       if (speed>=2)
 	{
 	  current_coding=TNG_COMPRESS_ALGO_POS_XTC3;
@@ -931,7 +921,7 @@ static void determine_best_vel_initial_coding(int *quant, int natoms, int speed,
 	  best_code_size=current_code_size;
 	}
       Ptngc_coder_deinit(coder);
-      
+
       /* Determine best parameter for triplet one-to-one. */
       current_coding=TNG_COMPRESS_ALGO_VEL_TRIPLET_ONETOONE;
       coder=Ptngc_coder_init();
@@ -1020,7 +1010,7 @@ static void determine_best_vel_coding(int *quant, int *quant_inter, int natoms, 
       best_coding=current_coding;
       best_code_size=current_code_size;
       best_coding_parameter=current_coding_parameter;
-      
+
       /* Test triplet interframe */
       current_coding=TNG_COMPRESS_ALGO_VEL_TRIPLET_INTER;
       current_code_size=natoms*3*(nframes-1);
@@ -1033,7 +1023,7 @@ static void determine_best_vel_coding(int *quant, int *quant_inter, int natoms, 
 	    {
 	      best_coding=current_coding;
 	      best_code_size=current_code_size;
-	      best_coding_parameter=current_coding_parameter;	      
+	      best_coding_parameter=current_coding_parameter;
 	    }
 	}
       Ptngc_coder_deinit(coder);
@@ -1050,11 +1040,11 @@ static void determine_best_vel_coding(int *quant, int *quant_inter, int natoms, 
 	    {
 	      best_coding=current_coding;
 	      best_code_size=current_code_size;
-	      best_coding_parameter=current_coding_parameter;	      
+	      best_coding_parameter=current_coding_parameter;
 	    }
 	}
       Ptngc_coder_deinit(coder);
-      
+
       /* Test stopbit interframe */
       current_coding=TNG_COMPRESS_ALGO_VEL_STOPBIT_INTER;
       current_code_size=natoms*3*(nframes-1);
@@ -1067,11 +1057,11 @@ static void determine_best_vel_coding(int *quant, int *quant_inter, int natoms, 
 	    {
 	      best_coding=current_coding;
 	      best_code_size=current_code_size;
-	      best_coding_parameter=current_coding_parameter;	      
-	    }	  
+	      best_coding_parameter=current_coding_parameter;
+	    }
 	}
       Ptngc_coder_deinit(coder);
-      
+
       if (speed>=4)
 	{
 	  /* Test BWLZH inter */
@@ -1086,7 +1076,7 @@ static void determine_best_vel_coding(int *quant, int *quant_inter, int natoms, 
 	    {
 	      best_coding=current_coding;
 	      best_code_size=current_code_size;
-	      best_coding_parameter=current_coding_parameter;	      
+	      best_coding_parameter=current_coding_parameter;
 	    }
 
 	  /* Test BWLZH one-to-one */
@@ -1101,7 +1091,7 @@ static void determine_best_vel_coding(int *quant, int *quant_inter, int natoms, 
 	    {
 	      best_coding=current_coding;
 	      best_code_size=current_code_size;
-	      best_coding_parameter=current_coding_parameter;	      
+	      best_coding_parameter=current_coding_parameter;
 	    }
 	}
       *coding=best_coding;
@@ -1201,7 +1191,7 @@ char DECLSPECDLLEXPORT *tng_compress_pos_int(int *pos, int natoms, int nframes,
 	{
 	  coding_parameter=-1;
 	  determine_best_pos_coding(quant,quant_inter,quant_intra,natoms,nframes,speed,prec_hi,prec_lo,
-				    &coding,&coding_parameter);	  
+				    &coding,&coding_parameter);
 	}
       else if (coding_parameter==-1)
 	{
@@ -1228,7 +1218,7 @@ char DECLSPECDLLEXPORT *tng_compress_pos_int(int *pos, int natoms, int nframes,
 }
 
 char DECLSPECDLLEXPORT *tng_compress_pos(double *pos, int natoms, int nframes,
-					 double desired_precision, 
+					 double desired_precision,
 					 int speed,int *algo,
 					 int *nitems)
 {
@@ -1246,7 +1236,7 @@ char DECLSPECDLLEXPORT *tng_compress_pos(double *pos, int natoms, int nframes,
 }
 
 char DECLSPECDLLEXPORT *tng_compress_pos_float(float *pos, int natoms, int nframes,
-					       float desired_precision, 
+					       float desired_precision,
 					       int speed,int *algo,
 					       int *nitems)
 {
@@ -1352,20 +1342,20 @@ char DECLSPECDLLEXPORT *tng_compress_vel_int(int *vel, int natoms, int nframes,
       determine_best_vel_initial_coding(quant,natoms,speed,prec_hi,prec_lo,
 					&initial_coding,&initial_coding_parameter);
     }
-  
+
   if (nframes==1)
     {
       coding=0;
       coding_parameter=0;
     }
-  
+
   if (nframes>1)
     {
       if (coding==-1)
 	{
 	  coding_parameter=-1;
 	  determine_best_vel_coding(quant,quant_inter,natoms,nframes,speed,prec_hi,prec_lo,
-				    &coding,&coding_parameter);	  
+				    &coding,&coding_parameter);
 	}
       else if (coding_parameter==-1)
 	{
@@ -1562,7 +1552,7 @@ static int tng_compress_uncompress_pos_gen(char *data,double *posd,float *posf,i
   coder=Ptngc_coder_init();
   rval=Ptngc_unpack_array(coder,(unsigned char*)data+bufloc,quant,natoms*3,
 			 initial_coding,initial_coding_parameter,natoms);
-  Ptngc_coder_deinit(coder);      
+  Ptngc_coder_deinit(coder);
   if (rval)
     goto error;
   /* Skip past the actual data block. */
@@ -1711,7 +1701,7 @@ static int tng_compress_uncompress_vel_gen(char *data,double *veld,float *velf,i
   coder=Ptngc_coder_init();
   rval=Ptngc_unpack_array(coder,(unsigned char*)data+bufloc,quant,natoms*3,
 			 initial_coding,initial_coding_parameter,natoms);
-  Ptngc_coder_deinit(coder);      
+  Ptngc_coder_deinit(coder);
   if (rval)
     goto error;
   /* Skip past the actual data block. */

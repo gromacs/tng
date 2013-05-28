@@ -10,9 +10,9 @@
  * of the License, or (at your option) any later version.
  */
 
-/* This code is heavily influenced by 
+/* This code is heavily influenced by
    http://hpcv100.rc.rug.nl/xdrf.html
-   Based on coordinate compression (c) by Frans van Hoesel. 
+   Based on coordinate compression (c) by Frans van Hoesel.
    and GROMACS xtc files (http://www.gromacs.org)
    (c) Copyright (c) Erik Lindahl, David van der Spoel
 */
@@ -101,9 +101,9 @@ static int unpositive_int(int val)
 struct xtc3_context
 {
   unsigned int *instructions;
-  int ninstr, ninstr_alloc;  
+  int ninstr, ninstr_alloc;
   unsigned int *rle;
-  int nrle, nrle_alloc;  
+  int nrle, nrle_alloc;
   unsigned int *large_direct;
   int nlargedir, nlargedir_alloc;
   unsigned int *large_intra_delta;
@@ -117,17 +117,17 @@ struct xtc3_context
   int has_large_ints[MAX_LARGE_RLE*3]; /* Large cache. */
   int has_large_type[MAX_LARGE_RLE]; /* What kind of type this large
 					int is. */
-  int current_large_type; 
+  int current_large_type;
 };
 
 static void init_xtc3_context(struct xtc3_context *xtc3_context)
 {
   xtc3_context->instructions=NULL;
   xtc3_context->ninstr=0;
-  xtc3_context->ninstr_alloc=0;  
+  xtc3_context->ninstr_alloc=0;
   xtc3_context->rle=NULL;
   xtc3_context->nrle=0;
-  xtc3_context->nrle_alloc=0;  
+  xtc3_context->nrle_alloc=0;
   xtc3_context->large_direct=NULL;
   xtc3_context->nlargedir=0;
   xtc3_context->nlargedir_alloc=0;
@@ -208,7 +208,7 @@ static void insert_value_in_array(unsigned int **ptr, int *nele, int *nele_alloc
   allocate_enough_memory(ptr,nele,nele_alloc);
 #ifdef SHOWIT
   fprintf(stderr,"Inserting value %u into array %s @ %d\n",value,arrayname,(*nele)-1);
-#endif  
+#endif
   (*ptr)[(*nele)-1]=value;
 }
 
@@ -228,7 +228,7 @@ static void swapdecide(struct xtc3_context *xtc3_context, int *input,int *swapat
   */
 #ifdef SHOWIT
   fprintf(stderr,"Trying Flip: %g %g\n",(double)swapped/normal, (double)normal/swapped);
-#endif     
+#endif
   if (((swapped<normal) && (fabs((double)swapped/normal)<iflipgaincheck)) ||
       ((normal<swapped) && (fabs((double)normal/swapped)<iflipgaincheck)))
     {
@@ -291,7 +291,7 @@ static void insert_batch(int *input_ptr, int ntriplets_left, int *prevcoord, int
 {
   int nencode=startenc*3;
   int tmp_prevcoord[3];
-	      
+
   tmp_prevcoord[0]=prevcoord[0];
   tmp_prevcoord[1]=prevcoord[1];
   tmp_prevcoord[2]=prevcoord[2];
@@ -313,13 +313,13 @@ static void insert_batch(int *input_ptr, int ntriplets_left, int *prevcoord, int
 		  positive_int(encode_ints[i*3]),
 		  positive_int(encode_ints[i*3+1]),
 		  positive_int(encode_ints[i*3+2]));
-#endif	  
+#endif
 	}
     }
 
 #ifdef SHOWIT
   fprintf(stderr,"New batch\n");
-#endif	      
+#endif
   while ((nencode<3+MAX_SMALL_RLE*3) && (nencode<ntriplets_left*3))
     {
       encode_ints[nencode]=input_ptr[nencode]-tmp_prevcoord[0];
@@ -336,7 +336,7 @@ static void insert_batch(int *input_ptr, int ntriplets_left, int *prevcoord, int
 	      positive_int(encode_ints[nencode]),
 	      positive_int(encode_ints[nencode+1]),
 	      positive_int(encode_ints[nencode+2]));
-#endif	      
+#endif
       tmp_prevcoord[0]=input_ptr[nencode];
       tmp_prevcoord[1]=input_ptr[nencode+1];
       tmp_prevcoord[2]=input_ptr[nencode+2];
@@ -663,7 +663,7 @@ static void base_compress(unsigned int *data, int len, unsigned char *output, in
 	    {
 #ifdef SHOWIT
 	      fprintf(stderr,"Writing largeint: ");
-#endif	      
+#endif
 	      for (j=0; j<numbytes; j++)
 		{
 		  int ilarge=j/4;
@@ -671,11 +671,11 @@ static void base_compress(unsigned int *data, int len, unsigned char *output, in
 		  output[nwrittenout++]=(unsigned char)((largeint[ilarge]>>(ibyte*8))&(0xFFU));
 #ifdef SHOWIT
 		  fprintf(stderr,"%02x",(unsigned int)output[nwrittenout-1]);
-#endif	      
+#endif
 		}
 #ifdef SHOWIT
 	      fprintf(stderr,"\n");
-#endif	      
+#endif
 	      nvals=0;
 	      for (j=0; j<MAXBASEVALS+1; j++)
 		largeint[j]=0U;
@@ -692,7 +692,7 @@ static void base_compress(unsigned int *data, int len, unsigned char *output, in
 	      int ilarge=j/4;
 	      int ibyte=j%4;
 	      output[nwrittenout++]=(unsigned char)((largeint[ilarge]>>(ibyte*8))&(0xFFU));
-	    }	  
+	    }
 	}
     }
   *outlen=nwrittenout;
@@ -750,7 +750,7 @@ static void base_decompress(unsigned char *input, int len, unsigned int *output)
 	    largeint[j]=0U;
 #ifdef SHOWIT
 	  fprintf(stderr,"Reading largeint: ");
-#endif	      
+#endif
 	  for (j=0; j<numbytes; j++)
 	    {
 	      int ilarge=j/4;
@@ -758,11 +758,11 @@ static void base_decompress(unsigned char *input, int len, unsigned int *output)
 	      largeint[ilarge]|=((unsigned int)input[j])<<(ibyte*8);
 #ifdef SHOWIT
 	      fprintf(stderr,"%02x",(unsigned int)input[j]);
-#endif	      
+#endif
 	    }
 #ifdef SHOWIT
 	      fprintf(stderr,"\n");
-#endif	      
+#endif
 	  input+=numbytes;
 	  /* Do the long division required to get the output values. */
 	  n=maxbasevals;
@@ -800,10 +800,10 @@ static int heuristic_bwlzh(unsigned int *ints, int nints)
 }
 
 /* Speed selects how careful to try to find the most efficient compression. The BWLZH algo is expensive!
-   Speed <=2 always avoids BWLZH everywhere it is possible. 
+   Speed <=2 always avoids BWLZH everywhere it is possible.
    Speed 3 and 4 and 5 use heuristics (check proportion of large value). This should mostly be safe.
    Speed 5 enables the LZ77 component of BWLZH.
-   Speed 6 always tests if BWLZH is better and if it is uses it. This can be very slow. 
+   Speed 6 always tests if BWLZH is better and if it is uses it. This can be very slow.
  */
 unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int speed)
 {
@@ -833,7 +833,7 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
   int bwlzh_buf_len;
   unsigned char *base_buf=NULL;
   int base_buf_len;
-  
+
   struct xtc3_context xtc3_context;
   init_xtc3_context(&xtc3_context);
 
@@ -852,7 +852,10 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
   nvalues_sum=0;
 #endif
   /* Allocate enough memory for output */
-  output=warnmalloc(8* *length*sizeof *output);
+  if (*length < 48)
+    output=warnmalloc(8*48*sizeof *output);
+  else
+    output=warnmalloc(8* *length*sizeof *output);
 
 
   for (i=1; i<ntriplets; i++)
@@ -955,7 +958,7 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 	  /* Insert the next batch of integers to be encoded into the buffer */
 #ifdef SHOWIT
 	  fprintf(stderr,"Initial batch\n");
-#endif	  
+#endif
 	  insert_batch(input+inpdata,ntriplets_left,prevcoord,encode_ints,0,&nencode);
 
 	  /* First we must decide if the next value is large (does not reasonably fit in current small encoding)
@@ -1044,8 +1047,8 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 				positive_int(encode_ints[i*3]),
 				positive_int(encode_ints[i*3+1]),
 				positive_int(encode_ints[i*3+2]));
-			  
-#endif		      
+
+#endif
 		      min_runlength=2;
 		    }
 		}
@@ -1076,11 +1079,11 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 	      ntriplets_left--;
 
 	      refused=0;
-	      
+
 	      /* Insert the next batch of integers to be encoded into the buffer */
 #ifdef SHOWIT
 	      fprintf(stderr,"Update batch due to large int.\n");
-#endif	  
+#endif
 	      if ((swapatoms) && (didswap))
 		{
 		  /* Keep swapped values. */
@@ -1139,7 +1142,7 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 	      new_runlength=1;
 	      new_small_index=small_index;
 	    }
-	  
+
 	  iter_runlength=new_runlength;
 	  iter_small_index=new_small_index;
 
@@ -1152,7 +1155,7 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 	  do {
 	    new_runlength=iter_runlength;
 	    new_small_index=iter_small_index;
-	    
+
 #ifdef SHOWIT
 	    fprintf(stderr,"Test new_small_index=%d Base=%d\n",new_small_index,Ptngc_magic(new_small_index));
 #endif
@@ -1205,7 +1208,7 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 	  else if (new_runlength<6)
 	    rle_index_dep=QUITE_LARGE;
 	  if ((min_runlength)
-	      || ((new_small_index<small_index+IS_LARGE) && (new_small_index+rle_index_dep<max_large_index)) 
+	      || ((new_small_index<small_index+IS_LARGE) && (new_small_index+rle_index_dep<max_large_index))
 #if 1
 	      || (new_small_index+IS_LARGE<max_large_index)
 #endif
@@ -1254,7 +1257,7 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 		  if ((new_runlength!=runlength) || (new_small_index!=small_index))
 		    {
 		      int change=new_small_index-small_index;
-		  
+
 		      if (new_small_index<=0)
 			change=0;
 
@@ -1276,12 +1279,12 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 				rejected=0;
 #ifdef SHOWIT
 				fprintf(stderr,"Tested decrease %d of index: %g>=%g?\n",change,isum,(double)Ptngc_magic(small_index+change)*(double)Ptngc_magic(small_index+change));
-#endif			      
+#endif
 				if (isum>(double)Ptngc_magic(small_index+change)*(double)Ptngc_magic(small_index+change))
 				  {
 #ifdef SHOWIT
 				    fprintf(stderr,"Rejected decrease %d of index due to length of vector: %g>=%g\n",change,isum,(double)Ptngc_magic(small_index+change)*(double)Ptngc_magic(small_index+change));
-#endif			      
+#endif
 				    rejected=1;
 				    change++;
 				  }
@@ -1308,7 +1311,7 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 			}
 #ifdef SHOWIT
 		      fprintf(stderr,"Current small index: %d Base=%d\n",small_index,Ptngc_magic(small_index));
-#endif		  
+#endif
 		    }
 		  /* If we have a large previous integer we can combine it with a sequence of small ints. */
 		  if (xtc3_context.has_large)
@@ -1336,14 +1339,14 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 			}
 		      else
 			{
-		      
+
 #ifdef SHOWIT
 			  fprintf(stderr,"Sequence of one large and small integers (good compression).\n");
 #endif
 			  /* Flush all large atoms but one! */
 			  if (xtc3_context.has_large>1)
 			    flush_large(&xtc3_context,xtc3_context.has_large-1);
-		      
+
 			  /* Here we must check if we should emit a large
 			     type change instruction. */
 			  large_instruction_change(&xtc3_context,0);
@@ -1352,7 +1355,7 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 						&xtc3_context.ninstr,
 						&xtc3_context.ninstr_alloc,
 						INSTR_DEFAULT,"instr");
-		      
+
 			  write_three_large(&xtc3_context,0);
 			  xtc3_context.has_large=0;
 			}
@@ -1396,7 +1399,7 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 		  fprintf(stderr,"Prevcoord in packing: %d %d %d\n",
 			  prevcoord[0],prevcoord[1],prevcoord[2]);
 #endif
-	  
+
 		  inpdata+=3*runlength;
 		  ntriplets_left-=runlength;
 #if 1
@@ -1408,13 +1411,13 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 #ifdef SHOWIT
 	      fprintf(stderr,"Refused value: %d old is %d max is %d\n",new_small_index,small_index,max_large_index);
 	      fflush(stderr);
-#endif      
+#endif
 	      refused=1;
 	    }
 	}
 #ifdef SHOWIT
       fprintf(stderr,"Number of triplets left is %d\n",ntriplets_left);
-#endif      
+#endif
     }
 
   /* If we have large previous integers we must flush them now. */
@@ -1726,7 +1729,7 @@ static void unpack_one_large(struct xtc3_context *xtc3_context,
   fprintf(stderr,"Unpack one large: %d %d %d\n",prevcoord[0],prevcoord[1],prevcoord[2]);
 #endif
 }
-			     
+
 
 int Ptngc_unpack_array_xtc3(unsigned char *packed,int *output, int length, int natoms)
 {
@@ -1812,7 +1815,7 @@ int Ptngc_unpack_array_xtc3(unsigned char *packed,int *output, int length, int n
       else
 	decompress_base_block(&ptr,xtc3_context.nlargeinter,&xtc3_context.large_inter_delta);
     }
-  
+
   xtc3_context.nsmallintra=(int)(((unsigned int)ptr[0]) |
 				 (((unsigned int)ptr[1])<<8) |
 				 (((unsigned int)ptr[2])<<16) |
