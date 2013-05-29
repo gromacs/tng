@@ -499,6 +499,10 @@ extern "C"
 {
 #endif
 
+/** @defgroup group1 Low-level API
+ *  These functions give high control of the TNG data management.
+ *  @{
+ */
 
 /**
  * @brief Setup a trajectory data container.
@@ -1166,6 +1170,8 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
  * @param tng_data is the trajectory data container containing the chain.
  * @param chain is the chain in which to search for the residue.
  * @param name is a string containing the name of the residue.
+ * @param id is the id of the residue to find. If id == -1 the first residue
+ * that matches the specified name will be found.
  * @param residue is a pointer to the residue if it was found - otherwise 0.
  * @return TNG_SUCCESS (0) if the residue is found or TNG_FAILURE (1) if the
  * residue is not found.
@@ -1613,7 +1619,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free
                  const tng_data_type type);
 
 /**
- * @brief Retrieve non-particle data, from the last read frame set.
+ * @brief Retrieve non-particle data, from the last read frame set. Obsolete!
  * @param tng_data is a trajectory data container. tng_data->input_file_path specifies
  * which file to read from. If the file (input_file) is not open it will be
  * opened.
@@ -1628,6 +1634,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
+ * @details This function is obsolete and only retained for compatibility. Use
+ * tng_data_vector_get() instead.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1668,7 +1676,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_get
                  tng_data_type *type);
 
 /**
- * @brief Read and retrieve non-particle data, in a specific interval.
+ * @brief Read and retrieve non-particle data, in a specific interval. Obsolete!
  * @param tng_data is a trajectory data container. tng_data->input_file_path specifies
  * which file to read from. If the file (input_file) is not open it will be
  * opened.
@@ -1686,6 +1694,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_get
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
+ * @details This function is obsolete and only retained for compatibility. Use
+ * tng_data_vector_interval_get() instead.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1715,6 +1725,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
  * will be filled with data. The length of the array will be (n_frames * n_values_per_frame).
  * Since **values is allocated in this function it is the callers
  * responsibility to free the memory.
+ * @param stride_length is set to the stride length (writing frequency) of
+ * the data.
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
@@ -1734,7 +1746,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                  tng_data_type *type);
 
 /**
- * @brief Retrieve particle data, from the last read frame set.
+ * @brief Retrieve particle data, from the last read frame set. Obsolete!
  * @details The particle dimension of the returned values array is translated
  * to real particle numbering, i.e. the numbering of the actual molecular
  * system.
@@ -1754,6 +1766,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
+ * @details This function is obsolete and only retained for compatibility. Use
+ * tng_particle_data_vector_get() instead.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1803,7 +1817,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
                  tng_data_type *type);
 
 /**
- * @brief Read and retrieve particle data, in a specific interval.
+ * @brief Read and retrieve particle data, in a specific interval. Obsolete!
  * @details The particle dimension of the returned values array is translated
  * to real particle numbering, i.e. the numbering of the actual molecular
  * system.
@@ -1826,6 +1840,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
+ * @details This function is obsolete and only retained for compatibility. Use
+ * tng_particle_data_vector_interval_get() instead.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1859,6 +1875,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
  * (n_frames * n_particles * n_values_per_frame).
  * Since **values is allocated in this function it is the callers
  * responsibility to free the memory.
+ * @param stride_length is set to the stride length (writing frequency) of
+ * the data.
  * @param n_particles is set to the number of particles in the returned data. This is
  * needed to properly reach and/or free the data afterwards.
  * @param n_values_per_frame is set to the number of values per frame in the data.
@@ -1889,13 +1907,37 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
 tng_function_status DECLSPECDLLEXPORT tng_time_get_str
                 (const tng_trajectory_t tng_data,
                  char *time);
+/** @} */ // end of group1
 
+/** @defgroup group2 High-level API
+ *  These functions make it easier to access and output TNG data. They
+ *  are recommended unless there is a special reason to use the more
+ *  detailed functions.
+ *  @{
+ */
 
+/**
+ * @brief High-level function for opening and initializing a TNG trajectory.
+ * @param filename is a string containing the name of the trajectory to open.
+ * @param mode specifies the file mode of the trajectory. Can be set to 'r',
+ * 'w' or 'a' for reading, writing or appending respectively.
+ * @param tng_data_p is a pointer to the opened trajectory. This must be
+ * closed by the user.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
                 (const char *filename,
                  const char mode,
                  tng_trajectory_t *tng_data_p);
 
+/**
+ * @brief High-level function for closing a TNG trajectory.
+ * @param tng_data_p is a pointer to the trajectory to close. The memory
+ * will be freed after finalising the writing.
+ * @return TNG_SUCCESS (0) if successful.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
                 (tng_trajectory_t *tng_data_p);
 
@@ -1932,27 +1974,94 @@ tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_set
                  const int64_t *res_ids,
                  const char **chain_names,
                  const int64_t *chain_ids);
-
+                
+/**
+ * @brief High-level function for reading the positions of all particles
+ * from all frames.
+ * @param tng_data is the trajectory to read from.
+ * @param positions will be set to point at a 1-dimensional array of floats,
+ * which will contain the positions. The data is stored sequentially in order
+ * of frames. For each frame the positions (x, y and z coordinates) are stored.
+ * The memory must be freed afterwards.
+ * @param stride_length will be set to the writing frequency of the stored data.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_read
                 (tng_trajectory_t tng_data,
                  float **positions,
                  int64_t *stride_length);
 
+/**
+ * @brief High-level function for reading the velocities of all particles
+ * from all frames.
+ * @param tng_data is the trajectory to read from.
+ * @param velocities will be set to point at a 1-dimensional array of floats,
+ * which will contain the velocities. The data is stored sequentially in order
+ * of frames. For each frame the velocities (in x, y and z) are stored.
+ * The memory must be freed afterwards.
+ * @param stride_length will be set to the writing frequency of the stored data.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_read
                 (tng_trajectory_t tng_data,
                  float **velocities,
                  int64_t *stride_length);
 
+/**
+ * @brief High-level function for reading the forces of all particles
+ * from all frames.
+ * @param tng_data is the trajectory to read from.
+ * @param forces will be set to point at a 1-dimensional array of floats,
+ * which will contain the forces. The data is stored sequentially in order
+ * of frames. For each frame the forces (in x, y and z) are stored.
+ * The memory must be freed afterwards.
+ * @param stride_length will be set to the writing frequency of the stored data.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_force_read
                 (tng_trajectory_t tng_data,
                  float **forces,
                  int64_t *stride_length);
 
+/**
+ * @brief High-level function for reading the box shape from all frames.
+ * @param tng_data is the trajectory to read from.
+ * @param box_shape will be set to point at a 1-dimensional array of floats,
+ * which will contain the box shape. The data is stored sequentially in order
+ * of frames. For each frame the box shape is stored as nine values.
+ * If the box shape is not modified during the trajectory, but as general data,
+ * that will be returned instead.
+ * @param stride_length will be set to the writing frequency of the stored data.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
                 (tng_trajectory_t tng_data,
                  float **box_shape,
                  int64_t *stride_length);
 
+/**
+ * @brief High-level function for reading the positions of all particles
+ * from a specific range of frames.
+ * @param tng_data is the trajectory to read from.
+ * @param first_frame is the first frame to return position data from.
+ * @param last_frame is the last frame to return position data from.
+ * @param positions will be set to point at a 1-dimensional array of floats,
+ * which will contain the positions. The data is stored sequentially in order
+ * of frames. For each frame the positions (x, y and z coordinates) are stored.
+ * The memory must be freed afterwards.
+ * @param stride_length will be set to the writing frequency of the stored data.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_read_range
                 (tng_trajectory_t tng_data,
                  const int64_t first_frame,
@@ -1960,6 +2069,21 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read_range
                  float **positions,
                  int64_t *stride_length);
 
+/**
+ * @brief High-level function for reading the velocities of all particles
+ * from a specific range of frames.
+ * @param tng_data is the trajectory to read from.
+ * @param first_frame is the first frame to return position data from.
+ * @param last_frame is the last frame to return position data from.
+ * @param velocities will be set to point at a 1-dimensional array of floats,
+ * which will contain the velocities. The data is stored sequentially in order
+ * of frames. For each frame the velocities (in x, y and z) are stored.
+ * The memory must be freed afterwards.
+ * @param stride_length will be set to the writing frequency of the stored data.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_read_range
                 (tng_trajectory_t tng_data,
                  const int64_t first_frame,
@@ -1967,6 +2091,21 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read_range
                  float **velocities,
                  int64_t *stride_length);
 
+/**
+ * @brief High-level function for reading the forces of all particles
+ * from a specific range of frames.
+ * @param tng_data is the trajectory to read from.
+ * @param first_frame is the first frame to return position data from.
+ * @param last_frame is the last frame to return position data from.
+ * @param forces will be set to point at a 1-dimensional array of floats,
+ * which will contain the forces. The data is stored sequentially in order
+ * of frames. For each frame the forces (in x, y and z) are stored.
+ * The memory must be freed afterwards.
+ * @param stride_length will be set to the writing frequency of the stored data.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
                 (tng_trajectory_t tng_data,
                  const int64_t first_frame,
@@ -1974,6 +2113,22 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
                  float **forces,
                  int64_t *stride_length);
 
+/**
+ * @brief High-level function for reading the box shape
+ * from a specific range of frames.
+ * @param tng_data is the trajectory to read from.
+ * @param first_frame is the first frame to return position data from.
+ * @param last_frame is the last frame to return position data from.
+ * @param box_shape will be set to point at a 1-dimensional array of floats,
+ * which will contain the box shape. The data is stored sequentially in order
+ * of frames. For each frame the box shape is stored as nine values.
+ * If the box shape is not modified during the trajectory, but as general data,
+ * that will be returned instead.
+ * @param stride_length will be set to the writing frequency of the stored data.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
                 (tng_trajectory_t tng_data,
                  const int64_t first_frame,
@@ -1981,6 +2136,28 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
                  float **box_shape,
                  int64_t *stride_length);
 
+/**
+ * @brief High-level function for setting the writing frequency of data blocks.
+ * @param tng_data is the trajectory to use.
+ * @param f is the output frequency, i.e. f == 10 means data written every 10th
+ * frame.
+ * @param n_values_per_frame is the number of values to store per frame. If the
+ * data is particle dependent there will be n_values_per_frame stored per
+ * particle each frame.
+ * @param block_id is the ID of the block, of which to set the output frequency.
+ * @param block_name is a string that will be used as name of the block.
+ * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
+ * data is not related to specific particles (e.g. box shape) or
+ * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
+ * positions).
+ * @param compression is the compression routine to use when writing the data.
+ * @details n_values_per_frame, block_name, particle_dependency and
+ * compression are only used if the data block did not exist before calling
+ * this function, in which case it is created.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
                 (tng_trajectory_t tng_data,
                  const int64_t f,
@@ -1990,22 +2167,97 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
                  const tng_particle_dependency particle_dependency,
                  const tng_compression compression);
 
+/**
+ * @brief High-level function for setting the writing frequency of position
+ * data blocks.
+ * @param tng_data is the trajectory to use.
+ * @param f is the output frequency, i.e. f == 10 means data written every 10th
+ * frame.
+ * @details This function uses tng_util_generic_write_frequency_set() and will
+ * create a positions data block if none exists.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequency_set
                 (tng_trajectory_t tng_data,
                  const int64_t f);
 
+/**
+ * @brief High-level function for setting the writing frequency of velocity
+ * data blocks.
+ * @param tng_data is the trajectory to use.
+ * @param f is the output frequency, i.e. f == 10 means data written every 10th
+ * frame.
+ * @details This function uses tng_util_generic_write_frequency_set() and will
+ * create a velocities data block if none exists.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_frequency_set
                 (tng_trajectory_t tng_data,
                  const int64_t f);
 
+/**
+ * @brief High-level function for setting the writing frequency of force
+ * data blocks.
+ * @param tng_data is the trajectory to use.
+ * @param f is the output frequency, i.e. f == 10 means data written every 10th
+ * frame.
+ * @details This function uses tng_util_generic_write_frequency_set() and will
+ * create a forces data block if none exists.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_force_write_frequency_set
                 (tng_trajectory_t tng_data,
                  const int64_t f);
 
-tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_frequency_set
+/**
+ * @brief High-level function for setting the writing frequency of box shape
+ * data blocks.
+ * @param tng_data is the trajectory to use.
+ * @param f is the output frequency, i.e. f == 10 means data written every 10th
+ * frame.
+ * @details This function uses tng_util_generic_write_frequency_set() and will
+ * create a box shape data block if none exists.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_frequency_set
                 (tng_trajectory_t tng_data,
                  const int64_t f);
 
+/**
+ * @brief High-level function for writing data of one frame to a data block.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param values is a 1D array of data to add. The array should be of length
+ * n_particles * n_values_per_frame if writing particle related data, otherwise
+ * it should be n_values_per_frame.
+ * @param n_values_per_frame is the number of values to store per frame. If the
+ * data is particle dependent there will be n_values_per_frame stored per
+ * particle each frame.
+ * @param block_id is the ID of the block, of which to set the output frequency.
+ * @param block_name is a string that will be used as name of the block.
+ * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
+ * data is not related to specific particles (e.g. box shape) or
+ * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
+ * positions).
+ * @param compression is the compression routine to use when writing the data.
+ * @details n_values_per_frame, block_name, particle_dependency and
+ * compression are only used if the data block did not exist before calling
+ * this function, in which case it is created.
+ * N.b. Data is written a whole block at a time. The data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
@@ -2016,26 +2268,90 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                  const tng_particle_dependency particle_dependency,
                  const tng_compression compression);
 
+/**
+ * @brief High-level function for adding data to positions data blocks.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param positions is a 1D array of data to add. The array should be of length
+ * n_particles * 3.
+ * @details This function uses tng_util_generic_write() and will
+ * create a positions data block if none exists. Positions are stored as three
+ * values per frame and compressed using TNG compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const float *positions);
 
+/**
+ * @brief High-level function for adding data to velocities data blocks.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param velocities is a 1D array of data to add. The array should be of length
+ * n_particles * 3.
+ * @details This function uses tng_util_generic_write() and will
+ * create a velocities data block if none exists. Velocities are stored as three
+ * values per frame and compressed using TNG compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const float *velocities);
 
+/**
+ * @brief High-level function for adding data to forces data blocks.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param forces is a 1D array of data to add. The array should be of length
+ * n_particles * 3.
+ * @details This function uses tng_util_generic_write() and will
+ * create a forces data block if none exists. Forces are stored as three
+ * values per frame and compressed using gzip compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_force_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const float *forces);
 
+/**
+ * @brief High-level function for adding data to box shape data blocks.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param box_shape is a 1D array of data to add. The array should be of length 9.
+ * @details This function uses tng_util_generic_write() and will
+ * create a box shape data block if none exists. Box shapes are stored as 9
+ * values per frame and compressed using TNG compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const float *box_shape);
 
+/** @} */ // end of group2
 
 
 #ifdef __cplusplus

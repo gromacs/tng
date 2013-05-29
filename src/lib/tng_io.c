@@ -6877,7 +6877,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set(tng_trajectory_t tng_da
 tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find(tng_trajectory_t tng_data,
                                                              tng_chain_t chain,
                                                              const char *name,
-                                                             int64_t nr,
+                                                             int64_t id,
                                                              tng_residue_t *residue)
 {
     int i, n_residues;
@@ -6889,7 +6889,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find(tng_trajectory_t tn
         *residue = &chain->residues[i];
         if(name[0] != 0 || strcmp(name, (*residue)->name) == 0)
         {
-            if(nr == -1 || nr == (*residue)->id)
+            if(id == -1 || id == (*residue)->id)
             {
                 return(TNG_SUCCESS);
             }
@@ -13475,7 +13475,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write_frequency_set
                                                 TNG_GZIP_COMPRESSION));
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_frequency_set
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_frequency_set
                 (tng_trajectory_t tng_data,
                  const int64_t f)
 {
