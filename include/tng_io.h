@@ -68,13 +68,18 @@
  *
  * Test by running:
  *
- * bin/tng_testing
+ * bin/tests/tng_testing
  *
  * @section change_sec Change Log
  *
  * See git log for full revision history.
  *
- * revs - Avoid memory allocation if no data is submitted when adding data
+ * revs
+ *      - High-level API functions added (not for managing molecules yet)
+ *      - Added functions for reading data blocks into 1D arrays.
+ *      - TNG compression added.
+ *      - C++ interface added.
+ *      - Avoid memory allocation if no data is submitted when adding data
  *        blocks.
  *      - Added function tng_num_frames_per_frame_set_set
  *      - Added data block IDs for charges, b-factors and occupancy.
@@ -96,8 +101,7 @@
  *
  * @section examples_sec Examples
  *
- * There are some examples of how to use the library in the testing located
- * located in src/tests/
+ * There are some examples of how to use the library located in src/tests/
  *
  * @subsection tng_subsec TNG files
  *
@@ -105,133 +109,123 @@
  * contains a very short example of a TNG file containing a few water molecules,
  * a box shape description and positions in 10 frames.
  *
- * It is also possible to run the bin/md_openmp (see src/tests/md_openmp.c)
+ * It is also possible to run the bin/examples/md_openmp_util
+ * (see src/tests/md_openmp_util.c)
  * testing program, which will save MD simulations output to a new file
  * (saved in the example_files directory).
  *
- * These files can be read using the bin/tng_io_read_pos testing program.
+ * These files can be read using the bin/examples/tng_io_read_pos_util
+ * program.
  *
  * @subsection c_subsec C
  *
+ * Example writing data to a TNG file (just an extract):
+ * \code
+ *     for ( step = 1; step < step_num; step++ )
+ *     {
+ *         compute ( np, nd, pos, vel, mass, force, &potential, &kinetic );
+ * 
+ *         if(step % step_save == 0)
+ *         {
+ *             // Write positions, velocities and forces
+ *             if(tng_util_pos_write(traj, step, pos) != TNG_SUCCESS)
+ *             {
+ *                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+ *                 break;
+ *             }
+ *             if(tng_util_vel_write(traj, step, vel) != TNG_SUCCESS)
+ *             {
+ *                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+ *                 break;
+ *             }
+ *             if(tng_util_force_write(traj, step, force) != TNG_SUCCESS)
+ *             {
+ *                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
+ *                 break;
+ *             }
+ *         }
+ *         update ( np, nd, pos, vel, force, acc, mass, dt );
+ *     }
+ * \endcode
+ *
+ * Example reading positions from a TNG file:
  * \code
  * #include <stdlib.h>
  * #include <stdio.h>
  * #include <tng_io.h>
- *
+ * 
  * int main(int argc, char **argv)
  * {
  *     tng_trajectory_t traj;
- *     union data_values ***positions = 0; // A 3-dimensional array to be populated
- *     int64_t n_particles, n_values_per_frame, n_frames, tot_n_frames;
- *     tng_data_type data_type;
- *     int i, j;
- *     int64_t particle = 0;
+ *     // Assume that the data is stored as floats. The data is placed in 1-D
+ *     // arrays
+ *     float *positions = 0, *box_shape = 0;
+ *     int64_t n_particles, n_frames, tot_n_frames, stride_length, i, j;
  *     // Set a default frame range
- *     int first_frame = 0, last_frame = 50;
- *     char atom_name[64], res_name[64], chain_name[64];
- *
- *     if(argc <= 1)
- *     {
- *         printf("No file specified\n");
- *         printf("Usage:\n");
- *         printf("tng_io_read_pos <tng_file> [particle number = %"PRId64"] "
- *                "[first_frame = %d] [last_frame = %d]\n",
- *                particle, first_frame, last_frame);
- *         exit(1);
- *     }
- *
+ *     int64_t first_frame = 0, last_frame = 5000;
+ *     int k;
+ * 
  *     // A reference must be passed to allocate memory
- *     if(tng_trajectory_init(&traj) != TNG_SUCCESS)
- *     {
- *         tng_trajectory_destroy(&traj);
- *         exit(1);
- *     }
- *     tng_input_file_set(traj, argv[1]);
- *
- *     // Read the file headers
- *     tng_file_headers_read(traj, TNG_USE_HASH);
- *
- *     if(argc >= 3)
- *     {
- *         particle = strtoll(argv[2], 0, 10);
- *         if(argc >= 4)
- *         {
- *             first_frame = strtoll(argv[3], 0, 10);
- *             if(argc >= 5)
- *             {
- *                 last_frame = strtoll(argv[4], 0, 10);
- *             }
- *         }
- *     }
- *
+ *     tng_util_trajectory_open(argv[1], 'r', &traj);
+ * 
  *     if(tng_num_frames_get(traj, &tot_n_frames) != TNG_SUCCESS)
  *     {
  *         printf("Cannot determine the number of frames in the file\n");
- *         tng_trajectory_destroy(&traj);
+ *         tng_util_trajectory_close(&traj);
  *         exit(1);
  *     }
- *
+ * 
+ *     if(tng_num_particles_get(traj, &n_particles) != TNG_SUCCESS)
+ *     {
+ *         printf("Cannot determine the number of particles in the file\n");
+ *         tng_util_trajectory_close(&traj);
+ *         exit(1);
+ *     }
+ * 
  *     printf("%"PRId64" frames in file\n", tot_n_frames);
- *
+ * 
  *     if(last_frame > tot_n_frames - 1)
  *     {
  *         last_frame = tot_n_frames - 1;
  *     }
- *
- *     n_frames = last_frame - first_frame + 1;
- *
- *     if(tng_atom_name_of_particle_nr_get(traj, particle, atom_name,
- *                                         sizeof(atom_name)) ==
- *        TNG_SUCCESS &&
- *        tng_residue_name_of_particle_nr_get(traj, particle, res_name,
- *                                            sizeof(res_name)) ==
- *        TNG_SUCCESS &&
- *        tng_chain_name_of_particle_nr_get(traj, particle, chain_name,
- *                                          sizeof(chain_name)) ==
- *        TNG_SUCCESS)
+ * 
+ *     if(tng_util_box_shape_read(traj, &box_shape, &stride_length) ==
+ *         TNG_SUCCESS)
  *     {
- *         printf("Particle: %s (%s: %s)\n", atom_name, chain_name, res_name);
+ *         printf("Simulation box shape: ");
+ *         for(i=0; i < 9; i++)
+ *         {
+ *             printf("%f ", box_shape[i]);
+ *         }
+ *         printf("\n");
  *     }
  *     else
  *     {
- *         printf("Particle name not found\n");
+ *         printf("Simulation box shape not set in the file (or could not be read)\n");
  *     }
- *
+ * 
+ *     n_frames = last_frame - first_frame + 1;
+ * 
+ * 
  *     // Get the positions of all particles in the requested frame range.
  *     // The positions are stored in the positions array.
  *     // N.B. No proper error checks.
- *     if(tng_particle_data_interval_get(traj, TNG_TRAJ_POSITIONS, first_frame,
- *        last_frame, TNG_USE_HASH, &positions, &n_particles, &n_values_per_frame,
- *        &data_type) == TNG_SUCCESS)
+ *     if(tng_util_pos_read_range(traj, 0, last_frame, &positions, &stride_length)
+ *        == TNG_SUCCESS)
  *     {
- *         if(particle >= n_particles)
+ *         // Print the positions of the wanted particle (zero based)
+ *         for(i=0; i < n_frames; i += stride_length)
  *         {
- *             printf("Chosen particle out of range. Only %"PRId64" particles in trajectory.\n", n_particles);
- *         }
- *         else
- *         {
- *             // Print the positions of the wanted particle (zero based)
- *             for(i=0; i<n_frames; i++)
+ *             printf("\nFrame %"PRId64":\n", first_frame + i);
+ *             for(j=0; j < n_particles; j++)
  *             {
- *                 printf("%d", first_frame + i);
- *                 for(j=0; j<n_values_per_frame; j++)
+ *                 printf("Atom nr: %"PRId64"", j);
+ *                 for(k=0; k < 3; k++)
  *                 {
- *                     switch(data_type)
- *                     {
- *                     case TNG_INT_DATA:
- *                         printf("\t%"PRId64"", positions[i][particle][j].i);
- *                         break;
- *                     case TNG_FLOAT_DATA:
- *                         printf("\t%f", positions[i][particle][j].f);
- *                         break;
- *                     case TNG_DOUBLE_DATA:
- *                         printf("\t%f", positions[i][particle][j].d);
- *                         break;
- *                     default:
- *                         break;
- *                     }
- *                     printf("\n");
+ *                     printf("\t%f", positions[i/stride_length*n_particles*
+ *                                              3+j*3+k]);
  *                 }
+ *                 printf("\n");
  *             }
  *         }
  *     }
@@ -239,15 +233,14 @@
  *     {
  *         printf("Cannot read positions\n");
  *     }
- *
+ * 
  *     // Free memory
  *     if(positions)
  *     {
- *         tng_particle_data_values_free(traj, positions, n_frames, n_particles,
- *                                       n_values_per_frame, data_type);
+ *         free(positions);
  *     }
- *     tng_trajectory_destroy(&traj);
- *
+ *     tng_util_trajectory_close(&traj);
+ * 
  *     return(0);
  * }
  *
@@ -500,7 +493,9 @@ extern "C"
 #endif
 
 /** @defgroup group1 Low-level API
- *  These functions give high control of the TNG data management.
+ *  These functions give detailed control of the TNG data management. Most
+ *  things can be done using the more convenient high-level API functions
+ *  instead.
  *  @{
  */
 
@@ -1912,7 +1907,7 @@ tng_function_status DECLSPECDLLEXPORT tng_time_get_str
 /** @defgroup group2 High-level API
  *  These functions make it easier to access and output TNG data. They
  *  are recommended unless there is a special reason to use the more
- *  detailed functions.
+ *  detailed functions available in the low-level API.
  *  @{
  */
 
@@ -1941,39 +1936,39 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
                 (tng_trajectory_t *tng_data_p);
 
-tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
-                (tng_trajectory_t tng_data,
-                 int64_t *n_mols,
-                 int64_t *molecule_cnt_list,
-                 tng_molecule_t *mols);
-
-tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
-                (tng_trajectory_t tng_data,
-                 const char *name,
-                 const int64_t cnt,
-                 tng_molecule_t *mol);
-
-tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_get
-                (tng_trajectory_t tng_data,
-                 const tng_molecule_t mol,
-                 int64_t *n_particles,
-                 char ***names,
-                 char ***types,
-                 char ***res_names,
-                 int64_t **res_ids,
-                 char ***chain_names,
-                 int64_t **chain_ids);
-
-tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_set
-                (tng_trajectory_t tng_data,
-                 tng_molecule_t mol,
-                 const int64_t n_particles,
-                 const char **names,
-                 const char **types,
-                 const char **res_names,
-                 const int64_t *res_ids,
-                 const char **chain_names,
-                 const int64_t *chain_ids);
+// tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
+//                 (tng_trajectory_t tng_data,
+//                  int64_t *n_mols,
+//                  int64_t *molecule_cnt_list,
+//                  tng_molecule_t *mols);
+// 
+// tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
+//                 (tng_trajectory_t tng_data,
+//                  const char *name,
+//                  const int64_t cnt,
+//                  tng_molecule_t *mol);
+// 
+// tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_get
+//                 (tng_trajectory_t tng_data,
+//                  const tng_molecule_t mol,
+//                  int64_t *n_particles,
+//                  char ***names,
+//                  char ***types,
+//                  char ***res_names,
+//                  int64_t **res_ids,
+//                  char ***chain_names,
+//                  int64_t **chain_ids);
+// 
+// tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_set
+//                 (tng_trajectory_t tng_data,
+//                  tng_molecule_t mol,
+//                  const int64_t n_particles,
+//                  const char **names,
+//                  const char **types,
+//                  const char **res_names,
+//                  const int64_t *res_ids,
+//                  const char **chain_names,
+//                  const int64_t *chain_ids);
                 
 /**
  * @brief High-level function for reading the positions of all particles

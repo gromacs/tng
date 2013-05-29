@@ -269,17 +269,17 @@ int main ( int argc, char *argv[] )
             if(tng_util_pos_write(traj, step, pos) != TNG_SUCCESS)
             {
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-                exit(1);
+                break;
             }
             if(tng_util_vel_write(traj, step, vel) != TNG_SUCCESS)
             {
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-                exit(1);
+                break;
             }
             if(tng_util_force_write(traj, step, force) != TNG_SUCCESS)
             {
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
-                exit(1);
+                break;
             }
         }
         update ( np, nd, pos, vel, force, acc, mass, dt );
