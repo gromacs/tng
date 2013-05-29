@@ -118,6 +118,7 @@ int main ( int argc, char *argv[] )
 
     printf("\n");
     printf("  Initializing trajectory storage.\n");
+    /* Initialize the TNG trajectory */
 #ifdef EXAMPLE_FILES_DIR
     tng_util_trajectory_open(EXAMPLE_FILES_DIR "tng_md_out.tng", 'w', &traj);
 #else
@@ -127,6 +128,8 @@ int main ( int argc, char *argv[] )
 
 
     /* Set molecules data */
+    /* N.B. This is still not done using utility functions. The low-level API
+     * is used. */
     printf("  Creating molecules in trajectory.\n");
     tng_molecule_add(traj, "water", &molecule);
     tng_molecule_chain_add(traj, molecule, "W", &chain);
@@ -150,22 +153,10 @@ int main ( int argc, char *argv[] )
     for ( i = 0; i < nd; i++ )
     {
         box[i] = 10.0;
+        /* box_shape stores 9 values according to the TNG specs */
         box_shape[i*nd + i] = box[i];
     }
 
-
-    /* Add the box shape data block and write the file headers */
-//     if(tng_data_block_add(traj, TNG_TRAJ_BOX_SHAPE, "BOX SHAPE", TNG_DOUBLE_DATA,
-//                        TNG_NON_TRAJECTORY_BLOCK, 1, 9, 1, TNG_UNCOMPRESSED,
-//                        box_shape) == TNG_CRITICAL ||
-//                        tng_file_headers_write(traj, TNG_USE_HASH) == TNG_CRITICAL)
-//     {
-//         free(box_shape);
-//         tng_util_trajectory_close(&traj);
-//         printf("  Cannot write trajectory headers and box shape.\n");
-//         exit(1);
-//     }
-//     free(box_shape);
 
     printf ( "\n" );
     printf ( "  Initializing positions, velocities, and accelerations.\n" );
@@ -214,6 +205,15 @@ int main ( int argc, char *argv[] )
     step_print_index++;
     step_print = ( step_print_index * step_num ) / step_print_num;
 
+    /* The box shape does not change during the trajectory. */
+    if(tng_util_box_shape_write(traj, -1, box_shape) != TNG_SUCCESS)
+    {
+        printf("Error writing box shape. %s: %d\n",
+               __FILE__, __LINE__);
+        exit(1);
+    }
+
+    /* Set the output frequency of positions, velocities and forces */
     if(tng_util_pos_write_frequency_set(traj, step_save) != TNG_SUCCESS)
     {
         printf("Error setting writing frequency data. %s: %d\n",
@@ -233,6 +233,7 @@ int main ( int argc, char *argv[] )
         exit(1);
     }
 
+    /* Write the first frame of positions, velocities and forces */
     if(tng_util_pos_write(traj, 0, pos) != TNG_SUCCESS)
     {
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
@@ -264,6 +265,7 @@ int main ( int argc, char *argv[] )
         }
         if(step % step_save == 0)
         {
+            /* Write positions, velocities and forces */
             if(tng_util_pos_write(traj, step, pos) != TNG_SUCCESS)
             {
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
@@ -294,9 +296,8 @@ int main ( int argc, char *argv[] )
     free ( force );
     free ( pos );
     free ( vel );
-/*
-    Terminate.
-*/
+
+    /* Close the TNG output. */
     tng_util_trajectory_close(&traj);
 
     printf ( "\n" );

@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     tng_trajectory_t traj;
     /* Assume that the data is stored as floats. The data is placed in 1-D
      * arrays */
-    float *positions = 0, *velocities = 0, *forces = 0;
+    float *positions = 0, *box_shape = 0;
     int64_t n_particles, n_frames, tot_n_frames, stride_length, i, j;
     // Set a default frame range
     int64_t first_frame = 0, last_frame = 5000;
@@ -71,6 +71,21 @@ int main(int argc, char **argv)
     if(last_frame > tot_n_frames - 1)
     {
         last_frame = tot_n_frames - 1;
+    }
+
+    if(tng_util_box_shape_read(traj, &box_shape, &stride_length) ==
+        TNG_SUCCESS)
+    {
+        printf("Simulation box shape: ");
+        for(i=0; i < 9; i++)
+        {
+            printf("%f ", box_shape[i]);
+        }
+        printf("\n");
+    }
+    else
+    {
+        printf("Simulation box shape not set in the file (or could not be read)\n");
     }
 
     n_frames = last_frame - first_frame + 1;

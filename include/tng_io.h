@@ -424,7 +424,7 @@ typedef enum {TNG_TRAJ_BOX_SHAPE = 10000,
 
 /** Flag to specify if a data block contains data related to particles or not.*/
 typedef enum {TNG_NON_PARTICLE_BLOCK_DATA,
-              TNG_PARTICLE_BLOCK_DATA} tng_particle_block_data;
+              TNG_PARTICLE_BLOCK_DATA} tng_particle_dependency;
 
 
 typedef enum {TNG_FALSE, TNG_TRUE} tng_bool;
@@ -1984,8 +1984,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
 tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
                 (tng_trajectory_t tng_data,
                  const int64_t f,
+                 const int64_t n_values_per_frame,
                  const int64_t block_id,
                  const char *block_name,
+                 const tng_particle_dependency particle_dependency,
                  const tng_compression compression);
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequency_set
@@ -2008,8 +2010,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const float *values,
+                 const int64_t n_values_per_frame,
                  const int64_t block_id,
                  const char *block_name,
+                 const tng_particle_dependency particle_dependency,
                  const tng_compression compression);
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_write
