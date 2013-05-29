@@ -70,7 +70,7 @@ int main ( int argc, char *argv[] )
     float kinetic;
     float mass = 1.0;
     int nd = 3;
-    int np = 10;
+    int np = 50;
     float *pos;
     float potential;
     int proc_num;
