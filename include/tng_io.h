@@ -1,6 +1,6 @@
 /* This code is part of the tng binary trajectory format.
  *
- *                      VERSION 1.0
+ *                      VERSION 1.1
  *
  * Written by Magnus Lundborg
  * Copyright (c) 2012, The GROMACS development team.
@@ -25,7 +25,7 @@
  * Each block can contain MD5 hashes to verify data integrity and the file
  * can be signed by the user to ensure that the origin is correct.
  *
- * This is version 1.0 of the TNG API. The intention is that this version of
+ * This is version 1.1 of the TNG API. The intention is that this version of
  * the API and ABI should be stable, but it is still possible that future
  * changes might make that impossible, in which case that will be clarified.
  *
@@ -124,7 +124,7 @@
  *     for ( step = 1; step < step_num; step++ )
  *     {
  *         compute ( np, nd, pos, vel, mass, force, &potential, &kinetic );
- * 
+ *
  *         if(step % step_save == 0)
  *         {
  *             // Write positions, velocities and forces
@@ -153,7 +153,7 @@
  * #include <stdlib.h>
  * #include <stdio.h>
  * #include <tng_io.h>
- * 
+ *
  * int main(int argc, char **argv)
  * {
  *     tng_trajectory_t traj;
@@ -164,31 +164,31 @@
  *     // Set a default frame range
  *     int64_t first_frame = 0, last_frame = 5000;
  *     int k;
- * 
+ *
  *     // A reference must be passed to allocate memory
  *     tng_util_trajectory_open(argv[1], 'r', &traj);
- * 
+ *
  *     if(tng_num_frames_get(traj, &tot_n_frames) != TNG_SUCCESS)
  *     {
  *         printf("Cannot determine the number of frames in the file\n");
  *         tng_util_trajectory_close(&traj);
  *         exit(1);
  *     }
- * 
+ *
  *     if(tng_num_particles_get(traj, &n_particles) != TNG_SUCCESS)
  *     {
  *         printf("Cannot determine the number of particles in the file\n");
  *         tng_util_trajectory_close(&traj);
  *         exit(1);
  *     }
- * 
+ *
  *     printf("%"PRId64" frames in file\n", tot_n_frames);
- * 
+ *
  *     if(last_frame > tot_n_frames - 1)
  *     {
  *         last_frame = tot_n_frames - 1;
  *     }
- * 
+ *
  *     if(tng_util_box_shape_read(traj, &box_shape, &stride_length) ==
  *         TNG_SUCCESS)
  *     {
@@ -203,10 +203,10 @@
  *     {
  *         printf("Simulation box shape not set in the file (or could not be read)\n");
  *     }
- * 
+ *
  *     n_frames = last_frame - first_frame + 1;
- * 
- * 
+ *
+ *
  *     // Get the positions of all particles in the requested frame range.
  *     // The positions are stored in the positions array.
  *     // N.B. No proper error checks.
@@ -233,14 +233,14 @@
  *     {
  *         printf("Cannot read positions\n");
  *     }
- * 
+ *
  *     // Free memory
  *     if(positions)
  *     {
  *         free(positions);
  *     }
  *     tng_util_trajectory_close(&traj);
- * 
+ *
  *     return(0);
  * }
  *
@@ -1064,12 +1064,27 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_destroy
  * @param tng_data is the trajectory data container containing the block..
  * @param name is a pointer to the string containing the name of the new molecule.
  * @param molecule is a pointer to the newly created molecule.
- * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
- * error has occured.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
+ * not be set properly or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status DECLSPECDLLEXPORT tng_molecule_add
                 (tng_trajectory_t tng_data,
                  const char *name,
+                 tng_molecule_t *molecule);
+
+/**
+ * @brief Add a molecule with a specific ID to the trajectory.
+ * @param tng_data is the trajectory data container containing the block..
+ * @param name is a pointer to the string containing the name of the new molecule.
+ * @param id is the ID of the created molecule.
+ * @param molecule is a pointer to the newly created molecule.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
+ * not be set properly or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
+                (tng_trajectory_t tng_data,
+                 const char *name,
+                 const int64_t id,
                  tng_molecule_t *molecule);
 
 /**
@@ -1138,13 +1153,30 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
  * @param molecule is the molecule to add a chain to.
  * @param name is a string containing the name of the chain.
  * @param chain is a pointer to the newly created chain.
- * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
- * error has occured.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
+ * not be set properly or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_add
                 (tng_trajectory_t tng_data,
                  tng_molecule_t molecule,
                  const char *name,
+                 tng_chain_t *chain);
+
+/**
+ * @brief Add a chain with a specific id to a molecule.
+ * @param tng_data is the trajectory data container containing the molecule..
+ * @param molecule is the molecule to add a chain to.
+ * @param name is a string containing the name of the chain.
+ * @param id is the ID of the created chain.
+ * @param chain is a pointer to the newly created chain.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
+ * not be set properly or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
+                (tng_trajectory_t tng_data,
+                 tng_molecule_t molecule,
+                 const char *name,
+                 const int64_t id,
                  tng_chain_t *chain);
 
 /**
@@ -1185,13 +1217,30 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find
  * @param chain is the chain to add a residue to.
  * @param name is a string containing the name of the residue.
  * @param residue is a pointer to the newly created residue.
- * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
- * error has occured.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
+ * not be set properly or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status DECLSPECDLLEXPORT tng_chain_residue_add
                 (tng_trajectory_t tng_data,
                  tng_chain_t chain,
                  const char *name,
+                 tng_residue_t *residue);
+
+/**
+ * @brief Add a residue with a specific ID to a chain.
+ * @param tng_data is the trajectory data container containing the chain..
+ * @param chain is the chain to add a residue to.
+ * @param name is a string containing the name of the residue.
+ * @param id is the ID of the created residue.
+ * @param residue is a pointer to the newly created residue.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
+ * not be set properly or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
+                (tng_trajectory_t tng_data,
+                 tng_chain_t chain,
+                 const char *name,
+                 const int64_t id,
                  tng_residue_t *residue);
 
 /**
@@ -1214,14 +1263,33 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_set
  * @param atom_name is a string containing the name of the atom.
  * @param atom_type is a string containing the atom type of the atom.
  * @param atom is a pointer to the newly created atom.
- * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
- * error has occured.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
+ * not be set properly or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status DECLSPECDLLEXPORT tng_residue_atom_add
                 (tng_trajectory_t tng_data,
                  tng_residue_t residue,
                  const char *atom_name,
                  const char *atom_type,
+                 tng_atom_t *atom);
+
+/**
+ * @brief Add an atom with a specific ID to a residue.
+ * @param tng_data is the trajectory containing the residue.
+ * @param residue is the residue to add an atom to.
+ * @param atom_name is a string containing the name of the atom.
+ * @param atom_type is a string containing the atom type of the atom.
+ * @param id is the ID of the created atom.
+ * @param atom is a pointer to the newly created atom.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
+ * not be set properly or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
+                (tng_trajectory_t tng_data,
+                 tng_residue_t residue,
+                 const char *atom_name,
+                 const char *atom_type,
+                 const int64_t id,
                  tng_atom_t *atom);
 
 /**
@@ -1941,13 +2009,13 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
 //                  int64_t *n_mols,
 //                  int64_t *molecule_cnt_list,
 //                  tng_molecule_t *mols);
-// 
+//
 // tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
 //                 (tng_trajectory_t tng_data,
 //                  const char *name,
 //                  const int64_t cnt,
 //                  tng_molecule_t *mol);
-// 
+//
 // tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_get
 //                 (tng_trajectory_t tng_data,
 //                  const tng_molecule_t mol,
@@ -1958,7 +2026,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
 //                  int64_t **res_ids,
 //                  char ***chain_names,
 //                  int64_t **chain_ids);
-// 
+//
 // tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_set
 //                 (tng_trajectory_t tng_data,
 //                  tng_molecule_t mol,
@@ -1969,7 +2037,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
 //                  const int64_t *res_ids,
 //                  const char **chain_names,
 //                  const int64_t *chain_ids);
-                
+
 /**
  * @brief High-level function for reading the positions of all particles
  * from all frames.
