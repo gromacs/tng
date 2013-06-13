@@ -587,10 +587,10 @@ static tng_function_status tng_block_hash_generate(tng_gen_block_t block)
 {
     md5_state_t md5_state;
 
-    tng_md5_init(&md5_state);
-    tng_md5_append(&md5_state, (md5_byte_t *)block->block_contents,
+    md5_init(&md5_state);
+    md5_append(&md5_state, (md5_byte_t *)block->block_contents,
                block->block_contents_size);
-    tng_md5_finish(&md5_state, (md5_byte_t *)block->hash);
+    md5_finish(&md5_state, (md5_byte_t *)block->hash);
 
     return(TNG_SUCCESS);
 }
@@ -615,10 +615,10 @@ static tng_function_status hash_match_verify(tng_gen_block_t block,
         *results = TNG_TRUE;
         return(TNG_FAILURE);
     }
-    tng_md5_init(&md5_state);
-    tng_md5_append(&md5_state, (md5_byte_t *)block->block_contents,
+    md5_init(&md5_state);
+    md5_append(&md5_state, (md5_byte_t *)block->block_contents,
                block->block_contents_size);
-    tng_md5_finish(&md5_state, (md5_byte_t *)hash);
+    md5_finish(&md5_state, (md5_byte_t *)hash);
 
     if(strncmp(block->hash, hash, 16) != 0)
     {

@@ -119,7 +119,7 @@
  *
  * @subsection c_subsec C
  *
- * Example writing data to a TNG file (just an extract):
+ * Example writing data to a TNG file (just an excerpt):
  * \code
  *     for ( step = 1; step < step_num; step++ )
  *     {

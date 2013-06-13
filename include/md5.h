@@ -89,13 +89,13 @@ extern "C"
 #endif /* DECLSPECDLLEXPORT */
 
 /* Initialize the algorithm. */
-void DECLSPECDLLEXPORT tng_md5_init(md5_state_t *pms);
+void DECLSPECDLLEXPORT md5_init(md5_state_t *pms);
 
 /* Append a string to the message. */
-void DECLSPECDLLEXPORT tng_md5_append(md5_state_t *pms, const md5_byte_t *data, int nbytes);
+void DECLSPECDLLEXPORT md5_append(md5_state_t *pms, const md5_byte_t *data, int nbytes);
 
 /* Finish the message and return the digest. */
-void DECLSPECDLLEXPORT tng_md5_finish(md5_state_t *pms, md5_byte_t digest[16]);
+void DECLSPECDLLEXPORT md5_finish(md5_state_t *pms, md5_byte_t digest[16]);
 
 #ifdef __cplusplus
 }  /* end extern "C" */
