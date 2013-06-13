@@ -3708,7 +3708,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_pos_float_find_algo(start_pos, n_particles,
                                                         n_frames,
-                                                        0.01, 0,
+                                                        0.001, 0,
                                                         tng_data->
                                                         compress_algo_pos,
                                                         &new_len);
@@ -3717,7 +3717,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_pos_find_algo(start_pos, n_particles,
                                            n_frames,
-                                           0.01, 0,
+                                           0.001, 0,
                                            tng_data->
                                            compress_algo_pos,
                                            &new_len);
@@ -3728,13 +3728,13 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             if(type == TNG_FLOAT_DATA)
             {
                 dest = tng_compress_pos_float(start_pos, n_particles,
-                                              n_frames, 0.01, 0,
+                                              n_frames, 0.001, 0,
                                               tng_data->compress_algo_pos, &new_len);
             }
             else
             {
                 dest = tng_compress_pos(start_pos, n_particles,
-                                        n_frames, 0.01, 0,
+                                        n_frames, 0.001, 0,
                                         tng_data->compress_algo_pos, &new_len);
             }
         }
@@ -13789,7 +13789,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write
     return(tng_util_generic_write(tng_data, frame_nr, box_shape, 9,
                                   TNG_TRAJ_BOX_SHAPE, "BOX SHAPE",
                                   TNG_NON_PARTICLE_BLOCK_DATA,
-                                  TNG_UNCOMPRESSED));
+                                  TNG_GZIP_COMPRESSION));
 }
 
 
