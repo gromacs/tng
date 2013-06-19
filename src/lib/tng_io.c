@@ -4639,9 +4639,13 @@ static tng_function_status tng_particle_data_block_write
        is used for the loop writing the data (and reserving memory) and needs
        to be at least 1 */
     n_frames = tng_max(1, data->n_frames);
-    /* If the frame set is finished before writing the full number of frames
-     * make sure the data block is not longer than the frame set. */
-    n_frames = tng_min(n_frames, frame_set->n_frames);
+    
+    if(block_type_flag == TNG_TRAJECTORY_BLOCK)
+    {
+        /* If the frame set is finished before writing the full number of frames
+           make sure the data block is not longer than the frame set. */
+        n_frames = tng_min(n_frames, frame_set->n_frames);
+    }
     
     frame_step = n_frames / stride_length;
     if(n_frames % stride_length == 1)
@@ -5501,9 +5505,13 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
        is used for the loop writing the data (and reserving memory) and needs
        to be at least 1 */
     n_frames = tng_max(1, data->n_frames);
-    /* If the frame set is finished before writing the full number of frames
-     * make sure the data block is not longer than the frame set. */
-    n_frames = tng_min(n_frames, frame_set->n_frames);
+    
+    if(block_type_flag == TNG_TRAJECTORY_BLOCK)
+    {
+        /* If the frame set is finished before writing the full number of frames
+           make sure the data block is not longer than the frame set. */
+        n_frames = tng_min(n_frames, frame_set->n_frames);
+    }
 
     frame_step = n_frames / stride_length;
     if(n_frames % stride_length == 1)
