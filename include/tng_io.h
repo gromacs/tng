@@ -343,7 +343,7 @@ typedef unsigned long long int  uint64_t;
 
 
 /** The version of this TNG build */
-#define TNG_VERSION 2
+#define TNG_VERSION 3
 
 /** Flag to indicate frame dependent data. */
 #define TNG_FRAME_DEPENDENT 1
@@ -1515,7 +1515,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_write
 /**
  * @brief Create and initialise a frame set.
  * @param tng_data is the trajectory data container in which to add the frame
- * set
+ * set.
  * @param first_frame is the first frame of the frame set.
  * @param n_frames is the number of frames in the frame set.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -1525,6 +1525,34 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
                 (tng_trajectory_t tng_data,
                  const int64_t first_frame,
                  const int64_t n_frames);
+
+/**
+ * @brief Create and initialise a frame set with the time of the first frame
+ * specified.
+ * @param tng_data is the trajectory data container in which to add the frame
+ * set.
+ * @param first_frame is the first frame of the frame set.
+ * @param n_frames is the number of frames in the frame set.
+ * @param first_frame_time is the time stamp of the first frame (in fs).
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new
+                (tng_trajectory_t tng_data,
+                 const int64_t first_frame,
+                 const int64_t n_frames,
+                 const int64_t first_frame_time);
+
+/**
+ * @brief Set the time stamp of the first frame of the current frame set.
+ * @param tng_data is the trajectory containing the frame set.
+ * @param first_frame_time is the time stamp of the first frame in the
+ * frame set.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_first_frame_time_set
+                (tng_trajectory_t tng_data,
+                 const int64_t first_frame_time);
 
 /**
  * @brief Add a non-particle dependent data block.
@@ -2412,6 +2440,105 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
+                 const float *box_shape);
+
+/**
+ * @brief High-level function for adding data to positions data blocks. If the
+ * frame is at the beginning of a frame set the time stamp of the frame set
+ * is set.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param time is the time stamp of the frame (in fs).
+ * @param positions is a 1D array of data to add. The array should be of length
+ * n_particles * 3.
+ * @details This function uses tng_util_generic_write() and will
+ * create a positions data block if none exists. Positions are stored as three
+ * values per frame and compressed using TNG compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const int64_t time,
+                 const float *positions);
+
+/**
+ * @brief High-level function for adding data to velocities data blocks. If the
+ * frame is at the beginning of a frame set the time stamp of the frame set
+ * is set.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param time is the time stamp of the frame (in fs).
+ * @param velocities is a 1D array of data to add. The array should be of length
+ * n_particles * 3.
+ * @details This function uses tng_util_generic_write() and will
+ * create a velocities data block if none exists. Velocities are stored as three
+ * values per frame and compressed using TNG compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const int64_t time,
+                 const float *velocities);
+
+/**
+ * @brief High-level function for adding data to forces data blocks. If the
+ * frame is at the beginning of a frame set the time stamp of the frame set
+ * is set.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param time is the time stamp of the frame (in fs).
+ * @param forces is a 1D array of data to add. The array should be of length
+ * n_particles * 3.
+ * @details This function uses tng_util_generic_write() and will
+ * create a forces data block if none exists. Forces are stored as three
+ * values per frame and compressed using gzip compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const int64_t time,
+                 const float *forces);
+
+/**
+ * @brief High-level function for adding data to box shape data blocks. If the
+ * frame is at the beginning of a frame set the time stamp of the frame set
+ * is set.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param time is the time stamp of the frame (in fs).
+ * @param box_shape is a 1D array of data to add. The array should be of length 9.
+ * @details This function uses tng_util_generic_write() and will
+ * create a box shape data block if none exists. Box shapes are stored as 9
+ * values per frame and compressed using TNG compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const int64_t time,
                  const float *box_shape);
 
 /** @} */ // end of group2

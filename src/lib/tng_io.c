@@ -171,6 +171,8 @@ struct tng_trajectory_frame_set {
     int64_t long_stride_next_frame_set_file_pos;
     /** The file position of the frame set one long stride step behind */
     int64_t long_stride_prev_frame_set_file_pos;
+    /** Time stamp in fs of first frame in frame set (since TNG_VERSION 3) */
+    int64_t first_frame_time;
 
     /* The data blocks in a frame set are trajectory data blocks */
     /** The number of trajectory data blocks of particle dependent data */
@@ -3102,6 +3104,28 @@ static tng_function_status tng_frame_set_block_read
         }
     }
     offset += sizeof(frame_set->long_stride_prev_frame_set_file_pos);
+    
+    if(block->block_version >= 3)
+    {
+        memcpy(&frame_set->first_frame_time,
+            block->block_contents + offset,
+            sizeof(frame_set->first_frame_time));
+        if(tng_data->input_endianness_swap_func_64)
+        {
+            if(tng_data->input_endianness_swap_func_64(tng_data,
+                                &frame_set->first_frame_time)
+                != TNG_SUCCESS)
+            {
+                printf("Cannot swap byte order. %s: %d\n",
+                        __FILE__, __LINE__);
+            }
+        }
+        offset += sizeof(frame_set->first_frame_time);
+    }
+    else
+    {
+        frame_set->first_frame_time = -1;
+    }
 
     return(TNG_SUCCESS);
 }
@@ -3147,7 +3171,7 @@ static tng_function_status tng_frame_set_block_write
     strcpy(block->name, "TRAJECTORY FRAME SET");
     block->id = TNG_TRAJECTORY_FRAME_SET;
 
-    block->block_contents_size = sizeof(int64_t) * 8;
+    block->block_contents_size = sizeof(int64_t) * 9;
     if(tng_data->var_num_atoms_flag)
     {
         block->block_contents_size += sizeof(int64_t) * tng_data->n_molecules;
@@ -3302,6 +3326,21 @@ static tng_function_status tng_frame_set_block_write
         }
     }
     offset += sizeof(frame_set->long_stride_prev_frame_set_file_pos);
+
+    memcpy(block->block_contents+offset,
+           &frame_set->first_frame_time,
+           sizeof(frame_set->first_frame_time));
+    if(tng_data->output_endianness_swap_func_64)
+    {
+        if(tng_data->output_endianness_swap_func_64(tng_data,
+                                      (int64_t *)block->header_contents+offset)
+            != TNG_SUCCESS)
+        {
+            printf("Cannot swap byte order. %s: %d\n",
+                    __FILE__, __LINE__);
+        }
+    }
+    offset += sizeof(frame_set->first_frame_time);
 
     if(tng_block_header_write(tng_data, block, hash_mode) != TNG_SUCCESS)
     {
@@ -6205,7 +6244,7 @@ static tng_function_status tng_frame_set_pointers_update
 
         contents_start_pos = ftell(tng_data->output_file);
 
-        fseek(tng_data->output_file, block->block_contents_size - 6 *
+        fseek(tng_data->output_file, block->block_contents_size - 7 *
             sizeof(int64_t), SEEK_CUR);
 
         pos = tng_data->current_trajectory_frame_set_output_file_pos;
@@ -6256,7 +6295,7 @@ static tng_function_status tng_frame_set_pointers_update
 
         contents_start_pos = ftell(tng_data->output_file);
 
-        fseek(tng_data->output_file, block->block_contents_size - 4 *
+        fseek(tng_data->output_file, block->block_contents_size - 5 *
             sizeof(int64_t), SEEK_CUR);
 
         pos = tng_data->current_trajectory_frame_set_output_file_pos;
@@ -6306,7 +6345,7 @@ static tng_function_status tng_frame_set_pointers_update
 
         contents_start_pos = ftell(tng_data->output_file);
 
-        fseek(tng_data->output_file, block->block_contents_size - 2 *
+        fseek(tng_data->output_file, block->block_contents_size - 3 *
             sizeof(int64_t), SEEK_CUR);
 
         pos = tng_data->current_trajectory_frame_set_output_file_pos;
@@ -7682,6 +7721,8 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
     frame_set->medium_stride_prev_frame_set_file_pos = -1;
     frame_set->long_stride_next_frame_set_file_pos = -1;
     frame_set->long_stride_prev_frame_set_file_pos = -1;
+    
+    frame_set->first_frame_time = -1;
 
     tng_data->n_molecules = 0;
     tng_data->molecules = 0;
@@ -8198,7 +8239,6 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
     dest->compress_algo_pos = 0;
     dest->compress_algo_vel = 0;
 
-    frame_set->first_frame = -1;
     frame_set->n_mapping_blocks = 0;
     frame_set->mappings = 0;
     frame_set->molecule_cnt_list = 0;
@@ -8215,6 +8255,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
     frame_set->medium_stride_prev_frame_set_file_pos = -1;
     frame_set->long_stride_next_frame_set_file_pos = -1;
     frame_set->long_stride_prev_frame_set_file_pos = -1;
+    frame_set->first_frame = -1;
 
     dest->n_molecules = 0;
     dest->molecules = 0;
@@ -10412,6 +10453,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
     frame_set->n_frames = n_frames;
     frame_set->n_written_frames = 0;
     frame_set->n_unwritten_frames = 0;
+    frame_set->first_frame_time = -1;
 
     if(tng_data->first_trajectory_frame_set_output_file_pos == -1 ||
        tng_data->first_trajectory_frame_set_output_file_pos == 0)
@@ -10433,7 +10475,32 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
     return(TNG_SUCCESS);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new
+                (tng_trajectory_t tng_data,
+                 const int64_t first_frame,
+                 const int64_t n_frames,
+                 const int64_t first_frame_time)
+{
+    tng_function_status stat;
+    
+    stat = tng_frame_set_new(tng_data, first_frame, n_frames);
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+    stat = tng_frame_set_first_frame_time_set(tng_data, first_frame_time);
+    
+    return(stat);
+}
 
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_first_frame_time_set
+                (tng_trajectory_t tng_data,
+                 const int64_t first_frame_time)
+{
+    tng_data->current_trajectory_frame_set.first_frame_time = first_frame_time;
+    
+    return(TNG_SUCCESS);
+}
 
 tng_function_status DECLSPECDLLEXPORT tng_data_block_add
                 (tng_trajectory_t tng_data,
@@ -13842,6 +13909,97 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write
                                   TNG_GZIP_COMPRESSION));
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const int64_t time,
+                 const float *positions)
+{
+    tng_function_status stat;
+    
+    stat = tng_util_generic_write(tng_data, frame_nr, positions, 3,
+                                  TNG_TRAJ_POSITIONS, "POSITIONS",
+                                  TNG_PARTICLE_BLOCK_DATA,
+                                  TNG_TNG_COMPRESSION);
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
+    {
+        stat = tng_frame_set_first_frame_time_set(tng_data, time);
+    }
+    return(stat);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const int64_t time,
+                 const float *velocities)
+{
+    tng_function_status stat;
+    
+    stat = tng_util_generic_write(tng_data, frame_nr, velocities, 3,
+                                  TNG_TRAJ_VELOCITIES, "VELOCITIES",
+                                  TNG_PARTICLE_BLOCK_DATA,
+                                  TNG_TNG_COMPRESSION);
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
+    {
+        stat = tng_frame_set_first_frame_time_set(tng_data, time);
+    }
+    return(stat);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const int64_t time,
+                 const float *forces)
+{
+    tng_function_status stat;
+    
+    stat = tng_util_generic_write(tng_data, frame_nr, forces, 3,
+                                  TNG_TRAJ_FORCES, "FORCES",
+                                  TNG_PARTICLE_BLOCK_DATA,
+                                  TNG_GZIP_COMPRESSION);
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
+    {
+        stat = tng_frame_set_first_frame_time_set(tng_data, time);
+    }
+    return(stat);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const int64_t time,
+                 const float *box_shape)
+{
+    tng_function_status stat;
+    
+    stat = tng_util_generic_write(tng_data, frame_nr, box_shape, 9,
+                                  TNG_TRAJ_BOX_SHAPE, "BOX SHAPE",
+                                  TNG_NON_PARTICLE_BLOCK_DATA,
+                                  TNG_GZIP_COMPRESSION);
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
+    {
+        stat = tng_frame_set_first_frame_time_set(tng_data, time);
+    }
+    return(stat);
+}
 
 #ifdef BUILD_FORTRAN
 /* The following is for calling the library from fortran */
@@ -14502,6 +14660,23 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new_(tng_trajectory_t tng_da
                                                          const int64_t *n_frames)
 {
     return(tng_frame_set_new(tng_data, *first_frame, *n_frames));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new_
+                (tng_trajectory_t tng_data,
+                 const int64_t *first_frame,
+                 const int64_t *n_frames,
+                 const int64_t *first_frame_time)
+{
+    return(tng_frame_set_new(tng_data, *first_frame, *n_frames,
+                             *first_frame_time));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_first_frame_time_set_
+                (tng_trajectory_t tng_data,
+                 const int64_t *first_frame_time)
+{
+    return(tng_frame_set_first_frame_time_set(tng_data, *first_frame_time);
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_data_block_add_
