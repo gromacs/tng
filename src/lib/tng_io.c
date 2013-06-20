@@ -6429,83 +6429,83 @@ static tng_function_status tng_frame_set_pointers_update
     return(TNG_SUCCESS);
 }
 
-/** Move the blocks in a frame set so that there is no unused space between
- * them. This can only be done on the last frame set in the file and should
- * be done e.g. if the last frame set in the file has fewer frames than
- * default or after compressing data blocks in a frame set.
- * @param tng_data is a trajectory data container.
- * @details the current_trajectory_frame_set is the one that will be modified.
- * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the frame set
- * cannot be aligned or TNG_CRITICAL (2) if a major error has occured.
- * FIXME: This function is not finished!!!
- */
-static tng_function_status tng_frame_set_align(tng_trajectory_t tng_data)
-{
-    tng_gen_block_t block;
-    tng_trajectory_frame_set_t frame_set;
-    FILE *temp = tng_data->input_file;
-    int64_t pos, contents_start_pos, output_file_len;
-
-    frame_set = &tng_data->current_trajectory_frame_set;
-
-    if(frame_set->n_written_frames == frame_set->n_frames)
-    {
-        return(TNG_SUCCESS);
-    }
-
-    if(tng_data->current_trajectory_frame_set_output_file_pos !=
-       tng_data->last_trajectory_frame_set_output_file_pos)
-    {
-    }
-
-    if(tng_output_file_init(tng_data) != TNG_SUCCESS)
-    {
-        printf("Cannot initialise destination file. %s: %d\n",
-               __FILE__, __LINE__);
-        return(TNG_CRITICAL);
-    }
-
-    tng_block_init(&block);
-//     output_file_pos = ftell(tng_data->output_file);
-
-    tng_data->input_file = tng_data->output_file;
-
-    pos = tng_data->current_trajectory_frame_set_output_file_pos;
-
-    fseek(tng_data->output_file, pos, SEEK_SET);
-    if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
-    {
-        printf("Cannot read frame set header. %s: %d\n",
-            __FILE__, __LINE__);
-        tng_data->input_file = temp;
-        tng_block_destroy(&block);
-        return(TNG_CRITICAL);
-    }
-
-    contents_start_pos = ftell(tng_data->output_file);
-
-    fseek(tng_data->output_file, 0, SEEK_END);
-    output_file_len = ftell(tng_data->output_file);
-    pos = contents_start_pos + block->block_contents_size;
-    fseek(tng_data->output_file, pos,
-          SEEK_SET);
-
-    while(pos < output_file_len)
-    {
-        if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
-        {
-            printf("Cannot read block header at pos %"PRId64". %s: %d\n", pos,
-                   __FILE__, __LINE__);
-            tng_data->input_file = temp;
-            tng_block_destroy(&block);
-            return(TNG_CRITICAL);
-        }
-        pos += block->header_contents_size + block->block_contents_size;
-        fseek(tng_data->output_file, pos, SEEK_SET);
-    }
-
-    return(TNG_SUCCESS);
-}
+// /** Move the blocks in a frame set so that there is no unused space between
+//  * them. This can only be done on the last frame set in the file and should
+//  * be done e.g. if the last frame set in the file has fewer frames than
+//  * default or after compressing data blocks in a frame set.
+//  * @param tng_data is a trajectory data container.
+//  * @details the current_trajectory_frame_set is the one that will be modified.
+//  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the frame set
+//  * cannot be aligned or TNG_CRITICAL (2) if a major error has occured.
+//  * FIXME: This function is not finished!!!
+//  */
+// static tng_function_status tng_frame_set_align(tng_trajectory_t tng_data)
+// {
+//     tng_gen_block_t block;
+//     tng_trajectory_frame_set_t frame_set;
+//     FILE *temp = tng_data->input_file;
+//     int64_t pos, contents_start_pos, output_file_len;
+// 
+//     frame_set = &tng_data->current_trajectory_frame_set;
+// 
+//     if(frame_set->n_written_frames == frame_set->n_frames)
+//     {
+//         return(TNG_SUCCESS);
+//     }
+// 
+//     if(tng_data->current_trajectory_frame_set_output_file_pos !=
+//        tng_data->last_trajectory_frame_set_output_file_pos)
+//     {
+//     }
+// 
+//     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
+//     {
+//         printf("Cannot initialise destination file. %s: %d\n",
+//                __FILE__, __LINE__);
+//         return(TNG_CRITICAL);
+//     }
+// 
+//     tng_block_init(&block);
+// //     output_file_pos = ftell(tng_data->output_file);
+// 
+//     tng_data->input_file = tng_data->output_file;
+// 
+//     pos = tng_data->current_trajectory_frame_set_output_file_pos;
+// 
+//     fseek(tng_data->output_file, pos, SEEK_SET);
+//     if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
+//     {
+//         printf("Cannot read frame set header. %s: %d\n",
+//             __FILE__, __LINE__);
+//         tng_data->input_file = temp;
+//         tng_block_destroy(&block);
+//         return(TNG_CRITICAL);
+//     }
+// 
+//     contents_start_pos = ftell(tng_data->output_file);
+// 
+//     fseek(tng_data->output_file, 0, SEEK_END);
+//     output_file_len = ftell(tng_data->output_file);
+//     pos = contents_start_pos + block->block_contents_size;
+//     fseek(tng_data->output_file, pos,
+//           SEEK_SET);
+// 
+//     while(pos < output_file_len)
+//     {
+//         if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
+//         {
+//             printf("Cannot read block header at pos %"PRId64". %s: %d\n", pos,
+//                    __FILE__, __LINE__);
+//             tng_data->input_file = temp;
+//             tng_block_destroy(&block);
+//             return(TNG_CRITICAL);
+//         }
+//         pos += block->header_contents_size + block->block_contents_size;
+//         fseek(tng_data->output_file, pos, SEEK_SET);
+//     }
+// 
+//     return(TNG_SUCCESS);
+// }
 
 /** Finish writing the current frame set. Update the number of frames
  * and the hashes of the frame set and all its data blocks (if hash_mode
@@ -6605,43 +6605,43 @@ static tng_function_status tng_frame_set_finalize
 }
 
 
-/** Sets the name of a file contents block
- * @param tng_data is a trajectory data container.
- * @param block is the block, of which to change names.
- * @param new_name is the new name of the block.
- * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
- * error has occured.
- */
-static tng_function_status tng_block_name_set(tng_trajectory_t tng_data,
-                                              tng_gen_block_t block,
-                                              const char *new_name)
-{
-    int len;
-
-    len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
-
-    /* If the currently stored string length is not enough to store the new
-     * string it is freed and reallocated. */
-    if(block->name && strlen(block->name) < len)
-    {
-        free(block->name);
-        block->name = 0;
-    }
-    if(!block->name)
-    {
-        block->name = malloc(len);
-        if(!block->name)
-        {
-            printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
-                   __FILE__, __LINE__);
-            return(TNG_CRITICAL);
-        }
-    }
-
-    strncpy(block->name, new_name, len);
-
-    return(TNG_SUCCESS);
-}
+// /** Sets the name of a file contents block
+//  * @param tng_data is a trajectory data container.
+//  * @param block is the block, of which to change names.
+//  * @param new_name is the new name of the block.
+//  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+//  * error has occured.
+//  */
+// static tng_function_status tng_block_name_set(tng_trajectory_t tng_data,
+//                                               tng_gen_block_t block,
+//                                               const char *new_name)
+// {
+//     int len;
+// 
+//     len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+// 
+//     /* If the currently stored string length is not enough to store the new
+//      * string it is freed and reallocated. */
+//     if(block->name && strlen(block->name) < len)
+//     {
+//         free(block->name);
+//         block->name = 0;
+//     }
+//     if(!block->name)
+//     {
+//         block->name = malloc(len);
+//         if(!block->name)
+//         {
+//             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+//                    __FILE__, __LINE__);
+//             return(TNG_CRITICAL);
+//         }
+//     }
+// 
+//     strncpy(block->name, new_name, len);
+// 
+//     return(TNG_SUCCESS);
+// }
 
 tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
                                       tng_atom_t atom,
