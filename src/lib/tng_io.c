@@ -3884,7 +3884,7 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
         f_dest = malloc(uncompressed_len);
         if(!f_dest)
         {
-            printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+            printf("Cannot allocate memory (%lu bytes). %s: %d\n",
                 uncompressed_len, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -3896,7 +3896,7 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
         d_dest = malloc(uncompressed_len);
         if(!d_dest)
         {
-            printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+            printf("Cannot allocate memory (%lu bytes). %s: %d\n",
                 uncompressed_len, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -14852,4 +14852,225 @@ tng_function_status DECLSPECDLLEXPORT tng_time_get_str_
 {
     return(tng_time_get_str(tng_data, time));
 }
+
+tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open_
+                (const char *filename, const char *mode,
+                 tng_trajectory_t *tng_data_p)
+{
+    return(tng_util_trajectory_open(filename, mode, tng_data_p));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close_
+                (tng_trajectory_t *tng_data_p)
+{
+    return(tng_util_trajectory_close(tng_data_p));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_read_
+                (tng_trajectory_t tng_data,
+                 float **positions,
+                 int64_t *stride_length)
+{
+    return(tng_util_pos_read(tng_data, positions, stride_length));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_read_
+                (tng_trajectory_t tng_data,
+                 float **velocities,
+                 int64_t *stride_length)
+{
+    return(tng_util_vel_read(tng_data, velocities, stride_length));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_force_read_
+                (tng_trajectory_t tng_data,
+                 float **forces,
+                 int64_t *stride_length)
+{
+    return(tng_util_force_read(tng_data, forces, stride_length));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_
+                (tng_trajectory_t tng_data,
+                 float **box_shape,
+                 int64_t *stride_length)
+{
+    return(tng_util_box_shape_read(tng_data, box_shape, stride_length));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_read_range_
+                (tng_trajectory_t tng_data,
+                 const int64_t *first_frame,
+                 const int64_t *last_frame,
+                 float **positions,
+                 int64_t *stride_length)
+{
+    return(tng_util_pos_read_range(tng_data, *first_frame, *last_frame,
+                                         positions, stride_length));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_read_range_
+                (tng_trajectory_t tng_data,
+                 const int64_t *first_frame,
+                 const int64_t *last_frame,
+                 float **velocities,
+                 int64_t *stride_length)
+{
+    return(tng_util_vel_read_range(tng_data, *first_frame, *last_frame,
+                                         velocities, stride_length));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range_
+                (tng_trajectory_t tng_data,
+                 const int64_t *first_frame,
+                 const int64_t *last_frame,
+                 float **forces,
+                 int64_t *stride_length)
+{
+    return(tng_util_force_read_range(tng_data, *first_frame, *last_frame,
+                                         forces, stride_length));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range_
+                (tng_trajectory_t tng_data,
+                 const int64_t *first_frame,
+                 const int64_t *last_frame,
+                 float **box_shape,
+                 int64_t *stride_length)
+{
+    return(tng_util_box_shape_read_range(tng_data, *first_frame, *last_frame,
+                                         box_shape, stride_length));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set_
+                (tng_trajectory_t tng_data,
+                 const int64_t *f,
+                 const int64_t *n_values_per_frame,
+                 const int64_t *block_id,
+                 const char *block_name,
+                 const tng_particle_dependency *particle_dependency,
+                 const tng_compression *compression)
+{
+    return(tng_util_generic_write_frequency_set(tng_data, *f,
+                                                *n_values_per_frame, *block_id,
+                                                block_name,
+                                                *particle_dependency,
+                                                *compression));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequency_set_
+                (tng_trajectory_t tng_data,
+                 const int64_t *f)
+{
+    return(tng_util_pos_write_frequency_set(tng_data, *f));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_frequency_set_
+                (tng_trajectory_t tng_data,
+                 const int64_t *f)
+{
+    return(tng_util_vel_write_frequency_set(tng_data, *f));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_force_write_frequency_set_
+                (tng_trajectory_t tng_data,
+                 const int64_t *f)
+{
+    return(tng_util_force_write_frequency_set(tng_data, *f));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_frequency_set_
+                (tng_trajectory_t tng_data,
+                 const int64_t *f)
+{
+    return(tng_util_box_shape_write_frequency_set(tng_data, *f));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_
+                (tng_trajectory_t tng_data,
+                 const int64_t *frame_nr,
+                 const float *values,
+                 const int64_t *n_values_per_frame,
+                 const int64_t *block_id,
+                 const char *block_name,
+                 const tng_particle_dependency *particle_dependency,
+                 const tng_compression *compression)
+{
+    return(tng_util_generic_write(tng_data, *frame_nr, values,
+                                  *n_values_per_frame, *block_id, block_name,
+                                  *particle_dependency, *compression));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_
+                (tng_trajectory_t tng_data,
+                 const int64_t *frame_nr,
+                 const float *positions)
+{
+    return(tng_util_vel_write(tng_data, *frame_nr, positions));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_
+                (tng_trajectory_t tng_data,
+                 const int64_t *frame_nr,
+                 const float *velocities)
+{
+    return(tng_util_vel_write(tng_data, *frame_nr, velocities));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_force_write_
+                (tng_trajectory_t tng_data,
+                 const int64_t *frame_nr,
+                 const float *forces)
+{
+    return(tng_util_force_write(tng_data, *frame_nr, forces));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_
+                (tng_trajectory_t tng_data,
+                 const int64_t *frame_nr,
+                 const float *box_shape)
+{
+    return(tng_util_box_shape_write(tng_data, *frame_nr, box_shape));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write_
+                (tng_trajectory_t tng_data,
+                 const int64_t *frame_nr,
+                 const int64_t *time,
+                 const float *positions)
+{
+    return(tng_util_pos_with_time_write(tng_data, *frame_nr, *time,
+                                        positions));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write_
+                (tng_trajectory_t tng_data,
+                 const int64_t *frame_nr,
+                 const int64_t *time,
+                 const float *velocities)
+{
+    return(tng_util_vel_with_time_write(tng_data, *frame_nr, *time,
+                                        velocities));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write_
+                (tng_trajectory_t tng_data,
+                 const int64_t *frame_nr,
+                 const int64_t *time,
+                 const float *forces)
+{
+    return(tng_util_force_with_time_write(tng_data, *frame_nr, *time,
+                                          forces));
+}
+                
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write_
+                (tng_trajectory_t tng_data,
+                 const int64_t *frame_nr,
+                 const int64_t *time,
+                 const float *box_shape)
+{
+    return(tng_util_box_shape_with_time_write(tng_data, *frame_nr, *time,
+                                              box_shape));
+}
+
 #endif
