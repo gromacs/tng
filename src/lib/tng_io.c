@@ -14375,6 +14375,20 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get_
     return(tng_num_molecules_get(tng_data, n));
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_get_
+                (const tng_trajectory_t tng_data,
+                 int64_t *exp)
+{
+    return(tng_distance_unit_exponential_get(tng_data, exp));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_set_
+                (const tng_trajectory_t tng_data,
+                 const int64_t *exp)
+{
+    return(tng_distance_unit_exponential_set(tng_data, *exp));
+}
+                
 tng_function_status DECLSPECDLLEXPORT tng_num_frames_per_frame_set_get_
                 (const tng_trajectory_t tng_data,
                  int64_t *n)
