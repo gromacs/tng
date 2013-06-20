@@ -296,6 +296,10 @@ struct tng_trajectory {
     char *last_pgp_signature;
     /** The time (n seconds since 1970) when the file was created */
     int64_t time;
+    /** The exponential of the value of the distance unit used. The default 
+     * distance unit is nm (1e-9), i.e. distance_unit_exponential = -9. If
+     * the measurements are in Å the distance_unit_exponential = -10. */
+    int64_t distance_unit_exponential;
 
     /** A flag indicating if the number of atoms can vary throughout the
      *  simulation, e.g. using a grand canonical ensemble */
@@ -1417,6 +1421,23 @@ static tng_function_status tng_general_info_block_read
                     __FILE__, __LINE__);
         }
     }
+    offset += sizeof(tng_data->long_stride_length);
+    
+    if(block->block_version >= 3)
+    {
+        memcpy(&tng_data->distance_unit_exponential, block->block_contents+offset,
+            sizeof(tng_data->distance_unit_exponential));
+        if(tng_data->input_endianness_swap_func_64)
+        {
+            if(tng_data->input_endianness_swap_func_64(tng_data,
+                                          &tng_data->distance_unit_exponential)
+                != TNG_SUCCESS)
+            {
+                printf("Cannot swap byte order. %s: %d\n",
+                        __FILE__, __LINE__);
+            }
+        }        
+    }
 
     return(TNG_SUCCESS);
 }
@@ -1589,6 +1610,7 @@ static tng_function_status tng_general_info_block_write
                 sizeof(tng_data->last_trajectory_frame_set_input_file_pos) +
                 sizeof(tng_data->medium_stride_length) +
                 sizeof(tng_data->long_stride_length) +
+                sizeof(tng_data->distance_unit_exponential) +
                 first_program_name_len +
                 last_program_name_len +
                 first_user_name_len +
@@ -1722,6 +1744,20 @@ static tng_function_status tng_general_info_block_write
 
     memcpy(block->block_contents+offset, &tng_data->long_stride_length,
            sizeof(tng_data->long_stride_length));
+    if(tng_data->output_endianness_swap_func_64)
+    {
+        if(tng_data->output_endianness_swap_func_64(tng_data,
+                                      (int64_t *)block->header_contents+offset)
+            != TNG_SUCCESS)
+        {
+            printf("Cannot swap byte order. %s: %d\n",
+                    __FILE__, __LINE__);
+        }
+    }
+    offset += sizeof(tng_data->long_stride_length);
+
+    memcpy(block->block_contents+offset, &tng_data->distance_unit_exponential,
+           sizeof(tng_data->distance_unit_exponential));
     if(tng_data->output_endianness_swap_func_64)
     {
         if(tng_data->output_endianness_swap_func_64(tng_data,
@@ -6146,7 +6182,7 @@ static tng_function_status tng_header_pointers_update
 
     contents_start_pos = ftell(tng_data->output_file);
 
-    fseek(tng_data->output_file, block->block_contents_size - 4 *
+    fseek(tng_data->output_file, block->block_contents_size - 5 *
           sizeof(int64_t), SEEK_CUR);
 
     tng_data->input_file = temp;
@@ -7708,6 +7744,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
 
     tng_data->compress_algo_pos = 0;
     tng_data->compress_algo_vel = 0;
+    tng_data->distance_unit_exponential = -9;
 
     frame_set->first_frame = -1;
     frame_set->n_mapping_blocks = 0;
@@ -8246,6 +8283,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
 
     dest->compress_algo_pos = 0;
     dest->compress_algo_vel = 0;
+    dest->distance_unit_exponential = -9;
 
     frame_set->n_mapping_blocks = 0;
     frame_set->mappings = 0;
@@ -9053,6 +9091,24 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
     return(TNG_SUCCESS);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_get
+                (const tng_trajectory_t tng_data,
+                 int64_t *exp)
+{
+    *exp = tng_data->distance_unit_exponential;
+    
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_set
+                (const tng_trajectory_t tng_data,
+                 const int64_t exp)
+{
+    tng_data->distance_unit_exponential = exp;
+    
+    return(TNG_SUCCESS);
+}
+                
 tng_function_status DECLSPECDLLEXPORT tng_num_frames_per_frame_set_get
                 (const tng_trajectory_t tng_data,
                  int64_t *n)

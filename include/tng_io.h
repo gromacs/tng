@@ -1,6 +1,6 @@
 /* This code is part of the tng binary trajectory format.
  *
- *                      VERSION 1.1
+ *                      VERSION 1.3
  *
  * Written by Magnus Lundborg
  * Copyright (c) 2012, The GROMACS development team.
@@ -25,7 +25,7 @@
  * Each block can contain MD5 hashes to verify data integrity and the file
  * can be signed by the user to ensure that the origin is correct.
  *
- * This is version 1.1 of the TNG API. The intention is that this version of
+ * This is version 1.3 of the TNG API. The intention is that this version of
  * the API and ABI should be stable, but it is still possible that future
  * changes might make that impossible, in which case that will be clarified.
  *
@@ -343,7 +343,7 @@ typedef unsigned long long int  uint64_t;
 
 
 /** The version of this TNG build */
-#define TNG_VERSION 3
+#define TNG_VERSION 3 /* TNG_VERSION 3 => Api version 1.3 */
 
 /** Flag to indicate frame dependent data. */
 #define TNG_FRAME_DEPENDENT 1
@@ -920,6 +920,30 @@ tng_function_status DECLSPECDLLEXPORT tng_num_particles_get
 tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
                 (const tng_trajectory_t tng_data,
                  int64_t *n);
+
+/**
+ * @brief Get the exponential used for distances in the trajectory.
+ * @param tng_data is the trajectory from which to get the information.
+ * @param exp is pointing to a value set to the distance unit exponential.
+ * @details Example: If the distances are specified in nm (default) exp is -9.
+ * If the distances are specified in Å exp is -10.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_get
+                (const tng_trajectory_t tng_data,
+                 int64_t *exp);
+
+/**
+ * @brief Set the exponential used for distances in the trajectory.
+ * @param tng_data is the trajectory of which to set the unit exponential.
+ * @param exp is the distance unit exponential to use.
+ * @details Example: If the distances are specified in nm (default) exp is -9.
+ * If the distances are specified in Å exp is -10.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_set
+                (const tng_trajectory_t tng_data,
+                 const int64_t exp);
 
 /**
  * @brief Get the number of frames per frame set.
