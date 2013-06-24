@@ -877,6 +877,27 @@ tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_set
                  const int64_t len);
 
 /**
+ * @brief Get the current time per frame of the trajectory.
+ * @param tng_data is the trajectory from which to get the time per frame.
+ * @param len is pointing to a value set to the time per frame.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_get
+                (const tng_trajectory_t tng_data,
+                 double *time);
+
+/**
+ * @brief Set the time per frame of the trajectory.
+ * @param tng_data is the trajectory of which to set the time per frame.
+ * @param len is the new time per frame.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_set
+                (tng_trajectory_t tng_data,
+                 const double time);
+
+/**
  * @brief Get the length of the input file.
  * @param tng_data is the trajectory from which to get the input file length.
  * @param len is pointing to a value set to the file length.
@@ -1557,7 +1578,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
  * set.
  * @param first_frame is the first frame of the frame set.
  * @param n_frames is the number of frames in the frame set.
- * @param first_frame_time is the time stamp of the first frame (in fs).
+ * @param first_frame_time is the time stamp of the first frame (in seconds).
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1565,7 +1586,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new
                 (tng_trajectory_t tng_data,
                  const int64_t first_frame,
                  const int64_t n_frames,
-                 const int64_t first_frame_time);
+                 const double first_frame_time);
 
 /**
  * @brief Set the time stamp of the first frame of the current frame set.
@@ -1576,7 +1597,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new
  */
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_first_frame_time_set
                 (tng_trajectory_t tng_data,
-                 const int64_t first_frame_time);
+                 const double first_frame_time);
 
 /**
  * @brief Add a non-particle dependent data block.
@@ -2472,7 +2493,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write
  * is set.
  * @param tng_data is the trajectory to use.
  * @param frame_nr is the frame number of the data.
- * @param time is the time stamp of the frame (in fs).
+ * @param time is the time stamp of the frame (in seconds).
  * @param positions is a 1D array of data to add. The array should be of length
  * n_particles * 3.
  * @details This function uses tng_util_generic_write() and will
@@ -2497,7 +2518,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
  * is set.
  * @param tng_data is the trajectory to use.
  * @param frame_nr is the frame number of the data.
- * @param time is the time stamp of the frame (in fs).
+ * @param time is the time stamp of the frame (in seconds).
  * @param velocities is a 1D array of data to add. The array should be of length
  * n_particles * 3.
  * @details This function uses tng_util_generic_write() and will
@@ -2522,7 +2543,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
  * is set.
  * @param tng_data is the trajectory to use.
  * @param frame_nr is the frame number of the data.
- * @param time is the time stamp of the frame (in fs).
+ * @param time is the time stamp of the frame (in seconds).
  * @param forces is a 1D array of data to add. The array should be of length
  * n_particles * 3.
  * @details This function uses tng_util_generic_write() and will
@@ -2547,7 +2568,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
  * is set.
  * @param tng_data is the trajectory to use.
  * @param frame_nr is the frame number of the data.
- * @param time is the time stamp of the frame (in fs).
+ * @param time is the time stamp of the frame (in seconds).
  * @param box_shape is a 1D array of data to add. The array should be of length 9.
  * @details This function uses tng_util_generic_write() and will
  * create a box shape data block if none exists. Box shapes are stored as 9

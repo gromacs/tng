@@ -171,8 +171,8 @@ struct tng_trajectory_frame_set {
     int64_t long_stride_next_frame_set_file_pos;
     /** The file position of the frame set one long stride step behind */
     int64_t long_stride_prev_frame_set_file_pos;
-    /** Time stamp in fs of first frame in frame set (since TNG_VERSION 3) */
-    int64_t first_frame_time;
+    /** Time stamp (in seconds) of first frame in frame set */
+    double first_frame_time;
 
     /* The data blocks in a frame set are trajectory data blocks */
     /** The number of trajectory data blocks of particle dependent data */
@@ -311,6 +311,9 @@ struct tng_trajectory {
     int64_t medium_stride_length;
     /** The number of frame sets in a long stride step */
     int64_t long_stride_length;
+    /** The current (can change from one frame set to another time length
+     *  (in seconds) of one frame */
+    double time_per_frame;
 
     /** The number of different kinds of molecules in the trajectory */
     int64_t n_molecules;
@@ -3149,7 +3152,7 @@ static tng_function_status tng_frame_set_block_read
         if(tng_data->input_endianness_swap_func_64)
         {
             if(tng_data->input_endianness_swap_func_64(tng_data,
-                                &frame_set->first_frame_time)
+                                (int64_t *)&frame_set->first_frame_time)
                 != TNG_SUCCESS)
             {
                 printf("Cannot swap byte order. %s: %d\n",
@@ -3157,10 +3160,26 @@ static tng_function_status tng_frame_set_block_read
             }
         }
         offset += sizeof(frame_set->first_frame_time);
+
+        memcpy(&tng_data->time_per_frame,
+            block->block_contents + offset,
+            sizeof(tng_data->time_per_frame));
+        if(tng_data->input_endianness_swap_func_64)
+        {
+            if(tng_data->input_endianness_swap_func_64(tng_data,
+                                (int64_t *)&tng_data->time_per_frame)
+                != TNG_SUCCESS)
+            {
+                printf("Cannot swap byte order. %s: %d\n",
+                        __FILE__, __LINE__);
+            }
+        }
+        offset += sizeof(tng_data->time_per_frame);
     }
     else
     {
         frame_set->first_frame_time = -1;
+        tng_data->time_per_frame = -1;
     }
 
     return(TNG_SUCCESS);
@@ -3207,7 +3226,9 @@ static tng_function_status tng_frame_set_block_write
     strcpy(block->name, "TRAJECTORY FRAME SET");
     block->id = TNG_TRAJECTORY_FRAME_SET;
 
-    block->block_contents_size = sizeof(int64_t) * 9;
+    block->block_contents_size = sizeof(int64_t) * 8;
+    block->block_contents_size += sizeof(double) * 2;
+    
     if(tng_data->var_num_atoms_flag)
     {
         block->block_contents_size += sizeof(int64_t) * tng_data->n_molecules;
@@ -3377,6 +3398,21 @@ static tng_function_status tng_frame_set_block_write
         }
     }
     offset += sizeof(frame_set->first_frame_time);
+
+    memcpy(block->block_contents+offset,
+           &tng_data->time_per_frame,
+           sizeof(tng_data->time_per_frame));
+    if(tng_data->output_endianness_swap_func_64)
+    {
+        if(tng_data->output_endianness_swap_func_64(tng_data,
+                                      (int64_t *)block->header_contents+offset)
+            != TNG_SUCCESS)
+        {
+            printf("Cannot swap byte order. %s: %d\n",
+                    __FILE__, __LINE__);
+        }
+    }
+    offset += sizeof(tng_data->time_per_frame);
 
     if(tng_block_header_write(tng_data, block, hash_mode) != TNG_SUCCESS)
     {
@@ -6288,8 +6324,8 @@ static tng_function_status tng_frame_set_pointers_update
 
         contents_start_pos = ftell(tng_data->output_file);
 
-        fseek(tng_data->output_file, block->block_contents_size - 7 *
-            sizeof(int64_t), SEEK_CUR);
+        fseek(tng_data->output_file, block->block_contents_size - (6 *
+            sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
 
         pos = tng_data->current_trajectory_frame_set_output_file_pos;
 
@@ -6339,8 +6375,8 @@ static tng_function_status tng_frame_set_pointers_update
 
         contents_start_pos = ftell(tng_data->output_file);
 
-        fseek(tng_data->output_file, block->block_contents_size - 5 *
-            sizeof(int64_t), SEEK_CUR);
+        fseek(tng_data->output_file, block->block_contents_size - (4 *
+            sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
 
         pos = tng_data->current_trajectory_frame_set_output_file_pos;
 
@@ -6389,8 +6425,8 @@ static tng_function_status tng_frame_set_pointers_update
 
         contents_start_pos = ftell(tng_data->output_file);
 
-        fseek(tng_data->output_file, block->block_contents_size - 3 *
-            sizeof(int64_t), SEEK_CUR);
+        fseek(tng_data->output_file, block->block_contents_size - (2 *
+            sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
 
         pos = tng_data->current_trajectory_frame_set_output_file_pos;
 
@@ -7736,6 +7772,8 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
     tng_data->medium_stride_length = 100;
     tng_data->long_stride_length = 10000;
 
+    tng_data->time_per_frame = -1;
+
     tng_data->n_particle_data_blocks = 0;
     tng_data->n_data_blocks = 0;
 
@@ -8273,6 +8311,8 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
     dest->n_trajectory_blocks = src->n_trajectory_blocks;
     dest->medium_stride_length = src->medium_stride_length;
     dest->long_stride_length = src->long_stride_length;
+
+    dest->time_per_frame = src->time_per_frame;
 
     /* Currently the non trajectory data blocks are not copied since it
      * can lead to problems when freeing memory in a parallel block. */
@@ -8975,8 +9015,8 @@ tng_function_status DECLSPECDLLEXPORT tng_medium_stride_length_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_get
-                    (const tng_trajectory_t tng_data,
-                     int64_t *len)
+                (const tng_trajectory_t tng_data,
+                 int64_t *len)
 {
     *len = tng_data->long_stride_length;
 
@@ -8984,14 +9024,43 @@ tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_set
-                    (tng_trajectory_t tng_data,
-                     const int64_t len)
+                (tng_trajectory_t tng_data,
+                 const int64_t len)
 {
     if(len <= tng_data->medium_stride_length)
     {
         return(TNG_FAILURE);
     }
     tng_data->long_stride_length = len;
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_get
+                (const tng_trajectory_t tng_data,
+                 double *time)
+{
+    *time = tng_data->time_per_frame;
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_set
+                (tng_trajectory_t tng_data,
+                 const double time)
+{
+    tng_trajectory_frame_set_t frame_set =
+    &tng_data->current_trajectory_frame_set;
+    
+    /* If the current frame set is not finished write it to disk before
+       changing time per frame. */
+    if(frame_set->n_unwritten_frames > 0)
+    {
+        frame_set->n_frames = frame_set->n_unwritten_frames;
+        tng_frame_set_write(tng_data, TNG_USE_HASH);
+    }
+    
+    tng_data->time_per_frame = time;
 
     return(TNG_SUCCESS);
 }
@@ -10543,7 +10612,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new
                 (tng_trajectory_t tng_data,
                  const int64_t first_frame,
                  const int64_t n_frames,
-                 const int64_t first_frame_time)
+                 const double first_frame_time)
 {
     tng_function_status stat;
     
@@ -10559,7 +10628,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_first_frame_time_set
                 (tng_trajectory_t tng_data,
-                 const int64_t first_frame_time)
+                 const double first_frame_time)
 {
     tng_data->current_trajectory_frame_set.first_frame_time = first_frame_time;
     
@@ -14347,6 +14416,20 @@ tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_set_
     return(tng_long_stride_length_set(tng_data, *len));
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_get_
+                (const tng_trajectory_t tng_data,
+                 double *time)
+{
+    return(tng_time_per_frame_get(tng_data, time));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_set_
+                (tng_trajectory_t tng_data,
+                 const double *time)
+{
+    return(tng_time_per_frame_set(tng_data, *time));
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_input_file_len_get_
                 (const tng_trajectory_t tng_data,
                  int64_t *len)
@@ -14744,7 +14827,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new_
                 (tng_trajectory_t tng_data,
                  const int64_t *first_frame,
                  const int64_t *n_frames,
-                 const int64_t *first_frame_time)
+                 const double *first_frame_time)
 {
     return(tng_frame_set_new(tng_data, *first_frame, *n_frames,
                              *first_frame_time));
@@ -14752,7 +14835,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new_
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_first_frame_time_set_
                 (tng_trajectory_t tng_data,
-                 const int64_t *first_frame_time)
+                 const double *first_frame_time)
 {
     return(tng_frame_set_first_frame_time_set(tng_data, *first_frame_time);
 }
