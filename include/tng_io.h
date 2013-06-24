@@ -74,7 +74,12 @@
  *
  * See git log for full revision history.
  *
- * revs
+ * Revisions
+ * 
+ * v. 1.3 - Second stable release of the API.
+ * 
+ *      - Added multiplication factor for coordinate units to general info.
+ *      - Added time stamps and time per frame in frame sets.
  *      - High-level API functions added (not for managing molecules yet)
  *      - Added functions for reading data blocks into 1D arrays.
  *      - TNG compression added.
