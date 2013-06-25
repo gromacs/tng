@@ -225,7 +225,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     }
 
     /* Write file headers (includes non trajectory data blocks */
-    if(tng_file_headers_write(traj, TNG_USE_HASH) == TNG_CRITICAL)
+    if(tng_file_headers_write(traj, TNG_SKIP_HASH) == TNG_CRITICAL)
     {
         printf("Cannot write file headers.\n");
     }
@@ -580,6 +580,7 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj)
 int main()
 {
     tng_trajectory_t traj;
+    tng_function_status stat;
     char time_str[TNG_MAX_DATE_STR_LEN];
     
     if(tng_trajectory_init(&traj) != TNG_SUCCESS)
@@ -672,8 +673,36 @@ int main()
     {
         printf("Test Destroy trajectory:\t\t\tSucceeded.\n");
     }
-    
 
+    
+#ifdef EXAMPLE_FILES_DIR
+    stat = tng_util_trajectory_open(EXAMPLE_FILES_DIR "tng_test.tng", 'r', &traj);
+#else
+    stat = tng_util_trajectory_open("/tmp/tng_test.tng", 'r', &traj);
+#endif
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Test Utility function open:\t\t\tFailed. %s: %d.\n",
+               __FILE__, __LINE__);
+        exit(1);
+    }
+    else
+    {
+        printf("Test Utility function open:\t\t\tSucceeded.\n");
+    }
+
+    stat = tng_util_trajectory_close(&traj);    
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Test Utility function close:\t\t\tFailed. %s: %d.\n",
+               __FILE__, __LINE__);
+        exit(1);
+    }
+    else
+    {
+        printf("Test Utility function close:\t\t\tSucceeded.\n");
+    }
+    
     printf("Tests finished\n");
     
     exit(0);
