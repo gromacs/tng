@@ -194,7 +194,7 @@ struct tng_particle_data {
      *  data that is stored */
     char *block_name;
     /** The type of data stored. */
-    tng_data_type datatype;
+    char datatype;
     /** The frame number of the first data value */
     int64_t first_frame_with_data;
     /** The number of frames in this frame set */
@@ -222,7 +222,7 @@ struct tng_non_particle_data {
      *  data that is stored */
     char *block_name;
     /** The type of data stored. */
-    tng_data_type datatype;
+    char datatype;
     /** The first frame number of the first data value */
     int64_t first_frame_with_data;
     /** The number of frames in this data block */
@@ -270,9 +270,9 @@ struct tng_trajectory {
      * input file */
     tng_function_status (*output_endianness_swap_func_64)(const tng_trajectory_t, int64_t *);
     /** The endianness of 32 bit values of the current computer */
-    tng_endianness_32 endianness_32;
+    char endianness_32;
     /** The endianness of 64 bit values of the current computer */
-    tng_endianness_64 endianness_64;
+    char endianness_64;
 
     /** The name of the program producing this trajectory */
     char *first_program_name;
@@ -455,32 +455,32 @@ static tng_function_status tng_swap_byte_order_big_endian_64
     switch(tng_data->endianness_64)
     {
     case TNG_LITTLE_ENDIAN_64: // Byte order is reversed.
-        *v = ((*v & 0xFF00000000000000) >> 56) | // Move first byte to end
-             ((*v & 0x00FF000000000000) >> 40) | // Move 2nd byte to pos 7
-             ((*v & 0x0000FF0000000000) >> 24) | // Move 3rd byte to pos 6
-             ((*v & 0x000000FF00000000) >> 8 ) | // Move 4th byte to pos 5
-             ((*v & 0x00000000FF000000) << 8 ) | // Move 5th byte to pos 4
-             ((*v & 0x0000000000FF0000) << 24) | // Move 6th byte to pos 3
-             ((*v & 0x000000000000FF00) << 40) | // Move 7th byte to pos 2
-             ((*v & 0x00000000000000FF) << 56);  // Move last byte to first
+        *v = ((*v & 0xFF00000000000000LL) >> 56) | // Move first byte to end
+             ((*v & 0x00FF000000000000LL) >> 40) | // Move 2nd byte to pos 7
+             ((*v & 0x0000FF0000000000LL) >> 24) | // Move 3rd byte to pos 6
+             ((*v & 0x000000FF00000000LL) >> 8 ) | // Move 4th byte to pos 5
+             ((*v & 0x00000000FF000000LL) << 8 ) | // Move 5th byte to pos 4
+             ((*v & 0x0000000000FF0000LL) << 24) | // Move 6th byte to pos 3
+             ((*v & 0x000000000000FF00LL) << 40) | // Move 7th byte to pos 2
+             ((*v & 0x00000000000000FFLL) << 56);  // Move last byte to first
 
         return(TNG_SUCCESS);
 
     case TNG_QUAD_SWAP_64: // Byte quad swap
-        *v = ((*v & 0xFFFFFFFF00000000) >> 32) |
-             ((*v & 0x00000000FFFFFFFF) << 32);
+        *v = ((*v & 0xFFFFFFFF00000000LL) >> 32) |
+             ((*v & 0x00000000FFFFFFFFLL) << 32);
 
         return(TNG_SUCCESS);
 
     case TNG_BYTE_PAIR_SWAP_64: // Byte pair swap
-        *v = ((*v & 0xFFFF0000FFFF0000) >> 16) |
-             ((*v & 0x0000FFFF0000FFFF) << 16);
+        *v = ((*v & 0xFFFF0000FFFF0000LL) >> 16) |
+             ((*v & 0x0000FFFF0000FFFFLL) << 16);
 
         return(TNG_SUCCESS);
 
     case TNG_BYTE_SWAP_64: // Byte swap
-        *v = ((*v & 0xFF00FF00FF00FF00) >> 8) |
-             ((*v & 0x00FF00FF00FF00FF) << 8);
+        *v = ((*v & 0xFF00FF00FF00FF00LL) >> 8) |
+             ((*v & 0x00FF00FF00FF00FFLL) << 8);
 
         return(TNG_SUCCESS);
 
@@ -548,38 +548,38 @@ static tng_function_status tng_swap_byte_order_little_endian_64
         return(TNG_SUCCESS);
 
     case TNG_QUAD_SWAP_64: // Byte quad swapped big endian to little endian
-        *v = ((*v & 0xFF000000FF000000) >> 24) |
-             ((*v & 0x00FF000000FF0000) >> 8) |
-             ((*v & 0x0000FF000000FF00) << 8) |
-             ((*v & 0x000000FF000000FF) << 24);
+        *v = ((*v & 0xFF000000FF000000LL) >> 24) |
+             ((*v & 0x00FF000000FF0000LL) >> 8) |
+             ((*v & 0x0000FF000000FF00LL) << 8) |
+             ((*v & 0x000000FF000000FFLL) << 24);
 
         return(TNG_SUCCESS);
 
     case TNG_BYTE_PAIR_SWAP_64: // Byte pair swapped big endian to little endian
-        *v = ((*v & 0xFF00FF0000000000) >> 40) |
-             ((*v & 0x00FF00FF00000000) >> 24) |
-             ((*v & 0x00000000FF00FF00) << 24) |
-             ((*v & 0x0000000000FF00FF) << 40);
+        *v = ((*v & 0xFF00FF0000000000LL) >> 40) |
+             ((*v & 0x00FF00FF00000000LL) >> 24) |
+             ((*v & 0x00000000FF00FF00LL) << 24) |
+             ((*v & 0x0000000000FF00FFLL) << 40);
 
         return(TNG_SUCCESS);
 
     case TNG_BYTE_SWAP_64: // Byte swapped big endian to little endian
-        *v = ((*v & 0xFFFF000000000000) >> 48) |
-             ((*v & 0x0000FFFF00000000) >> 16) |
-             ((*v & 0x00000000FFFF0000) << 16) |
-             ((*v & 0x000000000000FFFF) << 48);
+        *v = ((*v & 0xFFFF000000000000LL) >> 48) |
+             ((*v & 0x0000FFFF00000000LL) >> 16) |
+             ((*v & 0x00000000FFFF0000LL) << 16) |
+             ((*v & 0x000000000000FFFFLL) << 48);
 
         return(TNG_SUCCESS);
 
     case TNG_BIG_ENDIAN_64: // Byte order is reversed.
-        *v = ((*v & 0xFF00000000000000) >> 56) | // Move first byte to end
-             ((*v & 0x00FF000000000000) >> 40) | // Move 2nd byte to pos 7
-             ((*v & 0x0000FF0000000000) >> 24) | // Move 3rd byte to pos 6
-             ((*v & 0x000000FF00000000) >> 8 ) | // Move 4th byte to pos 5
-             ((*v & 0x00000000FF000000) << 8 ) | // Move 5th byte to pos 4
-             ((*v & 0x0000000000FF0000) << 24) | // Move 6th byte to pos 3
-             ((*v & 0x000000000000FF00) << 40) | // Move 7th byte to pos 2
-             ((*v & 0x00000000000000FF) << 56);  // Move last byte to first
+        *v = ((*v & 0xFF00000000000000LL) >> 56) | // Move first byte to end
+             ((*v & 0x00FF000000000000LL) >> 40) | // Move 2nd byte to pos 7
+             ((*v & 0x0000FF0000000000LL) >> 24) | // Move 3rd byte to pos 6
+             ((*v & 0x000000FF00000000LL) >> 8 ) | // Move 4th byte to pos 5
+             ((*v & 0x00000000FF000000LL) << 8 ) | // Move 5th byte to pos 4
+             ((*v & 0x0000000000FF0000LL) << 24) | // Move 6th byte to pos 3
+             ((*v & 0x000000000000FF00LL) << 40) | // Move 7th byte to pos 2
+             ((*v & 0x00000000000000FFLL) << 56);  // Move last byte to first
 
         return(TNG_SUCCESS);
 
@@ -1033,7 +1033,7 @@ static tng_function_status tng_block_verbatim_write(tng_trajectory_t tng_data,
 static tng_function_status tng_block_header_write
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
-                 const tng_hash_mode hash_mode)
+                 const char hash_mode)
 {
     int name_len, offset = 0;
 
@@ -1169,7 +1169,7 @@ static tng_function_status tng_block_header_write
  */
 static tng_function_status tng_general_info_block_read
                 (tng_trajectory_t tng_data, tng_gen_block_t block,
-                 const tng_hash_mode hash_mode)
+                 const char hash_mode)
 {
     int len, offset = 0;
     tng_bool same_hash;
@@ -1454,7 +1454,7 @@ static tng_function_status tng_general_info_block_read
  */
 static tng_function_status tng_general_info_block_write
                 (tng_trajectory_t tng_data,
-                 const tng_hash_mode hash_mode)
+                 const char hash_mode)
 {
     int first_program_name_len, first_user_name_len;
     int first_computer_name_len, first_pgp_signature_len;
@@ -2089,7 +2089,7 @@ static tng_function_status tng_atom_data_write(tng_trajectory_t tng_data,
 static tng_function_status tng_molecules_block_read
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
-                 const tng_hash_mode hash_mode)
+                 const char hash_mode)
 {
     int i, j, k, l, len, offset = 0;
     tng_molecule_t molecule;
@@ -2492,7 +2492,7 @@ static tng_function_status tng_molecules_block_read
  */
 static tng_function_status tng_molecules_block_write
                 (tng_trajectory_t tng_data,
-                 const tng_hash_mode hash_mode)
+                 const char hash_mode)
 {
     int len = 0, name_len;
     int i, j, k, l, offset = 0;
@@ -2899,7 +2899,7 @@ static tng_function_status tng_molecules_block_write
 static tng_function_status tng_frame_set_block_read
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
-                 const tng_hash_mode hash_mode)
+                 const char hash_mode)
 {
     int i, file_pos, offset = 0;
     int64_t prev_n_particles;
@@ -3196,7 +3196,7 @@ static tng_function_status tng_frame_set_block_read
 static tng_function_status tng_frame_set_block_write
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
-                 const tng_hash_mode hash_mode)
+                 const char hash_mode)
 {
     char *temp_name;
     int64_t i;
@@ -3445,7 +3445,7 @@ static tng_function_status tng_frame_set_block_write
 static tng_function_status tng_trajectory_mapping_block_read
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
-                 const tng_hash_mode hash_mode)
+                 const char hash_mode)
 {
     int64_t i;
     int offset = 0;
@@ -3592,7 +3592,7 @@ static tng_function_status tng_trajectory_mapping_block_write
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
                  int mapping_block_nr,
-                 const tng_hash_mode hash_mode)
+                 const char hash_mode)
 {
     char *temp_name;
     int i, offset = 0, name_len;
@@ -3720,7 +3720,7 @@ static tng_function_status tng_trajectory_mapping_block_write
  */
 static tng_function_status tng_particle_data_block_create
                 (tng_trajectory_t tng_data,
-                 const tng_block_type block_type_flag)
+                 const char block_type_flag)
 {
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
@@ -3773,7 +3773,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
                                         tng_gen_block_t block,
                                         const int64_t n_frames,
                                         const int64_t n_particles,
-                                        const tng_data_type type,
+                                        const char type,
                                         void *start_pos,
                                         const int len)
 {
@@ -3929,7 +3929,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
 
 static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
                                           tng_gen_block_t block,
-                                          const tng_data_type type,
+                                          const char type,
                                           void *start_pos,
                                           const unsigned long uncompressed_len)
 {
@@ -4253,7 +4253,7 @@ static tng_function_status tng_particle_data_find
     int64_t block_index, i;
     tng_trajectory_frame_set_t frame_set = &tng_data->
                                            current_trajectory_frame_set;
-    tng_block_type block_type_flag;
+    char block_type_flag;
 
     if(tng_data->current_trajectory_frame_set_input_file_pos > 0 ||
        tng_data->current_trajectory_frame_set_output_file_pos > 0)
@@ -4305,7 +4305,7 @@ static tng_function_status tng_data_find
     int64_t block_index, i;
     tng_trajectory_frame_set_t frame_set = &tng_data->
                                            current_trajectory_frame_set;
-    tng_block_type block_type_flag;
+    char block_type_flag;
 
     if(tng_data->current_trajectory_frame_set_input_file_pos > 0 ||
        tng_data->current_trajectory_frame_set_output_file_pos > 0)
@@ -4409,7 +4409,7 @@ static tng_function_status tng_particle_data_read
     tng_particle_data_t data;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
-    tng_block_type block_type_flag;
+    char block_type_flag;
 
     switch(datatype)
     {
@@ -4633,7 +4633,7 @@ static tng_function_status tng_particle_data_block_write
                  tng_gen_block_t block,
                  const int block_index,
                  const tng_particle_mapping_t mapping,
-                 const tng_hash_mode hash_mode)
+                 const char hash_mode)
 {
     int64_t n_particles, num_first_particle, n_frames, stride_length;
     int64_t frame_step;
@@ -4645,7 +4645,7 @@ static tng_function_status tng_particle_data_block_write
     &tng_data->current_trajectory_frame_set;
 
     tng_particle_data_t data;
-    tng_block_type block_type_flag;
+    char block_type_flag;
 
     /* If we have already started writing frame sets it is too late to write
      * non-trajectory data blocks */
@@ -5135,7 +5135,7 @@ static tng_function_status tng_particle_data_block_write
  */
 static tng_function_status tng_data_block_create
                 (tng_trajectory_t tng_data,
-                 const tng_block_type block_type_flag)
+                 const char block_type_flag)
 {
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
@@ -5311,7 +5311,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
     tng_non_particle_data_t data;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
-    tng_block_type block_type_flag;
+    char block_type_flag;
 
 //     printf("%s\n", block->name);
 
@@ -5501,7 +5501,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
 static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                                                 tng_gen_block_t block,
                                                 const int block_index,
-                                                const tng_hash_mode hash_mode)
+                                                const char hash_mode)
 {
     int64_t n_frames, stride_length, frame_step;
     int i, j, offset = 0, size, len, data_start_pos;
@@ -5511,7 +5511,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     &tng_data->current_trajectory_frame_set;
 
     tng_non_particle_data_t data;
-    tng_block_type block_type_flag;
+    char block_type_flag;
 
     /* If we have already started writing frame sets it is too late to write
      * non-trajectory data blocks */
@@ -5927,7 +5927,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
 static tng_function_status tng_data_block_contents_read
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
-                 const tng_hash_mode hash_mode)
+                 const char hash_mode)
 {
     int64_t n_values, codec_id, n_frames, first_frame_with_data;
     int64_t stride_length, block_n_particles, num_first_particle;
@@ -6187,7 +6187,7 @@ static tng_function_status tng_md5_hash_update(tng_trajectory_t tng_data,
  * error has occured.
  */
 static tng_function_status tng_header_pointers_update
-                (tng_trajectory_t tng_data, const tng_hash_mode hash_mode)
+                (tng_trajectory_t tng_data, const char hash_mode)
 {
     tng_gen_block_t block;
     FILE *temp = tng_data->input_file;
@@ -6283,7 +6283,7 @@ static tng_function_status tng_header_pointers_update
  * error has occured.
  */
 static tng_function_status tng_frame_set_pointers_update
-                (tng_trajectory_t tng_data, const tng_hash_mode hash_mode)
+                (tng_trajectory_t tng_data, const char hash_mode)
 {
     tng_gen_block_t block;
     tng_trajectory_frame_set_t frame_set;
@@ -6553,7 +6553,7 @@ static tng_function_status tng_frame_set_pointers_update
  * error has occured.
  */
 static tng_function_status tng_frame_set_finalize
-                (tng_trajectory_t tng_data, const tng_hash_mode hash_mode)
+                (tng_trajectory_t tng_data, const char hash_mode)
 {
     tng_gen_block_t block;
     tng_trajectory_frame_set_t frame_set;
@@ -7835,7 +7835,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
         }
     }
     {
-      static int64_t endianness_64 = 0x0123456789ABCDEF;
+      static int64_t endianness_64 = 0x0123456789ABCDEFLL;
       /* 0x0123456789ABCDEF */
       if ( *(const uint8_t*)&endianness_64 == 0x01 )
         {
@@ -10107,7 +10107,7 @@ static TNG_INLINE tng_function_status tng_particle_mapping_get_local_particle
 
 
 tng_function_status DECLSPECDLLEXPORT tng_file_headers_read(tng_trajectory_t tng_data,
-                                          const tng_hash_mode hash_mode)
+                                          const char hash_mode)
 {
     int cnt = 0, prev_pos = 0;
     tng_gen_block_t block;
@@ -10154,7 +10154,7 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_read(tng_trajectory_t tng
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_file_headers_write(tng_trajectory_t tng_data,
-                                           const tng_hash_mode hash_mode)
+                                           const char hash_mode)
 {
     int i;
     tng_gen_block_t data_block;
@@ -10205,7 +10205,7 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write(tng_trajectory_t tn
 
 tng_function_status DECLSPECDLLEXPORT tng_block_read_next(tng_trajectory_t tng_data,
                                         tng_gen_block_t block,
-                                        const tng_hash_mode hash_mode)
+                                        const char hash_mode)
 {
     switch(block->id)
     {
@@ -10233,7 +10233,7 @@ tng_function_status DECLSPECDLLEXPORT tng_block_read_next(tng_trajectory_t tng_d
 
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next(tng_trajectory_t tng_data,
-                                            const tng_hash_mode hash_mode)
+                                            const char hash_mode)
 {
     long int file_pos;
     tng_gen_block_t block;
@@ -10325,7 +10325,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next(tng_trajectory_t t
 }
 
 tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
-                                        const tng_hash_mode hash_mode)
+                                        const char hash_mode)
 {
     int i, j;
     tng_gen_block_t block;
@@ -10639,8 +10639,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
                 (tng_trajectory_t tng_data,
                  const int64_t id,
                  const char *block_name,
-                 const tng_data_type datatype,
-                 const tng_block_type block_type_flag,
+                 const char datatype,
+                 const char block_type_flag,
                  int64_t n_frames,
                  const int64_t n_values_per_frame,
                  int64_t stride_length,
@@ -10772,8 +10772,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
                 (tng_trajectory_t tng_data,
                  const int64_t id,
                  const char *block_name,
-                 const tng_data_type datatype,
-                 const tng_block_type block_type_flag,
+                 const char datatype,
+                 const char block_type_flag,
                  int64_t n_frames,
                  const int64_t n_values_per_frame,
                  int64_t stride_length,
@@ -10927,7 +10927,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
                  const int64_t frame_nr,
                  const int64_t block_id,
                  const void *values,
-                 const tng_hash_mode hash_mode)
+                 const char hash_mode)
 {
     int64_t header_pos, file_pos;
     int64_t output_file_len, n_values_per_frame, size, contents_size;
@@ -11340,7 +11340,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
                  const int64_t val_first_particle,
                  const int64_t val_n_particles,
                  const void *values,
-                 const tng_hash_mode hash_mode)
+                 const char hash_mode)
 {
     int64_t header_pos, file_pos, tot_n_particles;
     int64_t output_file_len, n_values_per_frame, size, contents_size;
@@ -11580,7 +11580,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
-
+    
     data.datatype = datatype;
 
     if(fread(&dependency, sizeof(dependency), 1, tng_data->input_file) == 0)
@@ -11869,7 +11869,7 @@ static tng_function_status tng_data_values_alloc
                  union data_values ***values,
                  const int64_t n_frames,
                  const int64_t n_values_per_frame,
-                 const tng_data_type type)
+                 const char type)
 {
     int64_t i;
     tng_function_status stat;
@@ -11918,7 +11918,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_values_free
                  union data_values **values,
                  const int64_t n_frames,
                  const int64_t n_values_per_frame,
-                 const tng_data_type type)
+                 const char type)
 {
     int i, j;
 
@@ -11956,7 +11956,7 @@ static tng_function_status tng_particle_data_values_alloc
                  const int64_t n_frames,
                  const int64_t n_particles,
                  const int64_t n_values_per_frame,
-                 const tng_data_type type)
+                 const char type)
 {
     int64_t i, j;
     tng_function_status stat;
@@ -12022,7 +12022,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free
                  const int64_t n_frames,
                  const int64_t n_particles,
                  const int64_t n_values_per_frame,
-                 const tng_data_type type)
+                 const char type)
 {
     int i, j, k;
 
@@ -12066,7 +12066,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
                  union data_values ***values,
                  int64_t *n_frames,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type)
+                 char *type)
 {
     int64_t file_pos;
     int i, j, block_index, len, size;
@@ -12196,7 +12196,7 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
                                         int64_t *n_frames,
                                         int64_t *stride_length,
                                         int64_t *n_values_per_frame,
-                                        tng_data_type *type)
+                                        char *type)
 {
     int64_t file_pos, data_size;
     int i, block_index, size;
@@ -12300,10 +12300,10 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
                  const int64_t block_id,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
-                 const tng_hash_mode hash_mode,
+                 const char hash_mode,
                  union data_values ***values,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type)
+                 char *type)
 {
     int64_t i, j, n_frames, file_pos, current_frame_pos;
     int block_index, len, size;
@@ -12486,11 +12486,11 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                  const int64_t block_id,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
-                 const tng_hash_mode hash_mode,
+                 const char hash_mode,
                  void **values,
                  int64_t *stride_length,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type)
+                 char *type)
 {
     int64_t n_frames, tot_n_frames;
     int64_t current_frame_pos, data_size, frame_size;
@@ -12620,7 +12620,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
                  int64_t *n_frames,
                  int64_t *n_particles,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type)
+                 char *type)
 {
     int64_t i, j, k, mapping, file_pos, i_step;
     int block_index, len, size;
@@ -12630,7 +12630,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
     tng_gen_block_t block;
     tng_function_status stat;
 
-    tng_block_type block_type_flag;
+    char block_type_flag;
     
     block_index = -1;
     data = 0;
@@ -12814,7 +12814,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
                  int64_t *stride_length,
                  int64_t *n_particles,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type)
+                 char *type)
 {
     int64_t i, j, mapping, file_pos, i_step, data_size;
     int block_index, size;
@@ -12825,7 +12825,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
     tng_function_status stat;
     void *temp;
 
-    tng_block_type block_type_flag;
+    char block_type_flag;
     
     block_index = -1;
     data = 0;
@@ -12958,11 +12958,11 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
                  const int64_t block_id,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
-                 const tng_hash_mode hash_mode,
+                 const char hash_mode,
                  union data_values ****values,
                  int64_t *n_particles,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type)
+                 char *type)
 {
     int64_t i, j, k, mapping, n_frames, file_pos, current_frame_pos, i_step;
     int block_index, len, size;
@@ -12970,7 +12970,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
     tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
     tng_function_status stat;
-    tng_block_type block_type_flag;
+    char block_type_flag;
 
     block_index = -1;
 
@@ -13183,12 +13183,12 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                  const int64_t block_id,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
-                 const tng_hash_mode hash_mode,
+                 const char hash_mode,
                  void **values,
                  int64_t *n_particles,
                  int64_t *stride_length,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type)
+                 char *type)
 {
     int64_t n_frames, tot_n_frames;
     int64_t current_frame_pos, last_frame_pos, data_size, frame_size;
@@ -13305,7 +13305,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                                     *stride_length,
                                     end_frame_nr - frame_set->first_frame);
 
-            memcpy(*values + (current_frame_pos - start_frame_nr) *frame_size /
+            memcpy(*values + (current_frame_pos - start_frame_nr) * frame_size /
                 *stride_length,
                 current_values,
                 frame_size * (last_frame_pos / *stride_length + 1));
@@ -13516,7 +13516,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read
                  float **positions, int64_t *stride_length)
 {
     int64_t n_frames, n_particles, n_values_per_frame;
-    tng_data_type type;
+    char type;
     tng_function_status stat;
 
     stat = tng_num_frames_get(tng_data, &n_frames);
@@ -13541,7 +13541,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read
                  float **velocities, int64_t *stride_length)
 {
     int64_t n_frames, n_particles, n_values_per_frame;
-    tng_data_type type;
+    char type;
     tng_function_status stat;
 
     stat = tng_num_frames_get(tng_data, &n_frames);
@@ -13566,7 +13566,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read
                  float **forces, int64_t *stride_length)
 {
     int64_t n_frames, n_particles, n_values_per_frame;
-    tng_data_type type;
+    char type;
     tng_function_status stat;
 
     stat = tng_num_frames_get(tng_data, &n_frames);
@@ -13592,7 +13592,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
                  int64_t *stride_length)
 {
     int64_t n_frames, n_values_per_frame;
-    tng_data_type type;
+    char type;
     tng_function_status stat;
 
     stat = tng_num_frames_get(tng_data, &n_frames);
@@ -13619,7 +13619,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read_range
                  int64_t *stride_length)
 {
     int64_t n_particles, n_values_per_frame;
-    tng_data_type type;
+    char type;
     tng_function_status stat;
 
     stat = tng_particle_data_vector_interval_get(tng_data, TNG_TRAJ_POSITIONS,
@@ -13642,7 +13642,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read_range
                  int64_t *stride_length)
 {
     int64_t n_particles, n_values_per_frame;
-    tng_data_type type;
+    char type;
     tng_function_status stat;
 
     stat = tng_particle_data_vector_interval_get(tng_data, TNG_TRAJ_VELOCITIES,
@@ -13665,7 +13665,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
                  int64_t *stride_length)
 {
     int64_t n_particles, n_values_per_frame;
-    tng_data_type type;
+    char type;
     tng_function_status stat;
 
     stat = tng_particle_data_vector_interval_get(tng_data, TNG_TRAJ_FORCES,
@@ -13688,7 +13688,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
                  int64_t *stride_length)
 {
     int64_t n_values_per_frame;
-    tng_data_type type;
+    char type;
     tng_function_status stat;
 
     stat = tng_data_vector_interval_get(tng_data, TNG_TRAJ_BOX_SHAPE,
@@ -13708,8 +13708,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
                  const int64_t n_values_per_frame,
                  const int64_t block_id,
                  const char *block_name,
-                 const tng_particle_dependency particle_dependency,
-                 const tng_compression compression)
+                 const char particle_dependency,
+                 const char compression)
 {
     tng_trajectory_frame_set_t frame_set = &tng_data->
                                            current_trajectory_frame_set;
@@ -13843,8 +13843,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                  const int64_t n_values_per_frame,
                  const int64_t block_id,
                  const char *block_name,
-                 const tng_particle_dependency particle_dependency,
-                 const tng_compression compression)
+                 const char particle_dependency,
+                 const char compression)
 {
     tng_trajectory_frame_set_t frame_set = &tng_data->
                                            current_trajectory_frame_set;
@@ -13852,7 +13852,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
     tng_non_particle_data_t np_data;
     int64_t n_particles, n_frames = 10000, stride_length = 1000, frame_pos;
     tng_function_status stat;
-    tng_block_type block_type_flag;
+    char block_type_flag;
 
     if(frame_nr < 0)
     {
@@ -14783,14 +14783,14 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add_
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_file_headers_read_(tng_trajectory_t tng_data,
-                                                             const tng_hash_mode *hash_mode)
+                                                             const char *hash_mode)
 {
     return(tng_file_headers_read(tng_data, *hash_mode));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_file_headers_write_
                 (tng_trajectory_t tng_data,
-                 const tng_hash_mode *hash_mode)
+                 const char *hash_mode)
 {
     return(tng_file_headers_write(tng_data, *hash_mode));
 }
@@ -14798,20 +14798,20 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write_
 tng_function_status DECLSPECDLLEXPORT tng_block_read_next_
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block_data,
-                 const tng_hash_mode *hash_mode)
+                 const char *hash_mode)
 {
     return(tng_block_read_next(tng_data, block_data, *hash_mode));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next_
                 (tng_trajectory_t tng_data,
-                 const tng_hash_mode *hash_mode)
+                 const char *hash_mode)
 {
     return(tng_frame_set_read_next(tng_data, *hash_mode));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_write_(tng_trajectory_t tng_data,
-                                                           const tng_hash_mode *hash_mode)
+                                                           const char *hash_mode)
 {
     return(tng_frame_set_write(tng_data, *hash_mode));
 }
@@ -14844,8 +14844,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add_
                 (tng_trajectory_t tng_data,
                  const int64_t *id,
                  const char *block_name,
-                 const tng_data_type *datatype,
-                 const tng_block_type *block_type_flag,
+                 const char *datatype,
+                 const char *block_type_flag,
                  int64_t *n_frames,
                  const int64_t *n_values_per_frame,
                  const int64_t *stride_length,
@@ -14869,8 +14869,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add_
                 (tng_trajectory_t tng_data,
                  const int64_t *id,
                  const char *block_name,
-                 const tng_data_type *datatype,
-                 const tng_block_type *block_type_flag,
+                 const char *datatype,
+                 const char *block_type_flag,
                  int64_t *n_frames,
                  const int64_t *n_values_per_frame,
                  const int64_t *stride_length,
@@ -14899,7 +14899,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write_
                  const int64_t *frame_nr,
                  const int64_t *block_id,
                  const void *data,
-                 const tng_hash_mode *hash_mode)
+                 const char *hash_mode)
 {
     return(tng_frame_data_write(tng_data, *frame_nr, *block_id, data,
                                 *hash_mode));
@@ -14912,7 +14912,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write_
                  const int64_t *val_first_particle,
                  const int64_t *val_n_particles,
                  const void *data,
-                 const tng_hash_mode *hash_mode)
+                 const char *hash_mode)
 {
     return(tng_frame_particle_data_write(tng_data, *frame_nr, *block_id,
                                          *val_first_particle, *val_n_particles,
@@ -14924,7 +14924,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_values_free_
                  union data_values **values,
                  const int64_t *n_frames,
                  const int64_t *n_values_per_frame,
-                 const tng_data_type *type)
+                 const char *type)
 {
     return(tng_data_values_free(tng_data, values, *n_frames,
                                 *n_values_per_frame, *type));
@@ -14936,7 +14936,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free_
                  const int64_t *n_frames,
                  const int64_t *n_particles,
                  const int64_t *n_values_per_frame,
-                 const tng_data_type *type)
+                 const char *type)
 {
     return(tng_particle_data_values_free(tng_data, values, *n_frames, *n_particles,
                                          *n_values_per_frame, *type));
@@ -14948,7 +14948,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get_
                  union data_values ***values,
                  int64_t *n_frames,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type)
+                 char *type)
 {
     return(tng_data_get(tng_data, *block_id, values, n_frames,
                         n_values_per_frame, type));
@@ -14959,10 +14959,10 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get_
                  const int64_t *block_id,
                  const int64_t *start_frame_nr,
                  const int64_t *end_frame_nr,
-                 const tng_hash_mode *hash_mode,
+                 const char *hash_mode,
                  union data_values ***values,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type)
+                 char *type)
 {
     return(tng_data_interval_get(tng_data, *block_id, *start_frame_nr,
                                  *end_frame_nr, *hash_mode, values,
@@ -14976,7 +14976,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get_
                  int64_t *n_frames,
                  int64_t *n_particles,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type)
+                 char *type)
 {
     return(tng_particle_data_get(tng_data, *block_id, values, n_frames,
                                  n_particles, n_values_per_frame, type));
@@ -14987,11 +14987,11 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get_
                  const int64_t *block_id,
                  const int64_t *start_frame_nr,
                  const int64_t *end_frame_nr,
-                 const tng_hash_mode *hash_mode,
+                 const char *hash_mode,
                  union data_values ****values,
                  int64_t *n_particles,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type)
+                 char *type)
 {
     return(tng_particle_data_interval_get(tng_data, *block_id, *start_frame_nr,
                                           *end_frame_nr, *hash_mode, values,
@@ -15101,8 +15101,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set_
                  const int64_t *n_values_per_frame,
                  const int64_t *block_id,
                  const char *block_name,
-                 const tng_particle_dependency *particle_dependency,
-                 const tng_compression *compression)
+                 const char *particle_dependency,
+                 const char *compression)
 {
     return(tng_util_generic_write_frequency_set(tng_data, *f,
                                                 *n_values_per_frame, *block_id,
@@ -15146,8 +15146,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_
                  const int64_t *n_values_per_frame,
                  const int64_t *block_id,
                  const char *block_name,
-                 const tng_particle_dependency *particle_dependency,
-                 const tng_compression *compression)
+                 const char *particle_dependency,
+                 const char *compression)
 {
     return(tng_util_generic_write(tng_data, *frame_nr, values,
                                   *n_values_per_frame, *block_id, block_name,

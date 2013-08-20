@@ -380,14 +380,12 @@ typedef unsigned long long int  uint64_t;
 typedef enum {TNG_BIG_ENDIAN,
               TNG_LITTLE_ENDIAN} tng_file_endianness;
 
-/** Flag to specify the endianness of 32 bit values of the current architecture.
- *  Output is always converted to big endian */
+/** Flag to specify the endianness of 32 bit values of the current architecture. */
 typedef enum {TNG_BIG_ENDIAN_32,
               TNG_LITTLE_ENDIAN_32,
               TNG_BYTE_PAIR_SWAP_32} tng_endianness_32;
 
-/** Flag to specify the endianness of 64 bit values of the current architecture.
- *  Output is always converted to big endian */
+/** Flag to specify the endianness of 64 bit values of the current architecture. */
 typedef enum {TNG_BIG_ENDIAN_64,
               TNG_LITTLE_ENDIAN_64,
               TNG_QUAD_SWAP_64,
@@ -418,6 +416,7 @@ typedef enum {TNG_TRAJ_BOX_SHAPE = 10000,
               TNG_TRAJ_PARTIAL_CHARGES,
               TNG_TRAJ_FORMAL_CHARGES,
               TNG_TRAJ_B_FACTORS,
+              TNG_TRAJ_ANISOTROPIC_B_FACTORS,
               TNG_TRAJ_OCCUPANCY} tng_trajectory_block_ids;
 
 /** Flag to specify if a data block contains data related to particles or not.*/
@@ -1489,7 +1488,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
  */
 tng_function_status DECLSPECDLLEXPORT tng_file_headers_read
                 (tng_trajectory_t tng_data,
-                 const tng_hash_mode hash_mode);
+                 const char hash_mode);
 
 /**
  * @brief Write the header blocks to the output_file of tng_data.
@@ -1506,7 +1505,7 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_read
  */
 tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
                 (tng_trajectory_t tng_data,
-                 const tng_hash_mode hash_mode);
+                 const char hash_mode);
 
 /**
  * @brief Read one (the next) block (of any kind) from the input_file of tng_data.
@@ -1527,7 +1526,7 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
 tng_function_status DECLSPECDLLEXPORT tng_block_read_next
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block_data,
-                 const tng_hash_mode hash_mode);
+                 const char hash_mode);
 
 /**
  * @brief Read one (the next) frame set, including mapping and related data blocks
@@ -1544,7 +1543,7 @@ tng_function_status DECLSPECDLLEXPORT tng_block_read_next
  */
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next
                 (tng_trajectory_t tng_data,
-                 const tng_hash_mode hash_mode);
+                 const char hash_mode);
 
 /**
  * @brief Write one frame set, including mapping and related data blocks
@@ -1560,7 +1559,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next
  */
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_write
                 (tng_trajectory_t tng_data,
-                 const tng_hash_mode hash_mode);
+                 const char hash_mode);
 
 /**
  * @brief Create and initialise a frame set.
@@ -1629,8 +1628,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
                 (tng_trajectory_t tng_data,
                  const int64_t id,
                  const char *block_name,
-                 const tng_data_type datatype,
-                 const tng_block_type block_type_flag,
+                 const char datatype,
+                 const char block_type_flag,
                  int64_t n_frames,
                  const int64_t n_values_per_frame,
                  int64_t stride_length,
@@ -1665,8 +1664,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
                 (tng_trajectory_t tng_data,
                  const int64_t id,
                  const char *block_name,
-                 const tng_data_type datatype,
-                 const tng_block_type block_type_flag,
+                 const char datatype,
+                 const char block_type_flag,
                  int64_t n_frames,
                  const int64_t n_values_per_frame,
                  int64_t stride_length,
@@ -1695,7 +1694,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
                  const int64_t frame_nr,
                  const int64_t block_id,
                  const void *data,
-                 const tng_hash_mode hash_mode);
+                 const char hash_mode);
 
 /**
  * @brief Write particle data of one trajectory frame to the output_file of
@@ -1723,7 +1722,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
                  const int64_t val_first_particle,
                  const int64_t val_n_particles,
                  const void *data,
-                 const tng_hash_mode hash_mode);
+                 const char hash_mode);
 
 /**
  * @brief Free data of an array of values (2D).
@@ -1739,7 +1738,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_values_free
                  union data_values **values,
                  const int64_t n_frames,
                  const int64_t n_values_per_frame,
-                 const tng_data_type type);
+                 const char type);
 
 /**
  * @brief Free data of an array of values (3D).
@@ -1757,7 +1756,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free
                  const int64_t n_frames,
                  const int64_t n_particles,
                  const int64_t n_values_per_frame,
-                 const tng_data_type type);
+                 const char type);
 
 /**
  * @brief Retrieve non-particle data, from the last read frame set. Obsolete!
@@ -1785,7 +1784,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get(tng_trajectory_t tng_data,
                                                    union data_values ***values,
                                                    int64_t *n_frames,
                                                    int64_t *n_values_per_frame,
-                                                   tng_data_type *type);
+                                                   char *type);
 
 /**
  * @brief Retrieve a vector (1D array) of non-particle data, from the last read frame set.
@@ -1814,7 +1813,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_get
                  int64_t *n_frames,
                  int64_t *stride_length,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type);
+                 char *type);
 
 /**
  * @brief Read and retrieve non-particle data, in a specific interval. Obsolete!
@@ -1845,10 +1844,10 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
                  const int64_t block_id,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
-                 const tng_hash_mode hash_mode,
+                 const char hash_mode,
                  union data_values ***values,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type);
+                 char *type);
 
 /**
  * @brief Read and retrieve a vector (1D array) of non-particle data,
@@ -1880,11 +1879,11 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                  const int64_t block_id,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
-                 const tng_hash_mode hash_mode,
+                 const char hash_mode,
                  void **values,
                  int64_t *stride_length,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type);
+                 char *type);
 
 /**
  * @brief Retrieve particle data, from the last read frame set. Obsolete!
@@ -1919,7 +1918,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
                  int64_t *n_frames,
                  int64_t *n_particles,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type);
+                 char *type);
 
 /**
  * @brief Retrieve a vector (1D array) of particle data, from the last read frame set.
@@ -1955,7 +1954,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
                  int64_t *stride_length,
                  int64_t *n_particles,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type);
+                 char *type);
 
 /**
  * @brief Read and retrieve particle data, in a specific interval. Obsolete!
@@ -1991,11 +1990,11 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
                  const int64_t block_id,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
-                 const tng_hash_mode hash_mode,
+                 const char hash_mode,
                  union data_values ****values,
                  int64_t *n_particles,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type);
+                 char *type);
 /**
  * @brief Read and retrieve a vector (1D array) particle data, in a
  * specific interval.
@@ -2032,12 +2031,12 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                  const int64_t block_id,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
-                 const tng_hash_mode hash_mode,
+                 const char hash_mode,
                  void **values,
                  int64_t *n_particles,
                  int64_t *stride_length,
                  int64_t *n_values_per_frame,
-                 tng_data_type *type);
+                 char *type);
 
 /** @brief Get the date and time of initial file creation in ISO format (string).
  *  @param tng_data is a trajectory data container.
@@ -2305,8 +2304,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
                  const int64_t n_values_per_frame,
                  const int64_t block_id,
                  const char *block_name,
-                 const tng_particle_dependency particle_dependency,
-                 const tng_compression compression);
+                 const char particle_dependency,
+                 const char compression);
 
 /**
  * @brief High-level function for setting the writing frequency of position
@@ -2406,8 +2405,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                  const int64_t n_values_per_frame,
                  const int64_t block_id,
                  const char *block_name,
-                 const tng_particle_dependency particle_dependency,
-                 const tng_compression compression);
+                 const char particle_dependency,
+                 const char compression);
 
 /**
  * @brief High-level function for adding data to positions data blocks.

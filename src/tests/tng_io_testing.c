@@ -499,7 +499,7 @@ tng_function_status tng_test_get_box_data(tng_trajectory_t traj)
 {
     int64_t n_frames, n_values_per_frame;
     union data_values **values = 0;
-    tng_data_type type;
+    char type;
 
     if(tng_data_get(traj, TNG_TRAJ_BOX_SHAPE, &values, &n_frames,
                     &n_values_per_frame, &type) != TNG_SUCCESS)
@@ -532,7 +532,7 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj)
 {
     int64_t n_frames, n_particles, n_values_per_frame;
     union data_values ***values = 0;
-    tng_data_type type;
+    char type;
 
     if(tng_particle_data_get(traj, TNG_TRAJ_POSITIONS, &values, &n_frames,
                              &n_particles, &n_values_per_frame, &type) !=
