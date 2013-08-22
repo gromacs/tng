@@ -14623,6 +14623,22 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set_(tng_trajectory_t tng
     return(tng_molecule_cnt_set(tng_data, molecule, *cnt));
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_molecule_find_(tng_trajectory_t tng_data,
+                                                         const char *name,
+                                                         int64_t nr,
+                                                         tng_molecule_t *molecule,
+                                                         int name_len)
+{
+    char *n = malloc(name_len + 1);
+    tng_function_status stat;
+    
+    strncpy(n, name, name_len);
+    n[name_len] = 0;
+    stat = tng_molecule_find(tng_data, n, id, molecule);
+    free(n);
+    return(stat);    
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find_(tng_trajectory_t tng_data,
                                                                tng_molecule_t molecule,
                                                                const char *name,
