@@ -27,6 +27,8 @@ public:
     */
 
     tng_function_status addMolecule(const char *, Molecule_t);
+    tng_function_status addMoleculeWithId(const char *, int64_t id, Molecule_t);
+    tng_function_status findMolecule(const char *name, int64_t id, Molecule_t molecule);
     friend class Atom;
     friend class Residue;
     friend class Chain;
@@ -92,7 +94,6 @@ public:
 
     /**
     * @brief Set the name of the output file.
-    * @param tng_data the trajectory of which to set the output file name.
     * @param file_name the name of the output file.
     * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
     * error has occured.
@@ -101,7 +102,33 @@ public:
     {
         return status = tng_output_file_set(traj, file_name);
     }
+    
+    /**
+    * @brief Get the endianness of the output file.
+    * current output file.
+    * @param endianness will contain the enumeration of the endianness.
+    * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the endianness
+    * could not be retrieved.
+    */
+    tng_function_status getOutputFileEndianness
+                    (tng_file_endianness *endianness)
+    {
+        return status = tng_output_file_endianness_get(traj, endianness);
+    }
 
+    /**
+    * @brief Set the endianness of the output file.
+    * @param endianness the enumeration of the endianness, can be either
+    * TNG_BIG_ENDIAN (0) or TNG_LITTLE_ENDIAN (1).
+    * @details The endianness cannot be changed after file output has started.
+    * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the endianness
+    * could not be set.
+    */
+    tng_function_status setOutputFileEndianness
+                    (const tng_file_endianness endianness)
+    {
+        return status = tng_output_file_endianness_set(traj, endianness);
+    }
 
     /**
     * @brief Get the name of the program used when creating the trajectory.
@@ -174,7 +201,6 @@ public:
 
     /**
     * @brief Set the name of the user who created the trajectory.
-    * @param tng_data the trajectory of which to set the user name.
     * @param new_name is a string containing the wanted name.
     * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
     * error has occured.
@@ -187,7 +213,6 @@ public:
 
     /**
     * @brief Get the name of the user who last modified the trajectory.
-    * @param tng_data the trajectory of which to get the user name.
     * @param name the string to fill with the name of the user,
     * memory must be allocated before.
     * @param max_len maximum char length of the string, i.e. how much memory has
@@ -285,7 +310,6 @@ public:
 
     /**
     * @brief Set the pgp_signature of the user creating the trajectory.
-    * @param tng_data the trajectory of which to set the computer name.
     * @param signature is a string containing the pgp_signature.
     * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
     * error has occured.
@@ -397,6 +421,29 @@ public:
 
 
     /**
+    * @brief Get the current time per frame of the trajectory.
+    * @param len is pointing to a value set to the time per frame.
+    * @return TNG_SUCCESS (0) if successful.
+    */
+    tng_function_status getTimePerFrame(double *time)
+    {
+        return status = tng_time_per_frame_get(traj, time);
+    }
+    
+    
+    /**
+    * @brief Set the time per frame of the trajectory.
+    * @param len is the new time per frame.
+    * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+    * has occurred.
+    */
+    tng_function_status setTimePerFrame(const double time)
+    {
+        return status = tng_time_per_frame_set(traj, time);
+    }
+
+                
+    /**
     * @brief Get the length of the input file.
     * @param len is pointing to a value set to the file length.
     * @return TNG_SUCCESS (0) if successful.
@@ -445,6 +492,31 @@ public:
         return status = tng_num_molecules_get(traj,n);
     }
 
+    /**
+    * @brief Get the exponential used for distances in the trajectory.
+    * @param exp is pointing to a value set to the distance unit exponential.
+    * @details Example: If the distances are specified in nm (default) exp is -9.
+    * If the distances are specified in Å exp is -10.
+    * @return TNG_SUCCESS (0) if successful.
+    */
+    tng_function_status getDistanceUnitExponential
+                    (int64_t *exp)
+    {
+        return status = tng_distance_unit_exponential_get(traj, exp);
+    }
+
+    /**
+    * @brief Set the exponential used for distances in the trajectory.
+    * @param exp is the distance unit exponential to use.
+    * @details Example: If the distances are specified in nm (default) exp is -9.
+    * If the distances are specified in Å exp is -10.
+    * @return TNG_SUCCESS (0) if successful.
+    */
+    tng_function_status setDistanceUnitExponential
+                    (int64_t exp)
+    {
+        return status = tng_distance_unit_exponential_set(traj, exp);
+    }
 
 
     /**
@@ -473,7 +545,6 @@ public:
 
     /**
     * @brief Get the number of frame sets.
-    * @param tng_data is the trajectory from which to get the number of frame sets.
     * @param n is pointing to a value set to the number of frame sets.
     * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
     * has occurred or TNG_CRITICAL (2) if a major error has occured.
@@ -498,7 +569,6 @@ public:
 
     /**
     * @brief Find the requested frame set number.
-    * @param tng_data is the trajectory from which to get the frame set.
     * @param nr is the frame set number to search for.
     * @details tng_data->current_trajectory_frame_set will contain the
     * found trajectory if successful.
@@ -532,7 +602,7 @@ public:
     * @param pos is pointing to a value set to the file position.
     * @return TNG_SUCCESS (0) if successful.
     */
-    tng_function_status getFrameSetNextFrameSetFilePos
+    tng_function_status getNextFrameSetFilePos
         (const tng_trajectory_frame_set_t frame_set,int64_t *pos)
     {
         return status = tng_frame_set_next_frame_set_file_pos_get(traj,frame_set,pos );
@@ -545,7 +615,7 @@ public:
     * @param pos is pointing to a value set to the file position.
     * @return TNG_SUCCESS (0) if successful.
     */
-    tng_function_status getFrameSetPrevFrameSetFilePos
+    tng_function_status getPrevFrameSetFilePos
         (const tng_trajectory_frame_set_t frame_set,int64_t *pos)
     {
         return status = tng_frame_set_prev_frame_set_file_pos_get(traj, frame_set, pos);
@@ -581,7 +651,6 @@ public:
         (const int64_t nr,char *name,int max_len)
     {
         return status = tng_molecule_name_of_particle_nr_get(traj,nr,name,max_len);
-
     }
 
 
@@ -762,9 +831,42 @@ public:
     tng_function_status newFrameSet(const int64_t first_frame,
         const int64_t n_frames)
     {
-        return status =  tng_frame_set_new(traj, first_frame,n_frames);
+        return status =  tng_frame_set_new(traj, first_frame, n_frames);
     }
 
+    
+    /**
+    * @brief Create and initialise a frame set with the time of the first frame
+    * specified.
+    * @param first_frame is the first frame of the frame set.
+    * @param n_frames is the number of frames in the frame set.
+    * @param first_frame_time is the time stamp of the first frame (in seconds).
+    * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+    * has occurred or TNG_CRITICAL (2) if a major error has occured.
+    */
+    tng_function_status newFrameSetWithTime
+                (const int64_t first_frame,
+                 const int64_t n_frames,
+                 const double first_frame_time)
+    {
+        return status =  tng_frame_set_with_time_new(traj,
+                                                     first_frame, n_frames,
+                                                     first_frame_time);
+    }
+
+
+    /**
+    * @brief Set the time stamp of the first frame of the current frame set.
+    * @param first_frame_time is the time stamp of the first frame in the
+    * frame set.
+    * @return TNG_SUCCESS (0) if successful.
+    */
+    tng_function_status setTimeOfFirstFrameOfFrameSet
+                    (const double first_frame_time)
+    {
+        return status = tng_frame_set_first_frame_time_set(traj, 
+                                                           first_frame_time);
+    }
 
     /**
     * @brief Add a non-particle dependent data block.
@@ -928,7 +1030,7 @@ public:
 
 
     /**
-    * @brief Retrieve non-particle data, from the last read frame set.
+    * @brief Retrieve non-particle data, from the last read frame set. Obsolete!
     * which file to read from. If the file (input_file) is not open it will be
     * opened.
     * @param block_id is the id number of the particle data block to read.
@@ -946,17 +1048,47 @@ public:
     * has occurred or TNG_CRITICAL (2) if a major error has occured.
     */
     tng_function_status getData(const int64_t block_id,
-    union data_values ***values,
+        union data_values ***values,
         int64_t *n_frames,
         int64_t *n_values_per_frame,
-        tng_data_type *type)
+        char *type)
     {
-        return status = tng_data_get(traj,block_id,values,n_frames,n_values_per_frame,type);
+        return status = tng_data_get(traj, block_id, values, n_frames,
+                                     n_values_per_frame, type);
     }
 
+    /**
+    * @brief Retrieve a vector (1D array) of non-particle data, from the last read frame set.
+    * @param block_id is the id number of the particle data block to read.
+    * @param values is a pointer to a 1-dimensional array (memory unallocated), which
+    * will be filled with data. The length of the array will be (n_frames * n_values_per_frame).
+    * Since **values is allocated in this function it is the callers
+    * responsibility to free the memory.
+    * @param n_frames is set to the number of particles in the returned data. This is
+    * needed to properly reach and/or free the data afterwards.
+    * @param stride_length is set to the stride length of the returned data.
+    * @param n_values_per_frame is set to the number of values per frame in the data.
+    * This is needed to properly reach and/or free the data afterwards.
+    * @param type is set to the data type of the data in the array.
+    * @details This does only work for numerical (int, float, double) data.
+    * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+    * has occurred or TNG_CRITICAL (2) if a major error has occured.
+    */
+    tng_function_status getDataVector
+                (const int64_t block_id,
+                 void **values,
+                 int64_t *n_frames,
+                 int64_t *stride_length,
+                 int64_t *n_values_per_frame,
+                 char *type)
+    {
+        return status = tng_data_vector_get(traj, block_id, values, n_frames,
+                                            stride_length, n_values_per_frame,
+                                            type);
+    }
 
     /**
-    * @brief Read and retrieve non-particle data, in a specific interval.
+    * @brief Read and retrieve non-particle data, in a specific interval. Obsolete!
     * which file to read from. If the file (input_file) is not open it will be
     * opened.
     * @param block_id is the id number of the particle data block to read.
@@ -980,16 +1112,59 @@ public:
         const int64_t start_frame_nr,
         const int64_t end_frame_nr,
         const tng_hash_mode hash_mode,
-    union data_values ***values,
+        union data_values ***values,
         int64_t *n_values_per_frame,
-        tng_data_type *type)
+        char *type)
     {
-        return status = tng_data_interval_get(traj, block_id,start_frame_nr,end_frame_nr,hash_mode,values,n_values_per_frame,type);
+        return status = tng_data_interval_get(traj, block_id, start_frame_nr,
+                                              end_frame_nr, hash_mode, values,
+                                              n_values_per_frame, type);
     }
 
+    
+    /**
+    * @brief Read and retrieve a vector (1D array) of non-particle data,
+    * in a specific interval.
+    * @param block_id is the id number of the particle data block to read.
+    * @param start_frame_nr is the index number of the first frame to read.
+    * @param end_frame_nr is the index number of the last frame to read.
+    * @param hash_mode is an option to decide whether to use the md5 hash or not.
+    * If hash_mode == TNG_USE_HASH the md5 hash in the file will be
+    * compared to the md5 hash of the read contents to ensure valid data.
+    * @param values is a pointer to a 1-dimensional array (memory unallocated), which
+    * will be filled with data. The length of the array will be (n_frames * n_values_per_frame).
+    * Since **values is allocated in this function it is the callers
+    * responsibility to free the memory.
+    * @param stride_length is set to the stride length (writing frequency) of
+    * the data.
+    * @param n_values_per_frame is set to the number of values per frame in the data.
+    * This is needed to properly reach and/or free the data afterwards.
+    * @param type is set to the data type of the data in the array.
+    * @details This does only work for numerical (int, float, double) data.
+    * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+    * has occurred or TNG_CRITICAL (2) if a major error has occured.
+    */
+    tng_function_status getDataVectorInterval
+                (const int64_t block_id,
+                 const int64_t start_frame_nr,
+                 const int64_t end_frame_nr,
+                 const char hash_mode,
+                 void **values,
+                 int64_t *stride_length,
+                 int64_t *n_values_per_frame,
+                 char *type)
+    {
+        return status = tng_data_vector_interval_get(traj, block_id,
+                                                     start_frame_nr,
+                                                     end_frame_nr,
+                                                     hash_mode, values,
+                                                     stride_length,
+                                                     n_values_per_frame,
+                                                     type);
+    }
 
     /**
-    * @brief Retrieve particle data, from the last read frame set.
+    * @brief Retrieve particle data, from the last read frame set. Obsolete!
     * @details The particle dimension of the returned values array is translated
     * to real particle numbering, i.e. the numbering of the actual molecular
     * system.
@@ -1012,20 +1187,59 @@ public:
     * has occurred or TNG_CRITICAL (2) if a major error has occured.
     */
     tng_function_status getParticleData(const int64_t block_id,
-    union data_values ****values,
+        union data_values ****values,
         int64_t *n_frames,
         int64_t *n_particles,
         int64_t *n_values_per_frame,
-        tng_data_type *type)
+        char *type)
     {
         return status = (tng_particle_data_get(traj, block_id, values, n_frames,
             n_particles, n_values_per_frame, type));
     }
 
 
+    /**
+    * @brief Retrieve a vector (1D array) of particle data, from the last read frame set.
+    * @details The particle dimension of the returned values array is translated
+    * to real particle numbering, i.e. the numbering of the actual molecular
+    * system.
+    * @param block_id is the id number of the particle data block to read.
+    * @param values is a pointer to a 1-dimensional array (memory unallocated), which
+    * will be filled with data. The length of the array will be
+    * (n_frames * n_particles * n_values_per_frame).
+    * Since **values is allocated in this function it is the callers
+    * responsibility to free the memory.
+    * @param n_frames is set to the number of frames in the returned data. This is
+    * needed to properly reach and/or free the data afterwards.
+    * @param stride_length is set to the stride length of the returned data.
+    * @param n_particles is set to the number of particles in the returned data. This is
+    * needed to properly reach and/or free the data afterwards.
+    * @param n_values_per_frame is set to the number of values per frame in the data.
+    * This is needed to properly reach and/or free the data afterwards.
+    * @param type is set to the data type of the data in the array.
+    * @details This does only work for numerical (int, float, double) data.
+    * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+    * has occurred or TNG_CRITICAL (2) if a major error has occured.
+    */
+    tng_function_status getParticleDataVector
+                (const int64_t block_id,
+                 void **values,
+                 int64_t *n_frames,
+                 int64_t *stride_length,
+                 int64_t *n_particles,
+                 int64_t *n_values_per_frame,
+                 char *type)
+    {
+        return status = tng_particle_data_vector_get(traj, block_id,
+                                                     values, n_frames,
+                                                     stride_length,
+                                                     n_particles, 
+                                                     n_values_per_frame, type);
+    }
+
 
     /**
-    * @brief Read and retrieve particle data, in a specific interval.
+    * @brief Read and retrieve particle data, in a specific interval. Obsolete!
     * @details The particle dimension of the returned values array is translated
     * to real particle numbering, i.e. the numbering of the actual molecular
     * system.
@@ -1052,15 +1266,66 @@ public:
         const int64_t start_frame_nr,
         const int64_t end_frame_nr,
         const tng_hash_mode hash_mode,
-    union data_values ****values,
+        union data_values ****values,
         int64_t *n_particles,
         int64_t *n_values_per_frame,
-        tng_data_type *type)
+        char *type)
     {
         return status = (tng_particle_data_interval_get(traj, block_id, start_frame_nr,
             end_frame_nr, hash_mode, values,
             n_particles, n_values_per_frame,
             type));
+    }
+
+    
+    /**
+    * @brief Read and retrieve a vector (1D array) particle data, in a
+    * specific interval.
+    * @details The particle dimension of the returned values array is translated
+    * to real particle numbering, i.e. the numbering of the actual molecular
+    * system.
+    * @param block_id is the id number of the particle data block to read.
+    * @param start_frame_nr is the index number of the first frame to read.
+    * @param end_frame_nr is the index number of the last frame to read.
+    * @param hash_mode is an option to decide whether to use the md5 hash or not.
+    * If hash_mode == TNG_USE_HASH the md5 hash in the file will be
+    * compared to the md5 hash of the read contents to ensure valid data.
+    * @param values is a pointer to a 1-dimensional array (memory unallocated), which
+    * will be filled with data. The length of the array will be
+    * (n_frames * n_particles * n_values_per_frame).
+    * Since **values is allocated in this function it is the callers
+    * responsibility to free the memory.
+    * @param stride_length is set to the stride length (writing frequency) of
+    * the data.
+    * @param n_particles is set to the number of particles in the returned data. This is
+    * needed to properly reach and/or free the data afterwards.
+    * @param n_values_per_frame is set to the number of values per frame in the data.
+    * This is needed to properly reach and/or free the data afterwards.
+    * @param type is set to the data type of the data in the array.
+    * @details This does only work for numerical (int, float, double) data.
+    * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+    * has occurred or TNG_CRITICAL (2) if a major error has occured.
+    */
+    tng_function_status getParticleDataVectorInterval
+                (const int64_t block_id,
+                 const int64_t start_frame_nr,
+                 const int64_t end_frame_nr,
+                 const tng_hash_mode hash_mode,
+                 void **values,
+                 int64_t *n_particles,
+                 int64_t *stride_length,
+                 int64_t *n_values_per_frame,
+                 char *type)
+    {
+        return status = tng_particle_data_vector_interval_get(traj, block_id,
+                                                              start_frame_nr,
+                                                              end_frame_nr,
+                                                              hash_mode,
+                                                              values,
+                                                              n_particles,
+                                                              stride_length,
+                                                              n_values_per_frame,
+                                                              type);
     }
 
 
@@ -1069,7 +1334,7 @@ public:
     must be reserved beforehand.
     * @return TNG_SUCCESS (0) if successful.
     */
-    tng_function_status getStrTime(char *time)
+    tng_function_status getTimeStr(char *time)
     {
         return status = tng_time_get_str(traj, time);
     }
@@ -1089,6 +1354,8 @@ private:
     Trajectory * traj;
     tng_function_status status;
 public:
+    tng_function_status addChain(const char *name, Chain *chain);
+    tng_function_status findChain(const char *name, int64_t id, Chain *chain);
     friend class Trajectory;
     //Constructor
     Molecule(Trajectory * trajectory)
@@ -1115,7 +1382,7 @@ public:
     * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
     * error has occured.
     */
-    tng_function_status setMoleculeName(const char *new_name)
+    tng_function_status setName(const char *new_name)
     {
         return status = tng_molecule_name_set(traj->traj,mol,new_name);
     }
@@ -1126,7 +1393,7 @@ public:
     * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
     * has occurred or TNG_CRITICAL (2) if a major error has occured.
     */
-    tng_function_status getMoleculeCnt(int64_t *cnt)
+    tng_function_status getCnt(int64_t *cnt)
     {
         return status = tng_molecule_cnt_get(traj->traj,mol,cnt);
     }
@@ -1137,21 +1404,9 @@ public:
     * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
     * has occurred or TNG_CRITICAL (2) if a major error has occured.
     */
-    tng_function_status setMoleculeCnt(int64_t cnt)
+    tng_function_status setCnt(int64_t cnt)
     {
         return status = tng_molecule_cnt_set(traj->traj,mol,cnt);
-    }
-
-    /**
-    * @brief Add a chain to a molecule.
-    * @param name is a string containing the name of the chain.
-    * @param chain s a pointer to the newly created chain.
-    * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
-    * error has occured.
-    */
-    tng_function_status addMoleculeChain(const char *name,Chain *chain)
-    {
-        return status = tng_molecule_chain_add(traj->traj,mol,name,&chain->chain);
     }
 
 };
@@ -1160,6 +1415,37 @@ public:
 {
     return status = tng_molecule_add(traj,name, &molecule->mol);
 }
+
+    tng_function_status Trajectory::addMoleculeWithId
+                (const char *name,
+                 const int64_t id,
+                 Molecule_t molecule)
+{
+    return status = tng_molecule_w_id_add(traj, name, id, &molecule->mol);
+}
+
+/**
+* @brief Find a molecule.
+* @param tng_data is the trajectory data container containing the molecule.
+* @param name is a string containing the name of the molecule. If name is empty
+* only id will be used for finding the molecule.
+* @param id is the id of the molecule to look for. If id is -1 only the name of
+* the molecule will be used for finding the molecule.
+* @param molecule is a pointer to the molecule if it was found - otherwise 0.
+* @return TNG_SUCCESS (0) if the molecule is found or TNG_FAILURE (1) if the
+* molecule is not found.
+* @details If name is an empty string and id is -1 the first molecule will be
+* found.
+*/
+tng_function_status Trajectory::findMolecule
+                (const char *name,
+                int64_t id,
+                Molecule_t molecule)
+{
+    return status = tng_molecule_find(traj, name, id, 
+                            &molecule->mol);
+}
+
 
 class Atom
 {
@@ -1191,23 +1477,21 @@ public:
     * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
     * error has occured.
     */
-    tng_function_status setAtomName(const char *new_name)
+    tng_function_status setName(const char *new_name)
     {
         return status = tng_atom_name_set(traj->traj, atom , new_name);
     }
 
     /**
-    * @param tng_data is the trajectory data container containing the atom.
-    * @param atom is the atom to change.
     * @param new_type is a string containing the atom type.
     * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
     * error has occured.
     */
-    tng_function_status setAtomType(const char *new_type)
+    tng_function_status setType(const char *new_type)
     {
         return status = tng_atom_type_set(traj->traj, atom, new_type);
     }
-    };
+};
 
 class Residue
 {
@@ -1240,11 +1524,10 @@ public:
     * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
     * error has occured.
     */
-    tng_function_status setResidueName(const char *new_name)
+    tng_function_status setName(const char *new_name)
     {
         return status = tng_residue_name_set(traj->traj, residue,new_name);
     }
-
 
     /**
     * @brief Add an atom to a residue.
@@ -1254,13 +1537,36 @@ public:
     * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
     * error has occured.
     */
-    tng_function_status addResidueAtom(const char *atom_name,
+    tng_function_status addAtom(const char *atom_name,
         const char *atom_type,
         Atom * atom)
     {
-        return status = tng_residue_atom_add(traj->traj,residue,atom_name,atom_type,&atom->atom);
+        return status = tng_residue_atom_add(traj->traj, residue, atom_name,
+                                             atom_type, &atom->atom);
     }
-    };
+
+    
+    /**
+    * @brief Add an atom with a specific ID to a residue.
+    * @param atom_name is a string containing the name of the atom.
+    * @param atom_type is a string containing the atom type of the atom.
+    * @param id is the ID of the created atom.
+    * @param atom is a pointer to the newly created atom.
+    * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
+    * not be set properly or TNG_CRITICAL (2) if a major error has occured.
+    */
+    tng_function_status addAtomWithId
+                (const char *atom_name,
+                 const char *atom_type,
+                 const int64_t id,
+                 Atom * atom)
+    {
+        return status = tng_residue_atom_w_id_add(traj->traj, residue,
+                                                  atom_name, atom_type,
+                                                  id, &atom->atom);
+    }
+
+};
 
 class Chain
 {
@@ -1292,11 +1598,30 @@ public:
     * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
     * error has occured.
     */
-    tng_function_status setChainName(const char *new_name)
+    tng_function_status setName(const char *new_name)
     {
         return status  = tng_chain_name_set(traj->traj, chain, new_name);
     }
 
+
+    /**
+    * @brief Find a residue in a chain.
+    * @param name is a string containing the name of the residue.
+    * @param id is the id of the residue to find. If id == -1 the first residue
+    * that matches the specified name will be found.
+    * @param residue is a pointer to the residue if it was found - otherwise 0.
+    * @return TNG_SUCCESS (0) if the residue is found or TNG_FAILURE (1) if the
+    * residue is not found.
+    * @details If name is an empty string the first residue will be found.
+    */
+    tng_function_status findResidue
+                (const char *name,
+                 int64_t id,
+                 Residue *residue)
+    {
+        return status = tng_chain_residue_find(traj->traj, chain, name,
+                                               id, &residue->residue);
+    }
 
     /**
     * @brief Add a residue to a chain.
@@ -1305,12 +1630,63 @@ public:
     * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
     * error has occured.
     */
-    tng_function_status addChainResidue(const char *name,
+    tng_function_status addResidue(const char *name,
         Residue * residue)
     {
-        return status = tng_chain_residue_add(traj->traj,chain,name,&residue->residue);
+        return status = tng_chain_residue_add(traj->traj, chain,
+                                              name, &residue->residue);
+    }
+    
+    /**
+    * @brief Add a residue with a specific ID to a chain.
+    * @param name is a string containing the name of the residue.
+    * @param id is the ID of the created residue.
+    * @param residue is a pointer to the newly created residue.
+    * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
+    * not be set properly or TNG_CRITICAL (2) if a major error has occured.
+    */
+    tng_function_status addResidueWithId
+                (const char *name,
+                 const int64_t id,
+                 Residue * residue)
+    {
+        return status = tng_chain_residue_w_id_add(traj->traj, chain,
+                                                   name, id, &residue->residue);
     }
 };
+
+/**
+* @brief Add a chain to a molecule.
+* @param name is a string containing the name of the chain.
+* @param chain s a pointer to the newly created chain.
+* @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+* error has occured.
+*/
+tng_function_status Molecule::addChain(const char *name, Chain *chain)
+{
+    return status = tng_molecule_chain_add(traj->traj,mol,name,&chain->chain);
+}
+
+/**
+* @brief Find a chain in a molecule.
+* @param name is a string containing the name of the chain. If name is empty
+* only id will be used for finding the chain.
+* @param id is the id of the chain to look for. If id is -1 only the name of
+* the chain will be used for finding the chain.
+* @param chain is a pointer to the chain if it was found - otherwise 0.
+* @return TNG_SUCCESS (0) if the chain is found or TNG_FAILURE (1) if the
+* chain is not found.
+* @details If name is an empty string and id is -1 the first chain will be
+* found.
+*/
+tng_function_status Molecule::findChain
+                (const char *name,
+                int64_t id,
+                Chain *chain)
+{
+    return status = tng_molecule_chain_find(traj->traj, mol, name, id, 
+                                            &chain->chain);
+}
 
 }
 #endif
