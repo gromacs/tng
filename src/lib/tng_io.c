@@ -6951,6 +6951,33 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set
     return(TNG_SUCCESS);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_molecule_find
+                (tng_trajectory_t tng_data,
+                 const char *name,
+                 int64_t nr,
+                 tng_molecule_t *molecule)
+{
+    int i, n_molecules;
+
+    n_molecules = tng_data->n_molecules;
+
+    for(i = 0; i < n_molecules; i++)
+    {
+        *molecule = &tng_data->molecules[i];
+        if(name[0] != 0 || strcmp(name, (*molecule)->name) == 0)
+        {
+            if(nr == -1 || nr == (*molecule)->id)
+            {
+                return(TNG_SUCCESS);
+            }
+        }
+    }
+
+    *molecule = 0;
+
+    return(TNG_FAILURE);
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
                 (tng_trajectory_t tng_data,
                  tng_molecule_t molecule,

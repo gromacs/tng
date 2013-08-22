@@ -883,7 +883,7 @@ tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_set
 /**
  * @brief Get the current time per frame of the trajectory.
  * @param tng_data is the trajectory from which to get the time per frame.
- * @param len is pointing to a value set to the time per frame.
+ * @param time is pointing to a value set to the time per frame.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_get
@@ -893,7 +893,7 @@ tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_get
 /**
  * @brief Set the time per frame of the trajectory.
  * @param tng_data is the trajectory of which to set the time per frame.
- * @param len is the new time per frame.
+ * @param time is the new time per frame.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred.
  */
@@ -1176,6 +1176,25 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set
                  const int64_t cnt);
 
 /**
+ * @brief Find a molecule.
+ * @param tng_data is the trajectory data container containing the molecule.
+ * @param name is a string containing the name of the molecule. If name is empty
+ * only id will be used for finding the molecule.
+ * @param id is the id of the molecule to look for. If id is -1 only the name of
+ * the molecule will be used for finding the molecule.
+ * @param molecule is a pointer to the molecule if it was found - otherwise 0.
+ * @return TNG_SUCCESS (0) if the molecule is found or TNG_FAILURE (1) if the
+ * molecule is not found.
+ * @details If name is an empty string and id is -1 the first molecule will be
+ * found.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_find
+                (tng_trajectory_t tng_data,
+                 const char *name,
+                 int64_t id,
+                 tng_molecule_t *molecule);
+
+/**
  * @brief Find a chain in a molecule.
  * @param tng_data is the trajectory data container containing the molecule.
  * @param molecule is the molecule in which to search for the chain.
@@ -1368,7 +1387,7 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_type_set
                  const char *new_type);
 
 /**
- * @brief Get the molecume name of real particle number (number in mol system).
+ * @brief Get the molecule name of real particle number (number in mol system).
  * @param tng_data is the trajectory data container containing the atom.
  * @param nr is the real number of the particle in the molecular system.
  * @param name is a string, which is set to the name of the molecule. Memory
@@ -1995,6 +2014,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
                  int64_t *n_particles,
                  int64_t *n_values_per_frame,
                  char *type);
+                
 /**
  * @brief Read and retrieve a vector (1D array) particle data, in a
  * specific interval.
