@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     tng_trajectory_t traj;
     union data_values ***positions = 0; // A 3-dimensional array to be populated
     int64_t n_particles, n_values_per_frame, n_frames, tot_n_frames;
-    tng_data_type data_type;
+    char data_type;
     int i, j;
     int64_t particle = 0;
     // Set a default frame range

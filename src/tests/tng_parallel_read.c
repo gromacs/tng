@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     union data_values **particle_pos = 0;
     int64_t n_particles, n_values_per_frame, n_frame_sets, n_frames;
     int64_t n_frames_per_frame_set;
-    tng_data_type data_type;
+    char data_type;
     int i, j;
     int64_t particle = 0, local_first_frame, local_last_frame;
     char atom_name[64], res_name[64];
