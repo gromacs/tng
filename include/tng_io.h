@@ -1,6 +1,6 @@
 /* This code is part of the tng binary trajectory format.
  *
- *                      VERSION 1.3
+ *                      VERSION 1.4
  *
  * Written by Magnus Lundborg
  * Copyright (c) 2012, The GROMACS development team.
@@ -25,7 +25,7 @@
  * Each block can contain MD5 hashes to verify data integrity and the file
  * can be signed by the user to ensure that the origin is correct.
  *
- * This is version 1.3 of the TNG API. The intention is that this version of
+ * This is version 1.4 of the TNG API. The intention is that this version of
  * the API and ABI should be stable, but it is still possible that future
  * changes might make that impossible, in which case that will be clarified.
  *
@@ -75,6 +75,9 @@
  * See git log for full revision history.
  *
  * Revisions
+ * 
+ * v. 1.4 - More flexible support for digital signatures in header.
+ *        - Block ID numbers changed.
  * 
  * v. 1.3 - Second stable release of the API.
  * 
@@ -348,7 +351,7 @@ typedef unsigned long long int  uint64_t;
 
 
 /** The version of this TNG build */
-#define TNG_VERSION 3 /* TNG_VERSION 3 => Api version 1.3 */
+#define TNG_VERSION 4 /* TNG_VERSION 4 => Api version 1.4 */
 
 /** Flag to indicate frame dependent data. */
 #define TNG_FRAME_DEPENDENT 1
@@ -358,7 +361,7 @@ typedef unsigned long long int  uint64_t;
 /** The maximum length of a date string */
 #define TNG_MAX_DATE_STR_LEN 24
 /** The length of an MD5 hash */
-#define TNG_HASH_LEN 16
+#define TNG_MD5_HASH_LEN 16
 /** The maximum allowed length of a string */
 #define TNG_MAX_STR_LEN 1024
 
@@ -397,19 +400,24 @@ typedef enum {TNG_UNCOMPRESSED,
               TNG_XTC_COMPRESSION,
               TNG_TNG_COMPRESSION,
               TNG_GZIP_COMPRESSION} tng_compression;
+              
+/** Hash types */
+typedef enum {TNG_NO_HASH,
+              TNG_MD5,
+              TNG_SHA256} tng_hash_type;
 
 /** Non trajectory blocks come before the first frame set block */
 typedef enum {TNG_NON_TRAJECTORY_BLOCK, TNG_TRAJECTORY_BLOCK} tng_block_type;
 
 /** Block IDs of standard non trajectory blocks. */
-typedef enum {TNG_GENERAL_INFO,
+typedef enum {TNG_GENERAL_INFO = 0x0000000000000000L,
               TNG_MOLECULES,
               TNG_TRAJECTORY_FRAME_SET,
               TNG_PARTICLE_MAPPING} tng_non_trajectory_block_ids;
 
 /** Block IDs of standard trajectory blocks. Box shape and partial charges can
  * be either trajectory blocks or non-trajectory blocks */
-typedef enum {TNG_TRAJ_BOX_SHAPE = 10000,
+typedef enum {TNG_TRAJ_BOX_SHAPE = 0x0000000010000000L,
               TNG_TRAJ_POSITIONS,
               TNG_TRAJ_VELOCITIES,
               TNG_TRAJ_FORCES,

@@ -113,11 +113,17 @@ struct tng_gen_block {
     /** The ID of the block to determine its type */
     int64_t id;
     /** The MD5 hash of the block to verify integrity */
-    char hash[TNG_HASH_LEN];
+    char md5_hash[TNG_MD5_HASH_LEN];
     /** The name of the block */
     char *name;
     /** The library version used to write the block */
     int64_t block_version;
+    int64_t alt_hash_type;
+    int64_t alt_hash_len;
+    char *alt_hash;
+    int64_t signature_type;
+    int64_t signature_len;
+    char *signature;
     /** The full block header contents */
     char *header_contents;
     /** The full block contents */
@@ -592,34 +598,34 @@ static tng_function_status tng_swap_byte_order_little_endian_64
  * @param block is a general block container.
  * @return TNG_SUCCESS (0) if successful.
  */
-static tng_function_status tng_block_hash_generate(tng_gen_block_t block)
+static tng_function_status tng_block_md5_hash_generate(tng_gen_block_t block)
 {
     md5_state_t md5_state;
 
     md5_init(&md5_state);
     md5_append(&md5_state, (md5_byte_t *)block->block_contents,
                block->block_contents_size);
-    md5_finish(&md5_state, (md5_byte_t *)block->hash);
+    md5_finish(&md5_state, (md5_byte_t *)block->md5_hash);
 
     return(TNG_SUCCESS);
 }
 
-/** Compare the current block hash (e.g. read from file) with the hash
+/** Compare the current block md5 hash (e.g. read from file) with the md5 hash
  * calculated from the current contents.
- * If the current hash is not set skip the comparison.
+ * If the current md5 hash is not set skip the comparison.
  * @param block is a general block container.
  * @param results If the hashes match results is set to TNG_TRUE, otherwise it is
  * set to TNG_FALSE. If the hash was not set results is set to TNG_TRUE.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the hash was not
  * set.
  */
-static tng_function_status hash_match_verify(tng_gen_block_t block,
-                                             tng_bool *results)
+static tng_function_status tng_md5_hash_match_verify(tng_gen_block_t block,
+                                                     tng_bool *results)
 {
     md5_state_t md5_state;
-    char hash[TNG_HASH_LEN];
+    char hash[TNG_MD5_HASH_LEN];
 
-    if(strncmp(block->hash, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 16) == 0)
+    if(strncmp(block->md5_hash, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 16) == 0)
     {
         *results = TNG_TRUE;
         return(TNG_FAILURE);
@@ -629,29 +635,9 @@ static tng_function_status hash_match_verify(tng_gen_block_t block,
                block->block_contents_size);
     md5_finish(&md5_state, (md5_byte_t *)hash);
 
-    if(strncmp(block->hash, hash, 16) != 0)
+    if(strncmp(block->md5_hash, hash, 16) != 0)
     {
         *results = TNG_FALSE;
-//         int i;
-//         printf("Hash in file:  ");
-//         for(i = 0; i<16; i++)
-//         {
-//             printf("%hhX ", block->hash[i]);
-//         }
-//         printf("\n");
-//         printf("Expected hash: ");
-//         for(i = 0; i<16; i++)
-//         {
-//             printf("%hhX ", hash[i]);
-//         }
-//         printf("\n");
-//         if(block->block_contents_size < 100)
-//         {
-//             for(i = 0; i < block->block_contents_size; i++)
-//             {
-//                 printf("%hhX ", block->block_contents[i]);
-//             }
-//         }
     }
     else
     {
@@ -739,8 +725,8 @@ static tng_function_status tng_block_init(struct tng_gen_block **block_p)
     block = *block_p;
 
     block->id = -1;
-    /* Reset the hash */
-    memcpy(block->hash, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", TNG_HASH_LEN);
+    /* Reset the md5_hash */
+    memcpy(block->md5_hash, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", TNG_MD5_HASH_LEN);
     block->name = 0;
     block->block_version = TNG_VERSION;
     block->header_contents = 0;
@@ -820,7 +806,7 @@ static tng_function_status tng_block_header_read
     {
         /* File is little endian */
         if ( *(const uint8_t*)&block->header_contents_size != 0x00 &&
-             *(const uint8_t*)(&block->header_contents_size + 7) == 0x00)
+             *((const uint8_t*)(&block->header_contents_size) + 7) == 0x00)
         {
             /* If the architecture endianness is little endian no byte swap
              * will be needed. Otherwise use the functions to swap to little
@@ -945,8 +931,8 @@ static tng_function_status tng_block_header_read
 
     offset += sizeof(block->id);
 
-    memcpy(block->hash, block->header_contents+offset, TNG_HASH_LEN);
-    offset += TNG_HASH_LEN;
+    memcpy(block->md5_hash, block->header_contents+offset, TNG_MD5_HASH_LEN);
+    offset += TNG_MD5_HASH_LEN;
 
     if(block->name && strcmp(block->name, block->header_contents+offset) != 0)
     {
@@ -1061,7 +1047,7 @@ static tng_function_status tng_block_header_write
 
     if(hash_mode == TNG_USE_HASH)
     {
-        tng_block_hash_generate(block);
+        tng_block_md5_hash_generate(block);
     }
 
     /* Calculate the size of the header to write */
@@ -1069,7 +1055,7 @@ static tng_function_status tng_block_header_write
                                   sizeof(block->block_contents_size) +
                                   sizeof(block->id) +
                                   sizeof(block->block_version) +
-                                  TNG_HASH_LEN +
+                                  TNG_MD5_HASH_LEN +
                                   name_len;
 
     if(block->header_contents)
@@ -1128,8 +1114,8 @@ static tng_function_status tng_block_header_write
     }
     offset += sizeof(block->id);
 
-    memcpy(block->header_contents+offset, block->hash, TNG_HASH_LEN);
-    offset += TNG_HASH_LEN;
+    memcpy(block->header_contents+offset, block->md5_hash, TNG_MD5_HASH_LEN);
+    offset += TNG_MD5_HASH_LEN;
 
     strncpy(block->header_contents+offset, block->name, name_len);
     offset += name_len;
@@ -1205,7 +1191,7 @@ static tng_function_status tng_general_info_block_read
 
     if(hash_mode == TNG_USE_HASH)
     {
-        hash_match_verify(block, &same_hash);
+        tng_md5_hash_match_verify(block, &same_hash);
         if(same_hash != TNG_TRUE)
         {
             printf("General info block contents corrupt. Hashes do not match. "
@@ -2130,7 +2116,7 @@ static tng_function_status tng_molecules_block_read
 
     if(hash_mode == TNG_USE_HASH)
     {
-        hash_match_verify(block, &same_hash);
+        tng_md5_hash_match_verify(block, &same_hash);
         if(same_hash != TNG_TRUE)
         {
             printf("Molecules block contents corrupt. Hashes do not match. "
@@ -2943,7 +2929,7 @@ static tng_function_status tng_frame_set_block_read
 
     if(hash_mode == TNG_USE_HASH)
     {
-        hash_match_verify(block, &same_hash);
+        tng_md5_hash_match_verify(block, &same_hash);
         if(same_hash != TNG_TRUE)
         {
             printf("Frame set block contents corrupt. File pos %d Hashes do not match. "
@@ -3487,7 +3473,7 @@ static tng_function_status tng_trajectory_mapping_block_read
 
     if(hash_mode == TNG_USE_HASH)
     {
-        hash_match_verify(block, &same_hash);
+        tng_md5_hash_match_verify(block, &same_hash);
         if(same_hash != TNG_TRUE)
         {
             printf("Particle mapping block contents corrupt. Hashes do not match. "
@@ -5968,7 +5954,7 @@ static tng_function_status tng_data_block_contents_read
 
     if(hash_mode == TNG_USE_HASH)
     {
-        hash_match_verify(block, &same_hash);
+        tng_md5_hash_match_verify(block, &same_hash);
         if(same_hash != TNG_TRUE)
         {
             printf("'%s' data block contents corrupt. Hashes do not match. %s: %d\n",
@@ -6169,11 +6155,11 @@ static tng_function_status tng_md5_hash_update(tng_trajectory_t tng_data,
         return(TNG_CRITICAL);
     }
 
-    tng_block_hash_generate(block);
+    tng_block_md5_hash_generate(block);
 
     fseek(tng_data->output_file, header_start_pos + 3 * sizeof(int64_t),
           SEEK_SET);
-    fwrite(block->hash, TNG_HASH_LEN, 1, tng_data->output_file);
+    fwrite(block->md5_hash, TNG_MD5_HASH_LEN, 1, tng_data->output_file);
 
     return(TNG_SUCCESS);
 }
