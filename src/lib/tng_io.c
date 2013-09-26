@@ -13728,7 +13728,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
                                            current_trajectory_frame_set;
     tng_particle_data_t p_data;
     tng_non_particle_data_t np_data;
-    int64_t n_particles, n_frames = 10000;
+    int64_t n_particles, n_frames = 100*f;
     tng_function_status stat;
 
     if(!frame_set || tng_data->n_trajectory_frame_sets <= 0)
@@ -13863,7 +13863,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                                            current_trajectory_frame_set;
     tng_particle_data_t p_data;
     tng_non_particle_data_t np_data;
-    int64_t n_particles, n_frames = 10000, stride_length = 1000, frame_pos;
+    int64_t n_particles, n_frames = 10000, stride_length = 100, frame_pos;
     tng_function_status stat;
     char block_type_flag;
 
@@ -13886,7 +13886,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                 return(stat);
             }
         }
-        else if(frame_nr >= frame_set->first_frame + n_frames)
+        else
+        {
+            n_frames = frame_set->n_frames;
+        }
+        if(frame_nr >= frame_set->first_frame + n_frames)
         {
             stat = tng_frame_set_write(tng_data, TNG_USE_HASH);
             if(stat != TNG_SUCCESS)
@@ -13903,10 +13907,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                     __LINE__);
                 return(stat);
             }
-        }
-        else
-        {
-            n_frames = frame_set->n_frames;
         }
         frame_set->n_unwritten_frames = frame_nr -
                                         frame_set->first_frame + 1;
