@@ -40,7 +40,7 @@ static int verify_input_data(double *x, int natoms, int nframes, double precisio
 	  goto error;
   return 0;
  error:
-#if 1
+#if 0
   for (iframe=0; iframe<nframes; iframe++)
     for (i=0; i<natoms; i++)
       for (j=0; j<3; j++)
@@ -60,7 +60,7 @@ static int verify_input_data_float(float *x, int natoms, int nframes, float prec
 	  goto error;
   return 0;
  error:
-#if 1
+#if 0
   for (iframe=0; iframe<nframes; iframe++)
     for (i=0; i<natoms; i++)
       for (j=0; j<3; j++)
