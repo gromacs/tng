@@ -5762,7 +5762,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
             {
                 if(tng_data->input_endianness_swap_func_32)
                 {
-                    for(i = 0; i < (block->block_contents_size - offset) / size; i++)
+                    for(i = offset; i < block->block_contents_size; i+=size)
                     {
                         if(tng_data->input_endianness_swap_func_32(tng_data,
                            (int32_t *)(block->block_contents + i))
@@ -5780,7 +5780,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                 if(fabs(multiplier - 1.0) > 0.00001 ||
                    tng_data->input_endianness_swap_func_32)
                 {
-                    for(i = 0; i < (block->block_contents_size - offset) / size; i++)
+                    for(i = offset; block->block_contents_size; i+=size)
                     {
                         *(float *)(block->block_contents + i) *= multiplier;
                         if(tng_data->input_endianness_swap_func_32 &&
