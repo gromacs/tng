@@ -186,7 +186,7 @@ int main ( int argc, char *argv[] )
         Compute forces and energies,
         Update positions, velocities, accelerations.
 */
-    printf("  Every %d steps particle positions, velocities and forces are\n",
+    printf("  Every %d steps box shape, particle positions, velocities and forces are\n",
            step_save);
     printf("  saved to a TNG trajectory file.\n");
     printf ( "\n" );
@@ -205,15 +205,13 @@ int main ( int argc, char *argv[] )
     step_print_index++;
     step_print = ( step_print_index * step_num ) / step_print_num;
 
-    /* The box shape does not change during the trajectory. */
-    if(tng_util_box_shape_write(traj, -1, box_shape) != TNG_SUCCESS)
+    /* Set the output frequency of box shape, positions, velocities and forces */
+    if(tng_util_box_shape_write_frequency_set(traj, step_save) != TNG_SUCCESS)
     {
-        printf("Error writing box shape. %s: %d\n",
+        printf("Error setting writing frequency data. %s: %d\n",
                __FILE__, __LINE__);
         exit(1);
     }
-
-    /* Set the output frequency of positions, velocities and forces */
     if(tng_util_pos_write_frequency_set(traj, step_save) != TNG_SUCCESS)
     {
         printf("Error setting writing frequency data. %s: %d\n",
@@ -233,7 +231,13 @@ int main ( int argc, char *argv[] )
         exit(1);
     }
 
-    /* Write the first frame of positions, velocities and forces */
+    /* Write the first frame of box shape, positions, velocities and forces */
+    if(tng_util_box_shape_write(traj, 0, box_shape) != TNG_SUCCESS)
+    {
+        printf("Error writing box shape. %s: %d\n",
+               __FILE__, __LINE__);
+        exit(1);
+    }
     if(tng_util_pos_write(traj, 0, pos) != TNG_SUCCESS)
     {
         printf("Error adding data. %s: %d\n", __FILE__, __LINE__);
@@ -265,7 +269,13 @@ int main ( int argc, char *argv[] )
         }
         if(step % step_save == 0)
         {
-            /* Write positions, velocities and forces */
+            /* Write box shape, positions, velocities and forces */
+            if(tng_util_box_shape_write(traj, step, box_shape) != TNG_SUCCESS)
+            {
+                printf("Error writing box shape. %s: %d\n",
+                       __FILE__, __LINE__);
+                exit(1);
+            }
             if(tng_util_pos_write(traj, step, pos) != TNG_SUCCESS)
             {
                 printf("Error adding data. %s: %d\n", __FILE__, __LINE__);

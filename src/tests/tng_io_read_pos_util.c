@@ -73,8 +73,11 @@ int main(int argc, char **argv)
         last_frame = tot_n_frames - 1;
     }
 
+
+    n_frames = last_frame - first_frame + 1;
+
     if(tng_util_box_shape_read(traj, &box_shape, &stride_length) ==
-        TNG_SUCCESS)
+       TNG_SUCCESS)
     {
         printf("Simulation box shape: ");
         for(i=0; i < 9; i++)
@@ -87,9 +90,6 @@ int main(int argc, char **argv)
     {
         printf("Simulation box shape not set in the file (or could not be read)\n");
     }
-
-    n_frames = last_frame - first_frame + 1;
-
 
     // Get the positions of all particles in the requested frame range.
     // The positions are stored in the positions array.
@@ -122,6 +122,10 @@ int main(int argc, char **argv)
     if(positions)
     {
         free(positions);
+    }
+    if(box_shape)
+    {
+        free(box_shape);
     }
     tng_util_trajectory_close(&traj);
 
