@@ -18,6 +18,20 @@
 #include "coder.h"
 #include "warnmalloc.h"
 
+#ifndef USE_WINDOWS
+#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
+#define USE_WINDOWS
+#endif /* win32... */
+#endif /* not defined USE_WINDOWS */
+
+#ifdef USE_WINDOWS
+#define TNG_INLINE __inline
+#define TNG_SNPRINTF _snprintf
+#else
+#define TNG_INLINE inline
+#define TNG_SNPRINTF snprintf
+#endif
+
 struct coder *Ptngc_coder_init(void)
 {
     struct coder *coder=warnmalloc(sizeof *coder);
@@ -30,17 +44,21 @@ void Ptngc_coder_deinit(struct coder *coder)
     free(coder);
 }
 
-void Ptngc_out8bits(struct coder *coder, unsigned char **output)
+TNG_INLINE void Ptngc_out8bits(struct coder *coder, unsigned char **output)
 {
-  while (coder->pack_temporary_bits>=8)
+  int pack_temporary_bits=coder->pack_temporary_bits;
+  unsigned int pack_temporary=coder->pack_temporary;
+  while (pack_temporary_bits>=8)
     {
-      unsigned int mask=~(0xFFU<<(coder->pack_temporary_bits-8));
-      unsigned char out=(unsigned char)(coder->pack_temporary>>(coder->pack_temporary_bits-8));
+      unsigned int mask=~(0xFFU<<(pack_temporary_bits-8));
+      unsigned char out=(unsigned char)(pack_temporary>>(pack_temporary_bits-8));
       **output=out;
       (*output)++;
-      coder->pack_temporary_bits-=8;
-      coder->pack_temporary&=mask;
-    }  
+      pack_temporary_bits-=8;
+      pack_temporary&=mask;
+    }
+  coder->pack_temporary_bits=pack_temporary_bits;
+  coder->pack_temporary=pack_temporary;
 }
 
 void Ptngc_write_pattern(struct coder *coder,unsigned int pattern, int nbits, unsigned char **output)
@@ -62,7 +80,7 @@ void Ptngc_write_pattern(struct coder *coder,unsigned int pattern, int nbits, un
 }
 
 /* Write up to 24 bits */
-void Ptngc_writebits(struct coder *coder,unsigned int value,int nbits, unsigned char **output_ptr)
+TNG_INLINE void Ptngc_writebits(struct coder *coder,unsigned int value,int nbits, unsigned char **output_ptr)
 {
   /* Make room for the bits. */
   coder->pack_temporary<<=nbits;
@@ -360,7 +378,7 @@ static int unpack_array_stop_bits(struct coder *coder,unsigned char *packed,int 
       if ((pattern%2)==0)
 	s=-s;
       output[i]=s;
-    }  
+    }
   return 0;
 }
 

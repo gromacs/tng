@@ -3766,6 +3766,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
     int nalgo;
     int new_len;
     char *dest, *temp;
+    int algo_find_n_frames;
 
     if(block->id != TNG_TRAJ_POSITIONS &&
        block->id != TNG_TRAJ_VELOCITIES)
@@ -3780,45 +3781,54 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
         return(TNG_FAILURE);
     }
 
-// #if 1
-//     {
-//     int iframe,i,j;
-//     for (iframe=0; iframe<n_frames; iframe++)
-//         for (i=0; i<n_particles; i++)
-//         {
-//             printf("tng_io: %d %d: ",iframe,i);
-//             for (j=0; j<3; j++)
-//             printf(" %g",((float*)start_pos)[iframe*n_particles*3+i*3+j]);
-//             printf("\n");
-//         }
-//     }
-// #endif
-
     if(block->id == TNG_TRAJ_POSITIONS)
     {
         if(!tng_data->compress_algo_pos)
         {
+            if(n_frames > 10)
+            {
+                algo_find_n_frames = 5;
+            }
+            else
+            {
+                algo_find_n_frames = n_frames;
+            }
+
             nalgo = tng_compress_nalgo();
             tng_data->compress_algo_pos=malloc(nalgo *
                                            sizeof *tng_data->compress_algo_pos);
-
             if(type == TNG_FLOAT_DATA)
             {
                 dest = tng_compress_pos_float_find_algo(start_pos, n_particles,
-                                                        n_frames,
+                                                        algo_find_n_frames,
                                                         0.001, 0,
                                                         tng_data->
                                                         compress_algo_pos,
                                                         &new_len);
+
+                if(algo_find_n_frames < n_frames)
+                {
+                    dest = tng_compress_pos_float(start_pos, n_particles,
+                                                  n_frames, 0.001, 0,
+                                                  tng_data->compress_algo_pos,
+                                                  &new_len);
+                }
             }
             else
             {
                 dest = tng_compress_pos_find_algo(start_pos, n_particles,
-                                           n_frames,
+                                           algo_find_n_frames,
                                            0.001, 0,
                                            tng_data->
                                            compress_algo_pos,
                                            &new_len);
+                if(algo_find_n_frames < n_frames)
+                {
+                    dest = tng_compress_pos(start_pos, n_particles,
+                                            n_frames, 0.001, 0,
+                                            tng_data->compress_algo_pos,
+                                            &new_len);
+                }
             }
         }
         else
@@ -3841,6 +3851,15 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
     {
         if(!tng_data->compress_algo_vel)
         {
+            if(n_frames > 10)
+            {
+                algo_find_n_frames = 5;
+            }
+            else
+            {
+                algo_find_n_frames = n_frames;
+            }
+
             nalgo = tng_compress_nalgo();
             tng_data->compress_algo_vel=malloc(nalgo *
                                            sizeof *tng_data->compress_algo_vel);
@@ -3848,20 +3867,34 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             if(type == TNG_FLOAT_DATA)
             {
                 dest = tng_compress_vel_float_find_algo(start_pos, n_particles,
-                                                        n_frames,
+                                                        algo_find_n_frames,
                                                         0.001, 0,
                                                         tng_data->
                                                         compress_algo_vel,
                                                         &new_len);
+                if(algo_find_n_frames < n_frames)
+                {
+                    dest = tng_compress_vel_float(start_pos, n_particles,
+                                                  n_frames, 0.001, 0,
+                                                  tng_data->compress_algo_pos,
+                                                  &new_len);
+                }
             }
             else
             {
                 dest = tng_compress_vel_find_algo(start_pos, n_particles,
-                                                  n_frames,
+                                                  algo_find_n_frames,
                                                   0.001, 0,
                                                   tng_data->
                                                   compress_algo_vel,
                                                   &new_len);
+                if(algo_find_n_frames < n_frames)
+                {
+                    dest = tng_compress_vel(start_pos, n_particles,
+                                            n_frames, 0.001, 0,
+                                            tng_data->compress_algo_pos,
+                                            &new_len);
+                }
             }
         }
         else
@@ -4165,7 +4198,7 @@ static tng_function_status tng_allocate_particle_data_mem
     n_frames = tng_max(1, n_frames);
     data->stride_length = tng_max(1, stride_length);
     data->n_values_per_frame = n_values_per_frame;
-    frame_alloc = tng_max(1, (n_frames % stride_length) ? n_frames / stride_length + 1 : n_frames / stride_length);
+    frame_alloc = (n_frames % stride_length) ? n_frames / stride_length + 1 : n_frames / stride_length;
 
     if(data->datatype == TNG_CHAR_DATA)
     {
@@ -4474,7 +4507,7 @@ static tng_function_status tng_particle_data_read
         tot_n_particles = tng_data->n_particles;
     }
 
-    n_frames_div = tng_max(1, (n_frames % stride_length) ? n_frames / stride_length + 1 : n_frames / stride_length);
+    n_frames_div = (n_frames % stride_length) ? n_frames / stride_length + 1 : n_frames / stride_length;
 
     if(codec_id != TNG_UNCOMPRESSED)
     {
@@ -4706,11 +4739,8 @@ static tng_function_status tng_particle_data_block_write
         n_frames = tng_min(n_frames, frame_set->n_frames);
     }
 
-    frame_step = n_frames / stride_length;
-    if(n_frames % stride_length == 1)
-    {
-        frame_step += 1;
-    }
+    frame_step = (n_frames % stride_length) ? n_frames / stride_length + 1:
+                 n_frames / stride_length;
 
     if(mapping && mapping->n_particles != 0)
     {
@@ -5206,7 +5236,7 @@ static tng_function_status tng_allocate_data_mem
     data->stride_length = tng_max(1, stride_length);
     n_frames = tng_max(1, n_frames);
     data->n_values_per_frame = n_values_per_frame;
-    frame_alloc = tng_max(1, (n_frames % stride_length) ? n_frames / stride_length + 1 : n_frames / stride_length);
+    frame_alloc = (n_frames % stride_length) ? n_frames / stride_length + 1 : n_frames / stride_length;
 
     if(data->datatype == TNG_CHAR_DATA)
     {
@@ -5366,7 +5396,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
         data->compression_multiplier = multiplier;
     }
 
-    n_frames_div = tng_max(1, (n_frames % stride_length) ? n_frames / stride_length + 1 : n_frames / stride_length);
+    n_frames_div = (n_frames % stride_length) ? n_frames / stride_length + 1 : n_frames / stride_length;
 
     if(codec_id != TNG_UNCOMPRESSED)
     {
@@ -5572,11 +5602,8 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         n_frames = tng_min(n_frames, frame_set->n_frames);
     }
 
-    frame_step = n_frames / stride_length;
-    if(n_frames % stride_length == 1)
-    {
-        frame_step += 1;
-    }
+    frame_step = (n_frames % stride_length) ? n_frames / stride_length + 1:
+                 n_frames / stride_length;
 
     block->block_contents_size = sizeof(char) * 2 +
                                  sizeof(data->n_values_per_frame) +
@@ -10666,6 +10693,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
     tng_non_particle_data_t data;
     char **first_dim_values;
     char *new_data_c=new_data;
+    int64_t n_frames_div;
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
@@ -10746,9 +10774,13 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
             frame_set->n_written_frames = n_frames;
         }
 
+        n_frames_div = (n_frames % stride_length) ?
+                     n_frames / stride_length + 1:
+                     n_frames / stride_length;
+
         if(datatype == TNG_CHAR_DATA)
         {
-            for(i = 0; i < n_frames / stride_length; i++)
+            for(i = 0; i < n_frames_div; i++)
             {
                 first_dim_values = data->strings[i];
                 for(j = 0; j < n_values_per_frame; j++)
@@ -10774,7 +10806,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
         }
         else
         {
-            memcpy(data->values, new_data, size * n_frames / stride_length *
+            memcpy(data->values, new_data, size * n_frames_div *
                    n_values_per_frame);
         }
     }
@@ -10797,7 +10829,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
                  void *new_data)
 {
     int i, j, k, size, len;
-    int64_t tot_n_particles;
+    int64_t tot_n_particles, n_frames_div;
     char ***first_dim_values, **second_dim_values;
     tng_trajectory_frame_set_t frame_set;
     tng_particle_data_t data;
@@ -10882,9 +10914,13 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
             frame_set->n_written_frames = n_frames;
         }
 
+        n_frames_div = (n_frames % stride_length) ?
+                     n_frames / stride_length + 1:
+                     n_frames / stride_length;
+
         if(datatype == TNG_CHAR_DATA)
         {
-            for(i = 0; i < n_frames / stride_length; i++)
+            for(i = 0; i < n_frames_div; i++)
             {
                 first_dim_values = data->strings[i];
                 for(j = num_first_particle; j < num_first_particle + n_particles;
@@ -10928,7 +10964,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
                 size = sizeof(double);
             }
 
-            memcpy(data->values, new_data, size * n_frames / stride_length *
+            memcpy(data->values, new_data, size * n_frames_div *
                    n_particles * n_values_per_frame);
         }
     }
@@ -11855,7 +11891,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
     else
     {
         fwrite(values, val_n_particles * n_values_per_frame, size,
-            tng_data->output_file);
+               tng_data->output_file);
     }
     fflush(tng_data->output_file);
 
@@ -12212,7 +12248,7 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
                                         int64_t *n_values_per_frame,
                                         char *type)
 {
-    int64_t file_pos, data_size, frames_div;
+    int64_t file_pos, data_size, n_frames_div;
     int i, block_index, size;
     tng_non_particle_data_t data;
     tng_trajectory_frame_set_t frame_set =
@@ -12286,12 +12322,13 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
         size = sizeof(double);
     }
 
-    *n_frames = tng_max(1, data->n_frames);
+    *n_frames = data->n_frames;
     *n_values_per_frame = data->n_values_per_frame;
     *stride_length = data->stride_length;
-    frames_div = (*n_frames % *stride_length) ? *n_frames / *stride_length + 1 : *n_frames / *stride_length;
+    n_frames_div = (*n_frames % *stride_length) ? *n_frames / *stride_length + 1:
+                   *n_frames / *stride_length;
 
-    data_size = frames_div * size *
+    data_size = n_frames_div * size *
                 *n_values_per_frame;
 
     temp = realloc(*values, data_size);
@@ -12507,7 +12544,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                  int64_t *n_values_per_frame,
                  char *type)
 {
-    int64_t n_frames, tot_n_frames, frames_div, frames_div_2;
+    int64_t n_frames, tot_n_frames, n_frames_div, n_frames_div_2;
     int64_t current_frame_pos, data_size, frame_size;
     int64_t last_frame_pos;
     int size;
@@ -12561,10 +12598,10 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
         size = sizeof(double);
     }
 
-    frames_div = (tot_n_frames % *stride_length) ?
-                 tot_n_frames / *stride_length + 1 : tot_n_frames / *stride_length;
-    data_size = frames_div * size *
-                (*n_values_per_frame);
+    n_frames_div = (tot_n_frames % *stride_length) ?
+                 tot_n_frames / *stride_length + 1:
+                 tot_n_frames / *stride_length;
+    data_size = n_frames_div * size * (*n_values_per_frame);
 
     temp = realloc(*values, data_size);
     if(!temp)
@@ -12587,18 +12624,17 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
 
         frame_size = size * (*n_values_per_frame);
 
-        last_frame_pos = tng_min(frame_set->first_frame + n_frames -
-                                *stride_length,
-                                end_frame_nr - frame_set->first_frame);
+        last_frame_pos = tng_min(n_frames,
+                                 end_frame_nr - current_frame_pos);
 
-        frames_div = (current_frame_pos % *stride_length) ?
-                     current_frame_pos / *stride_length + 1 :
-                     current_frame_pos / *stride_length;
-        frames_div_2 = ((last_frame_pos - current_frame_pos) % *stride_length) ?
-                       (last_frame_pos - current_frame_pos) / *stride_length + 1 :
-                       (last_frame_pos - current_frame_pos) / *stride_length;
-        memcpy(*values, current_values + frames_div * frame_size,
-               (frames_div_2 + 1) * frame_size);
+        n_frames_div = current_frame_pos / *stride_length;
+        n_frames_div_2 = (last_frame_pos % *stride_length) ?
+                       last_frame_pos / *stride_length + 1:
+                       last_frame_pos / *stride_length;
+        n_frames_div_2 = tng_max(1, n_frames_div_2);
+
+        memcpy(*values, current_values + n_frames_div * frame_size,
+               n_frames_div_2 * frame_size);
 
         current_frame_pos += n_frames - frame_set->first_frame -
                             current_frame_pos;
@@ -12626,20 +12662,18 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                 return(stat);
             }
 
-            last_frame_pos = tng_min(frame_set->first_frame + n_frames -
-                                    *stride_length,
-                                    end_frame_nr - frame_set->first_frame);
+            last_frame_pos = tng_min(n_frames,
+                                     end_frame_nr - current_frame_pos);
 
-            frames_div = ((current_frame_pos - start_frame_nr) % *stride_length) ?
-                         (current_frame_pos - start_frame_nr) / *stride_length +1 :
-                         (current_frame_pos - start_frame_nr) / *stride_length;
-            frames_div_2 = ((last_frame_pos - current_frame_pos) % *stride_length) ?
-                           (last_frame_pos - current_frame_pos) / *stride_length + 1 :
-                           (last_frame_pos - current_frame_pos) / *stride_length;
+            n_frames_div = current_frame_pos / *stride_length;
+            n_frames_div_2 = (last_frame_pos % *stride_length) ?
+                           last_frame_pos / *stride_length + 1:
+                           last_frame_pos / *stride_length;
+            n_frames_div_2 = tng_max(1, n_frames_div_2);
 
-            memcpy(*values + frames_div * frame_size,
+            memcpy(*values + n_frames_div * frame_size,
                    current_values,
-                   (frames_div_2 + 1) * frame_size);
+                   n_frames_div_2 * frame_size);
 
             current_frame_pos += frame_set->n_frames;
         }
@@ -12853,7 +12887,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
                  int64_t *n_values_per_frame,
                  char *type)
 {
-    int64_t i, j, mapping, file_pos, i_step, data_size, frames_div;
+    int64_t i, j, mapping, file_pos, i_step, data_size, n_frames_div;
     int block_index, size;
     tng_particle_data_t data;
     tng_trajectory_frame_set_t frame_set =
@@ -12952,10 +12986,11 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
     *n_values_per_frame = data->n_values_per_frame;
     *stride_length = data->stride_length;
 
-    frames_div = (*n_frames % *stride_length) ? *n_frames / *stride_length + 1 :
-                 *n_frames / *stride_length;
+    n_frames_div = (*n_frames % *stride_length) ?
+                   *n_frames / *stride_length + 1:
+                   *n_frames / *stride_length;
 
-    data_size = frames_div * size * (*n_particles) *
+    data_size = n_frames_div * size * (*n_particles) *
                 (*n_values_per_frame);
 
     temp = realloc(*values, data_size);
@@ -13019,7 +13054,6 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
     {
         return(stat);
     }
-
 
     tng_block_init(&block);
     file_pos = ftell(tng_data->input_file);
@@ -13230,16 +13264,44 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                  int64_t *n_values_per_frame,
                  char *type)
 {
-    int64_t n_frames, tot_n_frames, frames_div, frames_div_2;
-    int64_t current_frame_pos, last_frame_pos, data_size, frame_size;
+    int64_t n_frames, tot_n_frames, n_frames_div, n_frames_div_2;
+    int64_t file_pos, current_frame_pos, last_frame_pos, data_size, frame_size;
     int size;
     tng_trajectory_frame_set_t frame_set;
+    tng_gen_block_t block;
     tng_function_status stat;
     void *current_values = 0, *temp;
 
     stat = tng_frame_set_of_frame_find(tng_data, start_frame_nr);
     if(stat != TNG_SUCCESS)
     {
+        return(stat);
+    }
+
+    tng_block_init(&block);
+    file_pos = ftell(tng_data->input_file);
+    /* Read all blocks until next frame set block */
+    stat = tng_block_header_read(tng_data, block);
+    while(file_pos < tng_data->input_file_len &&
+            stat != TNG_CRITICAL &&
+            block->id != TNG_TRAJECTORY_FRAME_SET)
+    {
+        stat = tng_block_read_next(tng_data, block,
+                                   hash_mode);
+        if(stat != TNG_CRITICAL)
+        {
+            file_pos = ftell(tng_data->input_file);
+            if(file_pos < tng_data->input_file_len)
+            {
+                stat = tng_block_header_read(tng_data, block);
+            }
+        }
+    }
+    tng_block_destroy(&block);
+    if(stat == TNG_CRITICAL)
+    {
+        printf("Cannot read block header at pos %"PRId64". %s: %d\n",
+                file_pos, __FILE__, __LINE__);
         return(stat);
     }
 
@@ -13264,7 +13326,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
     }
     else
     {
-        tot_n_frames = end_frame_nr - start_frame_nr + 1 *(*stride_length);
+        tot_n_frames = end_frame_nr - start_frame_nr + 1;
     }
 
     switch(*type)
@@ -13282,10 +13344,11 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
         size = sizeof(double);
     }
 
-    frames_div = (tot_n_frames % *stride_length) ? tot_n_frames / *stride_length + 1:
+    n_frames_div = (tot_n_frames % *stride_length) ?
+                 tot_n_frames / *stride_length + 1:
                  tot_n_frames / *stride_length;
 
-    data_size = frames_div * size * (*n_particles) *
+    data_size = n_frames_div * size * (*n_particles) *
                 (*n_values_per_frame);
 
     temp = realloc(*values, data_size);
@@ -13311,17 +13374,16 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
         frame_size = size * (*n_particles) * (*n_values_per_frame);
 
         last_frame_pos = tng_min(n_frames,
-                                 end_frame_nr - current_frame_pos + 1);
+                                 end_frame_nr - current_frame_pos);
 
-        frames_div = (current_frame_pos % *stride_length) ?
-                     current_frame_pos / *stride_length + 1 :
-                     current_frame_pos / *stride_length;
-        frames_div_2 = (last_frame_pos % *stride_length) ?
-                       last_frame_pos / *stride_length + 1 :
+        n_frames_div = current_frame_pos / *stride_length;
+        n_frames_div_2 = (last_frame_pos % *stride_length) ?
+                       last_frame_pos / *stride_length + 1:
                        last_frame_pos / *stride_length;
+        n_frames_div_2 = tng_max(1, n_frames_div_2);
 
-        memcpy(*values, current_values + frames_div * frame_size,
-               frames_div_2 * frame_size);
+        memcpy(*values, current_values + n_frames_div * frame_size,
+               n_frames_div_2 * frame_size);
 
         current_frame_pos += n_frames - frame_set->first_frame -
                             current_frame_pos;
@@ -13350,18 +13412,17 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
             }
 
             last_frame_pos = tng_min(n_frames,
-                                     end_frame_nr - current_frame_pos + 1);
+                                     end_frame_nr - current_frame_pos);
 
-            frames_div = ((current_frame_pos - start_frame_nr) % *stride_length) ?
-                         (current_frame_pos - start_frame_nr) / *stride_length + 1 :
-                         (current_frame_pos - start_frame_nr) / *stride_length;
-            frames_div_2 = (last_frame_pos % *stride_length) ?
-                           last_frame_pos / *stride_length + 1 :
+            n_frames_div = current_frame_pos / *stride_length;
+            n_frames_div_2 = (last_frame_pos % *stride_length) ?
+                           last_frame_pos / *stride_length + 1:
                            last_frame_pos / *stride_length;
+            n_frames_div_2 = tng_max(1, n_frames_div_2);
 
-            memcpy(*values + frames_div * frame_size,
+            memcpy(*values + n_frames_div * frame_size,
                    current_values,
-                   frames_div_2 * frame_size);
+                   n_frames_div_2 * frame_size);
 
             current_frame_pos += n_frames;
         }

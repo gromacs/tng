@@ -27,8 +27,7 @@ int main(int argc, char **argv)
     float *positions = 0, *box_shape = 0;
     int64_t n_particles, n_frames, tot_n_frames, stride_length, i, j;
     // Set a default frame range
-    int64_t first_frame = 0, last_frame = 5000;
-    int k;
+    int64_t first_frame = 0, last_frame = 5000, n_strides;
 
     if(argc <= 1)
     {
@@ -91,6 +90,9 @@ int main(int argc, char **argv)
         printf("Simulation box shape not set in the file (or could not be read)\n");
     }
 
+    n_strides = (n_frames % stride_length) ? n_frames / stride_length + 1:
+                n_frames / stride_length;
+
     // Get the positions of all particles in the requested frame range.
     // The positions are stored in the positions array.
     // N.B. No proper error checks.
@@ -98,17 +100,15 @@ int main(int argc, char **argv)
        == TNG_SUCCESS)
     {
         // Print the positions of the wanted particle (zero based)
-        for(i=0; i < n_frames; i += stride_length)
+        for(i=0; i < n_strides; i++)
         {
-            printf("\nFrame %"PRId64":\n", first_frame + i);
+            printf("\nFrame %"PRId64":\n", first_frame + i*stride_length);
             for(j=0; j < n_particles; j++)
             {
                 printf("Atom nr: %"PRId64"", j);
-                for(k=0; k < 3; k++)
-                {
-                    printf("\t%f", positions[i/stride_length*n_particles*
-                                             3+j*3+k]);
-                }
+                printf("\t%f", positions[i*n_particles*3+j*3]);
+                printf("\t%f", positions[i*n_particles*3+j*3+1]);
+                printf("\t%f", positions[i*n_particles*3+j*3+2]);
                 printf("\n");
             }
         }
