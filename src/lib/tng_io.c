@@ -2316,6 +2316,11 @@ static tng_function_status tng_molecules_block_read
                 printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                     molecule->n_residues * sizeof(struct tng_residue),
                     __FILE__, __LINE__);
+                if(molecule->chains)
+                {
+                    free(molecule->chains);
+                    molecule->chains = 0;
+                }
                 return(TNG_CRITICAL);
             }
 
@@ -2333,6 +2338,16 @@ static tng_function_status tng_molecules_block_read
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    molecule->n_atoms * sizeof(struct tng_atom),
                    __FILE__, __LINE__);
+            if(molecule->chains)
+            {
+                free(molecule->chains);
+                molecule->chains = 0;
+            }
+            if(molecule->residues)
+            {
+                free(molecule->residues);
+                molecule->residues = 0;
+            }
             return(TNG_CRITICAL);
         }
 
@@ -2428,6 +2443,21 @@ static tng_function_status tng_molecules_block_read
             printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    molecule->n_bonds * sizeof(struct tng_bond),
                    __FILE__, __LINE__);
+            if(molecule->chains)
+            {
+                free(molecule->chains);
+                molecule->chains = 0;
+            }
+            if(molecule->residues)
+            {
+                free(molecule->residues);
+                molecule->residues = 0;
+            }
+            if(molecule->bonds)
+            {
+                free(molecule->bonds);
+                molecule->bonds = 0;
+            }
             return(TNG_CRITICAL);
         }
 
@@ -7778,7 +7808,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
     tng_trajectory_t tng_data;
 
     *tng_data_p = malloc(sizeof(struct tng_trajectory));
-    if(!tng_data_p)
+    if(!*tng_data_p)
     {
         printf("Cannot allocate memory (%lu bytes). %s: %d\n",
                sizeof(struct tng_trajectory), __FILE__, __LINE__);
@@ -8307,7 +8337,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
     tng_trajectory_t dest;
 
     *dest_p = malloc(sizeof(struct tng_trajectory));
-    if(!dest_p)
+    if(!*dest_p)
     {
         printf("Cannot allocate memory (%lu bytes). %s: %d\n",
                sizeof(struct tng_trajectory), __FILE__, __LINE__);
