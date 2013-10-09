@@ -332,6 +332,7 @@ unsigned char *Ptngc_pack_array(struct coder *coder,int *input, int *length, int
 
 static int unpack_array_stop_bits(struct coder *coder,unsigned char *packed,int *output, int length, int coding_parameter)
 {
+  (void)coder;
   int i,j;
   unsigned int extract_mask=0x80;
   unsigned char *ptr=packed;
@@ -384,6 +385,7 @@ static int unpack_array_stop_bits(struct coder *coder,unsigned char *packed,int 
 
 static int unpack_array_triplet(struct coder *coder,unsigned char *packed,int *output, int length, int coding_parameter)
 {
+  (void)coder;
   int i,j;
   unsigned int extract_mask=0x80;
   unsigned char *ptr=packed;
@@ -455,6 +457,7 @@ static int unpack_array_triplet(struct coder *coder,unsigned char *packed,int *o
 
 static int unpack_array_bwlzh(struct coder *coder,unsigned char *packed,int *output, int length, int natoms)
 {
+  (void)coder;
   int i,j,k,n=length;
   unsigned int *pval=warnmalloc(n*sizeof *pval);
   int nframes=n/natoms/3;

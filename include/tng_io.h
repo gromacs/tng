@@ -279,6 +279,7 @@
 /* Visual Studio does not contain inttypes.h and stdint.h. Some defines and
  * typedefs are used from the GNU C Library */
 
+#ifndef _STDINT_H
 /* This first part is from stdint.h (GNU C Library) */
 #ifndef __int8_t_defined
 # define __int8_t_defined
@@ -308,6 +309,7 @@ typedef unsigned long int       uint64_t;
 __extension__
 #endif
 typedef unsigned long long int  uint64_t;
+#endif
 #endif
 
 /* This is from inttypes.h  (GNU C Library) */

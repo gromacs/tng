@@ -976,37 +976,38 @@ static tng_function_status tng_block_header_read
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
-static tng_function_status tng_block_verbatim_write(tng_trajectory_t tng_data,
-                                                    tng_gen_block_t block)
-{
-    if(!block->header_contents)
-    {
-        printf("No contents to write. %s: %d\n", __FILE__, __LINE__);
-        return(TNG_FAILURE);
-    }
-    if(fwrite(block->header_contents, block->header_contents_size, 1,
-                tng_data->output_file) != 1)
-    {
-        printf("Could not write all header data. %s: %d\n",
-                __FILE__, __LINE__);
-        return(TNG_CRITICAL);
-    }
-
-    if(!block->block_contents)
-    {
-        printf("No block data to write. %s: %d\n",
-                __FILE__, __LINE__);
-        return(TNG_FAILURE);
-    }
-    if(fwrite(block->block_contents, block->block_contents_size, 1,
-                tng_data->output_file) != 1)
-    {
-        printf("Could not write all block data. %s: %d\n",
-                __FILE__, __LINE__);
-        return(TNG_CRITICAL);
-    }
-    return(TNG_SUCCESS);
-}
+/* Disabled until it is used.*/
+// static tng_function_status tng_block_verbatim_write(tng_trajectory_t tng_data,
+//                                                     tng_gen_block_t block)
+// {
+//     if(!block->header_contents)
+//     {
+//         printf("No contents to write. %s: %d\n", __FILE__, __LINE__);
+//         return(TNG_FAILURE);
+//     }
+//     if(fwrite(block->header_contents, block->header_contents_size, 1,
+//                 tng_data->output_file) != 1)
+//     {
+//         printf("Could not write all header data. %s: %d\n",
+//                 __FILE__, __LINE__);
+//         return(TNG_CRITICAL);
+//     }
+// 
+//     if(!block->block_contents)
+//     {
+//         printf("No block data to write. %s: %d\n",
+//                 __FILE__, __LINE__);
+//         return(TNG_FAILURE);
+//     }
+//     if(fwrite(block->block_contents, block->block_contents_size, 1,
+//                 tng_data->output_file) != 1)
+//     {
+//         printf("Could not write all block data. %s: %d\n",
+//                 __FILE__, __LINE__);
+//         return(TNG_CRITICAL);
+//     }
+//     return(TNG_SUCCESS);
+// }
 
 /** Write the header of a data block, regardless of its type
  * @param tng_data is a trajectory data container.
@@ -3952,6 +3953,7 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
                                           void *start_pos,
                                           const unsigned long uncompressed_len)
 {
+    (void)tng_data;
     char *temp;
     double *d_dest = 0;
     float *f_dest = 0;
@@ -4049,6 +4051,7 @@ static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
                                              tng_gen_block_t block,
                                              void *start_pos, const int len)
 {
+    (void)tng_data;
     Bytef *dest;
     char *temp;
     uLong max_len, stat;
@@ -5213,6 +5216,7 @@ static tng_function_status tng_allocate_data_mem
                  int64_t stride_length,
                  const int64_t n_values_per_frame)
 {
+    (void)tng_data;
     void **values;
     int64_t i, j, size, frame_alloc;
 
@@ -6697,6 +6701,7 @@ tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
                                       tng_atom_t atom,
                                       const char *new_name)
 {
+    (void)tng_data;
     int len;
 
     len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
@@ -6728,6 +6733,7 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
                                       tng_atom_t atom,
                                       const char *new_type)
 {
+    (void)tng_data;
     int len;
 
     len = tng_min(strlen(new_type) + 1, TNG_MAX_STR_LEN);
@@ -6886,6 +6892,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_set
                  tng_molecule_t molecule,
                  const char *new_name)
 {
+    (void)tng_data;
     int len;
 
     len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
@@ -6999,6 +7006,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
                  int64_t nr,
                  tng_chain_t *chain)
 {
+    (void)tng_data;
     int i, n_chains;
 
     n_chains = molecule->n_chains;
@@ -7088,6 +7096,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
                  tng_chain_t chain,
                  const char *new_name)
 {
+    (void)tng_data;
     int len;
 
     len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
@@ -7122,6 +7131,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find
                  int64_t id,
                  tng_residue_t *residue)
 {
+    (void)tng_data;
     int i, n_residues;
 
     n_residues = chain->n_residues;
@@ -7249,6 +7259,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_set(tng_trajectory_t tng_
                                                            tng_residue_t residue,
                                                            const char *new_name)
 {
+    (void)tng_data;
     int len;
 
     len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
@@ -7350,6 +7361,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
 tng_function_status DECLSPECDLLEXPORT tng_molecule_init(const tng_trajectory_t tng_data,
                                                         tng_molecule_t molecule)
 {
+    (void)tng_data;
     molecule->quaternary_str = 1;
     molecule->name = 0;
     molecule->n_chains = 0;
@@ -7367,6 +7379,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_init(const tng_trajectory_t t
 tng_function_status DECLSPECDLLEXPORT tng_molecule_destroy(const tng_trajectory_t tng_data,
                                                            tng_molecule_t molecule)
 {
+    (void)tng_data;
     int i;
 
     if(molecule->name)
@@ -10048,6 +10061,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_next_frame_set_file_pos_get
                  const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
 {
+    (void)tng_data;
     *pos = frame_set->next_frame_set_file_pos;
 
     return(TNG_SUCCESS);
@@ -10058,6 +10072,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_prev_frame_set_file_pos_get
                  const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
 {
+    (void)tng_data;
     *pos = frame_set->prev_frame_set_file_pos;
 
     return(TNG_SUCCESS);
@@ -10069,6 +10084,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_frame_range_get
                  int64_t *first_frame,
                  int64_t *last_frame)
 {
+    (void)tng_data;
     *first_frame = frame_set->first_frame;
     *last_frame = *first_frame + frame_set->n_frames - 1;
 
@@ -11970,6 +11986,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_values_free
                  const int64_t n_values_per_frame,
                  const char type)
 {
+    (void)tng_data;
     int i, j;
 
     if(values)
@@ -12074,6 +12091,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free
                  const int64_t n_values_per_frame,
                  const char type)
 {
+    (void)tng_data;
     int i, j, k;
 
     if(values)
@@ -13543,6 +13561,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_get
                  char ***chain_names,
                  int64_t **chain_ids)
 {
+    (void)tng_data;
     tng_atom_t atom;
     tng_residue_t res;
     tng_chain_t chain;

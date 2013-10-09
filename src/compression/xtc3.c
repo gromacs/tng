@@ -205,6 +205,9 @@ static void insert_value_in_array(unsigned int **ptr, int *nele, int *nele_alloc
 				  unsigned int value,
 				  char *arrayname)
 {
+#ifndef SHOWIT
+  (void)arrayname;
+#endif
   allocate_enough_memory(ptr,nele,nele_alloc);
 #ifdef SHOWIT
   fprintf(stderr,"Inserting value %u into array %s @ %d\n",value,arrayname,(*nele)-1);
@@ -216,6 +219,7 @@ static void insert_value_in_array(unsigned int **ptr, int *nele, int *nele_alloc
 
 static void swapdecide(struct xtc3_context *xtc3_context, int *input,int *swapatoms, int *large_index, int *minint)
 {
+  (void)large_index;
   int didswap=0;
   int normal,swapped;
   swap_is_better(input,minint,&normal,&swapped);

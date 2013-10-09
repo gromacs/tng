@@ -242,6 +242,7 @@ void Ptngc_comp_huff_compress(unsigned int *vals, int nvals,
 void Ptngc_comp_huff_decompress(unsigned char *huffman, int huffman_len,
 			  unsigned int *vals)
 {
+  (void)huffman_len;
   int isvals16=(int)huffman[0];
   unsigned int *vals16=NULL;
   int algo=(int)huffman[1];

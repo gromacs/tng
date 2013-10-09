@@ -81,7 +81,9 @@ static void bwlzh_compress_gen(unsigned int *vals, int nvals,
   int huffdatalen;
   int nhufflen[N_HUFFMAN_ALGO];
   int huffalgo;
+#ifndef PARTIAL_MTF
   int ndict;
+#endif
   int bwt_index;
   unsigned int *bwt=NULL;
 #ifdef PARTIAL_MTF3
@@ -494,7 +496,9 @@ static void bwlzh_decompress_gen(unsigned char *input, int nvals,
 {
   unsigned int *vals16;
   int nvals16;
+#ifndef PARTIAL_MTF
   int ndict;
+#endif
   int bwt_index;
   unsigned int *bwt=NULL; 
   unsigned int *mtf=NULL;

@@ -56,6 +56,7 @@ struct codelength
 
 static int comp_htree(const void *leafptr1, const void *leafptr2, const void *private)
 {
+  (void)private;
   const union htree_nodeleaf *leaf1=(union htree_nodeleaf *)leafptr1;
   const union htree_nodeleaf *leaf2=(union htree_nodeleaf *)leafptr2;
   
@@ -185,6 +186,7 @@ static unsigned int readbits(int length, unsigned char **input, int *bitptr)
 
 static int comp_codes(const void *codeptr1, const void *codeptr2, const void *private)
 {
+  (void)private;
   const struct codelength *code1=(struct codelength *)codeptr1;
   const struct codelength *code2=(struct codelength *)codeptr2;
   
@@ -202,6 +204,7 @@ static int comp_codes(const void *codeptr1, const void *codeptr2, const void *pr
 
 static int comp_codes_value(const void *codeptr1, const void *codeptr2, const void *private)
 {
+  (void)private;
   const struct codelength *code1=(struct codelength *)codeptr1;
   const struct codelength *code2=(struct codelength *)codeptr2;
   
@@ -470,6 +473,8 @@ void Ptngc_comp_conv_from_huffman(unsigned char *huffman,
 			    unsigned int *huffman_dict_unpacked,
 			    int huffman_dict_unpackedlen)
 {
+  (void)huffman_dictlen;
+  (void)huffman_dict_unpackedlen;
   struct codelength *codelength=warnmalloc(ndict*sizeof *codelength);
   int i,j;
   int maxdict;

@@ -363,6 +363,7 @@ static void swap_is_better(int *input, int *minint, int *sum_normal, int *sum_sw
 
 static void swapdecide(struct coder *coder, int *input,int *swapatoms, int *large_index, int *minint, unsigned char **output_ptr)
 {
+  (void)large_index;
   int didswap=0;
   int normal,swapped;
   swap_is_better(input,minint,&normal,&swapped);
@@ -1270,6 +1271,7 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 
 int Ptngc_unpack_array_xtc2(struct coder *coder,unsigned char *packed,int *output, int length)
 {
+  (void)coder;
   unsigned char *ptr=packed;
   int bitptr=0;
   int minint[3];

@@ -313,6 +313,9 @@ void Ptngc_comp_from_lz77(unsigned int *data, int ndata,
 		    unsigned int *offsets, int noffsets,
 		    unsigned int *vals, int nvals)
 {
+  (void)ndata;
+  (void)nlens;
+  (void)noffsets;
   int i=0;
   int joff=0;
   int jdat=0;
