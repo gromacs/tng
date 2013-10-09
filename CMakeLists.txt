@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
-project(TRAJECTORY)
+project(TNG_IO)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include/compression)
 
 option(BUILD_FORTRAN "Build Fortran compatible library and examples for testing" OFF)
 

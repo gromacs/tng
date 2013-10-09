@@ -81,9 +81,6 @@ static void bwlzh_compress_gen(unsigned int *vals, int nvals,
   int huffdatalen;
   int nhufflen[N_HUFFMAN_ALGO];
   int huffalgo;
-#ifndef PARTIAL_MTF
-  int ndict;
-#endif
   int bwt_index;
   unsigned int *bwt=NULL;
 #ifdef PARTIAL_MTF3
@@ -213,6 +210,7 @@ static void bwlzh_compress_gen(unsigned int *vals, int nvals,
 #ifdef PARTIAL_MTF
 	  Ptngc_comp_conv_to_mtf_partial(bwt,nvals16,mtf);
 #else
+      int ndict;
 	  Ptngc_comp_canonical_dict(dict,&ndict);
 	  Ptngc_comp_conv_to_mtf(bwt,nvals16,
 			   dict,ndict,mtf);
@@ -496,9 +494,6 @@ static void bwlzh_decompress_gen(unsigned char *input, int nvals,
 {
   unsigned int *vals16;
   int nvals16;
-#ifndef PARTIAL_MTF
-  int ndict;
-#endif
   int bwt_index;
   unsigned int *bwt=NULL; 
   unsigned int *mtf=NULL;
@@ -748,6 +743,7 @@ static void bwlzh_decompress_gen(unsigned char *input, int nvals,
 #ifdef PARTIAL_MTF
       Ptngc_comp_conv_from_mtf_partial(mtf,nvals16,bwt);
 #else
+      int ndict;
       Ptngc_comp_canonical_dict(dict,&ndict);      
       Ptngc_comp_conv_from_mtf(mtf,nvals16,dict,ndict,bwt);
 #endif

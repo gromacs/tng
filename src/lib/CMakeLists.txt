@@ -1,4 +1,4 @@
-add_library(tng_io SHARED tng_io.c md5.c)
+add_library(tng_io tng_io.c md5.c)
 
 if(HAVE_INTTYPES_H)
   set_property(TARGET tng_io APPEND PROPERTY COMPILE_DEFINITIONS USE_STD_INTTYPES_H)

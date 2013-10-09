@@ -34,20 +34,20 @@
 
 struct coder *Ptngc_coder_init(void)
 {
-    struct coder *coder=warnmalloc(sizeof *coder);
-    coder->pack_temporary_bits=0;
-    return coder;
+    struct coder *coder_inst=warnmalloc(sizeof *coder_inst);
+    coder_inst->pack_temporary_bits=0;
+    return coder_inst;
 }
 
-void Ptngc_coder_deinit(struct coder *coder)
+void Ptngc_coder_deinit(struct coder *coder_inst)
 {
-    free(coder);
+    free(coder_inst);
 }
 
-TNG_INLINE void Ptngc_out8bits(struct coder *coder, unsigned char **output)
+TNG_INLINE void Ptngc_out8bits(struct coder *coder_inst, unsigned char **output)
 {
-  int pack_temporary_bits=coder->pack_temporary_bits;
-  unsigned int pack_temporary=coder->pack_temporary;
+  int pack_temporary_bits=coder_inst->pack_temporary_bits;
+  unsigned int pack_temporary=coder_inst->pack_temporary;
   while (pack_temporary_bits>=8)
     {
       unsigned int mask=~(0xFFU<<(pack_temporary_bits-8));
@@ -57,40 +57,40 @@ TNG_INLINE void Ptngc_out8bits(struct coder *coder, unsigned char **output)
       pack_temporary_bits-=8;
       pack_temporary&=mask;
     }
-  coder->pack_temporary_bits=pack_temporary_bits;
-  coder->pack_temporary=pack_temporary;
+  coder_inst->pack_temporary_bits=pack_temporary_bits;
+  coder_inst->pack_temporary=pack_temporary;
 }
 
-void Ptngc_write_pattern(struct coder *coder,unsigned int pattern, int nbits, unsigned char **output)
+void Ptngc_write_pattern(struct coder *coder_inst,unsigned int pattern, int nbits, unsigned char **output)
 {
     unsigned int mask1,mask2;
     mask1=1;
     mask2=1<<(nbits-1);
-    coder->pack_temporary<<=nbits; /* Make room for new data. */
-    coder->pack_temporary_bits+=nbits;
+    coder_inst->pack_temporary<<=nbits; /* Make room for new data. */
+    coder_inst->pack_temporary_bits+=nbits;
     while (nbits)
     {
 	if (pattern & mask1)
-	    coder->pack_temporary|=mask2;
+	    coder_inst->pack_temporary|=mask2;
 	nbits--;
 	mask1<<=1;
 	mask2>>=1;
     }
-    Ptngc_out8bits(coder,output);
+    Ptngc_out8bits(coder_inst,output);
 }
 
 /* Write up to 24 bits */
-TNG_INLINE void Ptngc_writebits(struct coder *coder,unsigned int value,int nbits, unsigned char **output_ptr)
+TNG_INLINE void Ptngc_writebits(struct coder *coder_inst,unsigned int value,int nbits, unsigned char **output_ptr)
 {
   /* Make room for the bits. */
-  coder->pack_temporary<<=nbits;
-  coder->pack_temporary_bits+=nbits;
-  coder->pack_temporary|=value;
-  Ptngc_out8bits(coder,output_ptr);
+  coder_inst->pack_temporary<<=nbits;
+  coder_inst->pack_temporary_bits+=nbits;
+  coder_inst->pack_temporary|=value;
+  Ptngc_out8bits(coder_inst,output_ptr);
 }
 
 /* Write up to 32 bits */
-void Ptngc_write32bits(struct coder *coder,unsigned int value,int nbits, unsigned char **output_ptr)
+void Ptngc_write32bits(struct coder *coder_inst,unsigned int value,int nbits, unsigned char **output_ptr)
 {
   unsigned int mask;
   if (nbits>=8)
@@ -100,19 +100,19 @@ void Ptngc_write32bits(struct coder *coder,unsigned int value,int nbits, unsigne
   while (nbits>8)
     {
       /* Make room for the bits. */
-      coder->pack_temporary<<=8;
-      coder->pack_temporary_bits+=8;
-      coder->pack_temporary|=(value&mask)>>(nbits-8);
-      Ptngc_out8bits(coder,output_ptr);
+      coder_inst->pack_temporary<<=8;
+      coder_inst->pack_temporary_bits+=8;
+      coder_inst->pack_temporary|=(value&mask)>>(nbits-8);
+      Ptngc_out8bits(coder_inst,output_ptr);
       nbits-=8;
       mask>>=8;
     }
   if (nbits)
-    Ptngc_writebits(coder,value&mask,nbits,output_ptr);
+    Ptngc_writebits(coder_inst,value&mask,nbits,output_ptr);
 }
 
 /* Write "arbitrary" number of bits */
-void Ptngc_writemanybits(struct coder *coder,unsigned char *value,int nbits, unsigned char **output_ptr)
+void Ptngc_writemanybits(struct coder *coder_inst,unsigned char *value,int nbits, unsigned char **output_ptr)
 {
   int vptr=0;
   while (nbits>=24)
@@ -120,23 +120,23 @@ void Ptngc_writemanybits(struct coder *coder,unsigned char *value,int nbits, uns
       unsigned int v=((((unsigned int)value[vptr])<<16)|
 		      (((unsigned int)value[vptr+1])<<8)|
 		      (((unsigned int)value[vptr+2])));
-      Ptngc_writebits(coder,v,24,output_ptr);
+      Ptngc_writebits(coder_inst,v,24,output_ptr);
       vptr+=3;
       nbits-=24;
     }
   while (nbits>=8)
     {
-      Ptngc_writebits(coder,(unsigned int)value[vptr],8,output_ptr);
+      Ptngc_writebits(coder_inst,(unsigned int)value[vptr],8,output_ptr);
       vptr++;
       nbits-=8;
     }
   if (nbits)
     {
-      Ptngc_writebits(coder,(unsigned int)value[vptr],nbits,output_ptr);
+      Ptngc_writebits(coder_inst,(unsigned int)value[vptr],nbits,output_ptr);
     }
 }
 
-static int write_stop_bit_code(struct coder *coder, unsigned int s,unsigned int coding_parameter, unsigned char **output)
+static int write_stop_bit_code(struct coder *coder_inst, unsigned int s,unsigned int coding_parameter, unsigned char **output)
 {
   do {
     unsigned int extract=~(0xffffffffU<<coding_parameter);
@@ -145,12 +145,12 @@ static int write_stop_bit_code(struct coder *coder, unsigned int s,unsigned int 
     if (s)
       {
 	this|=1U;
-	coder->stat_overflow++;
+	coder_inst->stat_overflow++;
       }
-    coder->pack_temporary<<=(coding_parameter+1);
-    coder->pack_temporary_bits+=coding_parameter+1;
-    coder->pack_temporary|=this;
-    Ptngc_out8bits(coder,output);
+    coder_inst->pack_temporary<<=(coding_parameter+1);
+    coder_inst->pack_temporary_bits+=coding_parameter+1;
+    coder_inst->pack_temporary|=this;
+    Ptngc_out8bits(coder_inst,output);
     if (s)
       {
 	coding_parameter>>=1;
@@ -158,11 +158,11 @@ static int write_stop_bit_code(struct coder *coder, unsigned int s,unsigned int 
 	  coding_parameter=1;
       }
   } while (s);
-  coder->stat_numval++;
+  coder_inst->stat_numval++;
   return 0;
 }
 
-static int pack_stopbits_item(struct coder *coder,int item, unsigned char **output, int coding_parameter)
+static int pack_stopbits_item(struct coder *coder_inst,int item, unsigned char **output, int coding_parameter)
 {
     /* Find this symbol in table. */
     int s=0;
@@ -170,11 +170,11 @@ static int pack_stopbits_item(struct coder *coder,int item, unsigned char **outp
 	s=1+(item-1)*2;
     else if (item<0)
 	s=2+(-item-1)*2;
-    return write_stop_bit_code(coder,s,coding_parameter,output);
+    return write_stop_bit_code(coder_inst,s,coding_parameter,output);
     return 0;
 }
 
-static int pack_triplet(struct coder *coder,unsigned int *s, unsigned char **output, int coding_parameter,
+static int pack_triplet(struct coder *coder_inst,unsigned int *s, unsigned char **output, int coding_parameter,
 			unsigned int max_base, int maxbits)
 {
   /* Determine base for this triplet. */
@@ -199,23 +199,23 @@ static int pack_triplet(struct coder *coder,unsigned int *s, unsigned char **out
       jbase=3;
     }
   /* 2 bits selects the base */
-  coder->pack_temporary<<=2;
-  coder->pack_temporary_bits+=2;
-  coder->pack_temporary|=jbase;
-  Ptngc_out8bits(coder,output);
+  coder_inst->pack_temporary<<=2;
+  coder_inst->pack_temporary_bits+=2;
+  coder_inst->pack_temporary|=jbase;
+  Ptngc_out8bits(coder_inst,output);
   for (i=0; i<3; i++)
-    Ptngc_write32bits(coder,s[i],bits_per_value,output);
+    Ptngc_write32bits(coder_inst,s[i],bits_per_value,output);
   return 0;
 }
 
-void Ptngc_pack_flush(struct coder *coder,unsigned char **output)
+void Ptngc_pack_flush(struct coder *coder_inst,unsigned char **output)
 {
   /* Zero-fill just enough. */
-  if (coder->pack_temporary_bits>0)
-    Ptngc_write_pattern(coder,0,8-coder->pack_temporary_bits,output);
+  if (coder_inst->pack_temporary_bits>0)
+    Ptngc_write_pattern(coder_inst,0,8-coder_inst->pack_temporary_bits,output);
 }
 
-unsigned char *Ptngc_pack_array(struct coder *coder,int *input, int *length, int coding, int coding_parameter,int natoms, int speed)
+unsigned char *Ptngc_pack_array(struct coder *coder_inst,int *input, int *length, int coding, int coding_parameter,int natoms, int speed)
 {
   if ((coding==TNG_COMPRESS_ALGO_BWLZH1) || (coding==TNG_COMPRESS_ALGO_BWLZH2))
     {
@@ -252,7 +252,7 @@ unsigned char *Ptngc_pack_array(struct coder *coder,int *input, int *length, int
   else if (coding==TNG_COMPRESS_ALGO_POS_XTC3)
     return Ptngc_pack_array_xtc3(input,length,natoms,speed);
   else if (coding==TNG_COMPRESS_ALGO_POS_XTC2)
-    return Ptngc_pack_array_xtc2(coder,input,length);
+    return Ptngc_pack_array_xtc2(coder_inst,input,length);
   else
     {
       unsigned char *output=NULL;
@@ -260,8 +260,8 @@ unsigned char *Ptngc_pack_array(struct coder *coder,int *input, int *length, int
       int i;
       int output_length=0;
 
-      coder->stat_numval=0;
-      coder->stat_overflow=0;
+      coder_inst->stat_numval=0;
+      coder_inst->stat_overflow=0;
       /* Allocate enough memory for output */
       output=warnmalloc(8* *length*sizeof *output);
       output_ptr=output;
@@ -287,9 +287,9 @@ unsigned char *Ptngc_pack_array(struct coder *coder,int *input, int *length, int
 		intmax=s;
 	    }
 	  /* Store intmax */
-	  coder->pack_temporary_bits=32;
-	  coder->pack_temporary=intmax;
-	  Ptngc_out8bits(coder,&output_ptr);
+	  coder_inst->pack_temporary_bits=32;
+	  coder_inst->pack_temporary=intmax;
+	  Ptngc_out8bits(coder_inst,&output_ptr);
 	  while (intmax>=max_base)
 	    {
 	      max_base*=2;
@@ -309,7 +309,7 @@ unsigned char *Ptngc_pack_array(struct coder *coder,int *input, int *length, int
 		  else if (item<0)
 		    s[j]=2+(-item-1)*2;
 		}
-	      if (pack_triplet(coder,s,&output_ptr,coding_parameter,max_base,maxbits))
+	      if (pack_triplet(coder_inst,s,&output_ptr,coding_parameter,max_base,maxbits))
 		{
 		  free(output);
 		  return NULL;
@@ -318,21 +318,21 @@ unsigned char *Ptngc_pack_array(struct coder *coder,int *input, int *length, int
 	}
       else
 	for (i=0; i<*length; i++)
-	  if (pack_stopbits_item(coder,input[i],&output_ptr,coding_parameter))
+	  if (pack_stopbits_item(coder_inst,input[i],&output_ptr,coding_parameter))
 	    {
 	      free(output);
 	      return NULL;
 	    }
-      Ptngc_pack_flush(coder,&output_ptr);
+      Ptngc_pack_flush(coder_inst,&output_ptr);
       output_length=(int)(output_ptr-output);
       *length=output_length;
       return output;
     }
 }
 
-static int unpack_array_stop_bits(struct coder *coder,unsigned char *packed,int *output, int length, int coding_parameter)
+static int unpack_array_stop_bits(struct coder *coder_inst,unsigned char *packed,int *output, int length, int coding_parameter)
 {
-  (void)coder;
+  (void)coder_inst;
   int i,j;
   unsigned int extract_mask=0x80;
   unsigned char *ptr=packed;
@@ -383,9 +383,9 @@ static int unpack_array_stop_bits(struct coder *coder,unsigned char *packed,int 
   return 0;
 }
 
-static int unpack_array_triplet(struct coder *coder,unsigned char *packed,int *output, int length, int coding_parameter)
+static int unpack_array_triplet(struct coder *coder_inst,unsigned char *packed,int *output, int length, int coding_parameter)
 {
-  (void)coder;
+  (void)coder_inst;
   int i,j;
   unsigned int extract_mask=0x80;
   unsigned char *ptr=packed;
@@ -455,9 +455,9 @@ static int unpack_array_triplet(struct coder *coder,unsigned char *packed,int *o
   return 0;
 }
 
-static int unpack_array_bwlzh(struct coder *coder,unsigned char *packed,int *output, int length, int natoms)
+static int unpack_array_bwlzh(struct coder *coder_inst,unsigned char *packed,int *output, int length, int natoms)
 {
-  (void)coder;
+  (void)coder_inst;
   int i,j,k,n=length;
   unsigned int *pval=warnmalloc(n*sizeof *pval);
   int nframes=n/natoms/3;
@@ -478,19 +478,19 @@ static int unpack_array_bwlzh(struct coder *coder,unsigned char *packed,int *out
   return 0;
 }
 
-int Ptngc_unpack_array(struct coder *coder,unsigned char *packed,int *output, int length, int coding, int coding_parameter, int natoms)
+int Ptngc_unpack_array(struct coder *coder_inst,unsigned char *packed,int *output, int length, int coding, int coding_parameter, int natoms)
 {
   if ((coding==TNG_COMPRESS_ALGO_STOPBIT) ||
       (coding==TNG_COMPRESS_ALGO_VEL_STOPBIT_INTER))
-    return unpack_array_stop_bits(coder, packed, output, length, coding_parameter);
+    return unpack_array_stop_bits(coder_inst, packed, output, length, coding_parameter);
   else if ((coding==TNG_COMPRESS_ALGO_TRIPLET) ||
 	   (coding==TNG_COMPRESS_ALGO_POS_TRIPLET_INTRA) ||
 	   (coding==TNG_COMPRESS_ALGO_POS_TRIPLET_ONETOONE))
-    return unpack_array_triplet(coder, packed, output, length, coding_parameter);
+    return unpack_array_triplet(coder_inst, packed, output, length, coding_parameter);
   else if (coding==TNG_COMPRESS_ALGO_POS_XTC2)
-    return Ptngc_unpack_array_xtc2(coder, packed, output, length);
+    return Ptngc_unpack_array_xtc2(coder_inst, packed, output, length);
   else if ((coding==TNG_COMPRESS_ALGO_BWLZH1) || (coding==TNG_COMPRESS_ALGO_BWLZH2))
-    return unpack_array_bwlzh(coder, packed, output, length,natoms);
+    return unpack_array_bwlzh(coder_inst, packed, output, length,natoms);
   else if (coding==TNG_COMPRESS_ALGO_POS_XTC3)
     return Ptngc_unpack_array_xtc3(packed, output, length,natoms);
   return 1;

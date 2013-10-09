@@ -4100,6 +4100,7 @@ static tng_function_status tng_gzip_uncompress(tng_trajectory_t tng_data,
                                                void *start_pos,
                                                unsigned long uncompressed_len)
 {
+    (void)tng_data;
     Bytef *dest;
     char *temp;
     unsigned long stat;
@@ -4174,6 +4175,7 @@ static tng_function_status tng_allocate_particle_data_mem
                  const int64_t n_particles,
                  const int64_t n_values_per_frame)
 {
+    (void)tng_data;
     void ***values;
     int64_t i, j, k, size, frame_alloc;
 

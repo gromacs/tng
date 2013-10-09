@@ -275,42 +275,52 @@
 #ifdef USE_STD_INTTYPES_H
 #include <inttypes.h>
 #else
-//
 /* Visual Studio does not contain inttypes.h and stdint.h. Some defines and
  * typedefs are used from the GNU C Library */
+#ifdef _MSC_VER
 
-#ifndef _STDINT_H
-/* This first part is from stdint.h (GNU C Library) */
-#ifndef __int8_t_defined
-# define __int8_t_defined
-typedef signed char             int8_t;
-typedef short int               int16_t;
-typedef int                     int32_t;
-# if __WORDSIZE == 64
-typedef long int                int64_t;
-# else
-#ifdef __GNUC__
-__extension__
-#endif
-typedef long long int           int64_t;
-# endif
-#endif
+typedef __int32 int32_t;
+typedef unsigned __int32 uint32_t;
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
 
-typedef unsigned char           uint8_t;
-typedef unsigned short int      uint16_t;
-#ifndef __uint32_t_defined
-typedef unsigned int            uint32_t;
-# define __uint32_t_defined
-#endif
-#if __WORDSIZE == 64
-typedef unsigned long int       uint64_t;
 #else
-#ifdef __GNUC__
-__extension__
+#include <stdint.h>
 #endif
-typedef unsigned long long int  uint64_t;
-#endif
-#endif
+//
+
+// #ifndef _STDINT_H
+// /* This first part is from stdint.h (GNU C Library) */
+// #ifndef __int8_t_defined
+// # define __int8_t_defined
+// typedef signed char             int8_t;
+// typedef short int               int16_t;
+// typedef int                     int32_t;
+// # if __WORDSIZE == 64
+// typedef long int                int64_t;
+// # else
+// #ifdef __GNUC__
+// __extension__
+// #endif
+// typedef long long int           int64_t;
+// # endif
+// #endif
+// 
+// typedef unsigned char           uint8_t;
+// typedef unsigned short int      uint16_t;
+// #ifndef __uint32_t_defined
+// typedef unsigned int            uint32_t;
+// # define __uint32_t_defined
+// #endif
+// #if __WORDSIZE == 64
+// typedef unsigned long int       uint64_t;
+// #else
+// #ifdef __GNUC__
+// __extension__
+// #endif
+// typedef unsigned long long int  uint64_t;
+// #endif
+// #endif
 
 /* This is from inttypes.h  (GNU C Library) */
 /* The ISO C99 standard specifies that these macros must only be
