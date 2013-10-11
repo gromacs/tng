@@ -1,9 +1,9 @@
-link_directories(${TRAJECTORY_BINARY_DIR}/src/lib)
+link_directories(${TNG_IO_BINARY_DIR}/src/lib)
 
 set(TNG_COMPRESS_FILES_DIR ${CMAKE_BINARY_DIR}/test_tng_compress_files/ CACHE STRING "Directory where to write tng_compress test files.")
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/test_tng_compress_files)
-configure_file(${TRAJECTORY_SOURCE_DIR}/include/compression/tng_compress_testing.h.in ${CMAKE_BINARY_DIR}/generated/tng_compress_testing.h)
+configure_file(${TNG_IO_SOURCE_DIR}/include/compression/tng_compress_testing.h.in ${CMAKE_BINARY_DIR}/generated/tng_compress_testing.h)
 
 include_directories(${CMAKE_SOURCE_DIR}/include/compression)
 include_directories(${CMAKE_BINARY_DIR}/generated/)
