@@ -37,8 +37,8 @@ static int compare_index(int i1,int i2,int nvals,unsigned int *vals,unsigned int
       int k1=(int)(nrepeat[i1]&0xFFU);
       int repeat2=(int)(nrepeat[i2]>>8);
       int k2=(int)(nrepeat[i2]&0xFFU);
-      
-      if ((repeat1>1) && (repeat1>1) && (k1==k2))
+
+      if ((repeat1>1) && (repeat2>1) && (k1==k2))
 	{
 	  int maxskip=0;
 	  /* Yes. Compare the repeating patterns. */
@@ -88,7 +88,7 @@ void Ptngc_bwt_merge_sort_inner(int *indices, int nvals,unsigned int *vals,
       middle=start+(end-start)/2;
 #if 0
       printf("For start %d end %d obtained new middle: %d\n",start,end,middle);
-#endif      
+#endif
       Ptngc_bwt_merge_sort_inner(indices,nvals,vals,
 			   start,middle,
 			   nrepeat,
@@ -126,7 +126,7 @@ void Ptngc_bwt_merge_sort_inner(int *indices, int nvals,unsigned int *vals,
 		  if (compare_index(indices[ileft],indices[iright],nvals,vals,nrepeat)>0)
 		    {
 		      workarray[i]=indices[iright];
-		      iright++;		      
+		      iright++;
 		    }
 		  else
 		    {
@@ -221,7 +221,7 @@ void Ptngc_comp_to_bwt(unsigned int *vals, int nvals,
 						  pattern. */
 #ifdef SHOWIT
 			      printf("Best j and k is now %d and %d\n",good_j,good_k);
-#endif			      
+#endif
 			    }
 			}
 		      else
@@ -257,7 +257,7 @@ void Ptngc_comp_to_bwt(unsigned int *vals, int nvals,
 	      nrepeat[i+m]=((unsigned int) (good_k)) | (((unsigned int) (repeat))<<8);
 	    }
 	  /* If no repetition was found for this value signal that here. */
-	  if (!nrepeat[i]) 
+	  if (!nrepeat[i])
 	    nrepeat[i+m]=257U; /* This is 1<<8 | 1 */
 	}
     }
@@ -334,4 +334,4 @@ void Ptngc_comp_from_bwt(unsigned int *input, int nvals, int index,
   free(p);
   free(c);
 }
-		   
+

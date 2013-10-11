@@ -171,7 +171,6 @@ static int pack_stopbits_item(struct coder *coder_inst,int item, unsigned char *
     else if (item<0)
 	s=2+(-item-1)*2;
     return write_stop_bit_code(coder_inst,s,coding_parameter,output);
-    return 0;
 }
 
 static int pack_triplet(struct coder *coder_inst,unsigned int *s, unsigned char **output, int coding_parameter,
@@ -194,7 +193,6 @@ static int pack_triplet(struct coder *coder_inst,unsigned int *s, unsigned char 
     {
       if (this_base>max_base)
 	return 1;
-      this_base=max_base;
       bits_per_value=maxbits;
       jbase=3;
     }
@@ -332,7 +330,7 @@ unsigned char *Ptngc_pack_array(struct coder *coder_inst,int *input, int *length
 
 static int unpack_array_stop_bits(struct coder *coder_inst,unsigned char *packed,int *output, int length, int coding_parameter)
 {
-  (void)coder_inst;
+  (void) coder_inst;
   int i,j;
   unsigned int extract_mask=0x80;
   unsigned char *ptr=packed;
@@ -385,7 +383,7 @@ static int unpack_array_stop_bits(struct coder *coder_inst,unsigned char *packed
 
 static int unpack_array_triplet(struct coder *coder_inst,unsigned char *packed,int *output, int length, int coding_parameter)
 {
-  (void)coder_inst;
+  (void) coder_inst;
   int i,j;
   unsigned int extract_mask=0x80;
   unsigned char *ptr=packed;
@@ -457,7 +455,7 @@ static int unpack_array_triplet(struct coder *coder_inst,unsigned char *packed,i
 
 static int unpack_array_bwlzh(struct coder *coder_inst,unsigned char *packed,int *output, int length, int natoms)
 {
-  (void)coder_inst;
+  (void) coder_inst;
   int i,j,k,n=length;
   unsigned int *pval=warnmalloc(n*sizeof *pval);
   int nframes=n/natoms/3;

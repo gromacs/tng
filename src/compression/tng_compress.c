@@ -481,13 +481,14 @@ static void compress_quantized_vel(int *quant, int *quant_inter,
   if (data)
     bufferfix((unsigned char*)data+bufloc,prec_hi,4);
   bufloc+=4;
+
+  length=natoms*3;
   /* The initial frame */
   if ((initial_coding==TNG_COMPRESS_ALGO_VEL_STOPBIT_ONETOONE) ||
       (initial_coding==TNG_COMPRESS_ALGO_VEL_TRIPLET_ONETOONE) ||
       (initial_coding==TNG_COMPRESS_ALGO_VEL_BWLZH_ONETOONE))
     {
       struct coder *coder=Ptngc_coder_init();
-      length=natoms*3;
       datablock=(char*)Ptngc_pack_array(coder,quant,&length,
 					    initial_coding,initial_coding_parameter,natoms,speed);
       Ptngc_coder_deinit(coder);
@@ -497,10 +498,12 @@ static void compress_quantized_vel(int *quant, int *quant_inter,
     bufferfix((unsigned char*)data+bufloc,(fix_t)length,4);
   bufloc+=4;
   /* The actual data block. */
-  if (data)
-    memcpy(data+bufloc,datablock,length);
-  free(datablock);
-  bufloc+=length;
+  if (data && datablock)
+    {
+      memcpy(data+bufloc,datablock,length);
+      free(datablock);
+      bufloc+=length;
+    }
   /* The remaining frames */
   if (nframes>1)
     {
@@ -683,7 +686,6 @@ static void determine_best_pos_initial_coding(int *quant, int *quant_intra, int 
 	    {
 	      best_coding=current_coding;
 	      best_coding_parameter=current_coding_parameter;
-	      best_code_size=current_code_size;
 	    }
 	}
       *initial_coding=best_coding;
@@ -846,7 +848,6 @@ static void determine_best_pos_coding(int *quant, int *quant_inter, int *quant_i
 	    {
 	      best_coding=current_coding;
 	      best_coding_parameter=current_coding_parameter;
-	      best_code_size=current_code_size;
 	    }
 	}
       *coding=best_coding;
@@ -950,7 +951,6 @@ static void determine_best_vel_initial_coding(int *quant, int natoms, int speed,
 	    {
 	      best_coding=current_coding;
 	      best_coding_parameter=current_coding_parameter;
-	      best_code_size=current_code_size;
 	    }
 	}
       *initial_coding=best_coding;
@@ -1090,7 +1090,6 @@ static void determine_best_vel_coding(int *quant, int *quant_inter, int natoms, 
 	  if (current_code_size<best_code_size)
 	    {
 	      best_coding=current_coding;
-	      best_code_size=current_code_size;
 	      best_coding_parameter=current_coding_parameter;
 	    }
 	}
@@ -1492,7 +1491,6 @@ int DECLSPECDLLEXPORT tng_compress_inquire(char *data,int *vel, int *natoms,
   prec_lo=readbufferfix((unsigned char *)data+bufloc,4);
   bufloc+=4;
   prec_hi=readbufferfix((unsigned char *)data+bufloc,4);
-  bufloc+=4;
   *precision=PRECISION(prec_hi, prec_lo);
   algo[0]=initial_coding;
   algo[1]=initial_coding_parameter;
@@ -1583,8 +1581,6 @@ static int tng_compress_uncompress_pos_gen(char *data,double *posd,float *posf,i
   /* The remaining frames. */
   if (nframes>1)
     {
-      /* The data block length. */
-      length=(int)readbufferfix((unsigned char *)data+bufloc,4);
       bufloc+=4;
       coder=Ptngc_coder_init();
       rval=Ptngc_unpack_array(coder,(unsigned char *)data+bufloc,quant+natoms*3,(nframes-1)*natoms*3,
@@ -1721,8 +1717,6 @@ static int tng_compress_uncompress_vel_gen(char *data,double *veld,float *velf,i
   /* The remaining frames. */
   if (nframes>1)
     {
-      /* The data block length. */
-      length=(int)readbufferfix((unsigned char *)data+bufloc,4);
       bufloc+=4;
       coder=Ptngc_coder_init();
       rval=Ptngc_unpack_array(coder,(unsigned char *)data+bufloc,quant+natoms*3,(nframes-1)*natoms*3,

@@ -512,7 +512,6 @@ static void buffer_large(struct xtc3_context *xtc3_context, int *input, int inpd
       thislen=compute_intlen(interdelta);
       if (thislen*TRESHOLD_INTRA_INTER_DIRECT<minlen)
 	{
-	  minlen=thislen;
 	  best_type=2; /* Inter delta */
 	}
     }
@@ -730,7 +729,6 @@ static void base_decompress(unsigned char *input, int len, unsigned int *output)
       while (nvals_left)
 	{
 	  int n;
-	  int numints;
 	  if (basegiven==0)
 	    {
 	      base=(unsigned int)(input[0])|
@@ -755,24 +753,26 @@ static void base_decompress(unsigned char *input, int len, unsigned int *output)
 #ifdef SHOWIT
 	  fprintf(stderr,"Reading largeint: ");
 #endif
-	  for (j=0; j<numbytes; j++)
-	    {
-	      int ilarge=j/4;
-	      int ibyte=j%4;
-	      largeint[ilarge]|=((unsigned int)input[j])<<(ibyte*8);
+          if (numbytes/4 < maxbasevals+1)
+            {
+	      for (j=0; j<numbytes; j++)
+	        {
+	          int ilarge=j/4;
+	          int ibyte=j%4;
+	          largeint[ilarge]|=((unsigned int)input[j])<<(ibyte*8);
 #ifdef SHOWIT
-	      fprintf(stderr,"%02x",(unsigned int)input[j]);
+	          fprintf(stderr,"%02x",(unsigned int)input[j]);
 #endif
+                }
 	    }
 #ifdef SHOWIT
-	      fprintf(stderr,"\n");
+	  fprintf(stderr,"\n");
 #endif
 	  input+=numbytes;
 	  /* Do the long division required to get the output values. */
 	  n=maxbasevals;
 	  if (n>nvals_left)
 	    n=nvals_left;
-	  numints=(numbytes+3)/4;
 	  for (i=n-1; i>=0; i--)
 	    {
 	      output[outvals+i*3]=Ptngc_largeint_div(base,largeint,largeint_tmp,maxbasevals+1);
@@ -1699,21 +1699,21 @@ static void unpack_one_large(struct xtc3_context *xtc3_context,
 			     int natoms, int current_large_type)
 {
   int large_ints[3]={0,0,0};
-  if (current_large_type==0)
+  if (current_large_type==0 && xtc3_context->large_direct)
     {
       large_ints[0]=(int)xtc3_context->large_direct[(*ilargedir)]+minint[0];
       large_ints[1]=(int)xtc3_context->large_direct[(*ilargedir)+1]+minint[1];
       large_ints[2]=(int)xtc3_context->large_direct[(*ilargedir)+2]+minint[2];
       (*ilargedir)+=3;
     }
-  else if (current_large_type==1)
+  else if (current_large_type==1 && xtc3_context->large_intra_delta)
     {
       large_ints[0]=unpositive_int(xtc3_context->large_intra_delta[(*ilargeintra)])+prevcoord[0];
       large_ints[1]=unpositive_int(xtc3_context->large_intra_delta[(*ilargeintra)+1])+prevcoord[1];
       large_ints[2]=unpositive_int(xtc3_context->large_intra_delta[(*ilargeintra)+2])+prevcoord[2];
       (*ilargeintra)+=3;
     }
-  else
+  else if (xtc3_context->large_inter_delta)
     {
       large_ints[0]=unpositive_int(xtc3_context->large_inter_delta[(*ilargeinter)])
 	+output[outdata-natoms*3+didswap*3];
@@ -1838,7 +1838,7 @@ int Ptngc_unpack_array_xtc3(unsigned char *packed,int *output, int length, int n
   prevcoord[1]=minint[1];
   prevcoord[2]=minint[2];
 
-  while (ntriplets_left>0)
+  while (ntriplets_left>0 && iinstr<xtc3_context.ninstr)
     {
       int instr=xtc3_context.instructions[iinstr++];
 #ifdef SHOWIT
@@ -1895,7 +1895,7 @@ int Ptngc_unpack_array_xtc3(unsigned char *packed,int *output, int length, int n
 	      outdata+=runlength*3;
 	    }
 	}
-      else if (instr==INSTR_LARGE_RLE)
+      else if (instr==INSTR_LARGE_RLE && irle<xtc3_context.nrle)
 	{
 	  int large_rle=xtc3_context.rle[irle++];
 #ifdef SHOWIT
@@ -1910,7 +1910,7 @@ int Ptngc_unpack_array_xtc3(unsigned char *packed,int *output, int length, int n
 	      outdata+=3;
 	    }
 	}
-      else if (instr==INSTR_SMALL_RUNLENGTH)
+      else if (instr==INSTR_SMALL_RUNLENGTH && irle<xtc3_context.nrle)
 	{
 	  runlength=xtc3_context.rle[irle++];
 #ifdef SHOWIT
