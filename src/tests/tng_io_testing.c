@@ -136,7 +136,7 @@ static tng_function_status tng_test_read_and_write_file
         }
         stat = tng_frame_set_write(traj, TNG_USE_HASH);
     }
-    
+
     return(stat);
 }
 
@@ -148,11 +148,11 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     int64_t frame_nr;
     double box_shape[9];
     char atom_type[16], annotation[128];
-    tng_function_status stat;
+    tng_function_status stat = TNG_SUCCESS;
 
     tng_medium_stride_length_set(traj, 10);
     tng_long_stride_length_set(traj, 100);
-    
+
     /* Create molecules */
     if(tng_test_setup_molecules(traj) == TNG_CRITICAL)
     {
@@ -200,7 +200,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
         printf("Failed setting partial charges.\n");
         return(TNG_CRITICAL);
     }
-    
+
     stat = tng_particle_data_block_add(traj, TNG_TRAJ_PARTIAL_CHARGES, "PARTIAL CHARGES",
                                        TNG_FLOAT_DATA, TNG_NON_TRAJECTORY_BLOCK,
                                        1, 1, 1, 0, n_particles,
@@ -230,9 +230,9 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
         printf("Cannot write file headers.\n");
     }
 
-    
+
     tng_num_frames_per_frame_set_get(traj, &n_frames_per_frame_set);
-    
+
     data = malloc(sizeof(float) * n_particles *
                   n_frames_per_frame_set * 3);
     if(!data)
@@ -366,9 +366,9 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
             return(TNG_CRITICAL);
         }
     }
-    
+
     /* Write two more frame sets one frame at a time */
-    cnt = 0;
+
     /* Make a new frame set - if always using the same mapping blocks
      * it is not necessary to explicitly add a new frame set - it will
      * be added automatically when adding data for a frame */
@@ -383,7 +383,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     }
 
     frame_nr = i * n_frames_per_frame_set;
-    
+
     for(k=0; k<300; k++)
     {
         mapping[k]=k;
@@ -470,7 +470,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
             }
         }
     }
-    
+
     free(molpos);
     free(data);
 
@@ -481,7 +481,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
 #endif
 
     stat = tng_file_headers_read(traj, TNG_SKIP_HASH);
-    
+
     while(stat == TNG_SUCCESS)
     {
         stat = tng_frame_set_read_next(traj, TNG_SKIP_HASH);
@@ -582,7 +582,7 @@ int main()
     tng_trajectory_t traj;
     tng_function_status stat;
     char time_str[TNG_MAX_DATE_STR_LEN];
-    
+
     if(tng_trajectory_init(&traj) != TNG_SUCCESS)
     {
         tng_trajectory_destroy(&traj);
@@ -614,7 +614,7 @@ int main()
     {
         printf("Test Read and write file:\t\t\tSucceeded.\n");
     }
-    
+
     if(tng_test_get_box_data(traj) != TNG_SUCCESS)
     {
         printf("Test Get data:\t\t\t\t\tFailed. %s: %d\n",
@@ -635,7 +635,7 @@ int main()
     {
         printf("Test Destroy and init trajectory:\t\tSucceeded.\n");
     }
-    
+
 
 #ifdef EXAMPLE_FILES_DIR
     tng_output_file_set(traj, EXAMPLE_FILES_DIR "tng_test.tng");
@@ -652,7 +652,7 @@ int main()
     {
         printf("Test Write and read file:\t\t\tSucceeded.\n");
     }
-    
+
     if(tng_test_get_positions_data(traj) != TNG_SUCCESS)
     {
         printf("Test Get particle data:\t\t\t\tFailed. %s: %d\n",
@@ -674,7 +674,7 @@ int main()
         printf("Test Destroy trajectory:\t\t\tSucceeded.\n");
     }
 
-    
+
 #ifdef EXAMPLE_FILES_DIR
     stat = tng_util_trajectory_open(EXAMPLE_FILES_DIR "tng_test.tng", 'r', &traj);
 #else
@@ -691,7 +691,7 @@ int main()
         printf("Test Utility function open:\t\t\tSucceeded.\n");
     }
 
-    stat = tng_util_trajectory_close(&traj);    
+    stat = tng_util_trajectory_close(&traj);
     if(stat != TNG_SUCCESS)
     {
         printf("Test Utility function close:\t\t\tFailed. %s: %d.\n",
@@ -702,8 +702,8 @@ int main()
     {
         printf("Test Utility function close:\t\t\tSucceeded.\n");
     }
-    
+
     printf("Tests finished\n");
-    
+
     exit(0);
 }

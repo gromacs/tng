@@ -965,7 +965,6 @@ static tng_function_status tng_block_header_read
                     __FILE__, __LINE__);
         }
     }
-    offset += sizeof(block->block_version);
 
     return(TNG_SUCCESS);
 }
@@ -992,7 +991,7 @@ static tng_function_status tng_block_header_read
 //                 __FILE__, __LINE__);
 //         return(TNG_CRITICAL);
 //     }
-// 
+//
 //     if(!block->block_contents)
 //     {
 //         printf("No block data to write. %s: %d\n",
@@ -1133,7 +1132,6 @@ static tng_function_status tng_block_header_write
                     __FILE__, __LINE__);
         }
     }
-    offset += sizeof(block->block_version);
 
     if(fwrite(block->header_contents, block->header_contents_size,
        1, tng_data->output_file) != 1)
@@ -2362,7 +2360,8 @@ static tng_function_status tng_molecules_block_read
 
                 tng_chain_data_read(tng_data, block, chain, &offset);
 
-                chain->residues = residue;
+                chain->residues = molecule->residues;
+                residue = chain->residues;
 
                 /* Read the residues of the chain */
                 for(k=chain->n_residues; k--;)
@@ -2436,64 +2435,67 @@ static tng_function_status tng_molecules_block_read
         }
         offset += sizeof(molecule->n_bonds);
 
-        molecule->bonds = malloc(molecule->n_bonds *
-                                 sizeof(struct tng_bond));
-        if(!molecule->bonds)
+        if(molecule->n_bonds > 0)
         {
-            printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                   molecule->n_bonds * sizeof(struct tng_bond),
-                   __FILE__, __LINE__);
-            if(molecule->chains)
+            molecule->bonds = malloc(molecule->n_bonds *
+                                     sizeof(struct tng_bond));
+            if(!molecule->bonds)
             {
-                free(molecule->chains);
-                molecule->chains = 0;
-            }
-            if(molecule->residues)
-            {
-                free(molecule->residues);
-                molecule->residues = 0;
-            }
-            if(molecule->bonds)
-            {
-                free(molecule->bonds);
-                molecule->bonds = 0;
-            }
-            return(TNG_CRITICAL);
-        }
-
-        bond = molecule->bonds;
-
-        for(j=molecule->n_bonds; j--;)
-        {
-            memcpy(&bond->from_atom_id, block->block_contents+offset,
-                sizeof(bond->from_atom_id));
-            if(tng_data->input_endianness_swap_func_64)
-            {
-                if(tng_data->input_endianness_swap_func_64(tng_data,
-                                                           &bond->from_atom_id)
-                    != TNG_SUCCESS)
+                printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                       molecule->n_bonds * sizeof(struct tng_bond),
+                       __FILE__, __LINE__);
+                if(molecule->chains)
                 {
-                    printf("Cannot swap byte order. %s: %d\n",
-                            __FILE__, __LINE__);
+                    free(molecule->chains);
+                    molecule->chains = 0;
                 }
-            }
-            offset += sizeof(bond->from_atom_id);
-
-            memcpy(&bond->to_atom_id, block->block_contents+offset,
-                sizeof(bond->to_atom_id));
-            if(tng_data->input_endianness_swap_func_64)
-            {
-                if(tng_data->input_endianness_swap_func_64(tng_data,
-                                                           &bond->to_atom_id)
-                    != TNG_SUCCESS)
+                if(molecule->residues)
                 {
-                    printf("Cannot swap byte order. %s: %d\n",
-                            __FILE__, __LINE__);
+                    free(molecule->residues);
+                    molecule->residues = 0;
                 }
+                if(molecule->atoms)
+                {
+                    free(molecule->atoms);
+                    molecule->atoms = 0;
+                }
+                return(TNG_CRITICAL);
             }
-            offset += sizeof(bond->to_atom_id);
 
-            bond++;
+            bond = molecule->bonds;
+
+            for(j=molecule->n_bonds; j--;)
+            {
+                memcpy(&bond->from_atom_id, block->block_contents+offset,
+                    sizeof(bond->from_atom_id));
+                if(tng_data->input_endianness_swap_func_64)
+                {
+                    if(tng_data->input_endianness_swap_func_64(tng_data,
+                                                               &bond->from_atom_id)
+                        != TNG_SUCCESS)
+                    {
+                        printf("Cannot swap byte order. %s: %d\n",
+                                __FILE__, __LINE__);
+                    }
+                }
+                offset += sizeof(bond->from_atom_id);
+
+                memcpy(&bond->to_atom_id, block->block_contents+offset,
+                    sizeof(bond->to_atom_id));
+                if(tng_data->input_endianness_swap_func_64)
+                {
+                    if(tng_data->input_endianness_swap_func_64(tng_data,
+                                                               &bond->to_atom_id)
+                        != TNG_SUCCESS)
+                    {
+                        printf("Cannot swap byte order. %s: %d\n",
+                                __FILE__, __LINE__);
+                    }
+                }
+                offset += sizeof(bond->to_atom_id);
+
+                bond++;
+            }
         }
     }
 
@@ -2621,7 +2623,6 @@ static tng_function_status tng_molecules_block_write
             atom++;
         }
 
-        bond = molecule->bonds;
         for(j = molecule->n_bonds; j--;)
         {
             len += sizeof(bond->from_atom_id) + sizeof(bond->to_atom_id);
@@ -3191,7 +3192,6 @@ static tng_function_status tng_frame_set_block_read
                         __FILE__, __LINE__);
             }
         }
-        offset += sizeof(tng_data->time_per_frame);
     }
     else
     {
@@ -3429,7 +3429,6 @@ static tng_function_status tng_frame_set_block_write
                     __FILE__, __LINE__);
         }
     }
-    offset += sizeof(tng_data->time_per_frame);
 
     if(tng_block_header_write(tng_data, block, hash_mode) != TNG_SUCCESS)
     {
@@ -3760,8 +3759,6 @@ static tng_function_status tng_particle_data_block_create
             return(TNG_CRITICAL);
         }
         frame_set->tr_particle_data = data;
-        data = &frame_set->tr_particle_data[frame_set->
-                                            n_particle_data_blocks - 1];
     }
     else
     {
@@ -3779,8 +3776,6 @@ static tng_function_status tng_particle_data_block_create
             return(TNG_CRITICAL);
         }
         tng_data->non_tr_particle_data = data;
-        data = &tng_data->non_tr_particle_data[tng_data->
-                                               n_particle_data_blocks - 1];
     }
 
     return(TNG_SUCCESS);
@@ -4208,6 +4203,11 @@ static tng_function_status tng_allocate_particle_data_mem
     (void)tng_data;
     void ***values;
     int64_t i, j, k, size, frame_alloc;
+
+    if(n_particles == 0 || n_values_per_frame == 0)
+    {
+        return(TNG_FAILURE);
+    }
 
     if(data->strings && data->datatype == TNG_CHAR_DATA)
     {
@@ -5208,7 +5208,6 @@ static tng_function_status tng_data_block_create
             return(TNG_CRITICAL);
         }
         frame_set->tr_data = data;
-        data = &frame_set->tr_data[frame_set->n_data_blocks - 1];
     }
     else
     {
@@ -5224,7 +5223,6 @@ static tng_function_status tng_data_block_create
             return(TNG_CRITICAL);
         }
         tng_data->non_tr_data = data;
-        data = &tng_data->non_tr_data[tng_data->n_data_blocks - 1];
     }
 
     return(TNG_SUCCESS);
@@ -6888,6 +6886,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
                sizeof(int64_t) * (tng_data->n_molecules + 1),
                __FILE__, __LINE__);
         free(tng_data->molecule_cnt_list);
+        free(new_molecules);
         return(TNG_CRITICAL);
     }
 
@@ -7206,7 +7205,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
     int curr_index;
     tng_residue_t new_residues, temp_residue, last_residue;
     tng_molecule_t molecule = chain->molecule;
-    tng_function_status stat;
+    tng_function_status stat = TNG_SUCCESS;
 
     if(chain->n_residues)
     {
@@ -7342,7 +7341,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
     int64_t i;
     tng_atom_t new_atoms;
     tng_molecule_t molecule = residue->chain->molecule;
-    tng_function_status stat;
+    tng_function_status stat = TNG_SUCCESS;
 
     if(!residue->n_atoms)
     {
@@ -9320,8 +9319,6 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
 
     ++cnt;
 
-    file_pos = tng_data->current_trajectory_frame_set_input_file_pos;
-
     long_stride_length = tng_data->long_stride_length;
     medium_stride_length = tng_data->medium_stride_length;
 
@@ -9443,6 +9440,11 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
     tng_function_status stat;
 
     stat = tng_num_frame_sets_get(tng_data, &n_frame_sets);
+
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
 
     if(nr >= n_frame_sets)
     {
@@ -11972,6 +11974,11 @@ static tng_function_status tng_data_values_alloc
     int64_t i;
     tng_function_status stat;
 
+    if(n_frames == 0 || n_values_per_frame == 0)
+    {
+        return(TNG_FAILURE);
+    }
+
     if(*values)
     {
         stat = tng_data_values_free(tng_data, *values, n_frames,
@@ -11984,7 +11991,7 @@ static tng_function_status tng_data_values_alloc
             return(stat);
         }
     }
-    *values = malloc(sizeof(union data_values **) * n_frames);
+    *values = malloc(sizeof(union data_values *) * n_frames);
     if(!*values)
     {
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
@@ -12059,6 +12066,11 @@ static tng_function_status tng_particle_data_values_alloc
 {
     int64_t i, j;
     tng_function_status stat;
+
+    if(n_particles == 0 || n_values_per_frame == 0)
+    {
+        return(TNG_FAILURE);
+    }
 
     if(*values)
     {
@@ -12387,6 +12399,7 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                data_size, __FILE__, __LINE__);
         free(*values);
+        *values = 0;
         return(TNG_CRITICAL);
     }
 
@@ -12694,6 +12707,12 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
             stat = tng_frame_set_read_next(tng_data, hash_mode);
             if(stat != TNG_SUCCESS)
             {
+                if(current_values)
+                {
+                    free(current_values);
+                }
+                free(*values);
+                *values = 0;
                 return(stat);
             }
 
@@ -12729,7 +12748,10 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
         }
     }
 
-    free(current_values);
+    if(current_values)
+    {
+        free(current_values);
+    }
 
     return(TNG_SUCCESS);
 }
@@ -13361,7 +13383,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                                         &n_frames, stride_length, n_particles,
                                         n_values_per_frame, type);
 
-    if(stat != TNG_SUCCESS)
+    if(stat != TNG_SUCCESS || *n_particles == 0)
     {
         if(current_values)
         {
@@ -13443,6 +13465,12 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
             stat = tng_frame_set_read_next(tng_data, hash_mode);
             if(stat != TNG_SUCCESS)
             {
+                if(current_values)
+                {
+                    free(current_values);
+                }
+                free(*values);
+                *values = 0;
                 return(stat);
             }
 
@@ -13478,7 +13506,10 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
         }
     }
 
-    free(current_values);
+    if(current_values)
+    {
+        free(current_values);
+    }
 
     return(TNG_SUCCESS);
 }
@@ -13553,14 +13584,14 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
                 (tng_trajectory_t tng_data,
                  int64_t *n_mols,
-                 int64_t *molecule_cnt_list,
+                 int64_t **molecule_cnt_list,
                  tng_molecule_t *mols)
 {
     /* FIXME: This should return a copy of the molecules instead */
     *n_mols = tng_data->n_molecules;
 
-    molecule_cnt_list = tng_data->molecule_cnt_list;
-    mols = &tng_data->molecules;
+    *molecule_cnt_list = tng_data->molecule_cnt_list;
+    *mols = tng_data->molecules;
 
     return(TNG_SUCCESS);
 }
@@ -13601,10 +13632,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_get
 
     *n_particles = mol->n_atoms;
 
-    **names = malloc(sizeof(char *) * *n_particles);
-    **types = malloc(sizeof(char *) * *n_particles);
-    **res_names = malloc(sizeof(char *) * *n_particles);
-    **chain_names = malloc(sizeof(char *) * *n_particles);
+    *names = malloc(sizeof(char *) * *n_particles);
+    *types = malloc(sizeof(char *) * *n_particles);
+    *res_names = malloc(sizeof(char *) * *n_particles);
+    *chain_names = malloc(sizeof(char *) * *n_particles);
     *res_ids = malloc(sizeof(int64_t) * *n_particles);
     *chain_ids = malloc(sizeof(int64_t) * *n_particles);
 
@@ -13613,16 +13644,16 @@ tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_get
         atom = &mol->atoms[i];
         res = atom->residue;
         chain = res->chain;
-        *names[i] = malloc(strlen(atom->name));
+        (*names)[i] = malloc(strlen(atom->name));
         strcpy(*names[i], atom->name);
-        *types[i] = malloc(strlen(atom->atom_type));
+        (*types)[i] = malloc(strlen(atom->atom_type));
         strcpy(*types[i], atom->atom_type);
-        *res_names[i] = malloc(strlen(res->name));
+        (*res_names)[i] = malloc(strlen(res->name));
         strcpy(*res_names[i], res->name);
-        *chain_names[i] = malloc(strlen(chain->name));
+        (*chain_names)[i] = malloc(strlen(chain->name));
         strcpy(*chain_names[i], chain->name);
-        *res_ids[i] = res->id;
-        *chain_ids[i] = chain->id;
+        (*res_ids)[i] = res->id;
+        (*chain_ids)[i] = chain->id;
     }
 
     return(TNG_SUCCESS);
@@ -13923,6 +13954,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
             stat = tng_allocate_particle_data_mem(tng_data, p_data, n_frames,
                                                   f, n_particles,
                                                   n_values_per_frame);
+            if(stat != TNG_SUCCESS)
+            {
+                printf("Error allocating particle data memory. %s: %d\n",
+                       __FILE__, __LINE__);
+                return(stat);
+            }
         }
         else
         {
@@ -13947,6 +13984,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
                                           n_data_blocks - 1];
             stat = tng_allocate_data_mem(tng_data, np_data, n_frames,
                                          f, n_values_per_frame);
+            if(stat != TNG_SUCCESS)
+            {
+                printf("Error allocating particle data memory. %s: %d\n",
+                       __FILE__, __LINE__);
+                return(stat);
+            }
         }
         else
         {
@@ -14098,6 +14141,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
             stat = tng_allocate_particle_data_mem(tng_data, p_data, n_frames,
                                                   stride_length, n_particles,
                                                   n_values_per_frame);
+            if(stat != TNG_SUCCESS)
+            {
+                printf("Error allocating particle data memory. %s: %d\n",
+                       __FILE__, __LINE__);
+                return(stat);
+            }
         }
 
         if(block_type_flag == TNG_TRAJECTORY_BLOCK)
@@ -14142,6 +14191,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
             }
             stat = tng_allocate_data_mem(tng_data, np_data, n_frames,
                                          stride_length, n_values_per_frame);
+            if(stat != TNG_SUCCESS)
+            {
+                printf("Error allocating particle data memory. %s: %d\n",
+                       __FILE__, __LINE__);
+                return(stat);
+            }
         }
 
         if(block_type_flag == TNG_TRAJECTORY_BLOCK)

@@ -78,20 +78,20 @@ static int intcos(int i)
 }
 
 static void molecule(int *target, 
-		     int *base,
-		     int length,
-		     int scale, int *direction,
-		     int flip,
-		     int iframe)
+                     int *base,
+                     int length,
+                     int scale, int *direction,
+                     int flip,
+                     int iframe)
 {
   int i;
   for (i=0; i<length; i++)
     {
       int ifl=i;
       if ((i==0) && (flip) && (length>1))
-	ifl=1;
+        ifl=1;
       else if ((i==1) && (flip) && (length>1))
-	ifl=0;
+        ifl=0;
       target[ifl*3]=base[0]+(intsin((i+iframe)*direction[0])*scale)/256;
       target[ifl*3+1]=base[1]+(intcos((i+iframe)*direction[1])*scale)/256;
       target[ifl*3+2]=base[2]+(intcos((i+iframe)*direction[2])*scale)/256;
@@ -125,40 +125,40 @@ static void genibox(int *intbox, int iframe)
       scale=1;
 #endif
       if (i+this_mol_length>NATOMS)
-	this_mol_length=NATOMS-i;
+        this_mol_length=NATOMS-i;
       /* We must test the large rle as well. This requires special
-	 sequencies to get triggered. So insert these from time to
-	 time */
+         sequencies to get triggered. So insert these from time to
+         time */
 #ifndef REGULAR
       if ((i%10)==0)
-	{
-	  int j;
-	  intbox[i*3]=molpos[0];
-	  intbox[i*3+1]=molpos[1];
-	  intbox[i*3+2]=molpos[2];
-	  for (j=1; j<this_mol_length; j++)
-	    {
-	      intbox[(i+j)*3]=intbox[(i+j-1)*3]+(INTMAX1-INTMIN1+1)/5;
-	      intbox[(i+j)*3+1]=intbox[(i+j-1)*3+1]+(INTMAX2-INTMIN2+1)/5;
-	      intbox[(i+j)*3+2]=intbox[(i+j-1)*3+2]+(INTMAX3-INTMIN3+1)/5;
-	      keepinbox(intbox+(i+j)*3);
-	    }
-	}
+        {
+          int j;
+          intbox[i*3]=molpos[0];
+          intbox[i*3+1]=molpos[1];
+          intbox[i*3+2]=molpos[2];
+          for (j=1; j<this_mol_length; j++)
+            {
+              intbox[(i+j)*3]=intbox[(i+j-1)*3]+(INTMAX1-INTMIN1+1)/5;
+              intbox[(i+j)*3+1]=intbox[(i+j-1)*3+1]+(INTMAX2-INTMIN2+1)/5;
+              intbox[(i+j)*3+2]=intbox[(i+j-1)*3+2]+(INTMAX3-INTMIN3+1)/5;
+              keepinbox(intbox+(i+j)*3);
+            }
+        }
       else
 #endif
-	molecule(intbox+i*3,molpos,this_mol_length,scale,direction,flip,iframe*FRAMESCALE);
+        molecule(intbox+i*3,molpos,this_mol_length,scale,direction,flip,iframe*FRAMESCALE);
       i+=this_mol_length;
       dir=1;
       if (intsin(i*3)<0)
-	dir=-1;
+        dir=-1;
       molpos[0]+=dir*(INTMAX1-INTMIN1+1)/20;
       dir=1;
       if (intsin(i*5)<0)
-	dir=-1;
+        dir=-1;
       molpos[1]+=dir*(INTMAX2-INTMIN2+1)/20;
       dir=1;
       if (intsin(i*7)<0)
-	dir=-1;
+        dir=-1;
       molpos[2]+=dir*(INTMAX3-INTMIN3+1)/20;
       keepinbox(molpos);
       
@@ -168,13 +168,13 @@ static void genibox(int *intbox, int iframe)
 
       scale++;
       if (scale>5)
-	scale=1;
+        scale=1;
 
       molecule_length++;
       if (molecule_length>30)
-	molecule_length=1;
+        molecule_length=1;
       if (i%9)
-	flip=1-flip;
+        flip=1-flip;
     }
 }
 
@@ -217,9 +217,9 @@ static void realbox(int *intbox, REAL *realbox, int stride)
   for (i=0; i<NATOMS; i++)
     {
       for (j=0; j<3; j++)
-	realbox[i*stride+j]=(REAL)(intbox[i*3+j]*GENPRECISION*SCALE);
+        realbox[i*stride+j]=(REAL)(intbox[i*3+j]*GENPRECISION*SCALE);
       for (j=3; j<stride; j++)
-	realbox[i*stride+j]=0.;
+        realbox[i*stride+j]=0.;
     }
 }
 
@@ -229,9 +229,9 @@ static void realvelbox(int *intbox, REAL *realbox, int stride)
   for (i=0; i<NATOMS; i++)
     {
       for (j=0; j<3; j++)
-	realbox[i*stride+j]=(REAL)(intbox[i*3+j]*GENVELPRECISION*SCALE);
+        realbox[i*stride+j]=(REAL)(intbox[i*3+j]*GENVELPRECISION*SCALE);
       for (j=3; j<stride; j++)
-	realbox[i*stride+j]=0.;
+        realbox[i*stride+j]=0.;
     }
 }
 
@@ -242,14 +242,14 @@ static int equalarr(REAL *arr1, REAL *arr2, REAL prec, int len, int itemlen, int
   for (i=0; i<len; i++)
     {
       for (j=0; j<itemlen; j++)
-	if (fabs(arr1[i*stride1+j]-arr2[i*stride2+j])>maxdiff)
-	  maxdiff=(REAL)fabs(arr1[i*stride1+j]-arr2[i*stride2+j]);
+        if (fabs(arr1[i*stride1+j]-arr2[i*stride2+j])>maxdiff)
+          maxdiff=(REAL)fabs(arr1[i*stride1+j]-arr2[i*stride2+j]);
     }
 #if 0
   for (i=0; i<len; i++)
     {
       for (j=0; j<itemlen; j++)
-	printf("%d %d: %g %g\n",i,j,arr1[i*stride1+j],arr2[i*stride2+j]);
+        printf("%d %d: %g %g\n",i,j,arr1[i*stride1+j],arr2[i*stride2+j]);
     }
 #endif
 #if 0
@@ -315,19 +315,19 @@ static size_t fread_int_le(int *x,FILE *f)
 }
 
 static struct tng_file *open_tng_file_write(char *filename,
-					    int natoms,int chunky,
-					    REAL precision,
-					    int writevel,
-					    REAL velprecision,
-					    int initial_coding,
-					    int initial_coding_parameter,
-					    int coding,
-					    int coding_parameter,
-					    int initial_velcoding,
-					    int initial_velcoding_parameter,
-					    int velcoding,
-					    int velcoding_parameter,
-					    int speed)
+                                            int natoms,int chunky,
+                                            REAL precision,
+                                            int writevel,
+                                            REAL velprecision,
+                                            int initial_coding,
+                                            int initial_coding_parameter,
+                                            int coding,
+                                            int coding_parameter,
+                                            int initial_velcoding,
+                                            int initial_velcoding_parameter,
+                                            int velcoding,
+                                            int velcoding_parameter,
+                                            int speed)
 {
   struct tng_file *tng_file=malloc(sizeof *tng_file);
   tng_file->pos=NULL;
@@ -358,17 +358,17 @@ static struct tng_file *open_tng_file_write(char *filename,
 }
 
 static struct tng_file *open_tng_file_write_int(char *filename,
-						int natoms,int chunky,
-						int writevel,
-						int initial_coding,
-						int initial_coding_parameter,
-						int coding,
-						int coding_parameter,
-						int initial_velcoding,
-						int initial_velcoding_parameter,
-						int velcoding,
-						int velcoding_parameter,
-						int speed)
+                                                int natoms,int chunky,
+                                                int writevel,
+                                                int initial_coding,
+                                                int initial_coding_parameter,
+                                                int coding,
+                                                int coding_parameter,
+                                                int initial_velcoding,
+                                                int initial_velcoding_parameter,
+                                                int velcoding,
+                                                int velcoding_parameter,
+                                                int speed)
 {
   struct tng_file *tng_file=malloc(sizeof *tng_file);
   tng_file->pos=NULL;
@@ -397,8 +397,8 @@ static struct tng_file *open_tng_file_write_int(char *filename,
 }
 
 static void flush_tng_frames(struct tng_file *tng_file,
-			     unsigned long prec_hi, unsigned long prec_lo,
-			     unsigned long velprec_hi, unsigned long velprec_lo)
+                             unsigned long prec_hi, unsigned long prec_lo,
+                             unsigned long velprec_hi, unsigned long velprec_lo)
 {
   int algo[4];
   char *buf;
@@ -410,23 +410,23 @@ static void flush_tng_frames(struct tng_file *tng_file,
   algo[3]=tng_file->coding_parameter;
 #ifdef RECOMPRESS
   buf=tng_compress_pos_int(tng_file->ipos,
-			     tng_file->natoms,
-			     tng_file->nframes,
-			     prec_hi,prec_lo,
-			     tng_file->speed,algo,&nitems);  
+                             tng_file->natoms,
+                             tng_file->nframes,
+                             prec_hi,prec_lo,
+                             tng_file->speed,algo,&nitems);  
 #else /* RECOMPRESS */
 #ifdef TEST_FLOAT
   buf=tng_compress_pos_float(tng_file->pos,
-			     tng_file->natoms,
-			     tng_file->nframes,
-			     tng_file->precision,
-			     tng_file->speed,algo,&nitems);
+                             tng_file->natoms,
+                             tng_file->nframes,
+                             tng_file->precision,
+                             tng_file->speed,algo,&nitems);
 #else  /* TEST_FLOAT */
   buf=tng_compress_pos(tng_file->pos,
-		       tng_file->natoms,
-		       tng_file->nframes,
-		       tng_file->precision,
-		       tng_file->speed,algo,&nitems);
+                       tng_file->natoms,
+                       tng_file->nframes,
+                       tng_file->precision,
+                       tng_file->speed,algo,&nitems);
 #endif  /* TEST_FLOAT */
 #endif /* RECOMPRESS */
   tng_file->initial_coding=algo[0];
@@ -444,23 +444,23 @@ static void flush_tng_frames(struct tng_file *tng_file,
       algo[3]=tng_file->velcoding_parameter;
 #ifdef RECOMPRESS
       buf=tng_compress_vel_int(tng_file->ivel,
-			       tng_file->natoms,
-			       tng_file->nframes,
-			       velprec_hi,velprec_lo,
-			       tng_file->speed,algo,&nitems);
+                               tng_file->natoms,
+                               tng_file->nframes,
+                               velprec_hi,velprec_lo,
+                               tng_file->speed,algo,&nitems);
 #else /* RECOMPRESS */
 #ifdef TEST_FLOAT
       buf=tng_compress_vel_float(tng_file->vel,
-			   tng_file->natoms,
-			   tng_file->nframes,
-			   tng_file->velprecision,
-			   tng_file->speed,algo,&nitems);
+                           tng_file->natoms,
+                           tng_file->nframes,
+                           tng_file->velprecision,
+                           tng_file->speed,algo,&nitems);
 #else /* TEST_FLOAT */
       buf=tng_compress_vel(tng_file->vel,
-			   tng_file->natoms,
-			   tng_file->nframes,
-			   tng_file->velprecision,
-			   tng_file->speed,algo,&nitems);
+                           tng_file->natoms,
+                           tng_file->nframes,
+                           tng_file->velprecision,
+                           tng_file->speed,algo,&nitems);
 #endif /* TEST_FLOAT */
 #endif /* RECOMPRESS */
       tng_file->initial_velcoding=algo[0];
@@ -475,7 +475,7 @@ static void flush_tng_frames(struct tng_file *tng_file,
 }
 
 static void write_tng_file(struct tng_file *tng_file,
-			   REAL *pos,REAL *vel)
+                           REAL *pos,REAL *vel)
 {
   memcpy(tng_file->pos+tng_file->nframes*tng_file->natoms*3,pos,tng_file->natoms*3*sizeof *tng_file->pos);
   if (tng_file->writevel)
@@ -486,9 +486,9 @@ static void write_tng_file(struct tng_file *tng_file,
 }
 
 static void write_tng_file_int(struct tng_file *tng_file,
-			       int *ipos,int *ivel,
-			       unsigned long prec_hi, unsigned long prec_lo,
-			       unsigned long velprec_hi, unsigned long velprec_lo)
+                               int *ipos,int *ivel,
+                               unsigned long prec_hi, unsigned long prec_lo,
+                               unsigned long velprec_hi, unsigned long velprec_lo)
 {
   memcpy(tng_file->ipos+tng_file->nframes*tng_file->natoms*3,ipos,tng_file->natoms*3*sizeof *tng_file->ipos);
   if (tng_file->writevel)
@@ -557,8 +557,8 @@ static struct tng_file *open_tng_file_read_int(char *filename, int writevel)
 }
 
 static int read_tng_file(struct tng_file *tng_file,
-			 REAL *pos,
-			 REAL *vel)
+                         REAL *pos,
+                         REAL *vel)
 {
   if (tng_file->nframes==tng_file->nframes_delivered)
     {
@@ -567,25 +567,28 @@ static int read_tng_file(struct tng_file *tng_file,
       free(tng_file->pos);
       free(tng_file->vel);
       if (!fread_int_le(&tng_file->nframes,tng_file->f))
-	return 1;
+        return 1;
       if (!fread_int_le(&nitems,tng_file->f))
-	return 1;
+        return 1;
       buf=malloc(nitems);
       if (!fread(buf,1,nitems,tng_file->f))
-	return 1;
+      {
+          free(buf);
+          return 1;
+      }
       tng_file->pos=malloc(tng_file->natoms*tng_file->nframes*3*sizeof *tng_file->pos);
       if (tng_file->writevel)
-	tng_file->vel=malloc(tng_file->natoms*tng_file->nframes*3*sizeof *tng_file->vel);
+        tng_file->vel=malloc(tng_file->natoms*tng_file->nframes*3*sizeof *tng_file->vel);
 #if 0
       {
-	int natoms, nframes, algo[4];
-	double precision;
-	int ivel;
-	char *initial_coding, *coding;
-	tng_compress_inquire(buf,&ivel,&natoms,&nframes,&precision,algo);
-	initial_coding=tng_compress_initial_pos_algo(algo);
-	coding=tng_compress_pos_algo(algo);
-	printf("ivel=%d natoms=%d nframes=%d precision=%g initial pos=%s pos=%s\n",ivel,natoms,nframes,precision,initial_coding,coding);
+        int natoms, nframes, algo[4];
+        double precision;
+        int ivel;
+        char *initial_coding, *coding;
+        tng_compress_inquire(buf,&ivel,&natoms,&nframes,&precision,algo);
+        initial_coding=tng_compress_initial_pos_algo(algo);
+        coding=tng_compress_pos_algo(algo);
+        printf("ivel=%d natoms=%d nframes=%d precision=%g initial pos=%s pos=%s\n",ivel,natoms,nframes,precision,initial_coding,coding);
       }
 #endif
 #ifdef TEST_FLOAT
@@ -595,31 +598,34 @@ static int read_tng_file(struct tng_file *tng_file,
 #endif
       free(buf);
       if (tng_file->writevel)
-	{
-	  if (!fread_int_le(&nitems,tng_file->f))
-	    return 1;
-	  buf=malloc(nitems);
-	  if (!fread(buf,1,nitems,tng_file->f))
-	    return 1;
+        {
+          if (!fread_int_le(&nitems,tng_file->f))
+            return 1;
+          buf=malloc(nitems);
+          if (!fread(buf,1,nitems,tng_file->f))
+          {
+              free(buf);
+              return 1;
+          }
 #if 0      
-	  {
-	    int natoms, nframes, algo[4];
-	    double precision;
-	    int ivel;
-	    char *initial_coding, *coding;
-	    tng_compress_inquire(buf,&ivel,&natoms,&nframes,&precision,algo);
-	    initial_coding=tng_compress_initial_vel_algo(algo);
-	    coding=tng_compress_vel_algo(algo);
-	    printf("ivel=%d natoms=%d nframes=%d precision=%g initial vel=%s vel=%s\n",ivel,natoms,nframes,precision,initial_coding,coding);
-	  }
+          {
+            int natoms, nframes, algo[4];
+            double precision;
+            int ivel;
+            char *initial_coding, *coding;
+            tng_compress_inquire(buf,&ivel,&natoms,&nframes,&precision,algo);
+            initial_coding=tng_compress_initial_vel_algo(algo);
+            coding=tng_compress_vel_algo(algo);
+            printf("ivel=%d natoms=%d nframes=%d precision=%g initial vel=%s vel=%s\n",ivel,natoms,nframes,precision,initial_coding,coding);
+          }
 #endif
 #ifdef TEST_FLOAT
-	  tng_compress_uncompress_float(buf,tng_file->vel);
+          tng_compress_uncompress_float(buf,tng_file->vel);
 #else
-	  tng_compress_uncompress(buf,tng_file->vel);
+          tng_compress_uncompress(buf,tng_file->vel);
 #endif
-	  free(buf);
-	}
+          free(buf);
+        }
       tng_file->nframes_delivered=0;
     }
   memcpy(pos,tng_file->pos+tng_file->nframes_delivered*tng_file->natoms*3,tng_file->natoms*3*sizeof *pos);
@@ -630,10 +636,10 @@ static int read_tng_file(struct tng_file *tng_file,
 }
 
 static int read_tng_file_int(struct tng_file *tng_file,
-			     int *ipos,
-			     int *ivel,
-			     unsigned long *prec_hi, unsigned long *prec_lo,
-			     unsigned long *velprec_hi, unsigned long *velprec_lo)
+                             int *ipos,
+                             int *ivel,
+                             unsigned long *prec_hi, unsigned long *prec_lo,
+                             unsigned long *velprec_hi, unsigned long *velprec_lo)
 {
   if (tng_file->nframes==tng_file->nframes_delivered)
     {
@@ -642,27 +648,33 @@ static int read_tng_file_int(struct tng_file *tng_file,
       free(tng_file->ipos);
       free(tng_file->ivel);
       if (!fread_int_le(&tng_file->nframes,tng_file->f))
-	return 1;
+        return 1;
       if (!fread_int_le(&nitems,tng_file->f))
-	return 1;
+        return 1;
       buf=malloc(nitems);
       if (!fread(buf,1,nitems,tng_file->f))
-	return 1;
+      {
+          free(buf);
+          return 1;
+      }
       tng_file->ipos=malloc(tng_file->natoms*tng_file->nframes*3*sizeof *tng_file->ipos);
       if (tng_file->writevel)
-	tng_file->ivel=malloc(tng_file->natoms*tng_file->nframes*3*sizeof *tng_file->ivel);
+        tng_file->ivel=malloc(tng_file->natoms*tng_file->nframes*3*sizeof *tng_file->ivel);
       tng_compress_uncompress_int(buf,tng_file->ipos,prec_hi,prec_lo);
       free(buf);
       if (tng_file->writevel)
-	{
-	  if (!fread_int_le(&nitems,tng_file->f))
-	    return 1;
-	  buf=malloc(nitems);
-	  if (!fread(buf,1,nitems,tng_file->f))
-	    return 1;
-	  tng_compress_uncompress_int(buf,tng_file->ivel,velprec_hi,velprec_lo);
-	  free(buf);
-	}
+        {
+          if (!fread_int_le(&nitems,tng_file->f))
+            return 1;
+          buf=malloc(nitems);
+          if (!fread(buf,1,nitems,tng_file->f))
+          {
+              free(buf);
+              return 1;
+          }
+          tng_compress_uncompress_int(buf,tng_file->ivel,velprec_hi,velprec_lo);
+          free(buf);
+        }
       tng_file->nframes_delivered=0;
     }
   memcpy(ipos,tng_file->ipos+tng_file->nframes_delivered*tng_file->natoms*3,tng_file->natoms*3*sizeof *ipos);
@@ -682,7 +694,7 @@ static void close_tng_file_read(struct tng_file *tng_file)
   free(tng_file);
 }
 
-		       
+                       
 
 #ifndef EXPECTED_FILESIZE
 #define EXPECTED_FILESIZE 1
@@ -724,6 +736,8 @@ static int algotest()
 #ifdef GEN
   FILE *file;
   REAL filesize;
+  REAL *box2=0;
+  REAL *velbox2=0;
 #else
   int i2;
   int readreturn;
@@ -734,28 +748,48 @@ static int algotest()
 #endif
 #ifdef RECOMPRESS
   void *dumpfile=open_tng_file_write_int(TNG_COMPRESS_FILES_DIR FILENAME,NATOMS,CHUNKY,
-				     WRITEVEL,
-				     INITIALCODING,
-				     INITIALCODINGPARAMETER,CODING,CODINGPARAMETER,
-				     INITIALVELCODING,INITIALVELCODINGPARAMETER,
-				     VELCODING,VELCODINGPARAMETER,SPEED);
+                                     WRITEVEL,
+                                     INITIALCODING,
+                                     INITIALCODINGPARAMETER,CODING,CODINGPARAMETER,
+                                     INITIALVELCODING,INITIALVELCODINGPARAMETER,
+                                     VELCODING,VELCODINGPARAMETER,SPEED);
   void *dumpfile_recompress=open_tng_file_read_int(TNG_COMPRESS_FILES_DIR RECOMPRESS,WRITEVEL);
   if (!dumpfile_recompress)
-    return 1;
+    {
+      free(intbox);
+      free(intvelbox);
+      free(box1);
+      free(velbox1);
+      if(box2)
+        free(box2);
+      if(velbox2)
+        free(velbox2);
+      return 1;
+    }
 #else /* RECOMPRESS */
 #ifdef GEN
   void *dumpfile=open_tng_file_write(TNG_COMPRESS_FILES_DIR FILENAME,NATOMS,CHUNKY,
-				     PRECISION,WRITEVEL,VELPRECISION,
-				     INITIALCODING,
-				     INITIALCODINGPARAMETER,CODING,CODINGPARAMETER,
-				     INITIALVELCODING,INITIALVELCODINGPARAMETER,
-				     VELCODING,VELCODINGPARAMETER,SPEED);
+                                     PRECISION,WRITEVEL,VELPRECISION,
+                                     INITIALCODING,
+                                     INITIALCODINGPARAMETER,CODING,CODINGPARAMETER,
+                                     INITIALVELCODING,INITIALVELCODINGPARAMETER,
+                                     VELCODING,VELCODINGPARAMETER,SPEED);
 #else
   void *dumpfile=open_tng_file_read(TNG_COMPRESS_FILES_DIR FILENAME,WRITEVEL);
 #endif
 #endif /* RECOMPRESS */
   if (!dumpfile)
-    return 1;
+    {
+      free(intbox);
+      free(intvelbox);
+      free(box1);
+      free(velbox1);
+      if(box2)
+        free(box2);
+      if(velbox2)
+        free(velbox2);
+      return 1;
+    }
   for (i=0; i<9; i++)
     H1[i]=0.;
   H1[0]=INTMAX1*PRECISION*SCALE;
@@ -767,7 +801,7 @@ static int algotest()
       unsigned long prec_hi, prec_lo;
       unsigned long velprec_hi, velprec_lo;
       if (read_tng_file_int(dumpfile_recompress,intbox,intvelbox,&prec_hi,&prec_lo,&velprec_hi,&velprec_lo))
-	return 1;
+        return 1;
       write_tng_file_int(dumpfile,intbox,intvelbox,prec_hi,prec_lo,velprec_hi,velprec_lo);
 #else /* RECOMPRESS */
       genibox(intbox,i);
@@ -783,45 +817,75 @@ static int algotest()
 #else /* GEN */
 #ifdef INTTOFLOAT
       {
-	unsigned long prec_hi, prec_lo;
-	unsigned long velprec_hi, velprec_lo;
-	readreturn=read_tng_file_int(dumpfile,intbox,intvelbox,&prec_hi,&prec_lo,&velprec_hi,&velprec_lo);
-	if (!readreturn)
-	  {
-	    tng_compress_int_to_float(intbox,prec_hi,prec_lo,NATOMS,1,box2);
+        unsigned long prec_hi, prec_lo;
+        unsigned long velprec_hi, velprec_lo;
+        readreturn=read_tng_file_int(dumpfile,intbox,intvelbox,&prec_hi,&prec_lo,&velprec_hi,&velprec_lo);
+        if (!readreturn)
+          {
+            tng_compress_int_to_float(intbox,prec_hi,prec_lo,NATOMS,1,box2);
 #if WRITEVEL
-	    tng_compress_int_to_float(intvelbox,velprec_hi,velprec_lo,NATOMS,1,velbox2);
+            tng_compress_int_to_float(intvelbox,velprec_hi,velprec_lo,NATOMS,1,velbox2);
 #endif
-	  }
+          }
       }
 #else /* INTTOFLOAT */
 #ifdef INTTODOUBLE
       {
-	unsigned long prec_hi, prec_lo;
-	unsigned long velprec_hi, velprec_lo;
-	readreturn=read_tng_file_int(dumpfile,intbox,intvelbox,&prec_hi,&prec_lo,&velprec_hi,&velprec_lo);
-	if (!readreturn)
-	  {
-	    tng_compress_int_to_double(intbox,prec_hi,prec_lo,NATOMS,1,box2);
+        unsigned long prec_hi, prec_lo;
+        unsigned long velprec_hi, velprec_lo;
+        readreturn=read_tng_file_int(dumpfile,intbox,intvelbox,&prec_hi,&prec_lo,&velprec_hi,&velprec_lo);
+        if (!readreturn)
+          {
+            tng_compress_int_to_double(intbox,prec_hi,prec_lo,NATOMS,1,box2);
 #if WRITEVEL
-	    tng_compress_int_to_double(intvelbox,velprec_hi,velprec_lo,NATOMS,1,velbox2);
+            tng_compress_int_to_double(intvelbox,velprec_hi,velprec_lo,NATOMS,1,velbox2);
 #endif
-	  }
+          }
       }
 #else /* INTTODOUBLE */
       readreturn=read_tng_file(dumpfile,box2,velbox2);
 #endif /* INTTODOUBLE */
 #endif /* INTTOFLOAT */
       if (readreturn==1) /* general read error  */
-	return 1;
+        {
+          free(intbox);
+          free(intvelbox);
+          free(box1);
+          free(velbox1);
+          if(box2)
+            free(box2);
+          if(velbox2)
+            free(velbox2);
+          return 1;
+        }
 #endif /* GEN */
 #ifndef GEN
       /* Check for equality of boxes. */
       if (!equalarr(box1,box2,(REAL)PRECISION,NATOMS,3,STRIDE1,STRIDE2))
-	return 4;
+        {
+          free(intbox);
+          free(intvelbox);
+          free(box1);
+          free(velbox1);
+          if(box2)
+            free(box2);
+          if(velbox2)
+            free(velbox2);
+          return 4;
+        }
 #if WRITEVEL
       if (!equalarr(velbox1,velbox2,(REAL)VELPRECISION,NATOMS,3,STRIDE1,STRIDE2))
-	return 5;
+        {
+          free(intbox);
+          free(intvelbox);
+          free(box1);
+          free(velbox1);
+          if(box2)
+            free(box2);
+          if(velbox2)
+            free(velbox2);
+          return 5;
+        }
 #endif
 #endif /* GEN */
 #endif /* RECOMPRESS */
@@ -846,16 +910,32 @@ static int algotest()
     {
       char b;
       if (!fread(&b,1,1,file))
-	break;
+        break;
       filesize++;
     }
   fclose(file);
   if (filesize>0)
     {
       if ((fabs(filesize-EXPECTED_FILESIZE)/EXPECTED_FILESIZE)>0.05)
-	return 9;
+      {
+          free(intvelbox);
+          free(box1);
+          free(velbox1);
+          if(box2)
+            free(box2);
+          if(velbox2)
+            free(velbox2);
+          return 9;
+      }
     }
 #endif
+  free(intvelbox);
+  free(box1);
+  free(velbox1);
+  if(box2)
+    free(box2);
+  if(velbox2)
+    free(velbox2);
   return 0;
 }
 
