@@ -12,7 +12,7 @@ option(TNG_BUILD_FORTRAN "Build Fortran compatible library and examples for test
 option(TNG_BUILD_EXAMPLES "Build examples showing usage of the TNG API" ON)
 option(TNG_BUILD_COMPRESSION_TESTS "Build tests of the TNG compression library" OFF)
 
-option(TNG_USE_OPENMP "Try to use the OpenMP library (if available)" ON)
+option(TNG_USE_OPENMP "Try to use the OpenMP library (if available)" OFF)
 if(TNG_USE_OPENMP)
   find_package(OpenMP)
   if(OPENMP_FOUND)
