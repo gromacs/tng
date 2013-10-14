@@ -3,7 +3,7 @@
 # include <time.h>
 # include <math.h>
 # include <omp.h>
-# include <tng_io.h>
+# include "tng_io.h"
 #include "tng_io_testing.h"
 
 int main ( int argc, char *argv[] );

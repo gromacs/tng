@@ -75,12 +75,12 @@
  * See git log for full revision history.
  *
  * Revisions
- * 
+ *
  * v. 1.4 - More flexible support for digital signatures in header.
  *        - Block ID numbers changed.
- * 
+ *
  * v. 1.3 - Second stable release of the API.
- * 
+ *
  *      - Added multiplication factor for coordinate units to general info.
  *      - Added time stamps and time per frame in frame sets.
  *      - High-level API functions added (not for managing molecules yet)
@@ -160,7 +160,7 @@
  * \code
  * #include <stdlib.h>
  * #include <stdio.h>
- * #include <tng_io.h>
+ * #include "tng_io.h"
  *
  * int main(int argc, char **argv)
  * {
@@ -305,7 +305,7 @@ typedef unsigned __int64 uint64_t;
 // typedef long long int           int64_t;
 // # endif
 // #endif
-// 
+//
 // typedef unsigned char           uint8_t;
 // typedef unsigned short int      uint16_t;
 // #ifndef __uint32_t_defined
@@ -412,7 +412,7 @@ typedef enum {TNG_UNCOMPRESSED,
               TNG_XTC_COMPRESSION,
               TNG_TNG_COMPRESSION,
               TNG_GZIP_COMPRESSION} tng_compression;
-              
+
 /** Hash types */
 typedef enum {TNG_NO_HASH,
               TNG_MD5,
@@ -2034,7 +2034,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
                  int64_t *n_particles,
                  int64_t *n_values_per_frame,
                  char *type);
-                
+
 /**
  * @brief Read and retrieve a vector (1D array) particle data, in a
  * specific interval.

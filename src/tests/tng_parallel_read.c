@@ -15,7 +15,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <tng_io.h>
+#include "tng_io.h"
 
 
 /* N.B. this code is for testing parallel reading of trajectory frame sets. The
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
     {
         printf("Particle name not found\n");
     }
-    
+
     fail = 0;
 
 #pragma omp parallel \
