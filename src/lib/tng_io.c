@@ -5434,11 +5434,11 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
 
     if(codec_id != TNG_UNCOMPRESSED)
     {
-        data_size = n_frames_div * size * n_values;
         switch(codec_id)
         {
 #ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
+            data_size = n_frames_div * size * n_values;
     //         printf("Before compression: %"PRId64"\n", block->block_contents_size);
             if(tng_gzip_uncompress(tng_data, block,
                                    block->block_contents + *offset,
@@ -5667,7 +5667,9 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         block->block_contents_size += sizeof(char);
     }
 
+#ifdef USE_ZLIB
     data_start_pos = block->block_contents_size;
+#endif
 
     if(data->datatype == TNG_CHAR_DATA)
     {
@@ -6502,9 +6504,9 @@ static tng_function_status tng_frame_set_pointers_update
                                 contents_start_pos);
         }
     }
-    
+
     fseek(tng_data->output_file, output_file_pos, SEEK_SET);
-    
+
     tng_data->input_file = temp;
 
     tng_block_destroy(&block);
@@ -13396,7 +13398,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
     {
         return(stat);
     }
-    
+
     /* Do not re-read the frame set. */
     if(first_frame != frame_set->first_frame ||
        frame_set->n_particle_data_blocks <= 0)

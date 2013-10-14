@@ -331,7 +331,7 @@ unsigned char *Ptngc_pack_array(struct coder *coder_inst,int *input, int *length
 static int unpack_array_stop_bits(struct coder *coder_inst,unsigned char *packed,int *output, int length, int coding_parameter)
 {
   /* This is just to avoid warnings for unused parameters. For some reason MSVC does not like "(void) coder_inst" here. */
-  if(coder_inst);
+  if(coder_inst) {}
   int i,j;
   unsigned int extract_mask=0x80;
   unsigned char *ptr=packed;
@@ -385,7 +385,7 @@ static int unpack_array_stop_bits(struct coder *coder_inst,unsigned char *packed
 static int unpack_array_triplet(struct coder *coder_inst,unsigned char *packed,int *output, int length, int coding_parameter)
 {
   /* This is just to avoid warnings for unused parameters. For some reason MSVC does not like "(void) coder_inst" here. */
-  if(coder_inst);
+  if(coder_inst) {}
   int i,j;
   unsigned int extract_mask=0x80;
   unsigned char *ptr=packed;
@@ -458,7 +458,7 @@ static int unpack_array_triplet(struct coder *coder_inst,unsigned char *packed,i
 static int unpack_array_bwlzh(struct coder *coder_inst,unsigned char *packed,int *output, int length, int natoms)
 {
   /* This is just to avoid warnings for unused parameters. For some reason MSVC does not like "(void) coder_inst" here. */
-  if(coder_inst);
+  if(coder_inst) {}
   int i,j,k,n=length;
   unsigned int *pval=warnmalloc(n*sizeof *pval);
   int nframes=n/natoms/3;
