@@ -13,17 +13,19 @@ set(EXAMPLE_FILES_DIR ${CMAKE_BINARY_DIR}/example_files/ CACHE STRING "Directory
 configure_file(${TNG_IO_SOURCE_DIR}/include/tng_io_testing.h.in ${CMAKE_BINARY_DIR}/generated/tng_io_testing.h)
 include_directories(${CMAKE_BINARY_DIR}/generated/)
 
-add_executable(tng_testing tng_io_testing.c)
-target_link_libraries(tng_testing tng_io)
-if(UNIX)
-target_link_libraries(tng_testing m)
-endif()
+if(TNG_BUILD_TEST)
+    add_executable(tng_testing tng_io_testing.c)
+    target_link_libraries(tng_testing tng_io)
+    if(UNIX)
+        target_link_libraries(tng_testing m)
+    endif()
 
-if(HAVE_INTTYPES_H)
-  set_target_properties(tng_testing PROPERTIES COMPILE_DEFINITIONS USE_STD_INTTYPES_H=1)
-endif()
+    if(HAVE_INTTYPES_H)
+      set_target_properties(tng_testing PROPERTIES COMPILE_DEFINITIONS USE_STD_INTTYPES_H=1)
+    endif()
 
-set_property(TARGET tng_testing PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests)
+    set_property(TARGET tng_testing PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests)
+endif()
 
 if(TNG_BUILD_EXAMPLES)
     if(OPENMP_FOUND)
