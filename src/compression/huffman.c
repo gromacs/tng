@@ -14,9 +14,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "warnmalloc.h"
-#include "merge_sort.h"
-#include "huffman.h"
+#include "compression/warnmalloc.h"
+#include "compression/merge_sort.h"
+#include "compression/huffman.h"
 
 #define MAX_HUFFMAN_LEN 31
 

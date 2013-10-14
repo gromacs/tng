@@ -11,7 +11,7 @@
  */
 
 
-#include "rle.h"
+#include "compression/rle.h"
 
 static void add_rle(unsigned int *rle,
 		    int v,int nsim,

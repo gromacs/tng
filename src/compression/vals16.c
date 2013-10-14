@@ -11,7 +11,7 @@
  */
 
 
-#include "vals16.h"
+#include "compression/vals16.h"
 
 /* Coding 32 bit ints in sequences of 16 bit ints. Worst case
    the output is 3*nvals long. */

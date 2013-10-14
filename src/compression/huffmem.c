@@ -13,13 +13,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "warnmalloc.h"
-#include "tng_compress.h"
-#include "bwlzh.h"
-#include "huffman.h"
-#include "dict.h"
-#include "rle.h"
-#include "vals16.h"
+#include "compression/warnmalloc.h"
+#include "compression/tng_compress.h"
+#include "compression/bwlzh.h"
+#include "compression/huffman.h"
+#include "compression/dict.h"
+#include "compression/rle.h"
+#include "compression/vals16.h"
 
 int Ptngc_comp_huff_buflen(int nvals)
 {

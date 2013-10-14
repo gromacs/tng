@@ -25,9 +25,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "warnmalloc.h"
-#include "widemuldiv.h"
-#include "bwlzh.h"
+#include "compression/warnmalloc.h"
+#include "compression/widemuldiv.h"
+#include "compression/bwlzh.h"
 
 static const double iflipgaincheck=0.89089871814033927; /*  1./(2**(1./6)) */
 

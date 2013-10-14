@@ -12,8 +12,8 @@
 
 
 #include <stdlib.h>
-#include "warnmalloc.h"
-#include "mtf.h"
+#include "compression/warnmalloc.h"
+#include "compression/mtf.h"
 
 /* "Partial" MTF. Byte based. */
 /* Move to front coding.

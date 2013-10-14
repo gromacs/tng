@@ -14,9 +14,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "warnmalloc.h"
-#include "bwt.h"
-#include "lz77.h"
+#include "compression/warnmalloc.h"
+#include "compression/bwt.h"
+#include "compression/lz77.h"
 
 /* This is a simple Lempel-Ziv-77 compressor. It has not been set up
    to remove every possible repeating pattern, but it might be better

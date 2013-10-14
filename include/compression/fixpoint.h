@@ -13,7 +13,7 @@
 #ifndef FIXPOINT_H
 #define FIXPOINT_H
 
-#include "my64bit.h"
+#include "compression/my64bit.h"
 
 /* There are at least 32 bits available in a long. */
 typedef unsigned long fix_t;

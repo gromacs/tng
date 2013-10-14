@@ -14,7 +14,7 @@
 #ifndef WARNMALLOC_H
 #define WARNMALLOC_H
 
-#include "tng_compress.h"
+#include "compression/tng_compress.h"
 
 void DECLSPECDLLEXPORT *Ptngc_warnmalloc_x(size_t size, char *file, int line);
 

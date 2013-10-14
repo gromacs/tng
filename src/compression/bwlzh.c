@@ -14,15 +14,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "warnmalloc.h"
-#include "tng_compress.h"
-#include "bwlzh.h"
-#include "dict.h"
-#include "vals16.h"
-#include "rle.h"
-#include "mtf.h"
-#include "bwt.h"
-#include "lz77.h"
+#include "compression/warnmalloc.h"
+#include "compression/tng_compress.h"
+#include "compression/bwlzh.h"
+#include "compression/dict.h"
+#include "compression/vals16.h"
+#include "compression/rle.h"
+#include "compression/mtf.h"
+#include "compression/bwt.h"
+#include "compression/lz77.h"
 
 #if 0
 #define SHOWIT

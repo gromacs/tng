@@ -12,7 +12,7 @@
 
 
 #include <string.h>
-#include "dict.h"
+#include "compression/dict.h"
 
 void Ptngc_comp_canonical_dict(unsigned int *dict, int *ndict)
 {

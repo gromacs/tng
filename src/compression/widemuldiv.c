@@ -14,15 +14,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "tng_compress.h"
+#include "compression/tng_compress.h"
 
 /* 64 bit integers are not required in this part of the program. But
    they improve the running speed if present. If 64 bit integers are
    available define the symbol HAVE64BIT. It should get automatically
    defined by the defines in my64bit.h */
-#include "my64bit.h"
+#include "compression/my64bit.h"
 
-#include "widemuldiv.h"
+#include "compression/widemuldiv.h"
 
 #ifndef TRAJNG_X86_GCC_INLINE_MULDIV
 #if defined(__GNUC__) && defined(__i386__)

@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "fixpoint.h"
+#include "compression/fixpoint.h"
 
 #define MAX32BIT 4294967295UL
 #define MAX31BIT 2147483647UL
