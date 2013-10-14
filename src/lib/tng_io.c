@@ -14404,7 +14404,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
     return(stat);
 }
 
-#ifdef BUILD_FORTRAN
+#ifdef TNG_BUILD_FORTRAN
 /* The following is for calling the library from fortran */
 
 tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_(tng_trajectory_t *tng_data_p)
