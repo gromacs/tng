@@ -328,10 +328,11 @@ unsigned char *Ptngc_pack_array(struct coder *coder_inst,int *input, int *length
     }
 }
 
-static int unpack_array_stop_bits(struct coder *coder_inst,unsigned char *packed,int *output, int length, int coding_parameter)
+static int unpack_array_stop_bits(struct coder *coder_inst,
+                                  unsigned char *packed,int *output,
+                                  int length, int coding_parameter)
 {
-  /* This is just to avoid warnings for unused parameters. For some reason MSVC does not like "(void) coder_inst" here. */
-  if(coder_inst) {}
+  (void) coder_inst;
   int i,j;
   unsigned int extract_mask=0x80;
   unsigned char *ptr=packed;
@@ -382,10 +383,11 @@ static int unpack_array_stop_bits(struct coder *coder_inst,unsigned char *packed
   return 0;
 }
 
-static int unpack_array_triplet(struct coder *coder_inst,unsigned char *packed,int *output, int length, int coding_parameter)
+static int unpack_array_triplet(struct coder *coder_inst,
+                                unsigned char *packed, int *output,
+                                int length, int coding_parameter)
 {
-  /* This is just to avoid warnings for unused parameters. For some reason MSVC does not like "(void) coder_inst" here. */
-  if(coder_inst) {}
+  (void) coder_inst;
   int i,j;
   unsigned int extract_mask=0x80;
   unsigned char *ptr=packed;
@@ -455,10 +457,11 @@ static int unpack_array_triplet(struct coder *coder_inst,unsigned char *packed,i
   return 0;
 }
 
-static int unpack_array_bwlzh(struct coder *coder_inst,unsigned char *packed,int *output, int length, int natoms)
+static int unpack_array_bwlzh(struct coder *coder_inst,
+                              unsigned char *packed, int *output,
+                              int length, int natoms)
 {
-  /* This is just to avoid warnings for unused parameters. For some reason MSVC does not like "(void) coder_inst" here. */
-  if(coder_inst) {}
+  (void) coder_inst;
   int i,j,k,n=length;
   unsigned int *pval=warnmalloc(n*sizeof *pval);
   int nframes=n/natoms/3;
@@ -479,7 +482,10 @@ static int unpack_array_bwlzh(struct coder *coder_inst,unsigned char *packed,int
   return 0;
 }
 
-int Ptngc_unpack_array(struct coder *coder_inst,unsigned char *packed,int *output, int length, int coding, int coding_parameter, int natoms)
+int Ptngc_unpack_array(struct coder *coder_inst,
+                       unsigned char *packed, int *output,
+                       int length, int coding, int coding_parameter,
+                       int natoms)
 {
   if ((coding==TNG_COMPRESS_ALGO_STOPBIT) ||
       (coding==TNG_COMPRESS_ALGO_VEL_STOPBIT_INTER))
