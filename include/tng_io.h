@@ -259,7 +259,7 @@
  * The TNG library can be used from Fortran. It requires cray pointers, which
  * are not part of the Fortran 77 standard, but available in most compilers.
  *
- * To compile the fortran example -DBUILD_FORTRAN=ON needs to be specified when
+ * To compile the fortran example -DTNG_BUILD_FORTRAN=ON needs to be specified when
  * running cmake.
  *
  */

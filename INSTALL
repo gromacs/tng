@@ -12,8 +12,8 @@ programs using the library must specify explicitly where to look for it.
 
 
 Useful cmake flags:
--DBUILD_DOCUMENTATION=ON to build the API documentation (requires doxygen)
+-DTNG_BUILD_DOCUMENTATION=ON to build the API documentation (requires doxygen)
 -DCMAKE_BUILD_TYPE=Debug to compile with debug flags (recommended for
 feedback during development)
--DBUILD_FORTRAN=ON to build the Fortran MD simulations example, saving results
+-DTNG_BUILD_FORTRAN=ON to build the Fortran MD simulations example, saving results
 in the TNG format (requires a Fortran compiler allowing cray-pointers).

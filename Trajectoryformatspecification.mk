@@ -525,7 +525,7 @@ API
 (The API should be separated into one high- and one low-level API, using
 e.g. a tng\_low tag for the low-level functions.)
 
-API documentation is generated using the -DBUILD_DOCUMENTATION=ON option
+API documentation is generated using the -DTNG_BUILD_DOCUMENTATION=ON option
 when running cmake. Requires a doxygen installation.
 
 

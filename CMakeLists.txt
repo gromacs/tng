@@ -7,10 +7,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-option(BUILD_FORTRAN "Build Fortran compatible library and examples for testing" OFF)
+option(TNG_BUILD_FORTRAN "Build Fortran compatible library and examples for testing" OFF)
 
-option(BUILD_TNG_EXAMPLES "Build examples showing usage of the TNG API" ON)
-option(BUILD_COMPRESSION_TESTS "Build tests of the TNG compression library" OFF)
+option(TNG_BUILD_EXAMPLES "Build examples showing usage of the TNG API" ON)
+option(TNG_BUILD_COMPRESSION_TESTS "Build tests of the TNG compression library" OFF)
 
 option(USE_OPENMP "Try to use the OpenMP library (if available)" ON)
 if(USE_OPENMP)
@@ -31,8 +31,8 @@ add_subdirectory(src)
 file(COPY example_files DESTINATION .)
 
 #-- Add an Option to toggle the generation of the API documentation
-option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
-if(BUILD_DOCUMENTATION)
+option(TNG_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
+if(TNG_BUILD_DOCUMENTATION)
   find_package(Doxygen)
   if (NOT DOXYGEN_FOUND)
     message(FATAL_ERROR

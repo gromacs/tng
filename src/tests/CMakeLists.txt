@@ -1,4 +1,4 @@
-if(BUILD_COMPRESSION_TESTS)
+if(TNG_BUILD_COMPRESSION_TESTS)
   add_subdirectory(compression)
 endif()
 
@@ -25,7 +25,7 @@ endif()
 
 set_property(TARGET tng_testing PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests)
 
-if(BUILD_TNG_EXAMPLES)
+if(TNG_BUILD_EXAMPLES)
     if(OPENMP_FOUND)
         add_executable(md_openmp md_openmp.c)
         target_link_libraries(md_openmp tng_io ${OpenMP_LIBS})
@@ -63,7 +63,7 @@ if(BUILD_TNG_EXAMPLES)
     endif()
     set_property(TARGET tng_parallel_read PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/examples)
 
-    if(BUILD_FORTRAN)
+    if(TNG_BUILD_FORTRAN)
         # This does not work due to a bug in CMake. Remove lines below if no fortran compiler is found.
         enable_language(Fortran OPTIONAL)
         if(${CMAKE_Fortran_COMPILER_WORKS})
