@@ -1,3 +1,5 @@
+#ifdef TNG_BUILD_OPENMP_EXAMPLES
+
 /* This code is part of the tng binary trajectory format.
  *
  *                      VERSION 1.0
@@ -181,3 +183,5 @@ default(none)
 
     return(0);
 }
+
+#endif

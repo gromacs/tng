@@ -1,3 +1,5 @@
+#ifdef TNG_BUILD_OPENMP_EXAMPLES
+
 # include <stdlib.h>
 # include <stdio.h>
 # include <time.h>
@@ -835,3 +837,5 @@ void update ( int np, int nd, double pos[], double vel[], double f[],
 
     return;
 }
+
+#endif

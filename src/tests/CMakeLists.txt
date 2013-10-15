@@ -24,13 +24,16 @@ if(TNG_BUILD_TEST)
 endif()
 
 if(TNG_BUILD_EXAMPLES)
-    if(OPENMP_FOUND)
+    if(TNG_USE_OPENMP AND OPENMP_FOUND)
+
         add_executable(md_openmp md_openmp.c)
         target_link_libraries(md_openmp tng_io ${OpenMP_LIBS})
         if(UNIX)
             target_link_libraries(md_openmp m)
         endif()
         set_property(TARGET md_openmp PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/examples)
+        set_property(TARGET md_openmp APPEND PROPERTY COMPILE_DEFINITIONS TNG_BUILD_OPENMP_EXAMPLES)
+
 
         add_executable(md_openmp_util md_openmp_util.c)
         target_link_libraries(md_openmp_util tng_io ${OpenMP_LIBS})
@@ -38,6 +41,15 @@ if(TNG_BUILD_EXAMPLES)
             target_link_libraries(md_openmp_util m)
         endif()
         set_property(TARGET md_openmp_util PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/examples)
+        set_property(TARGET md_openmp_util APPEND PROPERTY COMPILE_DEFINITIONS TNG_BUILD_OPENMP_EXAMPLES)
+
+        add_executable(tng_parallel_read tng_parallel_read.c)
+        target_link_libraries(tng_parallel_read tng_io)
+        if(UNIX)
+            target_link_libraries(tng_parallel_read m)
+        endif()
+        set_property(TARGET tng_parallel_read PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/examples)
+        set_property(TARGET tng_parallel_read APPEND PROPERTY COMPILE_DEFINITIONS TNG_BUILD_OPENMP_EXAMPLES)
     endif()
 
     add_executable(tng_io_read_pos tng_io_read_pos.c)
@@ -53,13 +65,6 @@ if(TNG_BUILD_EXAMPLES)
         target_link_libraries(tng_io_read_pos_util m)
     endif()
     set_property(TARGET tng_io_read_pos_util PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/examples)
-
-    add_executable(tng_parallel_read tng_parallel_read.c)
-    target_link_libraries(tng_parallel_read tng_io)
-    if(UNIX)
-        target_link_libraries(tng_parallel_read m)
-    endif()
-    set_property(TARGET tng_parallel_read PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/examples)
 
     if(TNG_BUILD_FORTRAN)
         # This does not work due to a bug in CMake. Remove lines below if no fortran compiler is found.
