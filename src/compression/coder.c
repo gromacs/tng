@@ -61,7 +61,8 @@ TNG_INLINE void Ptngc_out8bits(struct coder *coder_inst, unsigned char **output)
   coder_inst->pack_temporary=pack_temporary;
 }
 
-void Ptngc_write_pattern(struct coder *coder_inst,unsigned int pattern, int nbits, unsigned char **output)
+void Ptngc_write_pattern(struct coder *coder_inst, unsigned int pattern,
+                         int nbits, unsigned char **output)
 {
     unsigned int mask1,mask2;
     mask1=1;
@@ -80,7 +81,9 @@ void Ptngc_write_pattern(struct coder *coder_inst,unsigned int pattern, int nbit
 }
 
 /* Write up to 24 bits */
-TNG_INLINE void Ptngc_writebits(struct coder *coder_inst,unsigned int value,int nbits, unsigned char **output_ptr)
+TNG_INLINE void Ptngc_writebits(struct coder *coder_inst,
+                                unsigned int value, int nbits,
+                                unsigned char **output_ptr)
 {
   /* Make room for the bits. */
   coder_inst->pack_temporary<<=nbits;
@@ -90,7 +93,8 @@ TNG_INLINE void Ptngc_writebits(struct coder *coder_inst,unsigned int value,int 
 }
 
 /* Write up to 32 bits */
-void Ptngc_write32bits(struct coder *coder_inst,unsigned int value,int nbits, unsigned char **output_ptr)
+void Ptngc_write32bits(struct coder *coder_inst,unsigned int value,
+                       int nbits, unsigned char **output_ptr)
 {
   unsigned int mask;
   if (nbits>=8)
@@ -112,7 +116,8 @@ void Ptngc_write32bits(struct coder *coder_inst,unsigned int value,int nbits, un
 }
 
 /* Write "arbitrary" number of bits */
-void Ptngc_writemanybits(struct coder *coder_inst,unsigned char *value,int nbits, unsigned char **output_ptr)
+void Ptngc_writemanybits(struct coder *coder_inst, unsigned char *value,
+                         int nbits, unsigned char **output_ptr)
 {
   int vptr=0;
   while (nbits>=24)
@@ -136,7 +141,9 @@ void Ptngc_writemanybits(struct coder *coder_inst,unsigned char *value,int nbits
     }
 }
 
-static int write_stop_bit_code(struct coder *coder_inst, unsigned int s,unsigned int coding_parameter, unsigned char **output)
+static int write_stop_bit_code(struct coder *coder_inst, unsigned int s,
+                               unsigned int coding_parameter,
+                               unsigned char **output)
 {
   do {
     unsigned int extract=~(0xffffffffU<<coding_parameter);
@@ -162,7 +169,8 @@ static int write_stop_bit_code(struct coder *coder_inst, unsigned int s,unsigned
   return 0;
 }
 
-static int pack_stopbits_item(struct coder *coder_inst,int item, unsigned char **output, int coding_parameter)
+static int pack_stopbits_item(struct coder *coder_inst,int item,
+                              unsigned char **output, int coding_parameter)
 {
     /* Find this symbol in table. */
     int s=0;
@@ -173,7 +181,8 @@ static int pack_stopbits_item(struct coder *coder_inst,int item, unsigned char *
     return write_stop_bit_code(coder_inst,s,coding_parameter,output);
 }
 
-static int pack_triplet(struct coder *coder_inst,unsigned int *s, unsigned char **output, int coding_parameter,
+static int pack_triplet(struct coder *coder_inst, unsigned int *s,
+                        unsigned char **output, int coding_parameter,
 			unsigned int max_base, int maxbits)
 {
   /* Determine base for this triplet. */
@@ -213,7 +222,9 @@ void Ptngc_pack_flush(struct coder *coder_inst,unsigned char **output)
     Ptngc_write_pattern(coder_inst,0,8-coder_inst->pack_temporary_bits,output);
 }
 
-unsigned char *Ptngc_pack_array(struct coder *coder_inst,int *input, int *length, int coding, int coding_parameter,int natoms, int speed)
+unsigned char *Ptngc_pack_array(struct coder *coder_inst,
+                                int *input, int *length, int coding,
+                                int coding_parameter, int natoms, int speed)
 {
   if ((coding==TNG_COMPRESS_ALGO_BWLZH1) || (coding==TNG_COMPRESS_ALGO_BWLZH2))
     {
@@ -307,7 +318,8 @@ unsigned char *Ptngc_pack_array(struct coder *coder_inst,int *input, int *length
 		  else if (item<0)
 		    s[j]=2+(-item-1)*2;
 		}
-	      if (pack_triplet(coder_inst,s,&output_ptr,coding_parameter,max_base,maxbits))
+	      if (pack_triplet(coder_inst, s, &output_ptr,
+                               coding_parameter, max_base,maxbits))
 		{
 		  free(output);
 		  return NULL;
@@ -332,10 +344,10 @@ static int unpack_array_stop_bits(struct coder *coder_inst,
                                   unsigned char *packed,int *output,
                                   int length, int coding_parameter)
 {
-  (void) coder_inst;
   int i,j;
   unsigned int extract_mask=0x80;
   unsigned char *ptr=packed;
+  (void) coder_inst;
   for (i=0; i<length; i++)
     {
       unsigned int pattern=0;
@@ -387,7 +399,6 @@ static int unpack_array_triplet(struct coder *coder_inst,
                                 unsigned char *packed, int *output,
                                 int length, int coding_parameter)
 {
-  (void) coder_inst;
   int i,j;
   unsigned int extract_mask=0x80;
   unsigned char *ptr=packed;
@@ -396,6 +407,7 @@ static int unpack_array_triplet(struct coder *coder_inst,
   unsigned int maxbits=coding_parameter;
   unsigned int intmax;
   /* Get intmax */
+  (void) coder_inst;
   intmax=((unsigned int)ptr[0])<<24|
     ((unsigned int)ptr[1])<<16|
     ((unsigned int)ptr[2])<<8|
@@ -461,7 +473,6 @@ static int unpack_array_bwlzh(struct coder *coder_inst,
                               unsigned char *packed, int *output,
                               int length, int natoms)
 {
-  (void) coder_inst;
   int i,j,k,n=length;
   unsigned int *pval=warnmalloc(n*sizeof *pval);
   int nframes=n/natoms/3;
@@ -470,6 +481,7 @@ static int unpack_array_bwlzh(struct coder *coder_inst,
 			  (((unsigned int)packed[1])<<8) |
 			  (((unsigned int)packed[2])<<16) |
 			  (((unsigned int)packed[3])<<24));
+  (void) coder_inst;
   bwlzh_decompress(packed+4,length,pval);
   for (i=0; i<natoms; i++)
     for (j=0; j<3; j++)

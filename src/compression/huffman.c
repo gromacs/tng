@@ -56,10 +56,10 @@ struct codelength
 
 static int comp_htree(const void *leafptr1, const void *leafptr2, const void *private)
 {
-  (void)private;
   const union htree_nodeleaf *leaf1=(union htree_nodeleaf *)leafptr1;
   const union htree_nodeleaf *leaf2=(union htree_nodeleaf *)leafptr2;
-  
+  (void)private;
+
   int rval=0;
   if (leaf1->leaf.prob<leaf2->leaf.prob)
     rval=1;
@@ -71,7 +71,7 @@ static int comp_htree(const void *leafptr1, const void *leafptr2, const void *pr
 static void assign_codes(union htree_nodeleaf *htree,
 			 struct codelength *codelength,
 			 unsigned int code,
-			 int length, 
+			 int length,
 			 int top)
 {
 #if 0
@@ -130,7 +130,7 @@ static void flush_8bits(unsigned int *combine, unsigned char **output, int *bitp
       (*output)++;
       (*bitptr)-=8;
       (*combine)&=mask;
-    }  
+    }
 }
 
 static void writebits(unsigned int value,int length, unsigned char **output, int *bitptr)
@@ -186,10 +186,10 @@ static unsigned int readbits(int length, unsigned char **input, int *bitptr)
 
 static int comp_codes(const void *codeptr1, const void *codeptr2, const void *private)
 {
-  (void)private;
   const struct codelength *code1=(struct codelength *)codeptr1;
   const struct codelength *code2=(struct codelength *)codeptr2;
-  
+  (void)private;
+
   int rval=0; /* It shouldn't be possible to get equal here, though. */
   if (code1->length>code2->length)
     rval=1;
@@ -204,11 +204,11 @@ static int comp_codes(const void *codeptr1, const void *codeptr2, const void *pr
 
 static int comp_codes_value(const void *codeptr1, const void *codeptr2, const void *private)
 {
-  (void)private;
   const struct codelength *code1=(struct codelength *)codeptr1;
   const struct codelength *code2=(struct codelength *)codeptr2;
-  
+
   int rval=0; /* It shouldn't be possible to get equal here, though. */
+  (void)private;
   if (code1->dict>code2->dict)
     rval=1;
   else
@@ -253,7 +253,7 @@ void Ptngc_comp_conv_to_huffman(unsigned int *vals, int nvals,
 	}
       /* Sort the leafs wrt probability. */
       Ptngc_merge_sort(htree,ndict,sizeof *htree,comp_htree,NULL);
-  
+
 #if 0
       for (i=0; i<ndict; i++)
 	{
@@ -271,7 +271,7 @@ void Ptngc_comp_conv_to_huffman(unsigned int *vals, int nvals,
 	{
 	  /* Nodes and leafs left. */
 	  nleft=ndict;
-  
+
 	  /* Take the two least probable symbols (which are at the end of the
 	     array and combine them until there is nothing left. */
 	  while (nleft>1)
@@ -473,14 +473,14 @@ void Ptngc_comp_conv_from_huffman(unsigned char *huffman,
 			    unsigned int *huffman_dict_unpacked,
 			    int huffman_dict_unpackedlen)
 {
-  (void)huffman_dictlen;
-  (void)huffman_dict_unpackedlen;
   struct codelength *codelength=warnmalloc(ndict*sizeof *codelength);
   int i,j;
   int maxdict;
   int code;
   unsigned char *huffman_ptr;
   int bitptr;
+  (void)huffman_dictlen;
+  (void)huffman_dict_unpackedlen;
   if (huffman_dict_unpacked)
     {
       maxdict=huffman_dict_unpacked[0]|(huffman_dict_unpacked[1]<<8)|(huffman_dict_unpacked[2]<<16);

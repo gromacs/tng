@@ -219,9 +219,9 @@ static void insert_value_in_array(unsigned int **ptr, int *nele, int *nele_alloc
 
 static void swapdecide(struct xtc3_context *xtc3_context, int *input,int *swapatoms, int *large_index, int *minint)
 {
-  (void)large_index;
   int didswap=0;
   int normal,swapped;
+  (void)large_index;
   swap_is_better(input,minint,&normal,&swapped);
   /* We have to determine if it is worth to change the behaviour.
      If diff is positive it means that it is worth something to

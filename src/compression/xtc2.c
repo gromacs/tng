@@ -10,9 +10,9 @@
  * of the License, or (at your option) any later version.
  */
 
-/* This code is heavily influenced by 
+/* This code is heavily influenced by
    http://hpcv100.rc.rug.nl/xdrf.html
-   Based on coordinate compression (c) by Frans van Hoesel. 
+   Based on coordinate compression (c) by Frans van Hoesel.
    and GROMACS xtc files (http://www.gromacs.org)
    (c) Copyright (c) Erik Lindahl, David van der Spoel
 */
@@ -29,29 +29,29 @@
 #define MAX_MAGIC  92
 
 static unsigned int magic[MAX_MAGIC]={
-2U,  3U,  4U,  5U,  
-6U,  8U,  10U,  12U,  
-16U,  20U,  25U,  32U,  
-40U,  50U,  64U,  80U,  
-101U,  128U,  161U,  203U,  
-256U,  322U,  406U,  512U,  
-645U,  812U,  1024U,  1290U,  
-1625U,  2048U,  2580U,  3250U,  
-4096U,  5160U,  6501U,  8192U,  
-10321U,  13003U,  16384U,  20642U,  
-26007U,  32768U,  41285U,  52015U,  
-65536U,  82570U,  104031U,  131072U,  
-165140U,  208063U,  262144U,  330280U,  
-416127U,  524288U,  660561U,  832255U,  
-1048576U,  1321122U,  1664510U,  2097152U,  
-2642245U,  3329021U,  4194304U,  5284491U,  
-6658042U,  8388608U,  10568983U,  13316085U,  
-16777216U,  21137967U,  26632170U,  33554432U,  
-42275935U,  53264340U,  67108864U,  84551870U,  
-106528681U,  134217728U,  169103740U,  213057362U,  
-268435456U,  338207481U,  426114725U,  536870912U,  
-676414963U,  852229450U,  1073741824U,  1352829926U,  
-1704458900U,  2147483648U,  2705659852U,  3408917801U,  
+2U,  3U,  4U,  5U,
+6U,  8U,  10U,  12U,
+16U,  20U,  25U,  32U,
+40U,  50U,  64U,  80U,
+101U,  128U,  161U,  203U,
+256U,  322U,  406U,  512U,
+645U,  812U,  1024U,  1290U,
+1625U,  2048U,  2580U,  3250U,
+4096U,  5160U,  6501U,  8192U,
+10321U,  13003U,  16384U,  20642U,
+26007U,  32768U,  41285U,  52015U,
+65536U,  82570U,  104031U,  131072U,
+165140U,  208063U,  262144U,  330280U,
+416127U,  524288U,  660561U,  832255U,
+1048576U,  1321122U,  1664510U,  2097152U,
+2642245U,  3329021U,  4194304U,  5284491U,
+6658042U,  8388608U,  10568983U,  13316085U,
+16777216U,  21137967U,  26632170U,  33554432U,
+42275935U,  53264340U,  67108864U,  84551870U,
+106528681U,  134217728U,  169103740U,  213057362U,
+268435456U,  338207481U,  426114725U,  536870912U,
+676414963U,  852229450U,  1073741824U,  1352829926U,
+1704458900U,  2147483648U,  2705659852U,  3408917801U,
 };
 
 static unsigned int magic_bits[MAX_MAGIC][8]={
@@ -219,9 +219,9 @@ static char *instrnames[MAXINSTR]={
 /* Bit patterns in the compressed code stream: */
 
 static const int seq_instr[MAXINSTR][2]=
-  {     
+  {
     { 1,1 }, /* 1 : one large atom + runlength encoded small integers. Use same settings as before. */
-    { 0,2 }, /* 00 : set base and runlength in next four bits (x). base (increase/keep/decrease)=x%3-1. runlength=1+x/3. 
+    { 0,2 }, /* 00 : set base and runlength in next four bits (x). base (increase/keep/decrease)=x%3-1. runlength=1+x/3.
 	              The special value 1111 in the four bits means runlength=6 and base change=0 */
     { 4,4 }, /* 0100 : next only a large atom comes. */
     { 5,4 }, /* 0101 : next only runlength encoded small integers. Use same settings as before. */
@@ -363,9 +363,9 @@ static void swap_is_better(int *input, int *minint, int *sum_normal, int *sum_sw
 
 static void swapdecide(struct coder *coder, int *input,int *swapatoms, int *large_index, int *minint, unsigned char **output_ptr)
 {
-  (void)large_index;
   int didswap=0;
   int normal,swapped;
+  (void)large_index;
   swap_is_better(input,minint,&normal,&swapped);
   /* We have to determine if it is worth to change the behaviour.
      If diff is positive it means that it is worth something to
@@ -376,7 +376,7 @@ static void swapdecide(struct coder *coder, int *input,int *swapatoms, int *larg
   */
 #ifdef SHOWIT
   fprintf(stderr,"Trying Flip: %g %g\n",(double)swapped/normal, (double)normal/swapped);
-#endif     
+#endif
   if (((swapped<normal) && (fabs((double)swapped/normal)<iflipgaincheck)) ||
       ((normal<swapped) && (fabs((double)normal/swapped)<iflipgaincheck)))
     {
@@ -447,7 +447,7 @@ static void trajcoder_base_compress(int *input, int n, int *index, unsigned char
   int i,j;
   for (i=0; i<19; i++)
     largeint[i]=0U;
-  
+
   for (i=0; i<n; i++)
     {
       if (i!=0)
@@ -468,7 +468,7 @@ static void trajcoder_base_compress(int *input, int n, int *index, unsigned char
 #ifdef SHOWIT
   for (i=0; i<19; i++)
     fprintf(stderr,"Largeint[%d]=0x%x\n",i,largeint[i]);
-#endif  
+#endif
 #endif
   /* Convert the largeint to a sequence of bytes. */
   for (i=0; i<18; i++)
@@ -504,7 +504,7 @@ static void trajcoder_base_decompress(unsigned char *input, int n, int *index, i
 #ifdef SHOWIT
   for (i=0; i<19; i++)
     fprintf(stderr,"Largeint[%d]=0x%x\n",i,largeint[i]);
-#endif  
+#endif
 #endif
   for (i=n-1; i>=0; i--)
     {
@@ -514,7 +514,7 @@ static void trajcoder_base_decompress(unsigned char *input, int n, int *index, i
       fprintf(stderr,"Remainder: %u\n",remainder);
 #endif
 #endif
-#if 0      
+#if 0
       for (j=0; j<19; j++)
 	largeint[j]=largeint_tmp[j];
 #endif
@@ -552,7 +552,7 @@ int nvalues_sum;
 static void write_three_large(struct coder *coder, int *encode_ints, int *large_index, int nbits, unsigned char *compress_buffer, unsigned char **output_ptr)
 {
   trajcoder_base_compress(encode_ints,3,large_index,compress_buffer);
-  Ptngc_writemanybits(coder,compress_buffer,nbits,output_ptr);      
+  Ptngc_writemanybits(coder,compress_buffer,nbits,output_ptr);
 #ifdef SHOWIT
   fprintf(stderr,"nbits=%d (%g)\n",nbits,nbits/3.);
   nbits_sum+=nbits;
@@ -565,7 +565,7 @@ static void insert_batch(int *input_ptr, int ntriplets_left, int *prevcoord,int 
 {
   int nencode=startenc*3;
   int tmp_prevcoord[3];
-	      
+
   tmp_prevcoord[0]=prevcoord[0];
   tmp_prevcoord[1]=prevcoord[1];
   tmp_prevcoord[2]=prevcoord[2];
@@ -587,13 +587,13 @@ static void insert_batch(int *input_ptr, int ntriplets_left, int *prevcoord,int 
 		  positive_int(encode_ints[i*3]),
 		  positive_int(encode_ints[i*3+1]),
 		  positive_int(encode_ints[i*3+2]));
-#endif	  
+#endif
 	}
     }
 
 #ifdef SHOWIT
   fprintf(stderr,"New batch\n");
-#endif	      
+#endif
   while ((nencode<21) && (nencode<ntriplets_left*3))
     {
       encode_ints[nencode]=input_ptr[nencode]-minint[0]-tmp_prevcoord[0];
@@ -610,7 +610,7 @@ static void insert_batch(int *input_ptr, int ntriplets_left, int *prevcoord,int 
 	      positive_int(encode_ints[nencode]),
 	      positive_int(encode_ints[nencode+1]),
 	      positive_int(encode_ints[nencode+2]));
-#endif	      
+#endif
       tmp_prevcoord[0]=input_ptr[nencode]-minint[0];
       tmp_prevcoord[1]=input_ptr[nencode+1]-minint[1];
       tmp_prevcoord[2]=input_ptr[nencode+2]-minint[2];
@@ -837,7 +837,7 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 	  /* Insert the next batch of integers to be encoded into the buffer */
 #ifdef SHOWIT
 	  fprintf(stderr,"Initial batch\n");
-#endif	  
+#endif
 	  insert_batch(input_ptr,ntriplets_left,prevcoord,minint,encode_ints,0,&nencode);
 
 	  /* First we must decide if the next value is large (does not reasonably fit in current small encoding)
@@ -883,8 +883,8 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 				positive_int(encode_ints[i*3]),
 				positive_int(encode_ints[i*3+1]),
 				positive_int(encode_ints[i*3+2]));
-			  
-#endif		      
+
+#endif
 		      min_runlength=2;
 		    }
 		}
@@ -911,11 +911,11 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 	      ntriplets_left--;
 
 	      refused=0;
-	      
+
 	      /* Insert the next batch of integers to be encoded into the buffer */
 #ifdef SHOWIT
 	      fprintf(stderr,"Update batch due to large int.\n");
-#endif	  
+#endif
 	      if ((swapatoms) && (didswap))
 		{
 		  /* Keep swapped values. */
@@ -974,7 +974,7 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 	      new_runlength=1;
 	      new_small_index=small_index;
 	    }
-	  
+
 	  iter_runlength=new_runlength;
 	  iter_small_index=new_small_index;
 
@@ -987,7 +987,7 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 	  do {
 	    new_runlength=iter_runlength;
 	    new_small_index=iter_small_index;
-	    
+
 #ifdef SHOWIT
 	    fprintf(stderr,"Test new_small_index=%d Base=%d\n",new_small_index,magic[new_small_index]);
 #endif
@@ -1040,7 +1040,7 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 	  else if (new_runlength<6)
 	    rle_index_dep=QUITE_LARGE;
 	  if ((min_runlength)
-	      || ((new_small_index<small_index+IS_LARGE) && (new_small_index+rle_index_dep<max_large_index)) 
+	      || ((new_small_index<small_index+IS_LARGE) && (new_small_index+rle_index_dep<max_large_index))
 #if 1
 	      || (new_small_index+IS_LARGE<max_large_index)
 #endif
@@ -1050,7 +1050,7 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 	      if ((new_runlength!=runlength) || (new_small_index!=small_index))
 		{
 		  int change=new_small_index-small_index;
-		  
+
 		  if (new_small_index<=0)
 		    change=0;
 
@@ -1072,12 +1072,12 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 			    rejected=0;
 #ifdef SHOWIT
 			    fprintf(stderr,"Tested decrease %d of index: %g>=%g?\n",change,isum,(double)magic[small_index+change]*(double)magic[small_index+change]);
-#endif			      
+#endif
 			    if (isum>(double)magic[small_index+change]*(double)magic[small_index+change])
 			      {
 #ifdef SHOWIT
 				fprintf(stderr,"Rejected decrease %d of index due to length of vector: %g>=%g\n",change,isum,(double)magic[small_index+change]*(double)magic[small_index+change]);
-#endif			      
+#endif
 				rejected=1;
 				change++;
 			      }
@@ -1155,10 +1155,10 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 #ifdef SHOWIT
 		  else
 		    fprintf(stderr,"Rejected base change due to only change==-1\n");
-#endif		  
+#endif
 #ifdef SHOWIT
 		  fprintf(stderr,"Current small index: %d Base=%d\n",small_index,magic[small_index]);
-#endif		  
+#endif
 		}
 	      /* If we have a large previous integer we can combine it with a sequence of small ints. */
 	      if (has_large)
@@ -1183,7 +1183,7 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 		    }
 		  else
 		    {
-		      
+
 #ifdef SHOWIT
 		      fprintf(stderr,"Sequence of one large and small integers (good compression).\n");
 #endif
@@ -1239,7 +1239,7 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 	      fprintf(stderr,"Prevcoord in packing: %d %d %d\n",
 		      prevcoord[0],prevcoord[1],prevcoord[2]);
 #endif
-	  
+
 	      input_ptr+=3*runlength;
 	      ntriplets_left-=runlength;
 	    }
@@ -1248,13 +1248,13 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 #ifdef SHOWIT
 	      fprintf(stderr,"Refused value: %d old is %d max is %d\n",new_small_index,small_index,max_large_index);
 	      fflush(stderr);
-#endif      
+#endif
 	      refused=1;
 	    }
 	}
 #ifdef SHOWIT
       fprintf(stderr,"Number of triplets left is %d\n",ntriplets_left);
-#endif      
+#endif
     }
   /* If we have large previous integers we must flush them now. */
   if (has_large)
@@ -1271,7 +1271,6 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 
 int Ptngc_unpack_array_xtc2(struct coder *coder,unsigned char *packed,int *output, int length)
 {
-  (void)coder;
   unsigned char *ptr=packed;
   int bitptr=0;
   int minint[3];
@@ -1284,6 +1283,7 @@ int Ptngc_unpack_array_xtc2(struct coder *coder,unsigned char *packed,int *outpu
   int large_nbits;
   unsigned char compress_buffer[18*4]; /* Holds compressed result for 3 large ints or up to 18 small ints. */
   int encode_ints[21]; /* Up to 3 large + 18 small ints can be encoded at once */
+  (void)coder;
 
   /* Read min integers. */
   minint[0]=unpositive_int(readbits(&ptr,&bitptr,32));
@@ -1297,7 +1297,7 @@ int Ptngc_unpack_array_xtc2(struct coder *coder,unsigned char *packed,int *outpu
   small_index=readbits(&ptr,&bitptr,8);
 
   large_nbits=compute_magic_bits(large_index);
-  
+
 #ifdef SHOWIT
   fprintf(stderr,"Minimum integers: %d %d %d\n",minint[0],minint[1],minint[2]);
   fprintf(stderr,"Large indices: %d %d %d\n",large_index[0],large_index[1],large_index[2]);
@@ -1316,7 +1316,7 @@ int Ptngc_unpack_array_xtc2(struct coder *coder,unsigned char *packed,int *outpu
 #ifdef SHOWIT
       if ((instr>=0) && (instr<MAXINSTR))
 	fprintf(stderr,"Decoded instruction %s\n",instrnames[instr]);
-#endif      
+#endif
       if ((instr==INSTR_DEFAULT) /* large+small */
 	  || (instr==INSTR_ONLY_LARGE) /* only large */
 	  || (instr==INSTR_ONLY_SMALL)) /* only small */
@@ -1336,7 +1336,7 @@ int Ptngc_unpack_array_xtc2(struct coder *coder,unsigned char *packed,int *outpu
 	      large_ints[2]=encode_ints[2];
 #ifdef SHOWIT
 	      fprintf(stderr,"large ints: %d %d %d\n",large_ints[0],large_ints[1],large_ints[2]);
-#endif	      
+#endif
 	    }
 	  if (instr!=INSTR_ONLY_LARGE)
 	    {
@@ -1355,7 +1355,7 @@ int Ptngc_unpack_array_xtc2(struct coder *coder,unsigned char *packed,int *outpu
 #ifdef SHOWIT
 	      for (i=0; i<runlength; i++)
 		fprintf(stderr,"small ints: %d %d %d\n",encode_ints[i*3+0],encode_ints[i*3+1],encode_ints[i*3+2]);
-#endif	      
+#endif
 	    }
 	  if (instr==INSTR_DEFAULT)
 	    {
@@ -1495,7 +1495,7 @@ int Ptngc_unpack_array_xtc2(struct coder *coder,unsigned char *packed,int *outpu
 	}
 #ifdef SHOWIT
       fprintf(stderr,"Number of triplets left is %d\n",ntriplets_left);
-#endif      
+#endif
     }
   return 0;
 }

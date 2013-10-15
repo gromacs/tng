@@ -125,7 +125,7 @@ static void sort_strings(unsigned int *vals, int nvals,
 	      nrepeat[i+m]=((unsigned int) (good_k)) | (((unsigned int) (repeat))<<8);
 	    }
 	  /* If no repetition was found for this value signal that here. */
-	  if (!nrepeat[i]) 
+	  if (!nrepeat[i])
 	    nrepeat[i+m]=257U; /* This is 1<<8 | 1 */
 	}
     }
@@ -138,7 +138,7 @@ static void sort_strings(unsigned int *vals, int nvals,
     {
       output[i*2]=indices[i];
       output[indices[i]*2+1]=i;
-    }  
+    }
   free(nrepeat);
   free(indices);
 }
@@ -313,13 +313,13 @@ void Ptngc_comp_from_lz77(unsigned int *data, int ndata,
 		    unsigned int *offsets, int noffsets,
 		    unsigned int *vals, int nvals)
 {
-  (void)ndata;
-  (void)nlens;
-  (void)noffsets;
   int i=0;
   int joff=0;
   int jdat=0;
   int jlen=0;
+  (void)ndata;
+  (void)nlens;
+  (void)noffsets;
   while (i<nvals)
     {
       unsigned int v=data[jdat++];

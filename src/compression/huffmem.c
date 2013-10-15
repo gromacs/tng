@@ -72,7 +72,7 @@ void Ptngc_comp_huff_compress_verbose(unsigned int *vals, int nvals,
 		       huffdict,&nhuffdict,
 		       huffdictunpack,&nhuffdictunpack);
   *huffdatalen=nhuff;
-  
+
   /* Algorithm 0 stores the huffman dictionary directly (+ a code for
      the algorithm) + lengths of the huffman buffer (4) and the huffman dictionary (3). */
   huffman_lengths[0]=nhuff+nhuffdict+1*2+3*4+3+3;
@@ -92,7 +92,7 @@ void Ptngc_comp_huff_compress_verbose(unsigned int *vals, int nvals,
   /* ... and rle + huffman coding ... (algorithm 2) Pack any repetetitive patterns. */
   Ptngc_comp_conv_to_rle(huffdictunpack,nhuffdictunpack,
 		   huffdictrle,&nhuffrle,1);
-  
+
   /* Determine probabilities. */
   Ptngc_comp_make_dict_hist(huffdictrle,nhuffrle,dict,&ndict2,hist);
   /* Pack huffman dictionary */
@@ -102,10 +102,10 @@ void Ptngc_comp_huff_compress_verbose(unsigned int *vals, int nvals,
 		       huffdict2,&nhuffdict2,
 		       huffdictunpack2,&nhuffdictunpack2);
   huffman_lengths[2]=nhuff+nhuff2+nhuffdict2+1*2+3*4+3+3+3+3+3+3;
-  
+
   /* Choose the best algorithm and output the data. */
   if ((*chosen_algo==0) || ((*chosen_algo==-1) &&
-			    (((huffman_lengths[0]<huffman_lengths[1]) && 
+			    (((huffman_lengths[0]<huffman_lengths[1]) &&
 			      (huffman_lengths[0]<huffman_lengths[2])))))
     {
       *chosen_algo=0;
@@ -242,7 +242,6 @@ void Ptngc_comp_huff_compress(unsigned int *vals, int nvals,
 void Ptngc_comp_huff_decompress(unsigned char *huffman, int huffman_len,
 			  unsigned int *vals)
 {
-  (void)huffman_len;
   int isvals16=(int)huffman[0];
   unsigned int *vals16=NULL;
   int algo=(int)huffman[1];
@@ -261,6 +260,7 @@ void Ptngc_comp_huff_decompress(unsigned char *huffman, int huffman_len,
   int ndict=(int)((unsigned int)huffman[17+nhuff]|
 		  (((unsigned int)huffman[18+nhuff])<<8)|
 		  (((unsigned int)huffman[19+nhuff])<<16));
+  (void)huffman_len;
   if (!isvals16)
     vals16=warnmalloc(nvals16*sizeof *vals16);
   else
