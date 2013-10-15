@@ -27,14 +27,14 @@ int main(int argc, char **argv)
     float *positions = 0, *box_shape = 0;
     int64_t n_particles, n_frames, tot_n_frames, stride_length, i, j;
     // Set a default frame range
-    int64_t first_frame = 0, last_frame = 5000, n_strides;
+    int first_frame = 0, last_frame = 5000, n_strides;
 
     if(argc <= 1)
     {
         printf("No file specified\n");
         printf("Usage:\n");
         printf("tng_io_read_pos <tng_file> "
-               "[first_frame = %"PRId64"] [last_frame = %"PRId64"]\n",
+               "[first_frame = %d] [last_frame = %d]\n",
                first_frame, last_frame);
         exit(1);
     }
@@ -44,10 +44,10 @@ int main(int argc, char **argv)
 
     if(argc >= 3)
     {
-        first_frame = strtoll(argv[2], 0, 10);
+        first_frame = strtol(argv[2], 0, 10);
         if(argc >= 4)
         {
-            last_frame = strtoll(argv[3], 0, 10);
+            last_frame = strtol(argv[3], 0, 10);
         }
     }
 

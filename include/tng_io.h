@@ -2553,7 +2553,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
-                 const int64_t time,
+                 const double time,
                  const float *positions);
 
 /**
@@ -2578,7 +2578,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
-                 const int64_t time,
+                 const double time,
                  const float *velocities);
 
 /**
@@ -2603,7 +2603,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
 tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
-                 const int64_t time,
+                 const double time,
                  const float *forces);
 
 /**
@@ -2627,7 +2627,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
-                 const int64_t time,
+                 const double time,
                  const float *box_shape);
 
 /** @} */ // end of group2

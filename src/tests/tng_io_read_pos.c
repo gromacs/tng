@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     int64_t n_particles, n_values_per_frame, n_frames, tot_n_frames;
     char data_type;
     int i, j;
-    int64_t particle = 0;
+    int particle = 0;
     // Set a default frame range
     int first_frame = 0, last_frame = 50;
     char atom_name[64], res_name[64], chain_name[64];
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     {
         printf("No file specified\n");
         printf("Usage:\n");
-        printf("tng_io_read_pos <tng_file> [particle number = %"PRId64"] "
+        printf("tng_io_read_pos <tng_file> [particle number = %d] "
                "[first_frame = %d] [last_frame = %d]\n",
                particle, first_frame, last_frame);
         exit(1);
@@ -52,13 +52,13 @@ int main(int argc, char **argv)
 
     if(argc >= 3)
     {
-        particle = strtoll(argv[2], 0, 10);
+        particle = strtol(argv[2], 0, 10);
         if(argc >= 4)
         {
-            first_frame = strtoll(argv[3], 0, 10);
+            first_frame = strtol(argv[3], 0, 10);
             if(argc >= 5)
             {
-                last_frame = strtoll(argv[4], 0, 10);
+                last_frame = strtol(argv[4], 0, 10);
             }
         }
     }

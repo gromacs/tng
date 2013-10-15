@@ -4687,7 +4687,7 @@ static tng_function_status tng_particle_data_read
 static tng_function_status tng_particle_data_block_write
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block,
-                 const int block_index,
+                 const int64_t block_index,
                  const tng_particle_mapping_t mapping,
                  const char hash_mode)
 {
@@ -5554,7 +5554,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
  */
 static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                                                 tng_gen_block_t block,
-                                                const int block_index,
+                                                const int64_t block_index,
                                                 const char hash_mode)
 {
     int64_t n_frames, stride_length, frame_step;
@@ -12186,8 +12186,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
                  int64_t *n_values_per_frame,
                  char *type)
 {
-    int64_t file_pos;
-    int i, j, block_index, len, size;
+    int64_t file_pos, block_index;
+    int i, j, len, size;
     tng_non_particle_data_t data;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
@@ -12316,8 +12316,8 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
                                         int64_t *n_values_per_frame,
                                         char *type)
 {
-    int64_t file_pos, data_size, n_frames_div;
-    int i, block_index, size;
+    int64_t file_pos, data_size, n_frames_div, block_index;
+    int i, size;
     tng_non_particle_data_t data;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
@@ -12427,7 +12427,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
                  char *type)
 {
     int64_t i, j, n_frames, file_pos, current_frame_pos, first_frame;
-    int block_index, len, size;
+    int64_t block_index;
+    int len, size;
     tng_non_particle_data_t data;
     tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
@@ -12811,8 +12812,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
                  int64_t *n_values_per_frame,
                  char *type)
 {
-    int64_t i, j, k, mapping, file_pos, i_step;
-    int block_index, len, size;
+    int64_t i, j, k, mapping, file_pos, i_step, block_index;
+    int len, size;
     tng_particle_data_t data;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
@@ -13006,7 +13007,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
                  char *type)
 {
     int64_t i, j, mapping, file_pos, i_step, data_size, n_frames_div;
-    int block_index, size;
+    int64_t block_index;
+    int size;
     tng_particle_data_t data;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
@@ -13158,8 +13160,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
                  char *type)
 {
     int64_t i, j, k, mapping, n_frames, file_pos, current_frame_pos, i_step;
-    int64_t first_frame;
-    int block_index, len, size;
+    int64_t first_frame, block_index;
+    int len, size;
     tng_particle_data_t data;
     tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
@@ -14326,7 +14328,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
-                 const int64_t time,
+                 const double time,
                  const float *positions)
 {
     tng_function_status stat;
@@ -14349,7 +14351,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
-                 const int64_t time,
+                 const double time,
                  const float *velocities)
 {
     tng_function_status stat;
@@ -14372,7 +14374,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
 tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
-                 const int64_t time,
+                 const double time,
                  const float *forces)
 {
     tng_function_status stat;
@@ -14395,7 +14397,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
-                 const int64_t time,
+                 const double time,
                  const float *box_shape)
 {
     tng_function_status stat;
