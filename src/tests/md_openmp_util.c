@@ -6,7 +6,7 @@
 # include "tng_io.h"
 #include "tng_io_testing.h"
 
-int main ( int argc, char *argv[] );
+int main ();
 void compute ( int np, int nd, float pos[], float vel[],
     float mass, float f[], float *pot, float *kin );
 float dist ( int nd, float r1[], float r2[], float dr[] );

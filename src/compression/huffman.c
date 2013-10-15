@@ -60,7 +60,7 @@ static int comp_htree(const void *leafptr1, const void *leafptr2, const void *pr
   const union htree_nodeleaf *leaf2=(union htree_nodeleaf *)leafptr2;
   int rval=0;
   (void)private;
-  
+
   if (leaf1->leaf.prob<leaf2->leaf.prob)
     rval=1;
   else if (leaf1->leaf.prob>leaf2->leaf.prob)
@@ -188,9 +188,8 @@ static int comp_codes(const void *codeptr1, const void *codeptr2, const void *pr
 {
   const struct codelength *code1=(struct codelength *)codeptr1;
   const struct codelength *code2=(struct codelength *)codeptr2;
-  (void)private;
-
   int rval=0; /* It shouldn't be possible to get equal here, though. */
+  (void)private;
   if (code1->length>code2->length)
     rval=1;
   else if (code1->length<code2->length)
