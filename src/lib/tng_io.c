@@ -7906,20 +7906,20 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
       /* Check the endianness of the computer */
       static int32_t endianness_32 = 0x01234567;
       /* 0x01234567 */
-      if ( *(const char*)&endianness_32 == 0x01 )
+      if ( *(const unsigned char*)&endianness_32 == 0x01 )
         {
           tng_data->endianness_32 = TNG_BIG_ENDIAN_32;
         }
 
       /* 0x67452301 */
-      else if( *(const char*)&endianness_32 == 0x67 )
+      else if( *(const unsigned char*)&endianness_32 == 0x67 )
         {
           tng_data->endianness_32 = TNG_LITTLE_ENDIAN_32;
 
         }
 
       /* 0x45670123 */
-      else if ( *(const char*)&endianness_32 == 0x45 )
+      else if ( *(const unsigned char*)&endianness_32 == 0x45 )
         {
           tng_data->endianness_32 = TNG_BYTE_PAIR_SWAP_32;
         }
@@ -7927,31 +7927,31 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
     {
       static int64_t endianness_64 = 0x0123456789ABCDEFLL;
       /* 0x0123456789ABCDEF */
-      if ( *(const char*)&endianness_64 == 0x01 )
+      if ( *(const unsigned char*)&endianness_64 == 0x01 )
         {
           tng_data->endianness_64 = TNG_BIG_ENDIAN_64;
         }
 
       /* 0xEFCDAB8967452301 */
-      else if ( *(const char*)&endianness_64 == 0xEF )
+      else if ( *(const unsigned char*)&endianness_64 == 0xEF )
         {
           tng_data->endianness_64 = TNG_LITTLE_ENDIAN_64;
         }
 
       /* 0x89ABCDEF01234567 */
-      else if ( *(const char*)&endianness_64 == 0x89 )
+      else if ( *(const unsigned char*)&endianness_64 == 0x89 )
         {
           tng_data->endianness_64 = TNG_QUAD_SWAP_64;
         }
 
       /* 0x45670123CDEF89AB */
-      else if ( *(const char*)&endianness_64 == 0x45 )
+      else if ( *(const unsigned char*)&endianness_64 == 0x45 )
         {
           tng_data->endianness_64 = TNG_BYTE_PAIR_SWAP_64;
         }
 
       /* 0x23016745AB89EFCD */
-      else if ( *(const char*)&endianness_64 == 0x23 )
+      else if ( *(const unsigned char*)&endianness_64 == 0x23 )
         {
           tng_data->endianness_64 = TNG_BYTE_SWAP_64;
         }
@@ -14197,6 +14197,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                 p_data = &tng_data->non_tr_particle_data[tng_data->
                                                     n_particle_data_blocks - 1];
             }
+            printf("TEST: %"PRId64" frames, %"PRId64" particles, %"PRId64" values per frame\n",
+                   n_frames, n_particles, n_values_per_frame);
             stat = tng_allocate_particle_data_mem(tng_data, p_data, n_frames,
                                                   stride_length, n_particles,
                                                   n_values_per_frame);
