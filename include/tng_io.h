@@ -287,40 +287,6 @@ typedef unsigned __int64 uint64_t;
 #else
 #include <stdint.h>
 #endif
-//
-
-// #ifndef _STDINT_H
-// /* This first part is from stdint.h (GNU C Library) */
-// #ifndef __int8_t_defined
-// # define __int8_t_defined
-// typedef signed char             int8_t;
-// typedef short int               int16_t;
-// typedef int                     int32_t;
-// # if __WORDSIZE == 64
-// typedef long int                int64_t;
-// # else
-// #ifdef __GNUC__
-// __extension__
-// #endif
-// typedef long long int           int64_t;
-// # endif
-// #endif
-//
-// typedef unsigned char           uint8_t;
-// typedef unsigned short int      uint16_t;
-// #ifndef __uint32_t_defined
-// typedef unsigned int            uint32_t;
-// # define __uint32_t_defined
-// #endif
-// #if __WORDSIZE == 64
-// typedef unsigned long int       uint64_t;
-// #else
-// #ifdef __GNUC__
-// __extension__
-// #endif
-// typedef unsigned long long int  uint64_t;
-// #endif
-// #endif
 
 /* This is from inttypes.h  (GNU C Library) */
 /* The ISO C99 standard specifies that these macros must only be
@@ -376,20 +342,6 @@ typedef unsigned __int64 uint64_t;
 #define TNG_MD5_HASH_LEN 16
 /** The maximum allowed length of a string */
 #define TNG_MAX_STR_LEN 1024
-
-#if 0
-/** Inline function for finding the lowest of two values */
-#define tng_min(a,b) \
-    ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-       _a < _b ? _a : _b; })
-
-/** Inline function for finding the highest of two values */
-#define tng_max(a,b) \
-    ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-       _a > _b ? _a : _b; })
-#endif
 
 /** Flag to specify the endianness of a TNG file */
 typedef enum {TNG_BIG_ENDIAN,
@@ -2087,7 +2039,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
 tng_function_status DECLSPECDLLEXPORT tng_time_get_str
                 (const tng_trajectory_t tng_data,
                  char *time);
-/** @} */ // end of group1
+/** @} */ /* end of group1 */
 
 /** @defgroup group2 High-level API
  *  These functions make it easier to access and output TNG data. They
@@ -2120,7 +2072,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
  */
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
                 (tng_trajectory_t *tng_data_p);
-
+/*
 // tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
 //                 (tng_trajectory_t tng_data,
 //                  int64_t *n_mols,
@@ -2154,7 +2106,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
 //                  const int64_t *res_ids,
 //                  const char **chain_names,
 //                  const int64_t *chain_ids);
-
+*/
 /**
  * @brief High-level function for reading the positions of all particles
  * from all frames.
@@ -2630,7 +2582,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
                  const double time,
                  const float *box_shape);
 
-/** @} */ // end of group2
+/** @} */ /* end of group2 */
 
 
 #ifdef __cplusplus

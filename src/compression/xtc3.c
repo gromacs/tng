@@ -177,9 +177,9 @@ static void swap_is_better(int *input, int *minint, int *sum_normal, int *sum_sw
       swap_ints(normal,swapped);
       for (j=1; j<3; j++)
 	{
-	  if (positive_int(normal[j])>normal_max)
+	  if (positive_int(normal[j])>(unsigned int)normal_max)
 	    normal_max=positive_int(normal[j]);
-	  if (positive_int(swapped[j])>swapped_max)
+	  if (positive_int(swapped[j])>(unsigned int)swapped_max)
 	    swapped_max=positive_int(swapped[j]);
 	}
     }
@@ -277,7 +277,7 @@ static int is_quite_large(int *input, int small_index, int max_large_index)
   else
     {
       for (i=0; i<3; i++)
-	if (positive_int(input[i])>Ptngc_magic(small_index+QUITE_LARGE))
+	if (positive_int(input[i])>(unsigned int)Ptngc_magic(small_index+QUITE_LARGE))
 	  {
 	    is=1;
 	    break;
@@ -600,9 +600,10 @@ static void base_compress(unsigned int *data, int len, unsigned char *output, in
 {
   unsigned int largeint[MAXBASEVALS+1];
   unsigned int largeint_tmp[MAXBASEVALS+1];
-  int ixyz, i, j;
+  int ixyz, i;
+  unsigned int j;
   int nwrittenout=0;
-  int numbytes=0;
+  unsigned int numbytes=0;
   /* Store the MAXBASEVALS value in the output. */
   output[nwrittenout++]=(unsigned char)(MAXBASEVALS&0xFFU);
   output[nwrittenout++]=(unsigned char)((MAXBASEVALS>>8)&0xFFU);
@@ -708,7 +709,7 @@ static void base_decompress(unsigned char *input, int len, unsigned int *output)
   int ixyz, i, j;
   int maxbasevals=(int)((unsigned int)(input[0])|(((unsigned int)(input[1]))<<8));
   int baseinterval=(int)input[2];
-  if (maxbasevals>MAXMAXBASEVALS)
+  if (maxbasevals>(int)MAXMAXBASEVALS)
     {
       fprintf(stderr,"Read a larger maxbasevals value from the file than I can handle. Fix"
 	      " by increasing MAXMAXBASEVALS to at least %d. Although, this is"

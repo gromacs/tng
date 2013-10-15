@@ -26,7 +26,7 @@ int main(int argc, char **argv)
      * arrays */
     float *positions = 0, *box_shape = 0;
     int64_t n_particles, n_frames, tot_n_frames, stride_length, i, j;
-    // Set a default frame range
+    /* Set a default frame range */
     int first_frame = 0, last_frame = 5000, n_strides;
 
     if(argc <= 1)
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    // A reference must be passed to allocate memory
+    /* A reference must be passed to allocate memory */
     tng_util_trajectory_open(argv[1], 'r', &traj);
 
     if(argc >= 3)
@@ -93,13 +93,13 @@ int main(int argc, char **argv)
     n_strides = (n_frames % stride_length) ? n_frames / stride_length + 1:
                 n_frames / stride_length;
 
-    // Get the positions of all particles in the requested frame range.
-    // The positions are stored in the positions array.
-    // N.B. No proper error checks.
+    /* Get the positions of all particles in the requested frame range.
+     * The positions are stored in the positions array.
+     * N.B. No proper error checks. */
     if(tng_util_pos_read_range(traj, 0, last_frame, &positions, &stride_length)
        == TNG_SUCCESS)
     {
-        // Print the positions of the wanted particle (zero based)
+        /* Print the positions of the wanted particle (zero based) */
         for(i=0; i < n_strides; i++)
         {
             printf("\nFrame %"PRId64":\n", first_frame + i*stride_length);
@@ -118,7 +118,7 @@ int main(int argc, char **argv)
         printf("Cannot read positions\n");
     }
 
-    // Free memory
+    /* Free memory */
     if(positions)
     {
         free(positions);

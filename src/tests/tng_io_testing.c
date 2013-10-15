@@ -29,7 +29,6 @@ static tng_function_status tng_test_setup_molecules(tng_trajectory_t traj)
     tng_residue_t residue;
     tng_atom_t atom;
     int64_t cnt;
-//     int i;
 
     tng_molecule_add(traj, "water", &molecule);
     tng_molecule_chain_add(traj, molecule, "W", &chain);
@@ -48,9 +47,9 @@ static tng_function_status tng_test_setup_molecules(tng_trajectory_t traj)
     }
     tng_molecule_cnt_set(traj, molecule, 200);
     tng_molecule_cnt_get(traj, molecule, &cnt);
-//     printf("Created %"PRId64" %s molecules.\n", cnt, molecule->name);
+/*     printf("Created %"PRId64" %s molecules.\n", cnt, molecule->name); */
 
-//     traj->molecule_cnt_list[traj->n_molecules-1] = 5;
+/*     traj->molecule_cnt_list[traj->n_molecules-1] = 5;
 //     tng_molecule_name_set(traj, &traj->molecules[1], "ligand");
 //     tng_molecule_name_set(traj, &traj->molecules[2], "water");
 //     tng_molecule_name_set(traj, &traj->molecules[3], "dummy");
@@ -107,7 +106,7 @@ static tng_function_status tng_test_setup_molecules(tng_trajectory_t traj)
 //     {
 //         return(TNG_CRITICAL);
 //     }
-
+*/
     return(TNG_SUCCESS);
 }
 
@@ -348,7 +347,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
                                        TNG_TRAJECTORY_BLOCK,
                                        n_frames_per_frame_set, 3,
                                        1, 0, n_particles,
-//                                        TNG_UNCOMPRESSED,
+/*                                        TNG_UNCOMPRESSED, */
                                        TNG_GZIP_COMPRESSION,
                                        data) != TNG_SUCCESS)
         {
@@ -508,7 +507,7 @@ tng_function_status tng_test_get_box_data(tng_trajectory_t traj)
         return(TNG_CRITICAL);
     }
 
-
+/*
 //     int64_t i, j;
 //     printf("Box shape:");
 //     for(i=0; i<n_frames; i++)
@@ -519,7 +518,7 @@ tng_function_status tng_test_get_box_data(tng_trajectory_t traj)
 //         }
 //         printf("\n");
 //     }
-
+*/
     tng_data_values_free(traj, values, n_frames, n_values_per_frame, type);
 
     return(TNG_SUCCESS);
@@ -542,7 +541,7 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj)
         return(TNG_CRITICAL);
     }
 
-
+/*
 //     int64_t i, j, k;
 //     struct tng_trajectory_frame_set *frame_set =
 //     &traj->current_trajectory_frame_set;
@@ -559,7 +558,7 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj)
 //             printf("\n");
 //         }
 //     }
-
+*/
     tng_particle_data_values_free(traj, values, n_frames, n_particles,
                                   n_values_per_frame, type);
 

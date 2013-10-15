@@ -384,28 +384,44 @@ struct tng_trajectory {
 #define TNG_SNPRINTF snprintf
 #endif
 
-static TNG_INLINE int tng_min(int a, int b)
+static TNG_INLINE int tng_min_i(int a, int b)
 {
-    int r=a;
-
-    if (b<a)
-    {
-        r=b;
-    }
-
-    return r;
+    return (a < b ? a : b);
 }
 
-static TNG_INLINE int tng_max(int a, int b)
+static TNG_INLINE int tng_max_i(int a, int b)
 {
-    int r=a;
+    return (a > b ? a : b);
+}
 
-    if (b>a)
-    {
-        r=b;
-    }
+static TNG_INLINE int64_t tng_min_i64(int64_t a, int64_t b)
+{
+    return (a < b ? a : b);
+}
 
-    return r;
+static TNG_INLINE int64_t tng_max_i64(int64_t a, int64_t b)
+{
+    return (a > b ? a : b);
+}
+
+static TNG_INLINE float tng_min_f(float a, float b)
+{
+    return (a < b ? a : b);
+}
+
+static TNG_INLINE float tng_max_f(float a, float b)
+{
+    return (a > b ? a : b);
+}
+
+static TNG_INLINE double tng_min_d(double a, double b)
+{
+    return (a < b ? a : b);
+}
+
+static TNG_INLINE double tng_max_d(double a, double b)
+{
+    return (a > b ? a : b);
 }
 
 /** This function swaps the byte order of a 32 bit numerical variable
@@ -422,21 +438,21 @@ static tng_function_status tng_swap_byte_order_big_endian_32
 {
     switch(tng_data->endianness_32)
     {
-    case TNG_LITTLE_ENDIAN_32: // Byte order is reversed.
-        *v = ((*v & 0xFF000000) >> 24) | // Move first byte to end
-             ((*v & 0x00FF0000) >> 8) |  // Move 2nd byte to pos 3
-             ((*v & 0x0000FF00) << 8) |  // Move 3rd byte to pos 2
-             ((*v & 0x000000FF) << 24);  // Move last byte to first
+    case TNG_LITTLE_ENDIAN_32: /* Byte order is reversed. */
+        *v = ((*v & 0xFF000000) >> 24) | /* Move first byte to end */
+             ((*v & 0x00FF0000) >> 8) |  /* Move 2nd byte to pos 3 */
+             ((*v & 0x0000FF00) << 8) |  /* Move 3rd byte to pos 2 */
+             ((*v & 0x000000FF) << 24);  /* Move last byte to first */
 
         return(TNG_SUCCESS);
 
-    case TNG_BYTE_PAIR_SWAP_32: // byte pair swap
+    case TNG_BYTE_PAIR_SWAP_32: /* byte pair swap */
         *v = ((*v & 0xFFFF0000) >> 16) |
              ((*v & 0x0000FFFF) << 16);
 
         return(TNG_SUCCESS);
 
-    case TNG_BIG_ENDIAN_32: // Already correct
+    case TNG_BIG_ENDIAN_32: /* Already correct */
         return(TNG_SUCCESS);
 
     default:
@@ -460,37 +476,37 @@ static tng_function_status tng_swap_byte_order_big_endian_64
 {
     switch(tng_data->endianness_64)
     {
-    case TNG_LITTLE_ENDIAN_64: // Byte order is reversed.
-        *v = ((*v & 0xFF00000000000000LL) >> 56) | // Move first byte to end
-             ((*v & 0x00FF000000000000LL) >> 40) | // Move 2nd byte to pos 7
-             ((*v & 0x0000FF0000000000LL) >> 24) | // Move 3rd byte to pos 6
-             ((*v & 0x000000FF00000000LL) >> 8 ) | // Move 4th byte to pos 5
-             ((*v & 0x00000000FF000000LL) << 8 ) | // Move 5th byte to pos 4
-             ((*v & 0x0000000000FF0000LL) << 24) | // Move 6th byte to pos 3
-             ((*v & 0x000000000000FF00LL) << 40) | // Move 7th byte to pos 2
-             ((*v & 0x00000000000000FFLL) << 56);  // Move last byte to first
+    case TNG_LITTLE_ENDIAN_64: /* Byte order is reversed. */
+        *v = ((*v & 0xFF00000000000000LL) >> 56) | /* Move first byte to end */
+             ((*v & 0x00FF000000000000LL) >> 40) | /* Move 2nd byte to pos 7 */
+             ((*v & 0x0000FF0000000000LL) >> 24) | /* Move 3rd byte to pos 6 */
+             ((*v & 0x000000FF00000000LL) >> 8 ) | /* Move 4th byte to pos 5 */
+             ((*v & 0x00000000FF000000LL) << 8 ) | /* Move 5th byte to pos 4 */
+             ((*v & 0x0000000000FF0000LL) << 24) | /* Move 6th byte to pos 3 */
+             ((*v & 0x000000000000FF00LL) << 40) | /* Move 7th byte to pos 2 */
+             ((*v & 0x00000000000000FFLL) << 56);  /* Move last byte to first */
 
         return(TNG_SUCCESS);
 
-    case TNG_QUAD_SWAP_64: // Byte quad swap
+    case TNG_QUAD_SWAP_64: /* Byte quad swap */
         *v = ((*v & 0xFFFFFFFF00000000LL) >> 32) |
              ((*v & 0x00000000FFFFFFFFLL) << 32);
 
         return(TNG_SUCCESS);
 
-    case TNG_BYTE_PAIR_SWAP_64: // Byte pair swap
+    case TNG_BYTE_PAIR_SWAP_64: /* Byte pair swap */
         *v = ((*v & 0xFFFF0000FFFF0000LL) >> 16) |
              ((*v & 0x0000FFFF0000FFFFLL) << 16);
 
         return(TNG_SUCCESS);
 
-    case TNG_BYTE_SWAP_64: // Byte swap
+    case TNG_BYTE_SWAP_64: /* Byte swap */
         *v = ((*v & 0xFF00FF00FF00FF00LL) >> 8) |
              ((*v & 0x00FF00FF00FF00FFLL) << 8);
 
         return(TNG_SUCCESS);
 
-    case TNG_BIG_ENDIAN_64: // Already correct
+    case TNG_BIG_ENDIAN_64: /* Already correct */
         return(TNG_SUCCESS);
 
     default:
@@ -512,20 +528,20 @@ static tng_function_status tng_swap_byte_order_little_endian_32
 {
     switch(tng_data->endianness_32)
     {
-    case TNG_LITTLE_ENDIAN_32: // Already correct
+    case TNG_LITTLE_ENDIAN_32: /* Already correct */
         return(TNG_SUCCESS);
 
-    case TNG_BYTE_PAIR_SWAP_32: // byte pair swapped big endian to little endian
+    case TNG_BYTE_PAIR_SWAP_32: /* byte pair swapped big endian to little endian */
         *v = ((*v & 0xFF00FF00) >> 8) |
              ((*v & 0x00FF00FF) << 8);
 
         return(TNG_SUCCESS);
 
-    case TNG_BIG_ENDIAN_32: // Byte order is reversed.
-        *v = ((*v & 0xFF000000) >> 24) | // Move first byte to end
-             ((*v & 0x00FF0000) >> 8) |  // Move 2nd byte to pos 3
-             ((*v & 0x0000FF00) << 8) |  // Move 3rd byte to pos 2
-             ((*v & 0x000000FF) << 24);  // Move last byte to first
+    case TNG_BIG_ENDIAN_32: /* Byte order is reversed. */
+        *v = ((*v & 0xFF000000) >> 24) | /* Move first byte to end */
+             ((*v & 0x00FF0000) >> 8) |  /* Move 2nd byte to pos 3 */
+             ((*v & 0x0000FF00) << 8) |  /* Move 3rd byte to pos 2 */
+             ((*v & 0x000000FF) << 24);  /* Move last byte to first */
 
         return(TNG_SUCCESS);
 
@@ -550,10 +566,10 @@ static tng_function_status tng_swap_byte_order_little_endian_64
 {
     switch(tng_data->endianness_64)
     {
-    case TNG_LITTLE_ENDIAN_64: // Already correct
+    case TNG_LITTLE_ENDIAN_64: /* Already correct */
         return(TNG_SUCCESS);
 
-    case TNG_QUAD_SWAP_64: // Byte quad swapped big endian to little endian
+    case TNG_QUAD_SWAP_64: /* Byte quad swapped big endian to little endian */
         *v = ((*v & 0xFF000000FF000000LL) >> 24) |
              ((*v & 0x00FF000000FF0000LL) >> 8) |
              ((*v & 0x0000FF000000FF00LL) << 8) |
@@ -561,7 +577,7 @@ static tng_function_status tng_swap_byte_order_little_endian_64
 
         return(TNG_SUCCESS);
 
-    case TNG_BYTE_PAIR_SWAP_64: // Byte pair swapped big endian to little endian
+    case TNG_BYTE_PAIR_SWAP_64: /* Byte pair swapped big endian to little endian */
         *v = ((*v & 0xFF00FF0000000000LL) >> 40) |
              ((*v & 0x00FF00FF00000000LL) >> 24) |
              ((*v & 0x00000000FF00FF00LL) << 24) |
@@ -569,7 +585,7 @@ static tng_function_status tng_swap_byte_order_little_endian_64
 
         return(TNG_SUCCESS);
 
-    case TNG_BYTE_SWAP_64: // Byte swapped big endian to little endian
+    case TNG_BYTE_SWAP_64: /* Byte swapped big endian to little endian */
         *v = ((*v & 0xFFFF000000000000LL) >> 48) |
              ((*v & 0x0000FFFF00000000LL) >> 16) |
              ((*v & 0x00000000FFFF0000LL) << 16) |
@@ -577,15 +593,15 @@ static tng_function_status tng_swap_byte_order_little_endian_64
 
         return(TNG_SUCCESS);
 
-    case TNG_BIG_ENDIAN_64: // Byte order is reversed.
-        *v = ((*v & 0xFF00000000000000LL) >> 56) | // Move first byte to end
-             ((*v & 0x00FF000000000000LL) >> 40) | // Move 2nd byte to pos 7
-             ((*v & 0x0000FF0000000000LL) >> 24) | // Move 3rd byte to pos 6
-             ((*v & 0x000000FF00000000LL) >> 8 ) | // Move 4th byte to pos 5
-             ((*v & 0x00000000FF000000LL) << 8 ) | // Move 5th byte to pos 4
-             ((*v & 0x0000000000FF0000LL) << 24) | // Move 6th byte to pos 3
-             ((*v & 0x000000000000FF00LL) << 40) | // Move 7th byte to pos 2
-             ((*v & 0x00000000000000FFLL) << 56);  // Move last byte to first
+    case TNG_BIG_ENDIAN_64: /* Byte order is reversed. */
+        *v = ((*v & 0xFF00000000000000LL) >> 56) | /* Move first byte to end */
+             ((*v & 0x00FF000000000000LL) >> 40) | /* Move 2nd byte to pos 7 */
+             ((*v & 0x0000FF0000000000LL) >> 24) | /* Move 3rd byte to pos 6 */
+             ((*v & 0x000000FF00000000LL) >> 8 ) | /* Move 4th byte to pos 5 */
+             ((*v & 0x00000000FF000000LL) << 8 ) | /* Move 5th byte to pos 4 */
+             ((*v & 0x0000000000FF0000LL) << 24) | /* Move 6th byte to pos 3 */
+             ((*v & 0x000000000000FF00LL) << 40) | /* Move 7th byte to pos 2 */
+             ((*v & 0x00000000000000FFLL) << 56);  /* Move last byte to first */
 
         return(TNG_SUCCESS);
 
@@ -709,8 +725,6 @@ static tng_function_status tng_output_file_init(tng_trajectory_t tng_data)
  */
 static tng_function_status tng_block_init(struct tng_gen_block **block_p)
 {
-//     printf("In tng_block_init\n");
-
     tng_gen_block_t block;
 
     *block_p = malloc(sizeof(struct tng_gen_block));
@@ -753,7 +767,7 @@ static tng_function_status tng_block_destroy(struct tng_gen_block **block_p)
         return(TNG_SUCCESS);
     }
 
-//     printf("Destroying block\n");
+/*     printf("Destroying block\n"); */
     if(block->name)
     {
         free(block->name);
@@ -939,7 +953,7 @@ static tng_function_status tng_block_header_read
         free(block->name);
         block->name = 0;
     }
-    len = tng_min(strlen(block->header_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(block->header_contents+offset) + 1, TNG_MAX_STR_LEN);
     if(!block->name)
     {
         block->name = malloc(len);
@@ -976,6 +990,7 @@ static tng_function_status tng_block_header_read
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 /* Disabled until it is used.*/
+/*
 // static tng_function_status tng_block_verbatim_write(tng_trajectory_t tng_data,
 //                                                     tng_gen_block_t block)
 // {
@@ -1007,7 +1022,7 @@ static tng_function_status tng_block_header_read
 //     }
 //     return(TNG_SUCCESS);
 // }
-
+*/
 /** Write the header of a data block, regardless of its type
  * @param tng_data is a trajectory data container.
  * @param block is a general block container.
@@ -1043,7 +1058,7 @@ static tng_function_status tng_block_header_write
         block->name[0] = 0;
     }
 
-    name_len = tng_min(strlen(block->name) + 1, TNG_MAX_STR_LEN);
+    name_len = tng_min_i(strlen(block->name) + 1, TNG_MAX_STR_LEN);
 
     if(hash_mode == TNG_USE_HASH)
     {
@@ -1196,11 +1211,11 @@ static tng_function_status tng_general_info_block_read
             printf("General info block contents corrupt. Hashes do not match. "
                 "%s: %d\n",
                 __FILE__, __LINE__);
-    //         return(TNG_FAILURE);
+    /*         return(TNG_FAILURE); */
         }
     }
 
-    len = tng_min(strlen(block->block_contents) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(block->block_contents) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->first_program_name, len);
     if(!temp)
     {
@@ -1213,7 +1228,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->first_program_name, block->block_contents, len);
     offset += len;
 
-    len = tng_min(strlen(block->block_contents + offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(block->block_contents + offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->last_program_name, len);
     if(!temp)
     {
@@ -1226,7 +1241,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->last_program_name, block->block_contents, len);
     offset += len;
 
-    len = tng_min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->first_user_name, len);
     if(!temp)
     {
@@ -1239,7 +1254,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->first_user_name, block->block_contents+offset, len);
     offset += len;
 
-    len = tng_min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->last_user_name, len);
     if(!temp)
     {
@@ -1252,7 +1267,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->last_user_name, block->block_contents+offset, len);
     offset += len;
 
-    len = tng_min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->first_computer_name, len);
     if(!temp)
     {
@@ -1265,7 +1280,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->first_computer_name, block->block_contents+offset, len);
     offset += len;
 
-    len = tng_min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->last_computer_name, len);
     if(!temp)
     {
@@ -1278,7 +1293,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->last_computer_name, block->block_contents+offset, len);
     offset += len;
 
-    len = tng_min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->first_pgp_signature, len);
     if(!temp)
     {
@@ -1291,7 +1306,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->first_pgp_signature, block->block_contents+offset, len);
     offset += len;
 
-    len = tng_min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->last_pgp_signature, len);
     if(!temp)
     {
@@ -1304,7 +1319,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->last_pgp_signature, block->block_contents+offset, len);
     offset += len;
 
-    len = tng_min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->forcefield_name, len);
     if(!temp)
     {
@@ -1572,23 +1587,23 @@ static tng_function_status tng_general_info_block_write
     strcpy(block->name, "GENERAL INFO");
     block->id = TNG_GENERAL_INFO;
 
-    first_program_name_len = tng_min(strlen(tng_data->first_program_name) + 1,
+    first_program_name_len = tng_min_i(strlen(tng_data->first_program_name) + 1,
                            TNG_MAX_STR_LEN);
-    last_program_name_len = tng_min(strlen(tng_data->last_program_name) + 1,
+    last_program_name_len = tng_min_i(strlen(tng_data->last_program_name) + 1,
                            TNG_MAX_STR_LEN);
-    first_user_name_len = tng_min(strlen(tng_data->first_user_name) + 1,
+    first_user_name_len = tng_min_i(strlen(tng_data->first_user_name) + 1,
                         TNG_MAX_STR_LEN);
-    last_user_name_len = tng_min(strlen(tng_data->last_user_name) + 1,
+    last_user_name_len = tng_min_i(strlen(tng_data->last_user_name) + 1,
                         TNG_MAX_STR_LEN);
-    first_computer_name_len = tng_min(strlen(tng_data->first_computer_name) + 1,
+    first_computer_name_len = tng_min_i(strlen(tng_data->first_computer_name) + 1,
                             TNG_MAX_STR_LEN);
-    last_computer_name_len = tng_min(strlen(tng_data->last_computer_name) + 1,
+    last_computer_name_len = tng_min_i(strlen(tng_data->last_computer_name) + 1,
                             TNG_MAX_STR_LEN);
-    first_pgp_signature_len = tng_min(strlen(tng_data->first_pgp_signature) + 1,
+    first_pgp_signature_len = tng_min_i(strlen(tng_data->first_pgp_signature) + 1,
                             TNG_MAX_STR_LEN);
-    last_pgp_signature_len = tng_min(strlen(tng_data->last_pgp_signature) + 1,
+    last_pgp_signature_len = tng_min_i(strlen(tng_data->last_pgp_signature) + 1,
                             TNG_MAX_STR_LEN);
-    forcefield_name_len = tng_min(strlen(tng_data->forcefield_name) + 1,
+    forcefield_name_len = tng_min_i(strlen(tng_data->forcefield_name) + 1,
                               TNG_MAX_STR_LEN);
 
     block->block_contents_size = sizeof(tng_data->time) +
@@ -1806,7 +1821,7 @@ static tng_function_status tng_chain_data_read(tng_trajectory_t tng_data,
     }
     *offset += sizeof(chain->id);
 
-    len = tng_min(strlen(block->block_contents+*offset) + 1,
+    len = tng_min_i(strlen(block->block_contents+*offset) + 1,
             TNG_MAX_STR_LEN);
     chain->name = malloc(len);
     strncpy(chain->name,
@@ -1857,7 +1872,7 @@ static tng_function_status tng_chain_data_write(tng_trajectory_t tng_data,
     }
     *offset += sizeof(chain->id);
 
-    len = tng_min(strlen(chain->name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(chain->name) + 1, TNG_MAX_STR_LEN);
     strncpy(block->block_contents + *offset, chain->name, len);
     *offset += len;
 
@@ -1906,7 +1921,7 @@ static tng_function_status tng_residue_data_read(tng_trajectory_t tng_data,
     }
     *offset += sizeof(residue->id);
 
-    len = tng_min(strlen(block->block_contents+*offset) + 1,
+    len = tng_min_i(strlen(block->block_contents+*offset) + 1,
             TNG_MAX_STR_LEN);
     residue->name = malloc(len);
     strncpy(residue->name,
@@ -1957,7 +1972,7 @@ static tng_function_status tng_residue_data_write(tng_trajectory_t tng_data,
     }
     *offset += sizeof(residue->id);
 
-    len = tng_min(strlen(residue->name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(residue->name) + 1, TNG_MAX_STR_LEN);
     strncpy(block->block_contents + *offset, residue->name, len);
     *offset += len;
 
@@ -2006,14 +2021,14 @@ static tng_function_status tng_atom_data_read(tng_trajectory_t tng_data,
     }
     *offset += sizeof(atom->id);
 
-    len = tng_min(strlen(block->block_contents+*offset) + 1,
+    len = tng_min_i(strlen(block->block_contents+*offset) + 1,
             TNG_MAX_STR_LEN);
     atom->name = malloc(len);
     strncpy(atom->name,
             block->block_contents+*offset, len);
     *offset += len;
 
-    len = tng_min(strlen(block->block_contents+*offset) + 1,
+    len = tng_min_i(strlen(block->block_contents+*offset) + 1,
             TNG_MAX_STR_LEN);
     atom->atom_type = malloc(len);
     strncpy(atom->atom_type,
@@ -2051,11 +2066,11 @@ static tng_function_status tng_atom_data_write(tng_trajectory_t tng_data,
     }
     *offset += sizeof(atom->id);
 
-    len = tng_min(strlen(atom->name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(atom->name) + 1, TNG_MAX_STR_LEN);
     strncpy(block->block_contents + *offset, atom->name, len);
     *offset += len;
 
-    len = tng_min(strlen(atom->atom_type) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(atom->atom_type) + 1, TNG_MAX_STR_LEN);
     strncpy(block->block_contents + *offset, atom->atom_type, len);
     *offset += len;
 
@@ -2202,8 +2217,8 @@ static tng_function_status tng_molecules_block_read
         }
         offset += sizeof(molecule->id);
 
-//         printf("Read id: %"PRId64" offset: %d\n", molecule->id, offset);
-        len = tng_min(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+/*         printf("Read id: %"PRId64" offset: %d\n", molecule->id, offset);*/
+        len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
         molecule->name = malloc(len);
         strncpy(molecule->name, block->block_contents+offset, len);
         offset += len;
@@ -2542,7 +2557,7 @@ static tng_function_status tng_molecules_block_write
             }
             molecule->name[0] = 0;
         }
-        len += tng_min(strlen(molecule->name) + 1, TNG_MAX_STR_LEN);
+        len += tng_min_i(strlen(molecule->name) + 1, TNG_MAX_STR_LEN);
 
         chain = molecule->chains;
         for(j = molecule->n_chains; j--;)
@@ -2560,7 +2575,7 @@ static tng_function_status tng_molecules_block_write
                 }
                 chain->name[0] = 0;
             }
-            len += tng_min(strlen(chain->name) + 1, TNG_MAX_STR_LEN);
+            len += tng_min_i(strlen(chain->name) + 1, TNG_MAX_STR_LEN);
 
             len += sizeof(chain->n_residues);
 
@@ -2583,7 +2598,7 @@ static tng_function_status tng_molecules_block_write
                 }
                 residue->name[0] = 0;
             }
-            len += tng_min(strlen(residue->name) + 1, TNG_MAX_STR_LEN);
+            len += tng_min_i(strlen(residue->name) + 1, TNG_MAX_STR_LEN);
 
             len += sizeof(residue->n_atoms);
 
@@ -2605,7 +2620,7 @@ static tng_function_status tng_molecules_block_write
                 }
                 atom->name[0] = 0;
             }
-            len += tng_min(strlen(atom->name) + 1, TNG_MAX_STR_LEN);
+            len += tng_min_i(strlen(atom->name) + 1, TNG_MAX_STR_LEN);
 
             if(!atom->atom_type)
             {
@@ -2618,7 +2633,7 @@ static tng_function_status tng_molecules_block_write
                 }
                 atom->atom_type[0] = 0;
             }
-            len += tng_min(strlen(atom->atom_type) + 1, TNG_MAX_STR_LEN);
+            len += tng_min_i(strlen(atom->atom_type) + 1, TNG_MAX_STR_LEN);
 
             atom++;
         }
@@ -2686,7 +2701,6 @@ static tng_function_status tng_molecules_block_write
     for(i = 0; i < tng_data->n_molecules; i++)
     {
         molecule = &tng_data->molecules[i];
-//         printf("i=%d\n", i);
         memcpy(block->block_contents+offset, &molecule->id,
                sizeof(molecule->id));
         if(tng_data->output_endianness_swap_func_64)
@@ -2701,8 +2715,8 @@ static tng_function_status tng_molecules_block_write
         }
         offset += sizeof(molecule->id);
 
-//         printf("Wrote id: %"PRId64" offset: %d\n", molecule->id, offset);
-        len = tng_min(strlen(molecule->name) + 1, TNG_MAX_STR_LEN);
+/*         printf("Wrote id: %"PRId64" offset: %d\n", molecule->id, offset); */
+        len = tng_min_i(strlen(molecule->name) + 1, TNG_MAX_STR_LEN);
         strncpy(block->block_contents + offset, molecule->name, len);
         offset += len;
 
@@ -2967,7 +2981,7 @@ static tng_function_status tng_frame_set_block_read
             printf("Frame set block contents corrupt. File pos %d Hashes do not match. "
                 "%s: %d\n",
                 file_pos, __FILE__, __LINE__);
-    //         return(TNG_FAILURE);
+    /*         return(TNG_FAILURE); */
         }
     }
 
@@ -3217,7 +3231,8 @@ static tng_function_status tng_frame_set_block_write
 {
     char *temp_name;
     int64_t i;
-    int offset = 0, name_len;
+    int offset = 0;
+    unsigned int name_len;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
 
@@ -3509,7 +3524,7 @@ static tng_function_status tng_trajectory_mapping_block_read
             printf("Particle mapping block contents corrupt. Hashes do not match. "
                 "%s: %d\n",
                 __FILE__, __LINE__);
-    //         return(TNG_FAILURE);
+    /*         return(TNG_FAILURE); */
         }
     }
 
@@ -3611,7 +3626,8 @@ static tng_function_status tng_trajectory_mapping_block_write
                  const char hash_mode)
 {
     char *temp_name;
-    int i, offset = 0, name_len;
+    int i, offset = 0;
+    unsigned int name_len;
     tng_particle_mapping_t mapping =
     &tng_data->current_trajectory_frame_set.mappings[mapping_block_nr];
 
@@ -4085,14 +4101,14 @@ static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
     dest = malloc(max_len);
 
     stat = compress(dest, &max_len, start_pos, len);
-    if(stat != Z_OK)
+    if(stat != (unsigned long)Z_OK)
     {
         free(dest);
-        if(stat == Z_MEM_ERROR)
+        if(stat == (unsigned long)Z_MEM_ERROR)
         {
             printf("Not enough memory. ");
         }
-        else if(stat == Z_BUF_ERROR)
+        else if(stat == (unsigned long)Z_BUF_ERROR)
         {
             printf("Destination buffer too small. ");
         }
@@ -4131,7 +4147,7 @@ static tng_function_status tng_gzip_uncompress(tng_trajectory_t tng_data,
     int offset;
     (void)tng_data;
 
-    offset = start_pos - (void *)block->block_contents;
+    offset = (char *)start_pos - (char *)block->block_contents;
 
     dest = malloc(uncompressed_len);
 
@@ -4141,15 +4157,15 @@ static tng_function_status tng_gzip_uncompress(tng_trajectory_t tng_data,
     if(stat != Z_OK)
     {
         free(dest);
-        if(stat == Z_MEM_ERROR)
+        if(stat == (unsigned long)Z_MEM_ERROR)
         {
             printf("Not enough memory. ");
         }
-        else if(stat == Z_BUF_ERROR)
+        else if(stat == (unsigned long)Z_BUF_ERROR)
         {
             printf("Destination buffer too small. ");
         }
-        else if(stat == Z_DATA_ERROR)
+        else if(stat == (unsigned long)Z_DATA_ERROR)
         {
             printf("Data corrupt. ");
         }
@@ -4230,8 +4246,8 @@ static tng_function_status tng_allocate_particle_data_mem
         }
     }
     data->n_frames = n_frames;
-    n_frames = tng_max(1, n_frames);
-    data->stride_length = tng_max(1, stride_length);
+    n_frames = tng_max_i(1, n_frames);
+    data->stride_length = tng_max_i(1, stride_length);
     data->n_values_per_frame = n_values_per_frame;
     frame_alloc = (n_frames % stride_length) ? n_frames / stride_length + 1 : n_frames / stride_length;
 
@@ -4564,7 +4580,7 @@ static tng_function_status tng_particle_data_read
             break;
     #ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
-//             printf("Before uncompression: %"PRId64"\n", block->block_contents_size);
+/*             printf("Before uncompression: %"PRId64"\n", block->block_contents_size); */
             if(tng_gzip_uncompress(tng_data, block,
                                    block->block_contents + *offset,
                                    data_size) != TNG_SUCCESS)
@@ -4573,7 +4589,7 @@ static tng_function_status tng_particle_data_read
                     __LINE__);
                 return(TNG_CRITICAL);
             }
-//             printf("After uncompression: %"PRId64"\n", block->block_contents_size);
+/*             printf("After uncompression: %"PRId64"\n", block->block_contents_size); */
             break;
     #endif
         }
@@ -4607,7 +4623,7 @@ static tng_function_status tng_particle_data_read
                 second_dim_values = first_dim_values[j];
                 for(k = 0; k < n_values; k++)
                 {
-                    len = tng_min(strlen(block->block_contents+*offset) + 1,
+                    len = tng_min_i(strlen(block->block_contents+*offset) + 1,
                               TNG_MAX_STR_LEN);
                     if(second_dim_values[k])
                     {
@@ -4693,7 +4709,8 @@ static tng_function_status tng_particle_data_block_write
 {
     int64_t n_particles, num_first_particle, n_frames, stride_length;
     int64_t frame_step;
-    int i, j, k, offset = 0, size, len, data_start_pos;
+    int i, j, k, offset = 0, size, data_start_pos;
+    unsigned int len;
     char dependency, temp, *temp_name;
     double multiplier;
     char ***first_dim_values, **second_dim_values;
@@ -4722,7 +4739,7 @@ static tng_function_status tng_particle_data_block_write
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         data = &frame_set->tr_particle_data[block_index];
-        stride_length = tng_max(1, data->stride_length);
+        stride_length = tng_max_i(1, data->stride_length);
     }
     else
     {
@@ -4766,13 +4783,13 @@ static tng_function_status tng_particle_data_block_write
     /* If writing frame independent data data->n_frames is 0, but n_frames
        is used for the loop writing the data (and reserving memory) and needs
        to be at least 1 */
-    n_frames = tng_max(1, data->n_frames);
+    n_frames = tng_max_i(1, data->n_frames);
 
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         /* If the frame set is finished before writing the full number of frames
            make sure the data block is not longer than the frame set. */
-        n_frames = tng_min(n_frames, frame_set->n_frames);
+        n_frames = tng_min_i(n_frames, frame_set->n_frames);
     }
 
     frame_step = (n_frames % stride_length) ? n_frames / stride_length + 1:
@@ -5144,7 +5161,7 @@ static tng_function_status tng_particle_data_block_write
             break;
     #ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
-    //         printf("Before compression: %"PRId64"\n", block->block_contents_size);
+    /*         printf("Before compression: %"PRId64"\n", block->block_contents_size);*/
             if(tng_gzip_compress(tng_data, block,
                                 block->block_contents + data_start_pos,
                                 block->block_contents_size - data_start_pos) !=
@@ -5154,7 +5171,7 @@ static tng_function_status tng_particle_data_block_write
                     __LINE__);
                 return(TNG_CRITICAL);
             }
-    //         printf("After compression: %"PRId64"\n", block->block_contents_size);
+    /*         printf("After compression: %"PRId64"\n", block->block_contents_size);*/
             break;
     #endif
         }
@@ -5268,8 +5285,8 @@ static tng_function_status tng_allocate_data_mem
         }
     }
     data->n_frames = n_frames;
-    data->stride_length = tng_max(1, stride_length);
-    n_frames = tng_max(1, n_frames);
+    data->stride_length = tng_max_i(1, stride_length);
+    n_frames = tng_max_i(1, n_frames);
     data->n_values_per_frame = n_values_per_frame;
     frame_alloc = (n_frames % stride_length) ? n_frames / stride_length + 1 : n_frames / stride_length;
 
@@ -5367,7 +5384,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
     &tng_data->current_trajectory_frame_set;
     char block_type_flag;
 
-//     printf("%s\n", block->name);
+/*     printf("%s\n", block->name);*/
 
     switch(datatype)
     {
@@ -5442,7 +5459,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
 #ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
             data_size = n_frames_div * size * n_values;
-    //         printf("Before compression: %"PRId64"\n", block->block_contents_size);
+    /*         printf("Before compression: %"PRId64"\n", block->block_contents_size); */
             if(tng_gzip_uncompress(tng_data, block,
                                    block->block_contents + *offset,
                                    data_size) != TNG_SUCCESS)
@@ -5451,7 +5468,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
                     __LINE__);
                 return(TNG_CRITICAL);
             }
-    //         printf("After compression: %"PRId64"\n", block->block_contents_size);
+    /*         printf("After compression: %"PRId64"\n", block->block_contents_size); */
             break;
 #endif
         }
@@ -5479,7 +5496,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
         {
             for(j = 0; j < n_values; j++)
             {
-                len = tng_min(strlen(block->block_contents+*offset) + 1,
+                len = tng_min_i(strlen(block->block_contents+*offset) + 1,
                               TNG_MAX_STR_LEN);
                 if(data->strings[i][j])
                 {
@@ -5558,7 +5575,8 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                                                 const char hash_mode)
 {
     int64_t n_frames, stride_length, frame_step;
-    int i, j, offset = 0, size, len;
+    int i, j, offset = 0, size;
+    unsigned int len;
 #ifdef USE_ZLIB
     int data_start_pos;
 #endif
@@ -5589,7 +5607,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         data = &frame_set->tr_data[block_index];
-        stride_length = tng_max(1, data->stride_length);
+        stride_length = tng_max_i(1, data->stride_length);
     }
     else
     {
@@ -5633,13 +5651,13 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     /* If writing frame independent data data->n_frames is 0, but n_frames
        is used for the loop writing the data (and reserving memory) and needs
        to be at least 1 */
-    n_frames = tng_max(1, data->n_frames);
+    n_frames = tng_max_i(1, data->n_frames);
 
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         /* If the frame set is finished before writing the full number of frames
            make sure the data block is not longer than the frame set. */
-        n_frames = tng_min(n_frames, frame_set->n_frames);
+        n_frames = tng_min_i(n_frames, frame_set->n_frames);
     }
 
     frame_step = (n_frames % stride_length) ? n_frames / stride_length + 1:
@@ -5936,7 +5954,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         {
     #ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
-    //         printf("Before compression: %"PRId64"\n", block->block_contents_size);
+    /*         printf("Before compression: %"PRId64"\n", block->block_contents_size); */
             if(tng_gzip_compress(tng_data, block,
                                 block->block_contents + data_start_pos,
                                 block->block_contents_size - data_start_pos) !=
@@ -5946,7 +5964,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                     __LINE__);
                 return(TNG_CRITICAL);
             }
-    //         printf("After compression: %"PRId64"\n", block->block_contents_size);
+    /*         printf("After compression: %"PRId64"\n", block->block_contents_size); */
             break;
     #endif
         }
@@ -6029,7 +6047,7 @@ static tng_function_status tng_data_block_contents_read
         {
             printf("'%s' data block contents corrupt. Hashes do not match. %s: %d\n",
                 block->name, __FILE__, __LINE__);
-    //         return(TNG_FAILURE);
+    /*         return(TNG_FAILURE); */
         }
     }
 
@@ -6519,8 +6537,8 @@ static tng_function_status tng_frame_set_pointers_update
 
     return(TNG_SUCCESS);
 }
-
-// /** Move the blocks in a frame set so that there is no unused space between
+/*
+// ** Move the blocks in a frame set so that there is no unused space between
 //  * them. This can only be done on the last frame set in the file and should
 //  * be done e.g. if the last frame set in the file has fewer frames than
 //  * default or after compressing data blocks in a frame set.
@@ -6529,7 +6547,7 @@ static tng_function_status tng_frame_set_pointers_update
 //  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the frame set
 //  * cannot be aligned or TNG_CRITICAL (2) if a major error has occured.
 //  * FIXME: This function is not finished!!!
-//  */
+//  *
 // static tng_function_status tng_frame_set_align(tng_trajectory_t tng_data)
 // {
 //     tng_gen_block_t block;
@@ -6597,7 +6615,7 @@ static tng_function_status tng_frame_set_pointers_update
 //
 //     return(TNG_SUCCESS);
 // }
-
+*/
 /** Finish writing the current frame set. Update the number of frames
  * and the hashes of the frame set and all its data blocks (if hash_mode
  * == TNG_USE_HASH).
@@ -6630,7 +6648,7 @@ static tng_function_status tng_frame_set_finalize
     }
 
     tng_block_init(&block);
-//     output_file_pos = ftell(tng_data->output_file);
+/*     output_file_pos = ftell(tng_data->output_file); */
 
     tng_data->input_file = tng_data->output_file;
 
@@ -6695,24 +6713,24 @@ static tng_function_status tng_frame_set_finalize
     return(TNG_SUCCESS);
 }
 
-
-// /** Sets the name of a file contents block
+/*
+// ** Sets the name of a file contents block
 //  * @param tng_data is a trajectory data container.
 //  * @param block is the block, of which to change names.
 //  * @param new_name is the new name of the block.
 //  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
 //  * error has occured.
-//  */
+//
 // static tng_function_status tng_block_name_set(tng_trajectory_t tng_data,
 //                                               tng_gen_block_t block,
 //                                               const char *new_name)
 // {
 //     int len;
 //
-//     len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+//     len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 //
-//     /* If the currently stored string length is not enough to store the new
-//      * string it is freed and reallocated. */
+//      * If the currently stored string length is not enough to store the new
+//      * string it is freed and reallocated. *
 //     if(block->name && strlen(block->name) < len)
 //     {
 //         free(block->name);
@@ -6733,15 +6751,15 @@ static tng_function_status tng_frame_set_finalize
 //
 //     return(TNG_SUCCESS);
 // }
-
+*/
 tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
                                       tng_atom_t atom,
                                       const char *new_name)
 {
-    int len;
+    unsigned int len;
     (void)tng_data;
 
-    len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -6770,10 +6788,10 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
                                       tng_atom_t atom,
                                       const char *new_type)
 {
-    int len;
+    unsigned int len;
     (void)tng_data;
 
-    len = tng_min(strlen(new_type) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(new_type) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -6930,10 +6948,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_set
                  tng_molecule_t molecule,
                  const char *new_name)
 {
-    int len;
+    unsigned int len;
     (void)tng_data;
 
-    len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -7134,10 +7152,10 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
                  tng_chain_t chain,
                  const char *new_name)
 {
-    int len;
+    unsigned int len;
     (void)tng_data;
 
-    len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -7297,10 +7315,10 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_set(tng_trajectory_t tng_
                                                            tng_residue_t residue,
                                                            const char *new_name)
 {
-    int len;
+    unsigned int len;
     (void)tng_data;
 
-    len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -7516,7 +7534,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
     strncpy(name, mol->name, max_len - 1);
     name[max_len - 1] = 0;
 
-    if(strlen(mol->name) > max_len - 1)
+    if(strlen(mol->name) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -7568,7 +7586,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_of_particle_nr_get
     strncpy(name, atom->residue->chain->name, max_len - 1);
     name[max_len - 1] = 0;
 
-    if(strlen(atom->residue->chain->name) > max_len - 1)
+    if(strlen(atom->residue->chain->name) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -7620,7 +7638,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
     strncpy(name, atom->residue->name, max_len - 1);
     name[max_len - 1] = 0;
 
-    if(strlen(atom->residue->name) > max_len - 1)
+    if(strlen(atom->residue->name) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -7668,7 +7686,7 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_name_of_particle_nr_get
     strncpy(name, atom->name, max_len - 1);
     name[max_len - 1] = 0;
 
-    if(strlen(atom->name) > max_len - 1)
+    if(strlen(atom->name) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -7716,7 +7734,7 @@ tng_function_status tng_atom_type_of_particle_nr_get
     strncpy(type, atom->atom_type, max_len - 1);
     type[max_len - 1] = 0;
 
-    if(strlen(atom->atom_type) > max_len - 1)
+    if(strlen(atom->atom_type) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -8458,7 +8476,7 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_get(const tng_trajectory_t 
     strncpy(file_name, tng_data->input_file_path, max_len - 1);
     file_name[max_len - 1] = 0;
 
-    if(strlen(tng_data->input_file_path) > max_len - 1)
+    if(strlen(tng_data->input_file_path) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -8468,7 +8486,7 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_get(const tng_trajectory_t 
 tng_function_status DECLSPECDLLEXPORT tng_input_file_set(tng_trajectory_t tng_data,
                                                          const char *file_name)
 {
-    int len;
+    unsigned int len;
     char *temp;
 
     if(tng_data->input_file_path && strcmp(tng_data->input_file_path,
@@ -8482,7 +8500,7 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_set(tng_trajectory_t tng_da
         fclose(tng_data->input_file);
     }
 
-    len = tng_min(strlen(file_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(file_name) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->input_file_path, len);
     if(!temp)
     {
@@ -8504,7 +8522,7 @@ tng_function_status tng_output_file_get(const tng_trajectory_t tng_data,
     strncpy(file_name, tng_data->output_file_path, max_len - 1);
     file_name[max_len - 1] = 0;
 
-    if(strlen(tng_data->output_file_path) > max_len - 1)
+    if(strlen(tng_data->output_file_path) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -8528,7 +8546,7 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_set(tng_trajectory_t tng_d
         fclose(tng_data->output_file);
     }
 
-    len = tng_min(strlen(file_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(file_name) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->output_file_path, len);
     if(!temp)
     {
@@ -8686,7 +8704,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_program_name_get
     strncpy(name, tng_data->first_program_name, max_len - 1);
     name[max_len - 1] = 0;
 
-    if(strlen(tng_data->first_program_name) > max_len - 1)
+    if(strlen(tng_data->first_program_name) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -8696,9 +8714,9 @@ tng_function_status DECLSPECDLLEXPORT tng_first_program_name_get
 tng_function_status DECLSPECDLLEXPORT tng_first_program_name_set(tng_trajectory_t tng_data,
                                                                  const char *new_name)
 {
-    int len;
+    unsigned int len;
 
-    len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     if(tng_data->first_program_name && strlen(tng_data->first_program_name) < len)
     {
@@ -8728,7 +8746,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_program_name_get
     strncpy(name, tng_data->last_program_name, max_len - 1);
     name[max_len - 1] = 0;
 
-    if(strlen(tng_data->last_program_name) > max_len - 1)
+    if(strlen(tng_data->last_program_name) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -8739,9 +8757,9 @@ tng_function_status DECLSPECDLLEXPORT tng_last_program_name_set
                     (tng_trajectory_t tng_data,
                      const char *new_name)
 {
-    int len;
+    unsigned int len;
 
-    len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     if(tng_data->last_program_name && strlen(tng_data->last_program_name) < len)
     {
@@ -8771,7 +8789,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_user_name_get
     strncpy(name, tng_data->first_user_name, max_len - 1);
     name[max_len - 1] = 0;
 
-    if(strlen(tng_data->first_user_name) > max_len - 1)
+    if(strlen(tng_data->first_user_name) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -8782,9 +8800,9 @@ tng_function_status DECLSPECDLLEXPORT tng_first_user_name_set
                     (tng_trajectory_t tng_data,
                      const char *new_name)
 {
-    int len;
+    unsigned int len;
 
-    len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -8816,7 +8834,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_user_name_get
     strncpy(name, tng_data->last_user_name, max_len - 1);
     name[max_len - 1] = 0;
 
-    if(strlen(tng_data->last_user_name) > max_len - 1)
+    if(strlen(tng_data->last_user_name) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -8827,9 +8845,9 @@ tng_function_status DECLSPECDLLEXPORT tng_last_user_name_set
                     (tng_trajectory_t tng_data,
                      const char *new_name)
 {
-    int len;
+    unsigned int len;
 
-    len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -8861,7 +8879,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_get
     strncpy(name, tng_data->first_computer_name, max_len - 1);
     name[max_len - 1] = 0;
 
-    if(strlen(tng_data->first_computer_name) > max_len - 1)
+    if(strlen(tng_data->first_computer_name) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -8872,9 +8890,9 @@ tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_set
                     (tng_trajectory_t tng_data,
                      const char *new_name)
 {
-    int len;
+    unsigned int len;
 
-    len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -8906,7 +8924,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_get
     strncpy(name, tng_data->last_computer_name, max_len - 1);
     name[max_len - 1] = 0;
 
-    if(strlen(tng_data->last_computer_name) > max_len - 1)
+    if(strlen(tng_data->last_computer_name) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -8917,9 +8935,9 @@ tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_set
                     (tng_trajectory_t tng_data,
                      const char *new_name)
 {
-    int len;
+    unsigned int len;
 
-    len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -8952,7 +8970,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_signature_get
     strncpy(signature, tng_data->first_pgp_signature, max_len - 1);
     signature[max_len - 1] = 0;
 
-    if(strlen(tng_data->first_pgp_signature) > max_len - 1)
+    if(strlen(tng_data->first_pgp_signature) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -8963,9 +8981,9 @@ tng_function_status DECLSPECDLLEXPORT tng_first_signature_set
                     (tng_trajectory_t tng_data,
                      const char *signature)
 {
-    int len;
+    unsigned int len;
 
-    len = tng_min(strlen(signature) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(signature) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -8998,7 +9016,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_signature_get
     strncpy(signature, tng_data->last_pgp_signature, max_len - 1);
     signature[max_len - 1] = 0;
 
-    if(strlen(tng_data->last_pgp_signature) > max_len - 1)
+    if(strlen(tng_data->last_pgp_signature) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -9009,9 +9027,9 @@ tng_function_status DECLSPECDLLEXPORT tng_last_signature_set
                     (tng_trajectory_t tng_data,
                      const char *signature)
 {
-    int len;
+    unsigned int len;
 
-    len = tng_min(strlen(signature) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(signature) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -9044,7 +9062,7 @@ tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_get
     strncpy(name, tng_data->forcefield_name, max_len - 1);
     name[max_len - 1] = 0;
 
-    if(strlen(tng_data->forcefield_name) > max_len - 1)
+    if(strlen(tng_data->forcefield_name) > (unsigned int)max_len - 1)
     {
         return(TNG_FAILURE);
     }
@@ -9055,9 +9073,9 @@ tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_set
                     (tng_trajectory_t tng_data,
                      const char *new_name)
 {
-    int len;
+    unsigned int len;
 
-    len = tng_min(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -9765,7 +9783,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
     tng_gen_block_t block;
     tng_function_status stat;
 
-    first_frame = tng_max(frame_set->first_frame, 0);
+    first_frame = tng_max_i(frame_set->first_frame, 0);
     last_frame = first_frame + frame_set->n_frames - 1;
     n_frames_per_frame_set = tng_data->frame_set_n_frames;
     long_stride_length = tng_data->long_stride_length;
@@ -9828,7 +9846,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
         }
     }
 
-    first_frame = tng_max(frame_set->first_frame, 0);
+    first_frame = tng_max_i(frame_set->first_frame, 0);
     last_frame = first_frame + frame_set->n_frames - 1;
 
     if(frame >= first_frame && frame <= last_frame)
@@ -9865,7 +9883,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max(frame_set->first_frame, 0);
+        first_frame = tng_max_i(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -9902,7 +9920,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max(frame_set->first_frame, 0);
+        first_frame = tng_max_i(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -9937,7 +9955,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max(frame_set->first_frame, 0);
+        first_frame = tng_max_i(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -9974,7 +9992,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max(frame_set->first_frame, 0);
+        first_frame = tng_max_i(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -10011,7 +10029,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max(frame_set->first_frame, 0);
+        first_frame = tng_max_i(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -10046,7 +10064,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max(frame_set->first_frame, 0);
+        first_frame = tng_max_i(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -10082,7 +10100,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max(frame_set->first_frame, 0);
+        first_frame = tng_max_i(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -10792,7 +10810,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
     }
 
     data->datatype = datatype;
-    data->stride_length = tng_max(stride_length, 1);
+    data->stride_length = tng_max_i(stride_length, 1);
     data->n_values_per_frame = n_values_per_frame;
     data->n_frames = n_frames;
     data->codec_id = codec_id;
@@ -10840,7 +10858,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
                 first_dim_values = data->strings[i];
                 for(j = 0; j < n_values_per_frame; j++)
                 {
-                    len = tng_min(strlen(new_data_c) + 1,
+                    len = tng_min_i(strlen(new_data_c) + 1,
                                 TNG_MAX_STR_LEN);
                     if(first_dim_values[j])
                     {
@@ -10936,7 +10954,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
         data->strings = 0;
     }
 
-    data->stride_length = tng_max(stride_length, 1);
+    data->stride_length = tng_max_i(stride_length, 1);
     data->n_values_per_frame = n_values_per_frame;
     data->n_frames = n_frames;
     data->codec_id = codec_id;
@@ -10985,7 +11003,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
                     second_dim_values = first_dim_values[j];
                     for(k = 0; k < n_values_per_frame; k++)
                     {
-                        len = tng_min(strlen(new_data_c) + 1,
+                        len = tng_min_i(strlen(new_data_c) + 1,
                                 TNG_MAX_STR_LEN);
                         if(second_dim_values[k])
                         {
@@ -11356,7 +11374,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
 
     n_values_per_frame = data.n_values_per_frame;
 
-    file_pos = (frame_nr - tng_max(frame_set->first_frame,
+    file_pos = (frame_nr - tng_max_i(frame_set->first_frame,
                                data.first_frame_with_data)) /
                 data.stride_length;
     file_pos *= size * n_values_per_frame;
@@ -11489,8 +11507,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
     {
         last_frame = frame_set->first_frame +
                      frame_set->n_frames - 1;
-//         printf("Frame %"PRId64" not found. Last frame: %"PRId64"\n", frame_nr,
-//                last_frame);
+/*         printf("Frame %"PRId64" not found. Last frame: %"PRId64"\n", frame_nr,
+                  last_frame); */
         /* If the wanted frame would be in the frame set after the last
          * frame set create a new frame set. */
         if(stat == TNG_FAILURE &&
@@ -11888,7 +11906,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
 
     n_values_per_frame = data.n_values_per_frame;
 
-    file_pos = (frame_nr - tng_max(frame_set->first_frame,
+    file_pos = (frame_nr - tng_max_i(frame_set->first_frame,
                                data.first_frame_with_data)) /
                 data.stride_length;
     file_pos *= block_n_particles * size * n_values_per_frame;
@@ -12242,7 +12260,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
         }
     }
 
-    *n_frames = tng_max(1, data->n_frames);
+    *n_frames = tng_max_i(1, data->n_frames);
     *n_values_per_frame = data->n_values_per_frame;
     *type = data->datatype;
 
@@ -12734,14 +12752,14 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
 
         frame_size = size * (*n_values_per_frame);
 
-        last_frame_pos = tng_min(n_frames,
+        last_frame_pos = tng_min_i(n_frames,
                                  end_frame_nr - current_frame_pos);
 
         n_frames_div = current_frame_pos / *stride_length;
         n_frames_div_2 = (last_frame_pos % *stride_length) ?
                        last_frame_pos / *stride_length + 1:
                        last_frame_pos / *stride_length;
-        n_frames_div_2 = tng_max(1, n_frames_div_2);
+        n_frames_div_2 = tng_max_i(1, n_frames_div_2);
 
         memcpy(*values, (char *)current_values + n_frames_div * frame_size,
                n_frames_div_2 * frame_size);
@@ -12778,14 +12796,14 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                 return(stat);
             }
 
-            last_frame_pos = tng_min(n_frames,
+            last_frame_pos = tng_min_i(n_frames,
                                      end_frame_nr - current_frame_pos);
 
             n_frames_div = current_frame_pos / *stride_length;
             n_frames_div_2 = (last_frame_pos % *stride_length) ?
                            last_frame_pos / *stride_length + 1:
                            last_frame_pos / *stride_length;
-            n_frames_div_2 = tng_max(1, n_frames_div_2);
+            n_frames_div_2 = tng_max_i(1, n_frames_div_2);
 
             memcpy((char *)*values + n_frames_div * frame_size,
                    current_values,
@@ -12813,7 +12831,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
                  char *type)
 {
     int64_t i, j, k, mapping, file_pos, i_step, block_index;
-    int len, size;
+    int size;
+    size_t len;
     tng_particle_data_t data;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
@@ -12901,7 +12920,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
         *n_particles = tng_data->n_particles;
     }
 
-    *n_frames = tng_max(1, data->n_frames);
+    *n_frames = tng_max_i(1, data->n_frames);
     *n_values_per_frame = data->n_values_per_frame;
     *type = data->datatype;
 
@@ -13102,7 +13121,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
         size = sizeof(double);
     }
 
-    *n_frames = tng_max(1, data->n_frames);
+    *n_frames = tng_max_i(1, data->n_frames);
     *n_values_per_frame = data->n_values_per_frame;
     *stride_length = data->stride_length;
 
@@ -13506,14 +13525,14 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
 
         frame_size = size * (*n_particles) * (*n_values_per_frame);
 
-        last_frame_pos = tng_min(n_frames,
+        last_frame_pos = tng_min_i(n_frames,
                                  end_frame_nr - current_frame_pos);
 
         n_frames_div = current_frame_pos / *stride_length;
         n_frames_div_2 = (last_frame_pos % *stride_length) ?
                        last_frame_pos / *stride_length + 1:
                        last_frame_pos / *stride_length;
-        n_frames_div_2 = tng_max(1, n_frames_div_2);
+        n_frames_div_2 = tng_max_i(1, n_frames_div_2);
 
         memcpy(*values, (char *)current_values + n_frames_div * frame_size,
                n_frames_div_2 * frame_size);
@@ -13550,14 +13569,14 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                 return(stat);
             }
 
-            last_frame_pos = tng_min(n_frames,
+            last_frame_pos = tng_min_i(n_frames,
                                      end_frame_nr - current_frame_pos);
 
             n_frames_div = current_frame_pos / *stride_length;
             n_frames_div_2 = (last_frame_pos % *stride_length) ?
                            last_frame_pos / *stride_length + 1:
                            last_frame_pos / *stride_length;
-            n_frames_div_2 = tng_max(1, n_frames_div_2);
+            n_frames_div_2 = tng_max_i(1, n_frames_div_2);
 
             memcpy((char *)*values + n_frames_div * frame_size,
                    current_values,
@@ -13585,7 +13604,7 @@ tng_function_status DECLSPECDLLEXPORT tng_time_get_str
 
     secs = tng_data->time;
 
-    time_data = localtime(&secs); // Returns a statically allocated variable.
+    time_data = localtime(&secs); /* Returns a statically allocated variable. */
     TNG_SNPRINTF(time, TNG_MAX_DATE_STR_LEN,
              "%4d-%02d-%02d %02d:%02d:%02d",
              time_data->tm_year+1900, time_data->tm_mon+1, time_data->tm_mday,
@@ -13615,7 +13634,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
     {
         tng_input_file_set(*tng_data_p, filename);
 
-        // Read the file headers
+        /* Read the file headers */
         tng_file_headers_read(*tng_data_p, TNG_USE_HASH);
     }
 

@@ -440,7 +440,7 @@ void Ptngc_comp_conv_to_huffman(unsigned int *vals, int nvals,
       int ihave=0;
       int j;
       for (j=0; j<ndict; j++)
-	if (codelength[j].dict==i)
+	if (codelength[j].dict==(unsigned int)i)
 	  {
 
 	    ihave=1;

@@ -20,12 +20,12 @@
 int main(int argc, char **argv)
 {
     tng_trajectory_t traj;
-    union data_values ***positions = 0; // A 3-dimensional array to be populated
+    union data_values ***positions = 0; /* A 3-dimensional array to be populated */
     int64_t n_particles, n_values_per_frame, n_frames, tot_n_frames;
     char data_type;
     int i, j;
     int particle = 0;
-    // Set a default frame range
+    /* Set a default frame range */
     int first_frame = 0, last_frame = 50;
     char atom_name[64], res_name[64], chain_name[64];
 
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    // A reference must be passed to allocate memory
+    /* A reference must be passed to allocate memory */
     if(tng_trajectory_init(&traj) != TNG_SUCCESS)
     {
         tng_trajectory_destroy(&traj);
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     }
     tng_input_file_set(traj, argv[1]);
 
-    // Read the file headers
+    /* Read the file headers */
     tng_file_headers_read(traj, TNG_USE_HASH);
 
     if(argc >= 3)
@@ -96,9 +96,9 @@ int main(int argc, char **argv)
         printf("Particle name not found\n");
     }
 
-    // Get the positions of all particles in the requested frame range.
-    // The positions are stored in the positions array.
-    // N.B. No proper error checks.
+    /* Get the positions of all particles in the requested frame range.
+       The positions are stored in the positions array.
+       N.B. No proper error checks. */
     if(tng_particle_data_interval_get(traj, TNG_TRAJ_POSITIONS, first_frame,
        last_frame, TNG_USE_HASH, &positions, &n_particles, &n_values_per_frame,
        &data_type) == TNG_SUCCESS)
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
         }
         else
         {
-            // Print the positions of the wanted particle (zero based)
+            /* Print the positions of the wanted particle (zero based) */
             for(i=0; i<n_frames; i++)
             {
                 printf("%d", first_frame + i);
@@ -139,7 +139,7 @@ int main(int argc, char **argv)
         printf("Cannot read positions\n");
     }
 
-    // Free memory
+    /* Free memory */
     if(positions)
     {
         tng_particle_data_values_free(traj, positions, n_frames, n_particles,

@@ -347,9 +347,9 @@ static void swap_is_better(int *input, int *minint, int *sum_normal, int *sum_sw
       swap_ints(normal,swapped);
       for (j=1; j<3; j++)
 	{
-	  if (positive_int(normal[j])>normal_max)
+	  if (positive_int(normal[j])>(unsigned int)normal_max)
 	    normal_max=positive_int(normal[j]);
-	  if (positive_int(swapped[j])>swapped_max)
+	  if (positive_int(swapped[j])>(unsigned int)swapped_max)
 	    swapped_max=positive_int(swapped[j]);
 	}
     }
