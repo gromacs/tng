@@ -805,8 +805,8 @@ static tng_function_status tng_block_header_read
     if(ftell(tng_data->input_file) < 9)
     {
         /* File is little endian */
-        if ( *(const uint8_t*)&block->header_contents_size != 0x00 &&
-             *((const uint8_t*)(&block->header_contents_size) + 7) == 0x00)
+        if ( *(const char*)&block->header_contents_size != 0x00 &&
+             *((const char*)(&block->header_contents_size) + 7) == 0x00)
         {
             /* If the architecture endianness is little endian no byte swap
              * will be needed. Otherwise use the functions to swap to little
@@ -7906,20 +7906,20 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
       /* Check the endianness of the computer */
       static int32_t endianness_32 = 0x01234567;
       /* 0x01234567 */
-      if ( *(const uint8_t*)&endianness_32 == 0x01 )
+      if ( *(const char*)&endianness_32 == 0x01 )
         {
           tng_data->endianness_32 = TNG_BIG_ENDIAN_32;
         }
 
       /* 0x67452301 */
-      else if( *(const uint8_t*)&endianness_32 == 0x67 )
+      else if( *(const char*)&endianness_32 == 0x67 )
         {
           tng_data->endianness_32 = TNG_LITTLE_ENDIAN_32;
 
         }
 
       /* 0x45670123 */
-      else if ( *(const uint8_t*)&endianness_32 == 0x45 )
+      else if ( *(const char*)&endianness_32 == 0x45 )
         {
           tng_data->endianness_32 = TNG_BYTE_PAIR_SWAP_32;
         }
@@ -7927,31 +7927,31 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
     {
       static int64_t endianness_64 = 0x0123456789ABCDEFLL;
       /* 0x0123456789ABCDEF */
-      if ( *(const uint8_t*)&endianness_64 == 0x01 )
+      if ( *(const char*)&endianness_64 == 0x01 )
         {
           tng_data->endianness_64 = TNG_BIG_ENDIAN_64;
         }
 
       /* 0xEFCDAB8967452301 */
-      else if ( *(const uint8_t*)&endianness_64 == 0xEF )
+      else if ( *(const char*)&endianness_64 == 0xEF )
         {
           tng_data->endianness_64 = TNG_LITTLE_ENDIAN_64;
         }
 
       /* 0x89ABCDEF01234567 */
-      else if ( *(const uint8_t*)&endianness_64 == 0x89 )
+      else if ( *(const char*)&endianness_64 == 0x89 )
         {
           tng_data->endianness_64 = TNG_QUAD_SWAP_64;
         }
 
       /* 0x45670123CDEF89AB */
-      else if ( *(const uint8_t*)&endianness_64 == 0x45 )
+      else if ( *(const char*)&endianness_64 == 0x45 )
         {
           tng_data->endianness_64 = TNG_BYTE_PAIR_SWAP_64;
         }
 
       /* 0x23016745AB89EFCD */
-      else if ( *(const uint8_t*)&endianness_64 == 0x23 )
+      else if ( *(const char*)&endianness_64 == 0x23 )
         {
           tng_data->endianness_64 = TNG_BYTE_SWAP_64;
         }
