@@ -2,10 +2,6 @@ if(TNG_BUILD_COMPRESSION_TESTS)
   add_subdirectory(compression)
 endif()
 
-if(NOT OPENMP_FOUND)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-endif()
-
 link_directories(${TNG_IO_BINARY_DIR}/src/lib)
 
 set(EXAMPLE_FILES_DIR ${CMAKE_BINARY_DIR}/example_files/ CACHE STRING "Directory where to find input test files and save output files.")
