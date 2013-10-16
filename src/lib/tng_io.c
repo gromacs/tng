@@ -5171,7 +5171,7 @@ static tng_function_status tng_particle_data_block_write
                     return(TNG_CRITICAL);
                 }
                 data->codec_id = TNG_UNCOMPRESSED;
-                if(fabs(multiplier - 1.0) > 0.00001)
+                if(fabs(data->compression_multiplier - 1.0) > 0.00001)
                 {
                     printf("Multiplier applied, but block was not compressed. Data will be wrong.\n");
                     printf("The block might be completely corrupted.\n");
@@ -5196,7 +5196,7 @@ static tng_function_status tng_particle_data_block_write
                     return(TNG_CRITICAL);
                 }
                 data->codec_id = TNG_UNCOMPRESSED;
-                if(fabs(multiplier - 1.0) > 0.00001)
+                if(fabs(data->compression_multiplier - 1.0) > 0.00001)
                 {
                     printf("Multiplier applied, but block was not compressed. Data will be wrong.\n");
                     printf("The block might be completely corrupted.\n");
@@ -6002,7 +6002,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                     return(TNG_CRITICAL);
                 }
                 data->codec_id = TNG_UNCOMPRESSED;
-                if(fabs(multiplier - 1.0) > 0.00001)
+                if(fabs(data->compression_multiplier - 1.0) > 0.00001)
                 {
                     printf("Multiplier applied, but block was not compressed. Data will be wrong.\n");
                     printf("The block might be completely corrupted.\n");
