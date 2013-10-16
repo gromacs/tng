@@ -5158,6 +5158,8 @@ static tng_function_status tng_particle_data_block_write
             data->codec_id = TNG_UNCOMPRESSED;
             break;
         case TNG_TNG_COMPRESSION:
+            printf("TEST: frame_step: %"PRId64", n_particles: %"PRId64", block_contents_size: %"PRId64", start_pos: %d\n",
+                   frame_step, n_particles, block->block_contents_size, data_start_pos);
             stat = tng_compress(tng_data, block, frame_step,
                                 n_particles, data->datatype,
                                 block->block_contents + data_start_pos,
