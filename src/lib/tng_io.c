@@ -389,11 +389,12 @@ static TNG_INLINE int tng_min_i(int a, int b)
     return (a < b ? a : b);
 }
 
+/*
 static TNG_INLINE int tng_max_i(int a, int b)
 {
     return (a > b ? a : b);
 }
-
+*/
 static TNG_INLINE int64_t tng_min_i64(int64_t a, int64_t b)
 {
     return (a < b ? a : b);
@@ -404,6 +405,7 @@ static TNG_INLINE int64_t tng_max_i64(int64_t a, int64_t b)
     return (a > b ? a : b);
 }
 
+/*
 static TNG_INLINE float tng_min_f(float a, float b)
 {
     return (a < b ? a : b);
@@ -423,6 +425,7 @@ static TNG_INLINE double tng_max_d(double a, double b)
 {
     return (a > b ? a : b);
 }
+*/
 
 /** This function swaps the byte order of a 32 bit numerical variable
  * to big endian.
@@ -4246,8 +4249,8 @@ static tng_function_status tng_allocate_particle_data_mem
         }
     }
     data->n_frames = n_frames;
-    n_frames = tng_max_i(1, n_frames);
-    data->stride_length = tng_max_i(1, stride_length);
+    n_frames = tng_max_i64(1, n_frames);
+    data->stride_length = tng_max_i64(1, stride_length);
     data->n_values_per_frame = n_values_per_frame;
     frame_alloc = (n_frames % stride_length) ? n_frames / stride_length + 1 : n_frames / stride_length;
 
@@ -4739,7 +4742,7 @@ static tng_function_status tng_particle_data_block_write
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         data = &frame_set->tr_particle_data[block_index];
-        stride_length = tng_max_i(1, data->stride_length);
+        stride_length = tng_max_i64(1, data->stride_length);
     }
     else
     {
@@ -4783,13 +4786,13 @@ static tng_function_status tng_particle_data_block_write
     /* If writing frame independent data data->n_frames is 0, but n_frames
        is used for the loop writing the data (and reserving memory) and needs
        to be at least 1 */
-    n_frames = tng_max_i(1, data->n_frames);
+    n_frames = tng_max_i64(1, data->n_frames);
 
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         /* If the frame set is finished before writing the full number of frames
            make sure the data block is not longer than the frame set. */
-        n_frames = tng_min_i(n_frames, frame_set->n_frames);
+        n_frames = tng_min_i64(n_frames, frame_set->n_frames);
     }
 
     frame_step = (n_frames % stride_length) ? n_frames / stride_length + 1:
@@ -5285,8 +5288,8 @@ static tng_function_status tng_allocate_data_mem
         }
     }
     data->n_frames = n_frames;
-    data->stride_length = tng_max_i(1, stride_length);
-    n_frames = tng_max_i(1, n_frames);
+    data->stride_length = tng_max_i64(1, stride_length);
+    n_frames = tng_max_i64(1, n_frames);
     data->n_values_per_frame = n_values_per_frame;
     frame_alloc = (n_frames % stride_length) ? n_frames / stride_length + 1 : n_frames / stride_length;
 
@@ -5607,7 +5610,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         data = &frame_set->tr_data[block_index];
-        stride_length = tng_max_i(1, data->stride_length);
+        stride_length = tng_max_i64(1, data->stride_length);
     }
     else
     {
@@ -5651,13 +5654,13 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     /* If writing frame independent data data->n_frames is 0, but n_frames
        is used for the loop writing the data (and reserving memory) and needs
        to be at least 1 */
-    n_frames = tng_max_i(1, data->n_frames);
+    n_frames = tng_max_i64(1, data->n_frames);
 
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         /* If the frame set is finished before writing the full number of frames
            make sure the data block is not longer than the frame set. */
-        n_frames = tng_min_i(n_frames, frame_set->n_frames);
+        n_frames = tng_min_i64(n_frames, frame_set->n_frames);
     }
 
     frame_step = (n_frames % stride_length) ? n_frames / stride_length + 1:
@@ -9783,7 +9786,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
     tng_gen_block_t block;
     tng_function_status stat;
 
-    first_frame = tng_max_i(frame_set->first_frame, 0);
+    first_frame = tng_max_i64(frame_set->first_frame, 0);
     last_frame = first_frame + frame_set->n_frames - 1;
     n_frames_per_frame_set = tng_data->frame_set_n_frames;
     long_stride_length = tng_data->long_stride_length;
@@ -9846,7 +9849,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
         }
     }
 
-    first_frame = tng_max_i(frame_set->first_frame, 0);
+    first_frame = tng_max_i64(frame_set->first_frame, 0);
     last_frame = first_frame + frame_set->n_frames - 1;
 
     if(frame >= first_frame && frame <= last_frame)
@@ -9883,7 +9886,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max_i(frame_set->first_frame, 0);
+        first_frame = tng_max_i64(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -9920,7 +9923,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max_i(frame_set->first_frame, 0);
+        first_frame = tng_max_i64(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -9955,7 +9958,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max_i(frame_set->first_frame, 0);
+        first_frame = tng_max_i64(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -9992,7 +9995,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max_i(frame_set->first_frame, 0);
+        first_frame = tng_max_i64(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -10029,7 +10032,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max_i(frame_set->first_frame, 0);
+        first_frame = tng_max_i64(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -10064,7 +10067,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max_i(frame_set->first_frame, 0);
+        first_frame = tng_max_i64(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -10100,7 +10103,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
                 return(TNG_CRITICAL);
             }
         }
-        first_frame = tng_max_i(frame_set->first_frame, 0);
+        first_frame = tng_max_i64(frame_set->first_frame, 0);
         last_frame = first_frame + frame_set->n_frames - 1;
         if(frame >= first_frame && frame <= last_frame)
         {
@@ -10192,7 +10195,7 @@ static TNG_INLINE tng_function_status tng_particle_mapping_get_real_particle
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the mapping
  * cannot be found.
  */
-static TNG_INLINE tng_function_status tng_particle_mapping_get_local_particle
+/*static TNG_INLINE tng_function_status tng_particle_mapping_get_local_particle
                 (const tng_trajectory_frame_set_t frame_set,
                  const int64_t real,
                  int64_t *local)
@@ -10218,7 +10221,7 @@ static TNG_INLINE tng_function_status tng_particle_mapping_get_local_particle
     }
     return(TNG_FAILURE);
 }
-
+*/
 
 tng_function_status DECLSPECDLLEXPORT tng_file_headers_read(tng_trajectory_t tng_data,
                                           const char hash_mode)
@@ -10810,7 +10813,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
     }
 
     data->datatype = datatype;
-    data->stride_length = tng_max_i(stride_length, 1);
+    data->stride_length = tng_max_i64(stride_length, 1);
     data->n_values_per_frame = n_values_per_frame;
     data->n_frames = n_frames;
     data->codec_id = codec_id;
@@ -10954,7 +10957,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
         data->strings = 0;
     }
 
-    data->stride_length = tng_max_i(stride_length, 1);
+    data->stride_length = tng_max_i64(stride_length, 1);
     data->n_values_per_frame = n_values_per_frame;
     data->n_frames = n_frames;
     data->codec_id = codec_id;
@@ -11374,7 +11377,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
 
     n_values_per_frame = data.n_values_per_frame;
 
-    file_pos = (frame_nr - tng_max_i(frame_set->first_frame,
+    file_pos = (frame_nr - tng_max_i64(frame_set->first_frame,
                                data.first_frame_with_data)) /
                 data.stride_length;
     file_pos *= size * n_values_per_frame;
@@ -11906,7 +11909,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
 
     n_values_per_frame = data.n_values_per_frame;
 
-    file_pos = (frame_nr - tng_max_i(frame_set->first_frame,
+    file_pos = (frame_nr - tng_max_i64(frame_set->first_frame,
                                data.first_frame_with_data)) /
                 data.stride_length;
     file_pos *= block_n_particles * size * n_values_per_frame;
@@ -12260,7 +12263,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
         }
     }
 
-    *n_frames = tng_max_i(1, data->n_frames);
+    *n_frames = tng_max_i64(1, data->n_frames);
     *n_values_per_frame = data->n_values_per_frame;
     *type = data->datatype;
 
@@ -12752,14 +12755,14 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
 
         frame_size = size * (*n_values_per_frame);
 
-        last_frame_pos = tng_min_i(n_frames,
-                                 end_frame_nr - current_frame_pos);
+        last_frame_pos = tng_min_i64(n_frames,
+                                     end_frame_nr - current_frame_pos);
 
         n_frames_div = current_frame_pos / *stride_length;
         n_frames_div_2 = (last_frame_pos % *stride_length) ?
                        last_frame_pos / *stride_length + 1:
                        last_frame_pos / *stride_length;
-        n_frames_div_2 = tng_max_i(1, n_frames_div_2);
+        n_frames_div_2 = tng_max_i64(1, n_frames_div_2);
 
         memcpy(*values, (char *)current_values + n_frames_div * frame_size,
                n_frames_div_2 * frame_size);
@@ -12796,14 +12799,14 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                 return(stat);
             }
 
-            last_frame_pos = tng_min_i(n_frames,
-                                     end_frame_nr - current_frame_pos);
+            last_frame_pos = tng_min_i64(n_frames,
+                                         end_frame_nr - current_frame_pos);
 
             n_frames_div = current_frame_pos / *stride_length;
             n_frames_div_2 = (last_frame_pos % *stride_length) ?
                            last_frame_pos / *stride_length + 1:
                            last_frame_pos / *stride_length;
-            n_frames_div_2 = tng_max_i(1, n_frames_div_2);
+            n_frames_div_2 = tng_max_i64(1, n_frames_div_2);
 
             memcpy((char *)*values + n_frames_div * frame_size,
                    current_values,
@@ -12920,7 +12923,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
         *n_particles = tng_data->n_particles;
     }
 
-    *n_frames = tng_max_i(1, data->n_frames);
+    *n_frames = tng_max_i64(1, data->n_frames);
     *n_values_per_frame = data->n_values_per_frame;
     *type = data->datatype;
 
@@ -13121,7 +13124,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
         size = sizeof(double);
     }
 
-    *n_frames = tng_max_i(1, data->n_frames);
+    *n_frames = tng_max_i64(1, data->n_frames);
     *n_values_per_frame = data->n_values_per_frame;
     *stride_length = data->stride_length;
 
@@ -13525,14 +13528,14 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
 
         frame_size = size * (*n_particles) * (*n_values_per_frame);
 
-        last_frame_pos = tng_min_i(n_frames,
-                                 end_frame_nr - current_frame_pos);
+        last_frame_pos = tng_min_i64(n_frames,
+                                     end_frame_nr - current_frame_pos);
 
         n_frames_div = current_frame_pos / *stride_length;
         n_frames_div_2 = (last_frame_pos % *stride_length) ?
                        last_frame_pos / *stride_length + 1:
                        last_frame_pos / *stride_length;
-        n_frames_div_2 = tng_max_i(1, n_frames_div_2);
+        n_frames_div_2 = tng_max_i64(1, n_frames_div_2);
 
         memcpy(*values, (char *)current_values + n_frames_div * frame_size,
                n_frames_div_2 * frame_size);
@@ -13569,14 +13572,14 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                 return(stat);
             }
 
-            last_frame_pos = tng_min_i(n_frames,
-                                     end_frame_nr - current_frame_pos);
+            last_frame_pos = tng_min_i64(n_frames,
+                                         end_frame_nr - current_frame_pos);
 
             n_frames_div = current_frame_pos / *stride_length;
             n_frames_div_2 = (last_frame_pos % *stride_length) ?
                            last_frame_pos / *stride_length + 1:
                            last_frame_pos / *stride_length;
-            n_frames_div_2 = tng_max_i(1, n_frames_div_2);
+            n_frames_div_2 = tng_max_i64(1, n_frames_div_2);
 
             memcpy((char *)*values + n_frames_div * frame_size,
                    current_values,
