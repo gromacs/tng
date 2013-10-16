@@ -5613,12 +5613,12 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     unsigned int len;
 #ifdef USE_ZLIB
     int data_start_pos;
+    tng_function_status stat;
 #endif
     char temp, dependency, *temp_name;
     double multiplier;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
-    tng_function_status stat;
 
     tng_non_particle_data_t data;
     char block_type_flag;
