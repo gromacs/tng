@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     {
         printf("No file specified\n");
         printf("Usage:\n");
-        printf("tng_io_read_pos <tng_file> "
+        printf("tng_io_read_pos_util <tng_file> "
                "[first_frame = %d] [last_frame = %d]\n",
                first_frame, last_frame);
         exit(1);

@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     {
         printf("No file specified\n");
         printf("Usage:\n");
-        printf("tng_io_read_pos <tng_file> [particle number = %"PRId64"]\n",
+        printf("tng_parallel_read <tng_file> [particle number = %"PRId64"]\n",
                particle);
         exit(1);
     }
