@@ -2455,8 +2455,8 @@ static tng_function_status tng_molecules_block_read
 
         if(molecule->n_bonds > 0)
         {
-            molecule->bonds = malloc(molecule->n_bonds *
-                                     sizeof(struct tng_bond));
+            tng_data->molecules[i].bonds = malloc(molecule->n_bonds *
+                                           sizeof(struct tng_bond));
             if(!molecule->bonds)
             {
                 printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
