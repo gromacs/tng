@@ -13,6 +13,10 @@
  * of the License, or (at your option) any later version.
  */
 
+#ifdef USE_STD_INTTYPES_H
+#include <inttypes.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "tng_io.h"
