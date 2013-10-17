@@ -3805,14 +3805,13 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
                                         const int64_t n_frames,
                                         const int64_t n_particles,
                                         const char type,
-                                        void *start_pos,
-                                        const int len)
+                                        void *start_pos)
 {
     int nalgo;
     int new_len;
     char *dest, *temp;
     int algo_find_n_frames;
-    uLong offset;
+    unsigned long offset;
 
     if(block->id != TNG_TRAJ_POSITIONS &&
        block->id != TNG_TRAJ_VELOCITIES)
@@ -5167,8 +5166,7 @@ static tng_function_status tng_particle_data_block_write
                    frame_step, n_particles, block->block_contents_size, data_start_pos);
             stat = tng_compress(tng_data, block, frame_step,
                                 n_particles, data->datatype,
-                                block->block_contents + data_start_pos,
-                                block->block_contents_size - data_start_pos);
+                                block->block_contents + data_start_pos);
             if(stat != TNG_SUCCESS)
             {
                 printf("Could not write tng compressed block data. %s: %d\n",
