@@ -3812,6 +3812,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
     int new_len;
     char *dest, *temp;
     int algo_find_n_frames;
+    uLong offset;
 
     if(block->id != TNG_TRAJ_POSITIONS &&
        block->id != TNG_TRAJ_VELOCITIES)
@@ -3968,19 +3969,9 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
         return(TNG_FAILURE);
     }
 
-    if(dest)
-    {
-        memcpy(start_pos, dest, new_len);
+    offset = (char *)start_pos - block->block_contents;
 
-        free(dest);
-    }
-    else
-    {
-        printf("Error during TNG compression. %s: %d\n", __FILE__, __LINE__);
-        return(TNG_FAILURE);
-    }
-
-    block->block_contents_size = new_len + (block->block_contents_size - len);
+    block->block_contents_size = new_len + offset;
 
     temp = realloc(block->block_contents, block->block_contents_size);
     if(!temp)
@@ -3989,6 +3980,18 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
+    }
+
+    if(dest)
+    {
+        memcpy(temp + offset, dest, new_len);
+
+        free(dest);
+    }
+    else
+    {
+        printf("Error during TNG compression. %s: %d\n", __FILE__, __LINE__);
+        return(TNG_FAILURE);
     }
 
     block->block_contents = temp;
@@ -4102,7 +4105,7 @@ static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
 {
     Bytef *dest;
     char *temp;
-    uLong max_len, stat;
+    uLong max_len, stat, offset;
     (void)tng_data;
 
     max_len = compressBound(len);
@@ -4124,11 +4127,9 @@ static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
         return(TNG_FAILURE);
     }
 
-    memcpy(start_pos, dest, max_len);
+    offset = (char *)start_pos - block->block_contents;
 
-    free(dest);
-
-    block->block_contents_size = max_len + (block->block_contents_size - len);
+    block->block_contents_size = max_len + offset;
 
     temp = realloc(block->block_contents, block->block_contents_size);
     if(!temp)
@@ -4138,6 +4139,10 @@ static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
+
+    memcpy(temp + offset, dest, max_len);
+
+    free(dest);
 
     block->block_contents = temp;
 
@@ -4586,7 +4591,7 @@ static tng_function_status tng_particle_data_read
                 return(TNG_CRITICAL);
             }
             break;
-    #ifdef USE_ZLIB
+#ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
 /*             printf("Before uncompression: %"PRId64"\n", block->block_contents_size); */
             if(tng_gzip_uncompress(tng_data, block,
@@ -4599,7 +4604,7 @@ static tng_function_status tng_particle_data_read
             }
 /*             printf("After uncompression: %"PRId64"\n", block->block_contents_size); */
             break;
-    #endif
+#endif
         }
     }
 
@@ -5172,18 +5177,16 @@ static tng_function_status tng_particle_data_block_write
                 {
                     return(TNG_CRITICAL);
                 }
+                /* Set the data again, but with no compression (to write only
+                 * the relevant data) */
                 data->codec_id = TNG_UNCOMPRESSED;
-                if(fabs(data->compression_multiplier - 1.0) > 0.00001)
-                {
-                    printf("Multiplier applied, but block was not compressed. Data will be wrong.\n");
-                    printf("The block might be completely corrupted.\n");
-                    /* FIXME: The data should be divided by the multiplier and the data that is only
-                     * present in blocks containing compressed data (e.g. multiplier) must be
-                     * removed */
-                }
+                stat = tng_particle_data_block_write(tng_data, block,
+                                                     block_index, mapping,
+                                                     hash_mode);
+                return(stat);
             }
             break;
-    #ifdef USE_ZLIB
+#ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
     /*         printf("Before compression: %"PRId64"\n", block->block_contents_size);*/
             stat = tng_gzip_compress(tng_data, block,
@@ -5197,19 +5200,17 @@ static tng_function_status tng_particle_data_block_write
                 {
                     return(TNG_CRITICAL);
                 }
+                /* Set the data again, but with no compression (to write only
+                 * the relevant data) */
                 data->codec_id = TNG_UNCOMPRESSED;
-                if(fabs(data->compression_multiplier - 1.0) > 0.00001)
-                {
-                    printf("Multiplier applied, but block was not compressed. Data will be wrong.\n");
-                    printf("The block might be completely corrupted.\n");
-                    /* FIXME: The data should be divided by the multiplier and the data that is only
-                     * present in blocks containing compressed data (e.g. multiplier) must be
-                     * removed */
-                }
+                stat = tng_particle_data_block_write(tng_data, block,
+                                                     block_index, mapping,
+                                                     hash_mode);
+                return(stat);
             }
     /*         printf("After compression: %"PRId64"\n", block->block_contents_size);*/
             break;
-    #endif
+#endif
         }
     }
 
@@ -5989,7 +5990,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     {
         switch(data->codec_id)
         {
-    #ifdef USE_ZLIB
+#ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
     /*         printf("Before compression: %"PRId64"\n", block->block_contents_size); */
             stat = tng_gzip_compress(tng_data, block,
@@ -6015,7 +6016,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
             }
     /*         printf("After compression: %"PRId64"\n", block->block_contents_size); */
             break;
-    #endif
+#endif
         }
     }
 
