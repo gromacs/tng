@@ -320,7 +320,7 @@ static void compress_quantized_pos(int *quant, int *quant_inter, int *quant_intr
 {
   int bufloc=0;
   char *datablock=NULL;
-  int length;
+  int length=0;
   /* Information needed for decompression. */
   if (data)
     bufferfix((unsigned char*)data+bufloc,(fix_t)MAGIC_INT_POS,4);
