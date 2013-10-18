@@ -4151,6 +4151,7 @@ static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
     if(!temp)
     {
         free(block->block_contents);
+        free(dest);
         block->block_contents = 0;
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
@@ -10955,7 +10956,6 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
                     strncpy(first_dim_values[j],
                             new_data_c, len);
                     new_data_c += len;
-                    new_data=new_data_c;
                 }
             }
         }
