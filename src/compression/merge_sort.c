@@ -18,7 +18,7 @@
 #include "compression/merge_sort.h"
 
 static void ms_inner(void *base, size_t size,
-		     int start, int end,
+		     size_t start, size_t end,
 		     int (*compar)(const void *v1,const void *v2,const void *private),
 		     const void *private,
 		     char *workarray)
@@ -30,7 +30,7 @@ static void ms_inner(void *base, size_t size,
       middle=start+(end-start)/2;
 #if 0
       printf("For start %d end %d obtained new middle: %d\n",start,end,middle);
-#endif      
+#endif
       ms_inner(base,size,
 	       start,middle,
 	       compar,private,workarray);
@@ -66,7 +66,7 @@ static void ms_inner(void *base, size_t size,
 		  if (compar(cbase+ileft*size,cbase+iright*size,private)>0)
 		    {
 		      memcpy(workarray+i*size,cbase+iright*size,size);
-		      iright++;		      
+		      iright++;
 		    }
 		  else
 		    {
