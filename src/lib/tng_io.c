@@ -1190,6 +1190,7 @@ static tng_function_status tng_general_info_block_read
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         free(block->block_contents);
+        block->block_contents = 0;
         return(TNG_CRITICAL);
     }
     block->block_contents = temp;
@@ -1225,6 +1226,7 @@ static tng_function_status tng_general_info_block_read
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->first_program_name);
+        tng_data->first_program_name = 0;
         return(TNG_CRITICAL);
     }
     tng_data->first_program_name = temp;
@@ -1238,6 +1240,7 @@ static tng_function_status tng_general_info_block_read
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->last_program_name);
+        tng_data->last_program_name = 0;
         return(TNG_CRITICAL);
     }
     tng_data->last_program_name = temp;
@@ -1251,6 +1254,7 @@ static tng_function_status tng_general_info_block_read
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->first_user_name);
+        tng_data->first_user_name = 0;
         return(TNG_CRITICAL);
     }
     tng_data->first_user_name = temp;
@@ -1264,6 +1268,7 @@ static tng_function_status tng_general_info_block_read
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->last_user_name);
+        tng_data->last_user_name = 0;
         return(TNG_CRITICAL);
     }
     tng_data->last_user_name = temp;
@@ -1277,6 +1282,7 @@ static tng_function_status tng_general_info_block_read
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->first_computer_name);
+        tng_data->first_computer_name = 0;
         return(TNG_CRITICAL);
     }
     tng_data->first_computer_name = temp;
@@ -1290,6 +1296,7 @@ static tng_function_status tng_general_info_block_read
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->last_computer_name);
+        tng_data->last_computer_name = 0;
         return(TNG_CRITICAL);
     }
     tng_data->last_computer_name = temp;
@@ -1303,6 +1310,7 @@ static tng_function_status tng_general_info_block_read
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->first_pgp_signature);
+        tng_data->first_pgp_signature = 0;
         return(TNG_CRITICAL);
     }
     tng_data->first_pgp_signature = temp;
@@ -1316,6 +1324,7 @@ static tng_function_status tng_general_info_block_read
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->last_pgp_signature);
+        tng_data->last_pgp_signature = 0;
         return(TNG_CRITICAL);
     }
     tng_data->last_pgp_signature = temp;
@@ -1329,6 +1338,7 @@ static tng_function_status tng_general_info_block_read
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->forcefield_name);
+        tng_data->forcefield_name = 0;
         return(TNG_CRITICAL);
     }
     tng_data->forcefield_name = temp;
@@ -3254,6 +3264,7 @@ static tng_function_status tng_frame_set_block_write
             printf("Cannot allocate memory (%d bytes). %s: %d\n",
                    name_len+1, __FILE__, __LINE__);
             free(block->name);
+            block->name = 0;
             return(TNG_CRITICAL);
         }
         block->name = temp_name;
@@ -3540,6 +3551,7 @@ static tng_function_status tng_trajectory_mapping_block_read
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         free(frame_set->mappings);
+        frame_set->mappings = 0;
         return(TNG_CRITICAL);
     }
     frame_set->mappings = mappings;
@@ -3657,6 +3669,7 @@ static tng_function_status tng_trajectory_mapping_block_write
             printf("Cannot allocate memory (%d bytes). %s: %d\n",
                    name_len+1, __FILE__, __LINE__);
             free(block->name);
+            block->name = 0;
             return(TNG_CRITICAL);
         }
         block->name = temp_name;
@@ -3775,6 +3788,7 @@ static tng_function_status tng_particle_data_block_create
                 frame_set->n_particle_data_blocks,
                 __FILE__, __LINE__);
             free(frame_set->tr_particle_data);
+            frame_set->tr_particle_data = 0;
             return(TNG_CRITICAL);
         }
         frame_set->tr_particle_data = data;
@@ -3792,6 +3806,7 @@ static tng_function_status tng_particle_data_block_create
                     tng_data->n_particle_data_blocks,
                     __FILE__, __LINE__);
             free(tng_data->non_tr_particle_data);
+            tng_data->non_tr_particle_data = 0;
             return(TNG_CRITICAL);
         }
         tng_data->non_tr_particle_data = data;
@@ -3976,6 +3991,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
     if(!temp)
     {
         free(block->block_contents);
+        block->block_contents = 0;
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
@@ -4062,6 +4078,7 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
     if(!temp)
     {
         free(block->block_contents);
+        block->block_contents = 0;
         if(d_dest)
         {
             free(d_dest);
@@ -4134,6 +4151,7 @@ static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
     if(!temp)
     {
         free(block->block_contents);
+        block->block_contents = 0;
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
@@ -4193,6 +4211,7 @@ static tng_function_status tng_gzip_uncompress(tng_trajectory_t tng_data,
     if(!temp)
     {
         free(block->block_contents);
+        block->block_contents = 0;
         free(dest);
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
@@ -4248,14 +4267,13 @@ static tng_function_status tng_allocate_particle_data_mem
                     if(data->strings[i][j][k])
                     {
                         free(data->strings[i][j][k]);
-                        data->strings[i][j][k] = 0;
                     }
                 }
                 free(data->strings[i][j]);
-                data->strings[i][j] = 0;
             }
             free(data->strings[i]);
         }
+        free(data->strings);
     }
     data->n_frames = n_frames;
     n_frames = tng_max_i64(1, n_frames);
@@ -4320,6 +4338,7 @@ static tng_function_status tng_allocate_particle_data_mem
                    n_particles * n_values_per_frame,
                    __FILE__, __LINE__);
             free(data->values);
+            data->values = 0;
             return(TNG_CRITICAL);
         }
         data->values = values;
@@ -4786,6 +4805,7 @@ static tng_function_status tng_particle_data_block_write
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             free(block->name);
+            block->name = 0;
             return(TNG_CRITICAL);
         }
         block->name = temp_name;
@@ -5258,6 +5278,7 @@ static tng_function_status tng_data_block_create
                 sizeof(struct tng_non_particle_data) * frame_set->n_data_blocks,
                 __FILE__, __LINE__);
             free(frame_set->tr_data);
+            frame_set->tr_data = 0;
             return(TNG_CRITICAL);
         }
         frame_set->tr_data = data;
@@ -5273,6 +5294,7 @@ static tng_function_status tng_data_block_create
                 sizeof(struct tng_non_particle_data) * tng_data->n_data_blocks,
                 __FILE__, __LINE__);
             free(tng_data->non_tr_data);
+            tng_data->non_tr_data = 0;
             return(TNG_CRITICAL);
         }
         tng_data->non_tr_data = data;
@@ -5318,6 +5340,7 @@ static tng_function_status tng_allocate_data_mem
             free(data->strings[i]);
             data->strings[i] = 0;
         }
+        free(data->strings);
     }
     data->n_frames = n_frames;
     data->stride_length = tng_max_i64(1, stride_length);
@@ -5369,6 +5392,7 @@ static tng_function_status tng_allocate_data_mem
                    n_values_per_frame,
                    __FILE__, __LINE__);
             free(data->values);
+            data->values = 0;
             return(TNG_CRITICAL);
         }
         data->values = values;
@@ -5677,6 +5701,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
             printf("Cannot allocate memory (%d bytes). %s: %d\n", len+1,
                    __FILE__, __LINE__);
             free(block->name);
+            block->name = 0;
             return(TNG_CRITICAL);
         }
         block->name = temp_name;
@@ -6946,6 +6971,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
                sizeof(struct tng_molecule) * (tng_data->n_molecules + 1),
                __FILE__, __LINE__);
         free(tng_data->molecules);
+        tng_data->molecules = 0;
         return(TNG_CRITICAL);
     }
 
@@ -6959,6 +6985,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
                sizeof(int64_t) * (tng_data->n_molecules + 1),
                __FILE__, __LINE__);
         free(tng_data->molecule_cnt_list);
+        tng_data->molecule_cnt_list = 0;
         free(new_molecules);
         return(TNG_CRITICAL);
     }
@@ -7164,6 +7191,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
                sizeof(struct tng_chain) * (molecule->n_chains + 1),
                __FILE__, __LINE__);
         free(molecule->chains);
+        molecule->chains = 0;
         return(TNG_CRITICAL);
     }
 
@@ -7299,6 +7327,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
                sizeof(struct tng_residue) * (molecule->n_residues + 1),
                __FILE__, __LINE__);
         free(molecule->residues);
+        molecule->residues = 0;
         return(TNG_CRITICAL);
     }
 
@@ -7431,6 +7460,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
                sizeof(struct tng_atom) * (molecule->n_atoms + 1),
                __FILE__, __LINE__);
         free(molecule->atoms);
+        molecule->atoms = 0;
         return(TNG_CRITICAL);
     }
 
@@ -7848,6 +7878,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
                sizeof(struct tng_particle_mapping)*frame_set->n_mapping_blocks,
                __FILE__, __LINE__);
         free(frame_set->mappings);
+        frame_set->mappings = 0;
         return(TNG_CRITICAL);
     }
     frame_set->mappings = mapping;
@@ -8555,6 +8586,7 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_set(tng_trajectory_t tng_da
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->input_file_path);
+        tng_data->input_file_path = 0;
         return(TNG_CRITICAL);
     }
     tng_data->input_file_path = temp;
@@ -8601,6 +8633,7 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_set(tng_trajectory_t tng_d
         printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->output_file_path);
+        tng_data->output_file_path = 0;
         return(TNG_CRITICAL);
     }
     tng_data->output_file_path = temp;
@@ -12785,6 +12818,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                data_size, __FILE__, __LINE__);
         free(*values);
+        *values = 0;
         return(TNG_CRITICAL);
     }
 
@@ -13186,6 +13220,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                data_size, __FILE__, __LINE__);
         free(*values);
+        *values = 0;
         return(TNG_CRITICAL);
     }
 
@@ -13557,6 +13592,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
         printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                data_size, __FILE__, __LINE__);
         free(*values);
+        *values = 0;
         return(TNG_CRITICAL);
     }
 
