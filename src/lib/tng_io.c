@@ -623,7 +623,7 @@ static tng_function_status tng_block_md5_hash_generate(tng_gen_block_t block)
 
     md5_init(&md5_state);
     md5_append(&md5_state, (md5_byte_t *)block->block_contents,
-               block->block_contents_size);
+               (int)block->block_contents_size);
     md5_finish(&md5_state, (md5_byte_t *)block->md5_hash);
 
     return(TNG_SUCCESS);
@@ -651,7 +651,7 @@ static tng_function_status tng_md5_hash_match_verify(tng_gen_block_t block,
     }
     md5_init(&md5_state);
     md5_append(&md5_state, (md5_byte_t *)block->block_contents,
-               block->block_contents_size);
+               (int)block->block_contents_size);
     md5_finish(&md5_state, (md5_byte_t *)hash);
 
     if(strncmp(block->md5_hash, hash, 16) != 0)
@@ -956,7 +956,7 @@ static tng_function_status tng_block_header_read
         free(block->name);
         block->name = 0;
     }
-    len = tng_min_i(strlen(block->header_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(block->header_contents+offset) + 1, TNG_MAX_STR_LEN);
     if(!block->name)
     {
         block->name = malloc(len);
@@ -1061,7 +1061,7 @@ static tng_function_status tng_block_header_write
         block->name[0] = 0;
     }
 
-    name_len = tng_min_i(strlen(block->name) + 1, TNG_MAX_STR_LEN);
+    name_len = tng_min_i((int)strlen(block->name) + 1, TNG_MAX_STR_LEN);
 
     if(hash_mode == TNG_USE_HASH)
     {
@@ -1219,7 +1219,7 @@ static tng_function_status tng_general_info_block_read
         }
     }
 
-    len = tng_min_i(strlen(block->block_contents) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(block->block_contents) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->first_program_name, len);
     if(!temp)
     {
@@ -1233,7 +1233,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->first_program_name, block->block_contents, len);
     offset += len;
 
-    len = tng_min_i(strlen(block->block_contents + offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(block->block_contents + offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->last_program_name, len);
     if(!temp)
     {
@@ -1247,7 +1247,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->last_program_name, block->block_contents, len);
     offset += len;
 
-    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->first_user_name, len);
     if(!temp)
     {
@@ -1261,7 +1261,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->first_user_name, block->block_contents+offset, len);
     offset += len;
 
-    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->last_user_name, len);
     if(!temp)
     {
@@ -1275,7 +1275,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->last_user_name, block->block_contents+offset, len);
     offset += len;
 
-    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->first_computer_name, len);
     if(!temp)
     {
@@ -1289,7 +1289,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->first_computer_name, block->block_contents+offset, len);
     offset += len;
 
-    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->last_computer_name, len);
     if(!temp)
     {
@@ -1303,7 +1303,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->last_computer_name, block->block_contents+offset, len);
     offset += len;
 
-    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->first_pgp_signature, len);
     if(!temp)
     {
@@ -1317,7 +1317,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->first_pgp_signature, block->block_contents+offset, len);
     offset += len;
 
-    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->last_pgp_signature, len);
     if(!temp)
     {
@@ -1331,7 +1331,7 @@ static tng_function_status tng_general_info_block_read
     strncpy(tng_data->last_pgp_signature, block->block_contents+offset, len);
     offset += len;
 
-    len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->forcefield_name, len);
     if(!temp)
     {
@@ -1600,23 +1600,23 @@ static tng_function_status tng_general_info_block_write
     strcpy(block->name, "GENERAL INFO");
     block->id = TNG_GENERAL_INFO;
 
-    first_program_name_len = tng_min_i(strlen(tng_data->first_program_name) + 1,
+    first_program_name_len = tng_min_i((int)strlen(tng_data->first_program_name) + 1,
                            TNG_MAX_STR_LEN);
-    last_program_name_len = tng_min_i(strlen(tng_data->last_program_name) + 1,
+    last_program_name_len = tng_min_i((int)strlen(tng_data->last_program_name) + 1,
                            TNG_MAX_STR_LEN);
-    first_user_name_len = tng_min_i(strlen(tng_data->first_user_name) + 1,
+    first_user_name_len = tng_min_i((int)strlen(tng_data->first_user_name) + 1,
                         TNG_MAX_STR_LEN);
-    last_user_name_len = tng_min_i(strlen(tng_data->last_user_name) + 1,
+    last_user_name_len = tng_min_i((int)strlen(tng_data->last_user_name) + 1,
                         TNG_MAX_STR_LEN);
-    first_computer_name_len = tng_min_i(strlen(tng_data->first_computer_name) + 1,
+    first_computer_name_len = tng_min_i((int)strlen(tng_data->first_computer_name) + 1,
                             TNG_MAX_STR_LEN);
-    last_computer_name_len = tng_min_i(strlen(tng_data->last_computer_name) + 1,
+    last_computer_name_len = tng_min_i((int)strlen(tng_data->last_computer_name) + 1,
                             TNG_MAX_STR_LEN);
-    first_pgp_signature_len = tng_min_i(strlen(tng_data->first_pgp_signature) + 1,
+    first_pgp_signature_len = tng_min_i((int)strlen(tng_data->first_pgp_signature) + 1,
                             TNG_MAX_STR_LEN);
-    last_pgp_signature_len = tng_min_i(strlen(tng_data->last_pgp_signature) + 1,
+    last_pgp_signature_len = tng_min_i((int)strlen(tng_data->last_pgp_signature) + 1,
                             TNG_MAX_STR_LEN);
-    forcefield_name_len = tng_min_i(strlen(tng_data->forcefield_name) + 1,
+    forcefield_name_len = tng_min_i((int)strlen(tng_data->forcefield_name) + 1,
                               TNG_MAX_STR_LEN);
 
     block->block_contents_size = sizeof(tng_data->time) +
@@ -1834,7 +1834,7 @@ static tng_function_status tng_chain_data_read(tng_trajectory_t tng_data,
     }
     *offset += sizeof(chain->id);
 
-    len = tng_min_i(strlen(block->block_contents+*offset) + 1,
+    len = tng_min_i((int)strlen(block->block_contents+*offset) + 1,
             TNG_MAX_STR_LEN);
     chain->name = malloc(len);
     strncpy(chain->name,
@@ -1885,7 +1885,7 @@ static tng_function_status tng_chain_data_write(tng_trajectory_t tng_data,
     }
     *offset += sizeof(chain->id);
 
-    len = tng_min_i(strlen(chain->name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(chain->name) + 1, TNG_MAX_STR_LEN);
     strncpy(block->block_contents + *offset, chain->name, len);
     *offset += len;
 
@@ -1934,7 +1934,7 @@ static tng_function_status tng_residue_data_read(tng_trajectory_t tng_data,
     }
     *offset += sizeof(residue->id);
 
-    len = tng_min_i(strlen(block->block_contents+*offset) + 1,
+    len = tng_min_i((int)strlen(block->block_contents+*offset) + 1,
             TNG_MAX_STR_LEN);
     residue->name = malloc(len);
     strncpy(residue->name,
@@ -1985,7 +1985,7 @@ static tng_function_status tng_residue_data_write(tng_trajectory_t tng_data,
     }
     *offset += sizeof(residue->id);
 
-    len = tng_min_i(strlen(residue->name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(residue->name) + 1, TNG_MAX_STR_LEN);
     strncpy(block->block_contents + *offset, residue->name, len);
     *offset += len;
 
@@ -2034,14 +2034,14 @@ static tng_function_status tng_atom_data_read(tng_trajectory_t tng_data,
     }
     *offset += sizeof(atom->id);
 
-    len = tng_min_i(strlen(block->block_contents+*offset) + 1,
+    len = tng_min_i((int)strlen(block->block_contents+*offset) + 1,
             TNG_MAX_STR_LEN);
     atom->name = malloc(len);
     strncpy(atom->name,
             block->block_contents+*offset, len);
     *offset += len;
 
-    len = tng_min_i(strlen(block->block_contents+*offset) + 1,
+    len = tng_min_i((int)strlen(block->block_contents+*offset) + 1,
             TNG_MAX_STR_LEN);
     atom->atom_type = malloc(len);
     strncpy(atom->atom_type,
@@ -2079,11 +2079,11 @@ static tng_function_status tng_atom_data_write(tng_trajectory_t tng_data,
     }
     *offset += sizeof(atom->id);
 
-    len = tng_min_i(strlen(atom->name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(atom->name) + 1, TNG_MAX_STR_LEN);
     strncpy(block->block_contents + *offset, atom->name, len);
     *offset += len;
 
-    len = tng_min_i(strlen(atom->atom_type) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(atom->atom_type) + 1, TNG_MAX_STR_LEN);
     strncpy(block->block_contents + *offset, atom->atom_type, len);
     *offset += len;
 
@@ -2104,7 +2104,8 @@ static tng_function_status tng_molecules_block_read
                  tng_gen_block_t block,
                  const char hash_mode)
 {
-    int i, j, k, l, len, offset = 0;
+    int64_t i, j, k, l;
+    int len, offset = 0;
     tng_molecule_t molecule;
     tng_chain_t chain;
     tng_residue_t residue;
@@ -2231,7 +2232,7 @@ static tng_function_status tng_molecules_block_read
         offset += sizeof(molecule->id);
 
 /*         printf("Read id: %"PRId64" offset: %d\n", molecule->id, offset);*/
-        len = tng_min_i(strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
+        len = tng_min_i((int)strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
         molecule->name = malloc(len);
         strncpy(molecule->name, block->block_contents+offset, len);
         offset += len;
@@ -2541,8 +2542,8 @@ static tng_function_status tng_molecules_block_write
                 (tng_trajectory_t tng_data,
                  const char hash_mode)
 {
-    int len = 0, name_len;
-    int i, j, k, l, offset = 0;
+    int len = 0, name_len, offset = 0;
+    int64_t i, j, k, l;
     tng_molecule_t molecule;
     tng_chain_t chain;
     tng_residue_t residue;
@@ -2570,7 +2571,7 @@ static tng_function_status tng_molecules_block_write
             }
             molecule->name[0] = 0;
         }
-        len += tng_min_i(strlen(molecule->name) + 1, TNG_MAX_STR_LEN);
+        len += tng_min_i((int)strlen(molecule->name) + 1, TNG_MAX_STR_LEN);
 
         chain = molecule->chains;
         for(j = molecule->n_chains; j--;)
@@ -2588,7 +2589,7 @@ static tng_function_status tng_molecules_block_write
                 }
                 chain->name[0] = 0;
             }
-            len += tng_min_i(strlen(chain->name) + 1, TNG_MAX_STR_LEN);
+            len += tng_min_i((int)strlen(chain->name) + 1, TNG_MAX_STR_LEN);
 
             len += sizeof(chain->n_residues);
 
@@ -2611,7 +2612,7 @@ static tng_function_status tng_molecules_block_write
                 }
                 residue->name[0] = 0;
             }
-            len += tng_min_i(strlen(residue->name) + 1, TNG_MAX_STR_LEN);
+            len += tng_min_i((int)strlen(residue->name) + 1, TNG_MAX_STR_LEN);
 
             len += sizeof(residue->n_atoms);
 
@@ -2633,7 +2634,7 @@ static tng_function_status tng_molecules_block_write
                 }
                 atom->name[0] = 0;
             }
-            len += tng_min_i(strlen(atom->name) + 1, TNG_MAX_STR_LEN);
+            len += tng_min_i((int)strlen(atom->name) + 1, TNG_MAX_STR_LEN);
 
             if(!atom->atom_type)
             {
@@ -2646,7 +2647,7 @@ static tng_function_status tng_molecules_block_write
                 }
                 atom->atom_type[0] = 0;
             }
-            len += tng_min_i(strlen(atom->atom_type) + 1, TNG_MAX_STR_LEN);
+            len += tng_min_i((int)strlen(atom->atom_type) + 1, TNG_MAX_STR_LEN);
 
             atom++;
         }
@@ -2729,7 +2730,7 @@ static tng_function_status tng_molecules_block_write
         offset += sizeof(molecule->id);
 
 /*         printf("Wrote id: %"PRId64" offset: %d\n", molecule->id, offset); */
-        len = tng_min_i(strlen(molecule->name) + 1, TNG_MAX_STR_LEN);
+        len = tng_min_i((int)strlen(molecule->name) + 1, TNG_MAX_STR_LEN);
         strncpy(block->block_contents + offset, molecule->name, len);
         offset += len;
 
@@ -2946,8 +2947,8 @@ static tng_function_status tng_frame_set_block_read
                  tng_gen_block_t block,
                  const char hash_mode)
 {
-    int i, file_pos, offset = 0;
-    int64_t prev_n_particles;
+    int file_pos, offset = 0;
+    int64_t i, prev_n_particles;
     tng_bool same_hash;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
@@ -3825,7 +3826,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
     int nalgo;
     int new_len;
     char *dest, *temp;
-    int algo_find_n_frames;
+    int64_t algo_find_n_frames;
     unsigned long offset;
 
     if(block->id != TNG_TRAJ_POSITIONS &&
@@ -3860,7 +3861,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             if(type == TNG_FLOAT_DATA)
             {
                 dest = tng_compress_pos_float_find_algo(start_pos, n_particles,
-                                                        algo_find_n_frames,
+                                                        (int)algo_find_n_frames,
                                                         0.001, 0,
                                                         tng_data->
                                                         compress_algo_pos,
@@ -3877,7 +3878,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             else
             {
                 dest = tng_compress_pos_find_algo(start_pos, n_particles,
-                                           algo_find_n_frames,
+                                           (int)algo_find_n_frames,
                                            0.001, 0,
                                            tng_data->
                                            compress_algo_pos,
@@ -3927,7 +3928,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             if(type == TNG_FLOAT_DATA)
             {
                 dest = tng_compress_vel_float_find_algo(start_pos, n_particles,
-                                                        algo_find_n_frames,
+                                                        (int)algo_find_n_frames,
                                                         0.001, 0,
                                                         tng_data->
                                                         compress_algo_vel,
@@ -3943,7 +3944,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             else
             {
                 dest = tng_compress_vel_find_algo(start_pos, n_particles,
-                                                  algo_find_n_frames,
+                                                  (int)algo_find_n_frames,
                                                   0.001, 0,
                                                   tng_data->
                                                   compress_algo_vel,
@@ -4652,7 +4653,7 @@ static tng_function_status tng_particle_data_read
                 second_dim_values = first_dim_values[j];
                 for(k = 0; k < n_values; k++)
                 {
-                    len = tng_min_i(strlen(block->block_contents+*offset) + 1,
+                    len = tng_min_i((int)strlen(block->block_contents+*offset) + 1,
                               TNG_MAX_STR_LEN);
                     if(second_dim_values[k])
                     {
@@ -5553,7 +5554,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
         {
             for(j = 0; j < n_values; j++)
             {
-                len = tng_min_i(strlen(block->block_contents+*offset) + 1,
+                len = tng_min_i((int)strlen(block->block_contents+*offset) + 1,
                               TNG_MAX_STR_LEN);
                 if(data->strings[i][j])
                 {
@@ -6798,7 +6799,7 @@ static tng_function_status tng_frame_set_finalize
 // {
 //     int len;
 //
-//     len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+//     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 //
 //      * If the currently stored string length is not enough to store the new
 //      * string it is freed and reallocated. *
@@ -6830,7 +6831,7 @@ tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
     unsigned int len;
     (void)tng_data;
 
-    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -6862,7 +6863,7 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
     unsigned int len;
     (void)tng_data;
 
-    len = tng_min_i(strlen(new_type) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(new_type) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -7024,7 +7025,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_set
     unsigned int len;
     (void)tng_data;
 
-    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -7229,7 +7230,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
     unsigned int len;
     (void)tng_data;
 
-    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -7393,7 +7394,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_set(tng_trajectory_t tng_
     unsigned int len;
     (void)tng_data;
 
-    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -8577,7 +8578,7 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_set(tng_trajectory_t tng_da
         fclose(tng_data->input_file);
     }
 
-    len = tng_min_i(strlen(file_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(file_name) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->input_file_path, len);
     if(!temp)
     {
@@ -8624,7 +8625,7 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_set(tng_trajectory_t tng_d
         fclose(tng_data->output_file);
     }
 
-    len = tng_min_i(strlen(file_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(file_name) + 1, TNG_MAX_STR_LEN);
     temp = realloc(tng_data->output_file_path, len);
     if(!temp)
     {
@@ -8795,7 +8796,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_program_name_set(tng_trajectory_
 {
     unsigned int len;
 
-    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     if(tng_data->first_program_name && strlen(tng_data->first_program_name) < len)
     {
@@ -8838,7 +8839,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_program_name_set
 {
     unsigned int len;
 
-    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     if(tng_data->last_program_name && strlen(tng_data->last_program_name) < len)
     {
@@ -8881,7 +8882,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_user_name_set
 {
     unsigned int len;
 
-    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -8926,7 +8927,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_user_name_set
 {
     unsigned int len;
 
-    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -8971,7 +8972,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_set
 {
     unsigned int len;
 
-    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -9016,7 +9017,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_set
 {
     unsigned int len;
 
-    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -9062,7 +9063,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_signature_set
 {
     unsigned int len;
 
-    len = tng_min_i(strlen(signature) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(signature) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -9108,7 +9109,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_signature_set
 {
     unsigned int len;
 
-    len = tng_min_i(strlen(signature) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(signature) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -9154,7 +9155,7 @@ tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_set
 {
     unsigned int len;
 
-    len = tng_min_i(strlen(new_name) + 1, TNG_MAX_STR_LEN);
+    len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
     /* If the currently stored string length is not enough to store the new
      * string it is freed and reallocated. */
@@ -10937,7 +10938,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
                 first_dim_values = data->strings[i];
                 for(j = 0; j < n_values_per_frame; j++)
                 {
-                    len = tng_min_i(strlen(new_data_c) + 1,
+                    len = tng_min_i((int)strlen(new_data_c) + 1,
                                 TNG_MAX_STR_LEN);
                     if(first_dim_values[j])
                     {
@@ -11081,7 +11082,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
                     second_dim_values = first_dim_values[j];
                     for(k = 0; k < n_values_per_frame; k++)
                     {
-                        len = tng_min_i(strlen(new_data_c) + 1,
+                        len = tng_min_i((int)strlen(new_data_c) + 1,
                                 TNG_MAX_STR_LEN);
                         if(second_dim_values[k])
                         {
