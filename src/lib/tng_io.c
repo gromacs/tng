@@ -3996,11 +3996,10 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
-
+    block->block_contents = temp;
     if(dest)
     {
         memcpy(temp + offset, dest, new_len);
-
         free(dest);
     }
     else
@@ -4008,8 +4007,6 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
         printf("Error during TNG compression. %s: %d\n", __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
-
-    block->block_contents = temp;
 
     return(TNG_SUCCESS);
 }
@@ -4158,11 +4155,11 @@ static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
         return(TNG_CRITICAL);
     }
 
+    block->block_contents = temp;
+
     memcpy(temp + offset, dest, max_len);
 
     free(dest);
-
-    block->block_contents = temp;
 
     return(TNG_SUCCESS);
 }
