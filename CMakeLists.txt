@@ -14,7 +14,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 option(TNG_BUILD_FORTRAN "Build Fortran compatible library and examples for testing" OFF)
 
 option(TNG_BUILD_EXAMPLES "Build examples showing usage of the TNG API" ON)
-option(TNG_BUILD_TEST "Build tng testing binary." ON)
+option(TNG_BUILD_TEST "Build TNG testing binary." ON)
 option(TNG_BUILD_COMPRESSION_TESTS "Build tests of the TNG compression library" OFF)
 
 option(TNG_USE_OPENMP "Try to use the OpenMP library (if available)" OFF)
