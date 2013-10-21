@@ -2986,7 +2986,7 @@ static tng_function_status tng_frame_set_block_read
      * size or if the contents can be read. */
 
     file_pos = (int64_t)ftell(tng_data->input_file) -
-               (block->block_contents_size + block->header_contents_size);
+               (long)(block->block_contents_size + block->header_contents_size);
 
     if(hash_mode == TNG_USE_HASH)
     {
@@ -4742,8 +4742,8 @@ static tng_function_status tng_particle_data_block_write
     int64_t n_particles, num_first_particle, n_frames, stride_length;
     int64_t frame_step, data_start_pos;
     int64_t i, j, k;
-    int offset = 0, size;
-    size_t len;
+    int size;
+    size_t len, offset = 0;
     char dependency, temp, *temp_name;
     double multiplier;
     char ***first_dim_values, **second_dim_values;
@@ -9285,7 +9285,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_get
     fseek(tng_data->input_file,
           (long)file_pos,
           SEEK_SET);
-    tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
+    tng_data->current_trajectory_frame_set_input_file_pos = (long)file_pos;
     /* Read block headers first to see what block is found. */
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
@@ -9406,7 +9406,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
     fseek(tng_data->input_file,
           (long)file_pos,
           SEEK_SET);
-    tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
+    tng_data->current_trajectory_frame_set_input_file_pos = (long)file_pos;
     /* Read block headers first to see what block is found. */
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
@@ -12292,7 +12292,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
                  char *type)
 {
     int64_t i, j, file_pos, block_index;
-    int len, size;
+    int size;
+    size_t len;
     tng_non_particle_data_t data;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
