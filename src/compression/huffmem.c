@@ -28,10 +28,10 @@ int Ptngc_comp_huff_buflen(int nvals)
 
 /* the value pointed to by chosen_algo should be sent as -1 for autodetect. */
 void Ptngc_comp_huff_compress_verbose(unsigned int *vals, int nvals,
-				unsigned char *huffman, int *huffman_len,
-				int *huffdatalen,
-				int *huffman_lengths,int *chosen_algo,
-				int isvals16)
+                                unsigned char *huffman, int *huffman_len,
+                                int *huffdatalen,
+                                int *huffman_lengths,int *chosen_algo,
+                                int isvals16)
 {
   unsigned int *dict=warnmalloc(0x20005*sizeof *dict);
   unsigned int *hist=warnmalloc(0x20005*sizeof *hist);
@@ -68,9 +68,9 @@ void Ptngc_comp_huff_compress_verbose(unsigned int *vals, int nvals,
 
   /* First compress the data using huffman coding (place it ready for output at 14 (code for algorithm+length etc.). */
   Ptngc_comp_conv_to_huffman(vals,nvals,dict,ndict,hist,
-		       huffman+14,&nhuff,
-		       huffdict,&nhuffdict,
-		       huffdictunpack,&nhuffdictunpack);
+                       huffman+14,&nhuff,
+                       huffdict,&nhuffdict,
+                       huffdictunpack,&nhuffdictunpack);
   *huffdatalen=nhuff;
 
   /* Algorithm 0 stores the huffman dictionary directly (+ a code for
@@ -83,30 +83,30 @@ void Ptngc_comp_huff_compress_verbose(unsigned int *vals, int nvals,
   Ptngc_comp_make_dict_hist(huffdictunpack,nhuffdictunpack,dict,&ndict1,hist);
   /* Pack huffman dictionary */
   Ptngc_comp_conv_to_huffman(huffdictunpack,nhuffdictunpack,
-		       dict,ndict1,hist,
-		       huffman1,&nhuff1,
-		       huffdict1,&nhuffdict1,
-		       huffdictunpack1,&nhuffdictunpack1);
+                       dict,ndict1,hist,
+                       huffman1,&nhuff1,
+                       huffdict1,&nhuffdict1,
+                       huffdictunpack1,&nhuffdictunpack1);
   huffman_lengths[1]=nhuff+nhuff1+nhuffdict1+1*2+3*4+3+3+3+3+3;
 
   /* ... and rle + huffman coding ... (algorithm 2) Pack any repetetitive patterns. */
   Ptngc_comp_conv_to_rle(huffdictunpack,nhuffdictunpack,
-		   huffdictrle,&nhuffrle,1);
+                   huffdictrle,&nhuffrle,1);
 
   /* Determine probabilities. */
   Ptngc_comp_make_dict_hist(huffdictrle,nhuffrle,dict,&ndict2,hist);
   /* Pack huffman dictionary */
   Ptngc_comp_conv_to_huffman(huffdictrle,nhuffrle,
-		       dict,ndict2,hist,
-		       huffman2,&nhuff2,
-		       huffdict2,&nhuffdict2,
-		       huffdictunpack2,&nhuffdictunpack2);
+                       dict,ndict2,hist,
+                       huffman2,&nhuff2,
+                       huffdict2,&nhuffdict2,
+                       huffdictunpack2,&nhuffdictunpack2);
   huffman_lengths[2]=nhuff+nhuff2+nhuffdict2+1*2+3*4+3+3+3+3+3+3;
 
   /* Choose the best algorithm and output the data. */
   if ((*chosen_algo==0) || ((*chosen_algo==-1) &&
-			    (((huffman_lengths[0]<huffman_lengths[1]) &&
-			      (huffman_lengths[0]<huffman_lengths[2])))))
+                            (((huffman_lengths[0]<huffman_lengths[1]) &&
+                              (huffman_lengths[0]<huffman_lengths[2])))))
     {
       *chosen_algo=0;
       *huffman_len=huffman_lengths[0];
@@ -131,10 +131,10 @@ void Ptngc_comp_huff_compress_verbose(unsigned int *vals, int nvals,
       huffman[18+nhuff]=(((unsigned int)ndict)>>8)&0xFFU;
       huffman[19+nhuff]=(((unsigned int)ndict)>>16)&0xFFU;
       for (i=0; i<nhuffdict; i++)
-	huffman[20+nhuff+i]=huffdict[i];
+        huffman[20+nhuff+i]=huffdict[i];
     }
   else if ((*chosen_algo==1) || ((*chosen_algo==-1) &&
-				 ((huffman_lengths[1]<huffman_lengths[2]))))
+                                 ((huffman_lengths[1]<huffman_lengths[2]))))
     {
       *chosen_algo=1;
       *huffman_len=huffman_lengths[1];
@@ -168,9 +168,9 @@ void Ptngc_comp_huff_compress_verbose(unsigned int *vals, int nvals,
       huffman[27+nhuff]=(((unsigned int)ndict1)>>8)&0xFFU;
       huffman[28+nhuff]=(((unsigned int)ndict1)>>16)&0xFFU;
       for (i=0; i<nhuff1; i++)
-	huffman[29+nhuff+i]=huffman1[i];
+        huffman[29+nhuff+i]=huffman1[i];
       for (i=0; i<nhuffdict1; i++)
-	huffman[29+nhuff+nhuff1+i]=huffdict1[i];
+        huffman[29+nhuff+nhuff1+i]=huffdict1[i];
     }
   else
     {
@@ -209,9 +209,9 @@ void Ptngc_comp_huff_compress_verbose(unsigned int *vals, int nvals,
       huffman[30+nhuff]=(((unsigned int)ndict2)>>8)&0xFFU;
       huffman[31+nhuff]=(((unsigned int)ndict2)>>16)&0xFFU;
       for (i=0; i<nhuff2; i++)
-	huffman[32+nhuff+i]=huffman2[i];
+        huffman[32+nhuff+i]=huffman2[i];
       for (i=0; i<nhuffdict2; i++)
-	huffman[32+nhuff+nhuff2+i]=huffdict2[i];
+        huffman[32+nhuff+nhuff2+i]=huffdict2[i];
     }
   if (!isvals16)
     free(vals16);
@@ -230,36 +230,36 @@ void Ptngc_comp_huff_compress_verbose(unsigned int *vals, int nvals,
 }
 
 void Ptngc_comp_huff_compress(unsigned int *vals, int nvals,
-			unsigned char *huffman, int *huffman_len)
+                        unsigned char *huffman, int *huffman_len)
 {
   int huffman_lengths[N_HUFFMAN_ALGO];
   int algo=-1;
   int huffdatalen;
   Ptngc_comp_huff_compress_verbose(vals,nvals,huffman,huffman_len,&huffdatalen,
-			     huffman_lengths,&algo,0);
+                             huffman_lengths,&algo,0);
 }
 
 void Ptngc_comp_huff_decompress(unsigned char *huffman, int huffman_len,
-			  unsigned int *vals)
+                          unsigned int *vals)
 {
   int isvals16=(int)huffman[0];
   unsigned int *vals16=NULL;
   int algo=(int)huffman[1];
   int nvals16=(int)((unsigned int)huffman[2]|
-		  (((unsigned int)huffman[3])<<8)|
-		  (((unsigned int)huffman[4])<<16)|
-		  (((unsigned int)huffman[5])<<24));
+                  (((unsigned int)huffman[3])<<8)|
+                  (((unsigned int)huffman[4])<<16)|
+                  (((unsigned int)huffman[5])<<24));
   int nvals=(int)((unsigned int)huffman[6]|
-		  (((unsigned int)huffman[7])<<8)|
-		  (((unsigned int)huffman[8])<<16)|
-		  (((unsigned int)huffman[9])<<24));
+                  (((unsigned int)huffman[7])<<8)|
+                  (((unsigned int)huffman[8])<<16)|
+                  (((unsigned int)huffman[9])<<24));
   int nhuff=(int)((unsigned int)huffman[10]|
-		  (((unsigned int)huffman[11])<<8)|
-		  (((unsigned int)huffman[12])<<16)|
-		  (((unsigned int)huffman[13])<<24));
+                  (((unsigned int)huffman[11])<<8)|
+                  (((unsigned int)huffman[12])<<16)|
+                  (((unsigned int)huffman[13])<<24));
   int ndict=(int)((unsigned int)huffman[17+nhuff]|
-		  (((unsigned int)huffman[18+nhuff])<<8)|
-		  (((unsigned int)huffman[19+nhuff])<<16));
+                  (((unsigned int)huffman[18+nhuff])<<8)|
+                  (((unsigned int)huffman[19+nhuff])<<16));
   (void)huffman_len;
   if (!isvals16)
     vals16=warnmalloc(nvals16*sizeof *vals16);
@@ -271,33 +271,33 @@ void Ptngc_comp_huff_decompress(unsigned char *huffman, int huffman_len,
   if (algo==0)
     {
       int nhuffdict=(int)((unsigned int)huffman[14+nhuff]|
-			  (((unsigned int)huffman[15+nhuff])<<8)|
-			  (((unsigned int)huffman[16+nhuff])<<16));
+                          (((unsigned int)huffman[15+nhuff])<<8)|
+                          (((unsigned int)huffman[16+nhuff])<<16));
       Ptngc_comp_conv_from_huffman(huffman+14,vals16,nvals16,ndict,
-			     huffman+20+nhuff,nhuffdict,NULL,0);
+                             huffman+20+nhuff,nhuffdict,NULL,0);
     }
   else if (algo==1)
     {
       unsigned int *huffdictunpack=warnmalloc(0x20005*sizeof *huffdictunpack);
       /* First the dictionary needs to be uncompressed. */
       int nhuffdictunpack=(int)((unsigned int)huffman[14+nhuff]|
-				(((unsigned int)huffman[15+nhuff])<<8)|
-				(((unsigned int)huffman[16+nhuff])<<16));
+                                (((unsigned int)huffman[15+nhuff])<<8)|
+                                (((unsigned int)huffman[16+nhuff])<<16));
       int nhuff1=(int)((unsigned int)huffman[20+nhuff]|
-		       (((unsigned int)huffman[21+nhuff])<<8)|
-		       (((unsigned int)huffman[22+nhuff])<<16));
+                       (((unsigned int)huffman[21+nhuff])<<8)|
+                       (((unsigned int)huffman[22+nhuff])<<16));
       int nhuffdict1=(int)((unsigned int)huffman[23+nhuff]|
-			   (((unsigned int)huffman[24+nhuff])<<8)|
-			   (((unsigned int)huffman[25+nhuff])<<16));
+                           (((unsigned int)huffman[24+nhuff])<<8)|
+                           (((unsigned int)huffman[25+nhuff])<<16));
       int ndict1=(int)((unsigned int)huffman[26+nhuff]|
-		       (((unsigned int)huffman[27+nhuff])<<8)|
-		       (((unsigned int)huffman[28+nhuff])<<16));
+                       (((unsigned int)huffman[27+nhuff])<<8)|
+                       (((unsigned int)huffman[28+nhuff])<<16));
       Ptngc_comp_conv_from_huffman(huffman+29+nhuff,huffdictunpack,
-			     nhuffdictunpack,ndict1,
-			     huffman+29+nhuff+nhuff1,nhuffdict1,NULL,0);
+                             nhuffdictunpack,ndict1,
+                             huffman+29+nhuff+nhuff1,nhuffdict1,NULL,0);
       /* Then decompress the "real" data. */
       Ptngc_comp_conv_from_huffman(huffman+14,vals16,nvals16,ndict,
-			     NULL,0,huffdictunpack,nhuffdictunpack);
+                             NULL,0,huffdictunpack,nhuffdictunpack);
       free(huffdictunpack);
     }
   else if (algo==2)
@@ -306,28 +306,28 @@ void Ptngc_comp_huff_decompress(unsigned char *huffman, int huffman_len,
       unsigned int *huffdictrle=warnmalloc((3*0x20005+3)*sizeof *huffdictrle);
       /* First the dictionary needs to be uncompressed. */
       int nhuffdictunpack=(int)((unsigned int)huffman[14+nhuff]|
-				(((unsigned int)huffman[15+nhuff])<<8)|
-				(((unsigned int)huffman[16+nhuff])<<16));
+                                (((unsigned int)huffman[15+nhuff])<<8)|
+                                (((unsigned int)huffman[16+nhuff])<<16));
       int nhuffrle=(int)((unsigned int)huffman[20+nhuff]|
-			 (((unsigned int)huffman[21+nhuff])<<8)|
-			 (((unsigned int)huffman[22+nhuff])<<16));
+                         (((unsigned int)huffman[21+nhuff])<<8)|
+                         (((unsigned int)huffman[22+nhuff])<<16));
       int nhuff2=(int)((unsigned int)huffman[23+nhuff]|
-		       (((unsigned int)huffman[24+nhuff])<<8)|
-		       (((unsigned int)huffman[25+nhuff])<<16));
+                       (((unsigned int)huffman[24+nhuff])<<8)|
+                       (((unsigned int)huffman[25+nhuff])<<16));
       int nhuffdict2=(int)((unsigned int)huffman[26+nhuff]|
-			   (((unsigned int)huffman[27+nhuff])<<8)|
-			   (((unsigned int)huffman[28+nhuff])<<16));
+                           (((unsigned int)huffman[27+nhuff])<<8)|
+                           (((unsigned int)huffman[28+nhuff])<<16));
       int ndict2=(int)((unsigned int)huffman[29+nhuff]|
-		       (((unsigned int)huffman[30+nhuff])<<8)|
-		       (((unsigned int)huffman[31+nhuff])<<16));
+                       (((unsigned int)huffman[30+nhuff])<<8)|
+                       (((unsigned int)huffman[31+nhuff])<<16));
       Ptngc_comp_conv_from_huffman(huffman+32+nhuff,huffdictrle,
-			     nhuffrle,ndict2,
-			     huffman+32+nhuff+nhuff2,nhuffdict2,NULL,0);
+                             nhuffrle,ndict2,
+                             huffman+32+nhuff+nhuff2,nhuffdict2,NULL,0);
       /* Then uncompress the rle data */
       Ptngc_comp_conv_from_rle(huffdictrle,huffdictunpack,nhuffdictunpack);
       /* Then decompress the "real" data. */
       Ptngc_comp_conv_from_huffman(huffman+14,vals16,nvals16,ndict,
-			     NULL,0,huffdictunpack,nhuffdictunpack);
+                             NULL,0,huffdictunpack,nhuffdictunpack);
       free(huffdictrle);
       free(huffdictunpack);
     }

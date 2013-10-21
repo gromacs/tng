@@ -222,17 +222,17 @@ static const int seq_instr[MAXINSTR][2]=
   {
     { 1,1 }, /* 1 : one large atom + runlength encoded small integers. Use same settings as before. */
     { 0,2 }, /* 00 : set base and runlength in next four bits (x). base (increase/keep/decrease)=x%3-1. runlength=1+x/3.
-	              The special value 1111 in the four bits means runlength=6 and base change=0 */
+                      The special value 1111 in the four bits means runlength=6 and base change=0 */
     { 4,4 }, /* 0100 : next only a large atom comes. */
     { 5,4 }, /* 0101 : next only runlength encoded small integers. Use same settings as before. */
     { 6,4 }, /* 0110 : Large change in base. Change is encoded in the
-		following 2 bits. change direction (sign) is the first
-		bit. The next bit +1 is the actual change. This
-		allows the change of up to +/- 2 indices. */
+                following 2 bits. change direction (sign) is the first
+                bit. The next bit +1 is the actual change. This
+                allows the change of up to +/- 2 indices. */
     { 14,5 }, /* 01110 : flip whether integers should be modified to compress water better */
     { 15,5 }, /* 01111 : Large rle. The next 4 bits encode how many
-	       large atoms are in the following sequence: 3-18. (2 is
-	       more efficiently coded with two large instructions. */
+               large atoms are in the following sequence: 3-18. (2 is
+               more efficiently coded with two large instructions. */
  };
 
 static void write_instruction(struct coder *coder,int instr,unsigned char **output_ptr)
@@ -258,13 +258,13 @@ static unsigned int readbits(unsigned char **ptr, int *bitptr, int nbits)
       *bitptr=(*bitptr)+1;
       extract_mask>>=1;
       if (!extract_mask)
-	{
-	  extract_mask=0x80U;
-	  *ptr=(*ptr)+1;
-	  *bitptr=0;
-	  if (nbits)
-	    thisval=**ptr;
-	}
+        {
+          extract_mask=0x80U;
+          *ptr=(*ptr)+1;
+          *bitptr=0;
+          if (nbits)
+            thisval=**ptr;
+        }
     }
 #ifdef SHOWIT
   fprintf(stderr,"%x\n",val);
@@ -301,25 +301,25 @@ static int read_instruction(unsigned char **ptr, int *bitptr)
     {
       bits=readbits(ptr,bitptr,1);
       if (!bits)
-	instr=INSTR_BASE_RUNLENGTH;
+        instr=INSTR_BASE_RUNLENGTH;
       else
-	{
-	  bits=readbits(ptr,bitptr,2);
-	  if (bits==0)
-	    instr=INSTR_ONLY_LARGE;
-	  else if (bits==1)
-	    instr=INSTR_ONLY_SMALL;
-	  else if (bits==2)
-	    instr=INSTR_LARGE_BASE_CHANGE;
-	  else if (bits==3)
-	    {
-	      bits=readbits(ptr,bitptr,1);
-	      if (bits==0)
-		instr=INSTR_FLIP;
-	      else
-		instr=INSTR_LARGE_RLE;
-	    }
-	}
+        {
+          bits=readbits(ptr,bitptr,2);
+          if (bits==0)
+            instr=INSTR_ONLY_LARGE;
+          else if (bits==1)
+            instr=INSTR_ONLY_SMALL;
+          else if (bits==2)
+            instr=INSTR_LARGE_BASE_CHANGE;
+          else if (bits==3)
+            {
+              bits=readbits(ptr,bitptr,1);
+              if (bits==0)
+                instr=INSTR_FLIP;
+              else
+                instr=INSTR_LARGE_RLE;
+            }
+        }
     }
   return instr;
 }
@@ -346,12 +346,12 @@ static void swap_is_better(int *input, int *minint, int *sum_normal, int *sum_sw
       normal[2]=input[6+i]-input[3+i]; /* minint[i]-minint[i] cancels out */
       swap_ints(normal,swapped);
       for (j=1; j<3; j++)
-	{
-	  if (positive_int(normal[j])>(unsigned int)normal_max)
-	    normal_max=positive_int(normal[j]);
-	  if (positive_int(swapped[j])>(unsigned int)swapped_max)
-	    swapped_max=positive_int(swapped[j]);
-	}
+        {
+          if (positive_int(normal[j])>(unsigned int)normal_max)
+            normal_max=positive_int(normal[j]);
+          if (positive_int(swapped[j])>(unsigned int)swapped_max)
+            swapped_max=positive_int(swapped[j]);
+        }
     }
   if (normal_max==0)
     normal_max=1;
@@ -381,21 +381,21 @@ static void swapdecide(struct coder *coder, int *input,int *swapatoms, int *larg
       ((normal<swapped) && (fabs((double)normal/swapped)<iflipgaincheck)))
     {
       if (swapped<normal)
-	{
-	  if (!*swapatoms)
-	    {
-	      *swapatoms=1;
-	      didswap=1;
-	    }
-	}
+        {
+          if (!*swapatoms)
+            {
+              *swapatoms=1;
+              didswap=1;
+            }
+        }
       else
-	{
-	  if (*swapatoms)
-	    {
-	      *swapatoms=0;
-	      didswap=1;
-	    }
-	}
+        {
+          if (*swapatoms)
+            {
+              *swapatoms=0;
+              didswap=1;
+            }
+        }
     }
   if (didswap)
     {
@@ -417,12 +417,12 @@ static int compute_magic_bits(int *index)
   for (i=0; i<3; i++)
     {
       if (i!=0)
-	{
-	  /* We must do the multiplication of the largeint with the integer base */
-	  Ptngc_largeint_mul(magic[index[i]],largeint,largeint_tmp,4);
-	  for (j=0; j<4; j++)
-	    largeint[j]=largeint_tmp[j];
-	}
+        {
+          /* We must do the multiplication of the largeint with the integer base */
+          Ptngc_largeint_mul(magic[index[i]],largeint,largeint_tmp,4);
+          for (j=0; j<4; j++)
+            largeint[j]=largeint_tmp[j];
+        }
       Ptngc_largeint_add(magic[index[i]]-1,largeint,4);
     }
   /* Find last bit. */
@@ -433,7 +433,7 @@ static int compute_magic_bits(int *index)
   for (i=0; i<3; i++)
     for (j=0; j<32; j++)
       if (largeint[i]&(1U<<j))
-	onebit=i*32+j+1;
+        onebit=i*32+j+1;
   return onebit;
 }
 
@@ -451,12 +451,12 @@ static void trajcoder_base_compress(int *input, int n, int *index, unsigned char
   for (i=0; i<n; i++)
     {
       if (i!=0)
-	{
-	  /* We must do the multiplication of the largeint with the integer base */
-	  Ptngc_largeint_mul(magic[index[i%3]],largeint,largeint_tmp,19);
-	  for (j=0; j<19; j++)
-	    largeint[j]=largeint_tmp[j];
-	}
+        {
+          /* We must do the multiplication of the largeint with the integer base */
+          Ptngc_largeint_mul(magic[index[i%3]],largeint,largeint_tmp,19);
+          for (j=0; j<19; j++)
+            largeint[j]=largeint_tmp[j];
+        }
       Ptngc_largeint_add(input[i],largeint,19);
     }
   if (largeint[18])
@@ -475,10 +475,10 @@ static void trajcoder_base_compress(int *input, int n, int *index, unsigned char
     {
       int shift=0;
       for (j=0; j<4; j++)
-	{
-	  result[i*4+j]=(largeint[i]>>shift) & 0xFFU;
-	  shift+=8;
-	}
+        {
+          result[i*4+j]=(largeint[i]>>shift) & 0xFFU;
+          shift+=8;
+        }
     }
 }
 
@@ -494,10 +494,10 @@ static void trajcoder_base_decompress(unsigned char *input, int n, int *index, i
       int shift=0;
       largeint[i]=0U;
       for (j=0; j<4; j++)
-	{
-	  largeint[i]|=((unsigned int)input[i*4+j])<<shift;
-	  shift+=8;
-	}
+        {
+          largeint[i]|=((unsigned int)input[i*4+j])<<shift;
+          shift+=8;
+        }
     }
   largeint[18]=0U;
 #if 0
@@ -516,7 +516,7 @@ static void trajcoder_base_decompress(unsigned char *input, int n, int *index, i
 #endif
 #if 0
       for (j=0; j<19; j++)
-	largeint[j]=largeint_tmp[j];
+        largeint[j]=largeint_tmp[j];
 #endif
       memcpy(largeint,largeint_tmp,19*sizeof *largeint);
       output[i]=remainder;
@@ -535,11 +535,11 @@ static int is_quite_large(int *input, int small_index, int max_large_index)
   else
     {
       for (i=0; i<3; i++)
-	if (positive_int(input[i])>magic[small_index+QUITE_LARGE])
-	  {
-	    is=1;
-	    break;
-	  }
+        if (positive_int(input[i])>magic[small_index+QUITE_LARGE])
+          {
+            is=1;
+            break;
+          }
     }
   return is;
 }
@@ -574,21 +574,21 @@ static void insert_batch(int *input_ptr, int ntriplets_left, int *prevcoord,int 
     {
       int i;
       for (i=0; i<startenc; i++)
-	{
-	  tmp_prevcoord[0]+=encode_ints[i*3];
-	  tmp_prevcoord[1]+=encode_ints[i*3+1];
-	  tmp_prevcoord[2]+=encode_ints[i*3+2];
+        {
+          tmp_prevcoord[0]+=encode_ints[i*3];
+          tmp_prevcoord[1]+=encode_ints[i*3+1];
+          tmp_prevcoord[2]+=encode_ints[i*3+2];
 #ifdef SHOWIT
-	  fprintf(stderr,"%6d: %6d %6d %6d\t\t%6d %6d %6d\t\t%6d %6d %6d\n",i*3,
-		  tmp_prevcoord[0],tmp_prevcoord[1],tmp_prevcoord[2],
-		  encode_ints[i*3],
-		  encode_ints[i*3+1],
-		  encode_ints[i*3+2],
-		  positive_int(encode_ints[i*3]),
-		  positive_int(encode_ints[i*3+1]),
-		  positive_int(encode_ints[i*3+2]));
+          fprintf(stderr,"%6d: %6d %6d %6d\t\t%6d %6d %6d\t\t%6d %6d %6d\n",i*3,
+                  tmp_prevcoord[0],tmp_prevcoord[1],tmp_prevcoord[2],
+                  encode_ints[i*3],
+                  encode_ints[i*3+1],
+                  encode_ints[i*3+2],
+                  positive_int(encode_ints[i*3]),
+                  positive_int(encode_ints[i*3+1]),
+                  positive_int(encode_ints[i*3+2]));
 #endif
-	}
+        }
     }
 
 #ifdef SHOWIT
@@ -601,15 +601,15 @@ static void insert_batch(int *input_ptr, int ntriplets_left, int *prevcoord,int 
       encode_ints[nencode+2]=input_ptr[nencode+2]-minint[2]-tmp_prevcoord[2];
 #ifdef SHOWIT
       fprintf(stderr,"%6d: %6d %6d %6d\t\t%6d %6d %6d\t\t%6d %6d %6d\n",nencode,
-	      input_ptr[nencode]-minint[0],
-	      input_ptr[nencode+1]-minint[1],
-	      input_ptr[nencode+2]-minint[2],
-	      encode_ints[nencode],
-	      encode_ints[nencode+1],
-	      encode_ints[nencode+2],
-	      positive_int(encode_ints[nencode]),
-	      positive_int(encode_ints[nencode+1]),
-	      positive_int(encode_ints[nencode+2]));
+              input_ptr[nencode]-minint[0],
+              input_ptr[nencode+1]-minint[1],
+              input_ptr[nencode+2]-minint[2],
+              encode_ints[nencode],
+              encode_ints[nencode+1],
+              encode_ints[nencode+2],
+              positive_int(encode_ints[nencode]),
+              positive_int(encode_ints[nencode+1]),
+              positive_int(encode_ints[nencode+2]));
 #endif
       tmp_prevcoord[0]=input_ptr[nencode]-minint[0];
       tmp_prevcoord[1]=input_ptr[nencode+1]-minint[1];
@@ -620,17 +620,17 @@ static void insert_batch(int *input_ptr, int ntriplets_left, int *prevcoord,int 
 }
 
 static void flush_large(struct coder *coder, int *has_large, int *has_large_ints, int n,
-			int *large_index, int large_nbits, unsigned char *compress_buffer,
-			unsigned char **output_ptr)
+                        int *large_index, int large_nbits, unsigned char *compress_buffer,
+                        unsigned char **output_ptr)
 {
   int i;
   if (n<3)
     {
       for (i=0; i<n; i++)
-	{
-	  write_instruction(coder,INSTR_ONLY_LARGE,output_ptr);
-	  write_three_large(coder,has_large_ints+i*3,large_index,large_nbits,compress_buffer,output_ptr);
-	}
+        {
+          write_instruction(coder,INSTR_ONLY_LARGE,output_ptr);
+          write_three_large(coder,has_large_ints+i*3,large_index,large_nbits,compress_buffer,output_ptr);
+        }
     }
   else
     {
@@ -640,26 +640,26 @@ static void flush_large(struct coder *coder, int *has_large, int *has_large_ints
       write_instruction(coder,INSTR_LARGE_RLE,output_ptr);
       Ptngc_writebits(coder,n-3,4,output_ptr); /* Number of large atoms in this sequence: 3 to 18 */
       for (i=0; i<n; i++)
-	write_three_large(coder,has_large_ints+i*3,large_index,large_nbits,compress_buffer,output_ptr);
+        write_three_large(coder,has_large_ints+i*3,large_index,large_nbits,compress_buffer,output_ptr);
     }
   if (((*has_large)-n)!=0)
     {
       int j;
       for (i=0; i<(*has_large)-n; i++)
-	for (j=0; j<3; j++)
-	  has_large_ints[i*3+j]=has_large_ints[(i+n)*3+j];
+        for (j=0; j<3; j++)
+          has_large_ints[i*3+j]=has_large_ints[(i+n)*3+j];
     }
   *has_large=(*has_large)-n; /* Number of remaining large atoms in buffer */
 }
 
 static void buffer_large(struct coder *coder, int *has_large, int *has_large_ints, int *new_large_ints,
-			int *large_index, int large_nbits, unsigned char *compress_buffer,
-			unsigned char **output_ptr)
+                        int *large_index, int large_nbits, unsigned char *compress_buffer,
+                        unsigned char **output_ptr)
 {
   /* If it is full we must write them all. */
   if (*has_large==18)
     flush_large(coder,has_large,has_large_ints, *has_large,
-		large_index,large_nbits,compress_buffer,output_ptr); /* Flush them all. */
+                large_index,large_nbits,compress_buffer,output_ptr); /* Flush them all. */
   has_large_ints[(*has_large)*3]=new_large_ints[0];
   has_large_ints[(*has_large)*3+1]=new_large_ints[1];
   has_large_ints[(*has_large)*3+2]=new_large_ints[2];
@@ -687,10 +687,10 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
   int has_large_ints[54]; /* Large cache. Up to 18 large atoms. */
   int prevcoord[3];
   int runlength=0; /* Initial runlength. "Stupidly" set to zero for
-		      simplicity and explicity */
+                      simplicity and explicity */
   int swapatoms=0; /* Initial guess is that we should not swap the
-		      first two atoms in each large+small
-		      transition */
+                      first two atoms in each large+small
+                      transition */
   int didswap; /* Whether swapping was actually done. */
   int *input_ptr=input;
   int encode_ints[21]; /* Up to 3 large + 18 small ints can be encoded at once */
@@ -713,10 +713,10 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
   for (i=1; i<ntriplets; i++)
     for (j=0; j<3; j++)
       {
-	if (input[i*3+j]>maxint[j])
-	  maxint[j]=input[i*3+j];
-	if (input[i*3+j]<minint[j])
-	  minint[j]=input[i*3+j];
+        if (input[i*3+j]>maxint[j])
+          maxint[j]=input[i*3+j];
+        if (input[i*3+j]<minint[j])
+          minint[j]=input[i*3+j];
       }
 
   large_index[0]=Ptngc_find_magic_index(maxint[0]-minint[0]+1);
@@ -732,7 +732,7 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 #ifdef SHOWIT
   for (j=0; j<3; j++)
     fprintf(stderr,"minint[%d]=%d. maxint[%d]=%d large_index[%d]=%d value=%d\n",j,minint[j],j,maxint[j],
-	    j,large_index[j],magic[large_index[j]]);
+            j,large_index[j],magic[large_index[j]]);
   fprintf(stderr,"large_nbits=%d\n",large_nbits);
 #endif
 
@@ -749,8 +749,8 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
       int item=input[i];
       int s=positive_int(item);
       if (s>intmax)
-	if (s<max_small)
-	  intmax=s;
+        if (s<max_small)
+          intmax=s;
     }
   /* This value is not critical, since if I guess wrong, the code will
      just insert instructions to increase this value. */
@@ -788,10 +788,10 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 #ifdef SHOWIT
   for (i=0; i<ntriplets_left; i++)
     fprintf(stderr,"VALUE:%d %6d %6d %6d\n",
-	    i,
-	    input_ptr[i*3],
-	    input_ptr[i*3+1],
-	    input_ptr[i*3+2]);
+            i,
+            input_ptr[i*3],
+            input_ptr[i*3+1],
+            input_ptr[i*3+2]);
 #endif
 #endif
 
@@ -803,455 +803,455 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
   while (ntriplets_left)
     {
       if (ntriplets_left<0)
-	{
-	  fprintf(stderr,"TRAJNG: BUG! ntriplets_left<0!\n");
-	  exit(EXIT_FAILURE);
-	}
+        {
+          fprintf(stderr,"TRAJNG: BUG! ntriplets_left<0!\n");
+          exit(EXIT_FAILURE);
+        }
       /* If only less than three atoms left we just write them all as large integers. Here no swapping is done! */
       if (ntriplets_left<3)
-	{
-	  for (ienc=0; ienc<ntriplets_left; ienc++)
-	    {
-	      int jenc;
-	      for (jenc=0; jenc<3; jenc++)
-		encode_ints[jenc]=input_ptr[ienc*3+jenc]-minint[jenc];
-	      buffer_large(coder,&has_large,has_large_ints,encode_ints,large_index,large_nbits,compress_buffer,&output_ptr);
-	      input_ptr+=3;
-	      ntriplets_left--;
-	    }
-	  flush_large(coder,&has_large,has_large_ints,has_large,large_index,large_nbits,compress_buffer,&output_ptr);
-	}
+        {
+          for (ienc=0; ienc<ntriplets_left; ienc++)
+            {
+              int jenc;
+              for (jenc=0; jenc<3; jenc++)
+                encode_ints[jenc]=input_ptr[ienc*3+jenc]-minint[jenc];
+              buffer_large(coder,&has_large,has_large_ints,encode_ints,large_index,large_nbits,compress_buffer,&output_ptr);
+              input_ptr+=3;
+              ntriplets_left--;
+            }
+          flush_large(coder,&has_large,has_large_ints,has_large,large_index,large_nbits,compress_buffer,&output_ptr);
+        }
       else
-	{
-	  int min_runlength=0;
-	  int largest_required_base;
-	  int largest_runlength_base;
-	  int largest_required_index;
-	  int largest_runlength_index;
-	  int new_runlength;
-	  int new_small_index;
-	  int iter_runlength;
-	  int iter_small_index;
-	  int rle_index_dep;
-	  didswap=0;
-	  /* Insert the next batch of integers to be encoded into the buffer */
+        {
+          int min_runlength=0;
+          int largest_required_base;
+          int largest_runlength_base;
+          int largest_required_index;
+          int largest_runlength_index;
+          int new_runlength;
+          int new_small_index;
+          int iter_runlength;
+          int iter_small_index;
+          int rle_index_dep;
+          didswap=0;
+          /* Insert the next batch of integers to be encoded into the buffer */
 #ifdef SHOWIT
-	  fprintf(stderr,"Initial batch\n");
+          fprintf(stderr,"Initial batch\n");
 #endif
-	  insert_batch(input_ptr,ntriplets_left,prevcoord,minint,encode_ints,0,&nencode);
+          insert_batch(input_ptr,ntriplets_left,prevcoord,minint,encode_ints,0,&nencode);
 
-	  /* First we must decide if the next value is large (does not reasonably fit in current small encoding)
-	     Also, if we have not written any values yet, we must begin by writing a large atom. */
-	  if ((input_ptr==input) || (is_quite_large(encode_ints,small_index,max_large_index)) || (refused))
-	    {
-	      /* If any of the next two atoms are large we should probably write them as large and not swap them */
-	      int no_swap=0;
-	      if ((is_quite_large(encode_ints+3,small_index,max_large_index)) || (is_quite_large(encode_ints+6,small_index,max_large_index)))
-		no_swap=1;
-	      if (!no_swap)
-		{
-		  /* Next we must decide if we should swap the first
-		     two values. */
+          /* First we must decide if the next value is large (does not reasonably fit in current small encoding)
+             Also, if we have not written any values yet, we must begin by writing a large atom. */
+          if ((input_ptr==input) || (is_quite_large(encode_ints,small_index,max_large_index)) || (refused))
+            {
+              /* If any of the next two atoms are large we should probably write them as large and not swap them */
+              int no_swap=0;
+              if ((is_quite_large(encode_ints+3,small_index,max_large_index)) || (is_quite_large(encode_ints+6,small_index,max_large_index)))
+                no_swap=1;
+              if (!no_swap)
+                {
+                  /* Next we must decide if we should swap the first
+                     two values. */
 #if 1
-		  swapdecide(coder,input_ptr,&swapatoms,large_index,minint,&output_ptr);
+                  swapdecide(coder,input_ptr,&swapatoms,large_index,minint,&output_ptr);
 #else
-		  swapatoms=0;
+                  swapatoms=0;
 #endif
-		  /* If we should do the integer swapping manipulation we should do it now */
-		  if (swapatoms)
-		    {
-		      didswap=1;
-		      for (i=0; i<3; i++)
-			{
-			  int in[3], out[3];
-			  in[0]=input_ptr[i]-minint[i];
-			  in[1]=input_ptr[3+i]-input_ptr[i]; /* minint[i]-minint[i] cancels out */
-			  in[2]=input_ptr[6+i]-input_ptr[3+i]; /* minint[i]-minint[i] cancels out */
-			  swap_ints(in,out);
-			  encode_ints[i]=out[0];
-			  encode_ints[3+i]=out[1];
-			  encode_ints[6+i]=out[2];
-			}
-		      /* We have swapped atoms, so the minimum run-length is 2 */
+                  /* If we should do the integer swapping manipulation we should do it now */
+                  if (swapatoms)
+                    {
+                      didswap=1;
+                      for (i=0; i<3; i++)
+                        {
+                          int in[3], out[3];
+                          in[0]=input_ptr[i]-minint[i];
+                          in[1]=input_ptr[3+i]-input_ptr[i]; /* minint[i]-minint[i] cancels out */
+                          in[2]=input_ptr[6+i]-input_ptr[3+i]; /* minint[i]-minint[i] cancels out */
+                          swap_ints(in,out);
+                          encode_ints[i]=out[0];
+                          encode_ints[3+i]=out[1];
+                          encode_ints[6+i]=out[2];
+                        }
+                      /* We have swapped atoms, so the minimum run-length is 2 */
 #ifdef SHOWIT
-		      fprintf(stderr,"Swap atoms results in:\n");
-		      for (i=0; i<3; i++)
-			fprintf(stderr,"%d: %6d %6d %6d\t\t%6d %6d %6d\n",i*3,
-				encode_ints[i*3],
-				encode_ints[i*3+1],
-				encode_ints[i*3+2],
-				positive_int(encode_ints[i*3]),
-				positive_int(encode_ints[i*3+1]),
-				positive_int(encode_ints[i*3+2]));
+                      fprintf(stderr,"Swap atoms results in:\n");
+                      for (i=0; i<3; i++)
+                        fprintf(stderr,"%d: %6d %6d %6d\t\t%6d %6d %6d\n",i*3,
+                                encode_ints[i*3],
+                                encode_ints[i*3+1],
+                                encode_ints[i*3+2],
+                                positive_int(encode_ints[i*3]),
+                                positive_int(encode_ints[i*3+1]),
+                                positive_int(encode_ints[i*3+2]));
 
 #endif
-		      min_runlength=2;
-		    }
-		}
-	      if ((swapatoms) && (didswap))
-		{
-		  for (ienc=0; ienc<3; ienc++)
-		    prevcoord[ienc]=encode_ints[ienc];
-		}
-	      else
-		{
-		  for (ienc=0; ienc<3; ienc++)
-		    prevcoord[ienc]=input_ptr[ienc]-minint[ienc];
-		}
-	      /* Cache large value for later possible combination with
-		 a sequence of small integers. */
-	      buffer_large(coder,&has_large,has_large_ints,prevcoord,large_index,large_nbits,compress_buffer,&output_ptr);
+                      min_runlength=2;
+                    }
+                }
+              if ((swapatoms) && (didswap))
+                {
+                  for (ienc=0; ienc<3; ienc++)
+                    prevcoord[ienc]=encode_ints[ienc];
+                }
+              else
+                {
+                  for (ienc=0; ienc<3; ienc++)
+                    prevcoord[ienc]=input_ptr[ienc]-minint[ienc];
+                }
+              /* Cache large value for later possible combination with
+                 a sequence of small integers. */
+              buffer_large(coder,&has_large,has_large_ints,prevcoord,large_index,large_nbits,compress_buffer,&output_ptr);
 #ifdef SHOWIT
-	      fprintf(stderr,"Prevcoord after packing of large: %d %d %d\n",
-		      prevcoord[0],prevcoord[1],prevcoord[2]);
+              fprintf(stderr,"Prevcoord after packing of large: %d %d %d\n",
+                      prevcoord[0],prevcoord[1],prevcoord[2]);
 #endif
 
-	      /* We have written a large integer so we have one less atoms to worry about */
-	      input_ptr+=3;
-	      ntriplets_left--;
+              /* We have written a large integer so we have one less atoms to worry about */
+              input_ptr+=3;
+              ntriplets_left--;
 
-	      refused=0;
+              refused=0;
 
-	      /* Insert the next batch of integers to be encoded into the buffer */
+              /* Insert the next batch of integers to be encoded into the buffer */
 #ifdef SHOWIT
-	      fprintf(stderr,"Update batch due to large int.\n");
+              fprintf(stderr,"Update batch due to large int.\n");
 #endif
-	      if ((swapatoms) && (didswap))
-		{
-		  /* Keep swapped values. */
-		  for (i=0; i<2; i++)
-		    for (ienc=0; ienc<3; ienc++)
-		      encode_ints[i*3+ienc]=encode_ints[(i+1)*3+ienc];
-		}
-	      insert_batch(input_ptr,ntriplets_left,prevcoord,minint,encode_ints,min_runlength,&nencode);
-	    }
-	  /* Here we should only have differences for the atom coordinates. */
-	  /* Convert the ints to positive ints */
-	  for (ienc=0; ienc<nencode; ienc++)
-	    {
-	      int pint=positive_int(encode_ints[ienc]);
-	      encode_ints[ienc]=pint;
-	    }
-	  /* Now we must decide what base and runlength to do. If we have swapped atoms it will be at least 2.
-	     If even the next atom is large, we will not do anything. */
-	  largest_required_base=0;
-	  /* Determine required base */
-	  for (ienc=0; ienc<min_runlength*3; ienc++)
-	    if (encode_ints[ienc]>largest_required_base)
-	      largest_required_base=encode_ints[ienc];
-	  /* Also compute what the largest base is for the current runlength setting! */
-	  largest_runlength_base=0;
-	  for (ienc=0; (ienc<runlength*3) && (ienc<nencode); ienc++)
-	    if (encode_ints[ienc]>largest_runlength_base)
-	      largest_runlength_base=encode_ints[ienc];
+              if ((swapatoms) && (didswap))
+                {
+                  /* Keep swapped values. */
+                  for (i=0; i<2; i++)
+                    for (ienc=0; ienc<3; ienc++)
+                      encode_ints[i*3+ienc]=encode_ints[(i+1)*3+ienc];
+                }
+              insert_batch(input_ptr,ntriplets_left,prevcoord,minint,encode_ints,min_runlength,&nencode);
+            }
+          /* Here we should only have differences for the atom coordinates. */
+          /* Convert the ints to positive ints */
+          for (ienc=0; ienc<nencode; ienc++)
+            {
+              int pint=positive_int(encode_ints[ienc]);
+              encode_ints[ienc]=pint;
+            }
+          /* Now we must decide what base and runlength to do. If we have swapped atoms it will be at least 2.
+             If even the next atom is large, we will not do anything. */
+          largest_required_base=0;
+          /* Determine required base */
+          for (ienc=0; ienc<min_runlength*3; ienc++)
+            if (encode_ints[ienc]>largest_required_base)
+              largest_required_base=encode_ints[ienc];
+          /* Also compute what the largest base is for the current runlength setting! */
+          largest_runlength_base=0;
+          for (ienc=0; (ienc<runlength*3) && (ienc<nencode); ienc++)
+            if (encode_ints[ienc]>largest_runlength_base)
+              largest_runlength_base=encode_ints[ienc];
 
-	  largest_required_index=Ptngc_find_magic_index(largest_required_base);
-	  largest_runlength_index=Ptngc_find_magic_index(largest_runlength_base);
+          largest_required_index=Ptngc_find_magic_index(largest_required_base);
+          largest_runlength_index=Ptngc_find_magic_index(largest_runlength_base);
 
-	  if (largest_required_index<largest_runlength_index)
-	    {
-	      new_runlength=min_runlength;
-	      new_small_index=largest_required_index;
-	    }
-	  else
-	    {
-	      new_runlength=runlength;
-	      new_small_index=largest_runlength_index;
-	    }
+          if (largest_required_index<largest_runlength_index)
+            {
+              new_runlength=min_runlength;
+              new_small_index=largest_required_index;
+            }
+          else
+            {
+              new_runlength=runlength;
+              new_small_index=largest_runlength_index;
+            }
 
-	  /* Only allow increase of runlength wrt min_runlength */
-	  if (new_runlength<min_runlength)
-	    new_runlength=min_runlength;
+          /* Only allow increase of runlength wrt min_runlength */
+          if (new_runlength<min_runlength)
+            new_runlength=min_runlength;
 
-	  /* If the current runlength is longer than the number of
-	     triplets left stop it from being so. */
-	  if (new_runlength>ntriplets_left)
-	    new_runlength=ntriplets_left;
+          /* If the current runlength is longer than the number of
+             triplets left stop it from being so. */
+          if (new_runlength>ntriplets_left)
+            new_runlength=ntriplets_left;
 
-	  /* We must at least try to get some small integers going. */
-	  if (new_runlength==0)
-	    {
-	      new_runlength=1;
-	      new_small_index=small_index;
-	    }
+          /* We must at least try to get some small integers going. */
+          if (new_runlength==0)
+            {
+              new_runlength=1;
+              new_small_index=small_index;
+            }
 
-	  iter_runlength=new_runlength;
-	  iter_small_index=new_small_index;
+          iter_runlength=new_runlength;
+          iter_small_index=new_small_index;
 
-	  /* Iterate to find optimal encoding and runlength */
+          /* Iterate to find optimal encoding and runlength */
 #ifdef SHOWIT
-	  fprintf(stderr,"Entering iterative loop.\n");
-	  fflush(stderr);
+          fprintf(stderr,"Entering iterative loop.\n");
+          fflush(stderr);
 #endif
 
-	  do {
-	    new_runlength=iter_runlength;
-	    new_small_index=iter_small_index;
-
-#ifdef SHOWIT
-	    fprintf(stderr,"Test new_small_index=%d Base=%d\n",new_small_index,magic[new_small_index]);
-#endif
-	    /* What is the largest runlength
-	       we can do with the currently
-	       selected encoding? Also the max supported runlength is 6 triplets! */
-	    for (ienc=0; ienc<nencode && ienc<18; ienc++)
-	      {
-		int test_index=Ptngc_find_magic_index(encode_ints[ienc]);
-		if (test_index>new_small_index)
-		  break;
-	      }
-	    if (ienc/3>new_runlength)
-	      {
-		iter_runlength=ienc/3;
-#ifdef SHOWIT
-		fprintf(stderr,"I found a new possible runlength: %d\n",iter_runlength);
-#endif
-	      }
-
-	    /* How large encoding do we have to use? */
-	    largest_runlength_base=0;
-	    for (ienc=0; ienc<iter_runlength*3; ienc++)
-	      if (encode_ints[ienc]>largest_runlength_base)
-		largest_runlength_base=encode_ints[ienc];
-	    largest_runlength_index=Ptngc_find_magic_index(largest_runlength_base);
-	    if (largest_runlength_index!=new_small_index)
-	      {
-		iter_small_index=largest_runlength_index;
-#ifdef SHOWIT
-		fprintf(stderr,"I found a new possible small index: %d Base=%d\n",iter_small_index,magic[iter_small_index]);
-#endif
-	      }
-	  } while ((new_runlength!=iter_runlength) ||
-		   (new_small_index!=iter_small_index));
+          do {
+            new_runlength=iter_runlength;
+            new_small_index=iter_small_index;
 
 #ifdef SHOWIT
-	  fprintf(stderr,"Exit iterative loop.\n");
-	  fflush(stderr);
+            fprintf(stderr,"Test new_small_index=%d Base=%d\n",new_small_index,magic[new_small_index]);
+#endif
+            /* What is the largest runlength
+               we can do with the currently
+               selected encoding? Also the max supported runlength is 6 triplets! */
+            for (ienc=0; ienc<nencode && ienc<18; ienc++)
+              {
+                int test_index=Ptngc_find_magic_index(encode_ints[ienc]);
+                if (test_index>new_small_index)
+                  break;
+              }
+            if (ienc/3>new_runlength)
+              {
+                iter_runlength=ienc/3;
+#ifdef SHOWIT
+                fprintf(stderr,"I found a new possible runlength: %d\n",iter_runlength);
+#endif
+              }
+
+            /* How large encoding do we have to use? */
+            largest_runlength_base=0;
+            for (ienc=0; ienc<iter_runlength*3; ienc++)
+              if (encode_ints[ienc]>largest_runlength_base)
+                largest_runlength_base=encode_ints[ienc];
+            largest_runlength_index=Ptngc_find_magic_index(largest_runlength_base);
+            if (largest_runlength_index!=new_small_index)
+              {
+                iter_small_index=largest_runlength_index;
+#ifdef SHOWIT
+                fprintf(stderr,"I found a new possible small index: %d Base=%d\n",iter_small_index,magic[iter_small_index]);
+#endif
+              }
+          } while ((new_runlength!=iter_runlength) ||
+                   (new_small_index!=iter_small_index));
+
+#ifdef SHOWIT
+          fprintf(stderr,"Exit iterative loop.\n");
+          fflush(stderr);
 #endif
 
-	  /* Verify that we got something good. We may have caught a
-	     substantially larger atom. If so we should just bail
-	     out and let the loop get on another lap. We may have a
-	     minimum runlength though and then we have to fulfill
-	     the request to write out these atoms! */
-	  rle_index_dep=0;
-	  if (new_runlength<3)
-	    rle_index_dep=IS_LARGE;
-	  else if (new_runlength<6)
-	    rle_index_dep=QUITE_LARGE;
-	  if ((min_runlength)
-	      || ((new_small_index<small_index+IS_LARGE) && (new_small_index+rle_index_dep<max_large_index))
+          /* Verify that we got something good. We may have caught a
+             substantially larger atom. If so we should just bail
+             out and let the loop get on another lap. We may have a
+             minimum runlength though and then we have to fulfill
+             the request to write out these atoms! */
+          rle_index_dep=0;
+          if (new_runlength<3)
+            rle_index_dep=IS_LARGE;
+          else if (new_runlength<6)
+            rle_index_dep=QUITE_LARGE;
+          if ((min_runlength)
+              || ((new_small_index<small_index+IS_LARGE) && (new_small_index+rle_index_dep<max_large_index))
 #if 1
-	      || (new_small_index+IS_LARGE<max_large_index)
+              || (new_small_index+IS_LARGE<max_large_index)
 #endif
 )
-	    {
-	      int nbits;
-	      if ((new_runlength!=runlength) || (new_small_index!=small_index))
-		{
-		  int change=new_small_index-small_index;
+            {
+              int nbits;
+              if ((new_runlength!=runlength) || (new_small_index!=small_index))
+                {
+                  int change=new_small_index-small_index;
 
-		  if (new_small_index<=0)
-		    change=0;
+                  if (new_small_index<=0)
+                    change=0;
 
-		  if (change<0)
-		    {
-		      int ixx;
-		      for (ixx=0; ixx<new_runlength; ixx++)
-			{
-			  int rejected;
-			  do {
-			    int ixyz;
-			    double isum=0.; /* ints can be almost 32 bit so multiplication will overflow. So do doubles. */
-			    for (ixyz=0; ixyz<3; ixyz++)
-			      {
-				/* encode_ints is already positive (and multiplied by 2 versus the original, just as magic ints) */
-				double id=encode_ints[ixx*3+ixyz];
-				isum+=id*id;
-			      }
-			    rejected=0;
+                  if (change<0)
+                    {
+                      int ixx;
+                      for (ixx=0; ixx<new_runlength; ixx++)
+                        {
+                          int rejected;
+                          do {
+                            int ixyz;
+                            double isum=0.; /* ints can be almost 32 bit so multiplication will overflow. So do doubles. */
+                            for (ixyz=0; ixyz<3; ixyz++)
+                              {
+                                /* encode_ints is already positive (and multiplied by 2 versus the original, just as magic ints) */
+                                double id=encode_ints[ixx*3+ixyz];
+                                isum+=id*id;
+                              }
+                            rejected=0;
 #ifdef SHOWIT
-			    fprintf(stderr,"Tested decrease %d of index: %g>=%g?\n",change,isum,(double)magic[small_index+change]*(double)magic[small_index+change]);
+                            fprintf(stderr,"Tested decrease %d of index: %g>=%g?\n",change,isum,(double)magic[small_index+change]*(double)magic[small_index+change]);
 #endif
-			    if (isum>(double)magic[small_index+change]*(double)magic[small_index+change])
-			      {
+                            if (isum>(double)magic[small_index+change]*(double)magic[small_index+change])
+                              {
 #ifdef SHOWIT
-				fprintf(stderr,"Rejected decrease %d of index due to length of vector: %g>=%g\n",change,isum,(double)magic[small_index+change]*(double)magic[small_index+change]);
+                                fprintf(stderr,"Rejected decrease %d of index due to length of vector: %g>=%g\n",change,isum,(double)magic[small_index+change]*(double)magic[small_index+change]);
 #endif
-				rejected=1;
-				change++;
-			      }
-			  } while ((change<0) && (rejected));
-			  if (change==0)
-			    break;
-			}
-		    }
+                                rejected=1;
+                                change++;
+                              }
+                          } while ((change<0) && (rejected));
+                          if (change==0)
+                            break;
+                        }
+                    }
 
-		  /* If the only thing to do is to change the base by
-		     only one -1 it is probably not worth it. */
-		  if (!((change==-1) && (runlength==new_runlength)))
-		    {
-		      /* If we have a very short runlength we do not
-			 want to do large base changes.  It costs 6
-			 extra bits to do -2. We gain 2/3
-			 bits per value to decrease the index by -2,
-			 ie 2 bits, so to any changes down we must
-			 have a runlength of 3 or more to do it for
-			 one molecule! If we have several molecules we
-			 will gain of course, so not be so strict. */
-		      if ((change==-2) && (new_runlength<3))
-			{
-			  if (runlength==new_runlength)
-			    change=0;
-			  else
-			    change=-1;
+                  /* If the only thing to do is to change the base by
+                     only one -1 it is probably not worth it. */
+                  if (!((change==-1) && (runlength==new_runlength)))
+                    {
+                      /* If we have a very short runlength we do not
+                         want to do large base changes.  It costs 6
+                         extra bits to do -2. We gain 2/3
+                         bits per value to decrease the index by -2,
+                         ie 2 bits, so to any changes down we must
+                         have a runlength of 3 or more to do it for
+                         one molecule! If we have several molecules we
+                         will gain of course, so not be so strict. */
+                      if ((change==-2) && (new_runlength<3))
+                        {
+                          if (runlength==new_runlength)
+                            change=0;
+                          else
+                            change=-1;
 #ifdef SHOWIT
-			  fprintf(stderr,"Rejected change by -2 due to too short runlenght. Change set to %d\n",change);
+                          fprintf(stderr,"Rejected change by -2 due to too short runlenght. Change set to %d\n",change);
 #endif
-			}
+                        }
 
-		      /* First adjust base using large base change instruction (if necessary) */
-		      while ((change>1) || (change<-1) || ((new_runlength==6) && (change)))
-			{
-			  unsigned int code=0U;
-			  int this_change=change;
-			  if (this_change>2)
-			    this_change=2;
-			  if (this_change<-2)
-			    this_change=-2;
-			  change-=this_change;
+                      /* First adjust base using large base change instruction (if necessary) */
+                      while ((change>1) || (change<-1) || ((new_runlength==6) && (change)))
+                        {
+                          unsigned int code=0U;
+                          int this_change=change;
+                          if (this_change>2)
+                            this_change=2;
+                          if (this_change<-2)
+                            this_change=-2;
+                          change-=this_change;
 #ifdef SHOWIT
-			  fprintf(stderr,"Large base change: %d.\n",this_change);
+                          fprintf(stderr,"Large base change: %d.\n",this_change);
 #endif
-			  small_index+=this_change;
-			  if (this_change<0)
-			    {
-			      code|=2U;
-			      this_change=-this_change;
-			    }
-			  code|=(unsigned int)(this_change-1);
-			  write_instruction(coder,INSTR_LARGE_BASE_CHANGE,&output_ptr);
-			  Ptngc_writebits(coder,code,2,&output_ptr);
-			}
-		      /* If there is still base change or runlength changes to do, we do them now. */
-		      if ((new_runlength!=runlength) || (change))
-			{
-			  unsigned int ichange=(unsigned int)(change+1);
-			  unsigned int code=0U;
-			  unsigned int irun=(unsigned int)((new_runlength-1)*3);
-			  if (new_runlength==6)
-			    ichange=0; /* Means no change. The change has been taken care of explicitly by a large
-					  base change instruction above. */
-			  code=ichange+irun;
+                          small_index+=this_change;
+                          if (this_change<0)
+                            {
+                              code|=2U;
+                              this_change=-this_change;
+                            }
+                          code|=(unsigned int)(this_change-1);
+                          write_instruction(coder,INSTR_LARGE_BASE_CHANGE,&output_ptr);
+                          Ptngc_writebits(coder,code,2,&output_ptr);
+                        }
+                      /* If there is still base change or runlength changes to do, we do them now. */
+                      if ((new_runlength!=runlength) || (change))
+                        {
+                          unsigned int ichange=(unsigned int)(change+1);
+                          unsigned int code=0U;
+                          unsigned int irun=(unsigned int)((new_runlength-1)*3);
+                          if (new_runlength==6)
+                            ichange=0; /* Means no change. The change has been taken care of explicitly by a large
+                                          base change instruction above. */
+                          code=ichange+irun;
 #ifdef SHOWIT
-			  fprintf(stderr,"Small base change: %d Runlength change: %d\n",change,new_runlength);
+                          fprintf(stderr,"Small base change: %d Runlength change: %d\n",change,new_runlength);
 #endif
-			  small_index+=change;
-			  write_instruction(coder,INSTR_BASE_RUNLENGTH,&output_ptr);
-			  Ptngc_writebits(coder,code,4,&output_ptr);
-			  runlength=new_runlength;
-			}
-		    }
+                          small_index+=change;
+                          write_instruction(coder,INSTR_BASE_RUNLENGTH,&output_ptr);
+                          Ptngc_writebits(coder,code,4,&output_ptr);
+                          runlength=new_runlength;
+                        }
+                    }
 #ifdef SHOWIT
-		  else
-		    fprintf(stderr,"Rejected base change due to only change==-1\n");
+                  else
+                    fprintf(stderr,"Rejected base change due to only change==-1\n");
 #endif
 #ifdef SHOWIT
-		  fprintf(stderr,"Current small index: %d Base=%d\n",small_index,magic[small_index]);
+                  fprintf(stderr,"Current small index: %d Base=%d\n",small_index,magic[small_index]);
 #endif
-		}
-	      /* If we have a large previous integer we can combine it with a sequence of small ints. */
-	      if (has_large)
-		{
-		  /* If swapatoms is set to 1 but we did actually not
-		     do any swapping, we must first write out the
-		     large atom and then the small. If swapatoms is 1
-		     and we did swapping we can use the efficient
-		     encoding. */
-		  if ((swapatoms) && (!didswap))
-		    {
+                }
+              /* If we have a large previous integer we can combine it with a sequence of small ints. */
+              if (has_large)
+                {
+                  /* If swapatoms is set to 1 but we did actually not
+                     do any swapping, we must first write out the
+                     large atom and then the small. If swapatoms is 1
+                     and we did swapping we can use the efficient
+                     encoding. */
+                  if ((swapatoms) && (!didswap))
+                    {
 #ifdef SHOWIT
-		      fprintf(stderr,"Swapatoms was set to 1 but we did not do swapping!\n");
-		      fprintf(stderr,"Only one large integer.\n");
+                      fprintf(stderr,"Swapatoms was set to 1 but we did not do swapping!\n");
+                      fprintf(stderr,"Only one large integer.\n");
 #endif
-		      /* Flush all large atoms. */
-		      flush_large(coder,&has_large,has_large_ints,has_large,large_index,large_nbits,compress_buffer,&output_ptr);
+                      /* Flush all large atoms. */
+                      flush_large(coder,&has_large,has_large_ints,has_large,large_index,large_nbits,compress_buffer,&output_ptr);
 #ifdef SHOWIT
-		      fprintf(stderr,"Sequence of only small integers.\n");
+                      fprintf(stderr,"Sequence of only small integers.\n");
 #endif
-		      write_instruction(coder,INSTR_ONLY_SMALL,&output_ptr);
-		    }
-		  else
-		    {
+                      write_instruction(coder,INSTR_ONLY_SMALL,&output_ptr);
+                    }
+                  else
+                    {
 
 #ifdef SHOWIT
-		      fprintf(stderr,"Sequence of one large and small integers (good compression).\n");
+                      fprintf(stderr,"Sequence of one large and small integers (good compression).\n");
 #endif
-		      /* Flush all large atoms but one! */
-		      if (has_large>1)
-			flush_large(coder,&has_large,has_large_ints,has_large-1,large_index,large_nbits,compress_buffer,&output_ptr);
-		      write_instruction(coder,INSTR_DEFAULT,&output_ptr);
-		      write_three_large(coder,has_large_ints,large_index,large_nbits,compress_buffer,&output_ptr);
-		      has_large=0;
-		    }
-		}
-	      else
-		{
+                      /* Flush all large atoms but one! */
+                      if (has_large>1)
+                        flush_large(coder,&has_large,has_large_ints,has_large-1,large_index,large_nbits,compress_buffer,&output_ptr);
+                      write_instruction(coder,INSTR_DEFAULT,&output_ptr);
+                      write_three_large(coder,has_large_ints,large_index,large_nbits,compress_buffer,&output_ptr);
+                      has_large=0;
+                    }
+                }
+              else
+                {
 #ifdef SHOWIT
-		  fprintf(stderr,"Sequence of only small integers.\n");
+                  fprintf(stderr,"Sequence of only small integers.\n");
 #endif
-		  write_instruction(coder,INSTR_ONLY_SMALL,&output_ptr);
-		}
-	      /* Base compress small integers using the current parameters. */
-	      nbits=magic_bits[small_index][runlength-1];
-	      /* The same base is used for the small changes. */
-	      small_idx[0]=small_index;
-	      small_idx[1]=small_index;
-	      small_idx[2]=small_index;
-	      trajcoder_base_compress(encode_ints,runlength*3,small_idx,compress_buffer);
+                  write_instruction(coder,INSTR_ONLY_SMALL,&output_ptr);
+                }
+              /* Base compress small integers using the current parameters. */
+              nbits=magic_bits[small_index][runlength-1];
+              /* The same base is used for the small changes. */
+              small_idx[0]=small_index;
+              small_idx[1]=small_index;
+              small_idx[2]=small_index;
+              trajcoder_base_compress(encode_ints,runlength*3,small_idx,compress_buffer);
 #ifdef SHOWIT
-	      fprintf(stderr,"nbits=%d (%g)\n",nbits,nbits/(runlength*3.));
-	      nbits_sum+=nbits;
-	      nvalues_sum+=runlength*3;
-	      fprintf(stderr,"Runlength encoded small integers. runlength=%d\n",runlength);
+              fprintf(stderr,"nbits=%d (%g)\n",nbits,nbits/(runlength*3.));
+              nbits_sum+=nbits;
+              nvalues_sum+=runlength*3;
+              fprintf(stderr,"Runlength encoded small integers. runlength=%d\n",runlength);
 #endif
-	      /* write out base compressed small integers */
-	      Ptngc_writemanybits(coder,compress_buffer,nbits,&output_ptr);
+              /* write out base compressed small integers */
+              Ptngc_writemanybits(coder,compress_buffer,nbits,&output_ptr);
 #ifdef SHOWIT
-	      for (ienc=0; ienc<runlength; ienc++)
-		fprintf(stderr,"Small: %d %d %d\n",
-			encode_ints[ienc*3],
-			encode_ints[ienc*3+1],
-			encode_ints[ienc*3+2]);
+              for (ienc=0; ienc<runlength; ienc++)
+                fprintf(stderr,"Small: %d %d %d\n",
+                        encode_ints[ienc*3],
+                        encode_ints[ienc*3+1],
+                        encode_ints[ienc*3+2]);
 #endif
-	      /* Update prevcoord. */
-	      for (ienc=0; ienc<runlength; ienc++)
-		{
+              /* Update prevcoord. */
+              for (ienc=0; ienc<runlength; ienc++)
+                {
 #ifdef SHOWIT
-		  fprintf(stderr,"Prevcoord in packing: %d %d %d\n",
-			  prevcoord[0],prevcoord[1],prevcoord[2]);
+                  fprintf(stderr,"Prevcoord in packing: %d %d %d\n",
+                          prevcoord[0],prevcoord[1],prevcoord[2]);
 #endif
-		  prevcoord[0]+=unpositive_int(encode_ints[ienc*3]);
-		  prevcoord[1]+=unpositive_int(encode_ints[ienc*3+1]);
-		  prevcoord[2]+=unpositive_int(encode_ints[ienc*3+2]);
-		}
+                  prevcoord[0]+=unpositive_int(encode_ints[ienc*3]);
+                  prevcoord[1]+=unpositive_int(encode_ints[ienc*3+1]);
+                  prevcoord[2]+=unpositive_int(encode_ints[ienc*3+2]);
+                }
 #ifdef SHOWIT
-	      fprintf(stderr,"Prevcoord in packing: %d %d %d\n",
-		      prevcoord[0],prevcoord[1],prevcoord[2]);
+              fprintf(stderr,"Prevcoord in packing: %d %d %d\n",
+                      prevcoord[0],prevcoord[1],prevcoord[2]);
 #endif
 
-	      input_ptr+=3*runlength;
-	      ntriplets_left-=runlength;
-	    }
-	  else
-	    {
+              input_ptr+=3*runlength;
+              ntriplets_left-=runlength;
+            }
+          else
+            {
 #ifdef SHOWIT
-	      fprintf(stderr,"Refused value: %d old is %d max is %d\n",new_small_index,small_index,max_large_index);
-	      fflush(stderr);
+              fprintf(stderr,"Refused value: %d old is %d max is %d\n",new_small_index,small_index,max_large_index);
+              fflush(stderr);
 #endif
-	      refused=1;
-	    }
-	}
+              refused=1;
+            }
+        }
 #ifdef SHOWIT
       fprintf(stderr,"Number of triplets left is %d\n",ntriplets_left);
 #endif
@@ -1315,184 +1315,184 @@ int Ptngc_unpack_array_xtc2(struct coder *coder,unsigned char *packed,int *outpu
       int instr=read_instruction(&ptr,&bitptr);
 #ifdef SHOWIT
       if ((instr>=0) && (instr<MAXINSTR))
-	fprintf(stderr,"Decoded instruction %s\n",instrnames[instr]);
+        fprintf(stderr,"Decoded instruction %s\n",instrnames[instr]);
 #endif
       if ((instr==INSTR_DEFAULT) /* large+small */
-	  || (instr==INSTR_ONLY_LARGE) /* only large */
-	  || (instr==INSTR_ONLY_SMALL)) /* only small */
-	{
-	  int large_ints[3]={0,0,0};
-	  if (instr!=INSTR_ONLY_SMALL)
-	    {
-	      /* Clear the compress buffer. */
-	      int i;
-	      for (i=0; i<18*4; i++)
-		compress_buffer[i]=0;
-	      /* Get the large value. */
-	      readmanybits(&ptr,&bitptr,large_nbits,compress_buffer);
-	      trajcoder_base_decompress(compress_buffer,3,large_index,encode_ints);
-	      large_ints[0]=encode_ints[0];
-	      large_ints[1]=encode_ints[1];
-	      large_ints[2]=encode_ints[2];
+          || (instr==INSTR_ONLY_LARGE) /* only large */
+          || (instr==INSTR_ONLY_SMALL)) /* only small */
+        {
+          int large_ints[3]={0,0,0};
+          if (instr!=INSTR_ONLY_SMALL)
+            {
+              /* Clear the compress buffer. */
+              int i;
+              for (i=0; i<18*4; i++)
+                compress_buffer[i]=0;
+              /* Get the large value. */
+              readmanybits(&ptr,&bitptr,large_nbits,compress_buffer);
+              trajcoder_base_decompress(compress_buffer,3,large_index,encode_ints);
+              large_ints[0]=encode_ints[0];
+              large_ints[1]=encode_ints[1];
+              large_ints[2]=encode_ints[2];
 #ifdef SHOWIT
-	      fprintf(stderr,"large ints: %d %d %d\n",large_ints[0],large_ints[1],large_ints[2]);
+              fprintf(stderr,"large ints: %d %d %d\n",large_ints[0],large_ints[1],large_ints[2]);
 #endif
-	    }
-	  if (instr!=INSTR_ONLY_LARGE)
-	    {
-	      int small_idx[3];
-	      int i;
-	      /* The same base is used for the small changes. */
-	      small_idx[0]=small_index;
-	      small_idx[1]=small_index;
-	      small_idx[2]=small_index;
-	      /* Clear the compress buffer. */
-	      for (i=0; i<18*4; i++)
-		compress_buffer[i]=0;
-	      /* Get the small values. */
-	      readmanybits(&ptr,&bitptr,magic_bits[small_index][runlength-1],compress_buffer);
-	      trajcoder_base_decompress(compress_buffer,3*runlength,small_idx,encode_ints);
+            }
+          if (instr!=INSTR_ONLY_LARGE)
+            {
+              int small_idx[3];
+              int i;
+              /* The same base is used for the small changes. */
+              small_idx[0]=small_index;
+              small_idx[1]=small_index;
+              small_idx[2]=small_index;
+              /* Clear the compress buffer. */
+              for (i=0; i<18*4; i++)
+                compress_buffer[i]=0;
+              /* Get the small values. */
+              readmanybits(&ptr,&bitptr,magic_bits[small_index][runlength-1],compress_buffer);
+              trajcoder_base_decompress(compress_buffer,3*runlength,small_idx,encode_ints);
 #ifdef SHOWIT
-	      for (i=0; i<runlength; i++)
-		fprintf(stderr,"small ints: %d %d %d\n",encode_ints[i*3+0],encode_ints[i*3+1],encode_ints[i*3+2]);
+              for (i=0; i<runlength; i++)
+                fprintf(stderr,"small ints: %d %d %d\n",encode_ints[i*3+0],encode_ints[i*3+1],encode_ints[i*3+2]);
 #endif
-	    }
-	  if (instr==INSTR_DEFAULT)
-	    {
-	      /* Check for swapped atoms */
-	      if (swapatoms)
-		{
-		  /* Unswap the atoms. */
-		  int i;
-		  for (i=0; i<3; i++)
-		    {
-		      int in[3], out[3];
-		      in[0]=large_ints[i];
-		      in[1]=unpositive_int(encode_ints[i]);
-		      in[2]=unpositive_int(encode_ints[3+i]);
-		      swap_ints(in,out);
-		      large_ints[i]=out[0];
-		      encode_ints[i]=positive_int(out[1]);
-		      encode_ints[3+i]=positive_int(out[2]);
-		    }
-		}
-	    }
-	  /* Output result. */
-	  if (instr!=INSTR_ONLY_SMALL)
-	    {
-	      /* Output large value */
-	      *output++=large_ints[0]+minint[0];
-	      *output++=large_ints[1]+minint[1];
-	      *output++=large_ints[2]+minint[2];
-	      prevcoord[0]=large_ints[0];
-	      prevcoord[1]=large_ints[1];
-	      prevcoord[2]=large_ints[2];
+            }
+          if (instr==INSTR_DEFAULT)
+            {
+              /* Check for swapped atoms */
+              if (swapatoms)
+                {
+                  /* Unswap the atoms. */
+                  int i;
+                  for (i=0; i<3; i++)
+                    {
+                      int in[3], out[3];
+                      in[0]=large_ints[i];
+                      in[1]=unpositive_int(encode_ints[i]);
+                      in[2]=unpositive_int(encode_ints[3+i]);
+                      swap_ints(in,out);
+                      large_ints[i]=out[0];
+                      encode_ints[i]=positive_int(out[1]);
+                      encode_ints[3+i]=positive_int(out[2]);
+                    }
+                }
+            }
+          /* Output result. */
+          if (instr!=INSTR_ONLY_SMALL)
+            {
+              /* Output large value */
+              *output++=large_ints[0]+minint[0];
+              *output++=large_ints[1]+minint[1];
+              *output++=large_ints[2]+minint[2];
+              prevcoord[0]=large_ints[0];
+              prevcoord[1]=large_ints[1];
+              prevcoord[2]=large_ints[2];
 #ifdef SHOWIT
-	      fprintf(stderr,"Prevcoord after unpacking of large: %d %d %d\n",
-		      prevcoord[0],prevcoord[1],prevcoord[2]);
-	      fprintf(stderr,"VALUE:%d %6d %6d %6d\n",
-		      length/3-ntriplets_left,
-		      prevcoord[0]+minint[0],
-		      prevcoord[1]+minint[1],
-		      prevcoord[2]+minint[2]);
+              fprintf(stderr,"Prevcoord after unpacking of large: %d %d %d\n",
+                      prevcoord[0],prevcoord[1],prevcoord[2]);
+              fprintf(stderr,"VALUE:%d %6d %6d %6d\n",
+                      length/3-ntriplets_left,
+                      prevcoord[0]+minint[0],
+                      prevcoord[1]+minint[1],
+                      prevcoord[2]+minint[2]);
 #endif
-	      ntriplets_left--;
-	    }
-	  if (instr!=INSTR_ONLY_LARGE)
-	    {
-	      /* Output small values */
-	      int i;
+              ntriplets_left--;
+            }
+          if (instr!=INSTR_ONLY_LARGE)
+            {
+              /* Output small values */
+              int i;
 #ifdef SHOWIT
-	      fprintf(stderr,"Prevcoord before unpacking of small: %d %d %d\n",
-			  prevcoord[0],prevcoord[1],prevcoord[2]);
+              fprintf(stderr,"Prevcoord before unpacking of small: %d %d %d\n",
+                          prevcoord[0],prevcoord[1],prevcoord[2]);
 #endif
-	      for (i=0; i<runlength; i++)
-		{
-		  int v[3];
-		  v[0]=unpositive_int(encode_ints[i*3]);
-		  v[1]=unpositive_int(encode_ints[i*3+1]);
-		  v[2]=unpositive_int(encode_ints[i*3+2]);
-		  prevcoord[0]+=v[0];
-		  prevcoord[1]+=v[1];
-		  prevcoord[2]+=v[2];
+              for (i=0; i<runlength; i++)
+                {
+                  int v[3];
+                  v[0]=unpositive_int(encode_ints[i*3]);
+                  v[1]=unpositive_int(encode_ints[i*3+1]);
+                  v[2]=unpositive_int(encode_ints[i*3+2]);
+                  prevcoord[0]+=v[0];
+                  prevcoord[1]+=v[1];
+                  prevcoord[2]+=v[2];
 #ifdef SHOWIT
-		  fprintf(stderr,"Prevcoord after unpacking of small: %d %d %d\n",
-			  prevcoord[0],prevcoord[1],prevcoord[2]);
-		  fprintf(stderr,"Unpacked small values: %6d %6d %6d\t\t%6d %6d %6d\n",v[0],v[1],v[2],prevcoord[0],prevcoord[1],prevcoord[2]);
-		  fprintf(stderr,"VALUE:%d %6d %6d %6d\n",
-			  length/3-(ntriplets_left-i),
-			  prevcoord[0]+minint[0],
-			  prevcoord[1]+minint[1],
-			  prevcoord[2]+minint[2]);
+                  fprintf(stderr,"Prevcoord after unpacking of small: %d %d %d\n",
+                          prevcoord[0],prevcoord[1],prevcoord[2]);
+                  fprintf(stderr,"Unpacked small values: %6d %6d %6d\t\t%6d %6d %6d\n",v[0],v[1],v[2],prevcoord[0],prevcoord[1],prevcoord[2]);
+                  fprintf(stderr,"VALUE:%d %6d %6d %6d\n",
+                          length/3-(ntriplets_left-i),
+                          prevcoord[0]+minint[0],
+                          prevcoord[1]+minint[1],
+                          prevcoord[2]+minint[2]);
 #endif
-		  *output++=prevcoord[0]+minint[0];
-		  *output++=prevcoord[1]+minint[1];
-		  *output++=prevcoord[2]+minint[2];
-		}
-	      ntriplets_left-=runlength;
-	    }
-	}
+                  *output++=prevcoord[0]+minint[0];
+                  *output++=prevcoord[1]+minint[1];
+                  *output++=prevcoord[2]+minint[2];
+                }
+              ntriplets_left-=runlength;
+            }
+        }
       else if (instr==INSTR_LARGE_RLE)
-	{
-	  int i,j;
-	  int large_ints[3];
-	  /* How many large atoms in this sequence? */
-	  int n=(int)readbits(&ptr,&bitptr,4)+3; /* 3-18 large atoms */
-	  for (i=0; i<n; i++)
-	    {
-	      /* Clear the compress buffer. */
-	      for (j=0; j<18*4; j++)
-		compress_buffer[j]=0;
-	      /* Get the large value. */
-	      readmanybits(&ptr,&bitptr,large_nbits,compress_buffer);
-	      trajcoder_base_decompress(compress_buffer,3,large_index,encode_ints);
-	      large_ints[0]=encode_ints[0];
-	      large_ints[1]=encode_ints[1];
-	      large_ints[2]=encode_ints[2];
-	      /* Output large value */
-	      *output++=large_ints[0]+minint[0];
-	      *output++=large_ints[1]+minint[1];
-	      *output++=large_ints[2]+minint[2];
-	      prevcoord[0]=large_ints[0];
-	      prevcoord[1]=large_ints[1];
-	      prevcoord[2]=large_ints[2];
-	    }
-	  ntriplets_left-=n;
-	}
+        {
+          int i,j;
+          int large_ints[3];
+          /* How many large atoms in this sequence? */
+          int n=(int)readbits(&ptr,&bitptr,4)+3; /* 3-18 large atoms */
+          for (i=0; i<n; i++)
+            {
+              /* Clear the compress buffer. */
+              for (j=0; j<18*4; j++)
+                compress_buffer[j]=0;
+              /* Get the large value. */
+              readmanybits(&ptr,&bitptr,large_nbits,compress_buffer);
+              trajcoder_base_decompress(compress_buffer,3,large_index,encode_ints);
+              large_ints[0]=encode_ints[0];
+              large_ints[1]=encode_ints[1];
+              large_ints[2]=encode_ints[2];
+              /* Output large value */
+              *output++=large_ints[0]+minint[0];
+              *output++=large_ints[1]+minint[1];
+              *output++=large_ints[2]+minint[2];
+              prevcoord[0]=large_ints[0];
+              prevcoord[1]=large_ints[1];
+              prevcoord[2]=large_ints[2];
+            }
+          ntriplets_left-=n;
+        }
       else if (instr==INSTR_BASE_RUNLENGTH)
-	{
-	  unsigned int code=readbits(&ptr,&bitptr,4);
-	  int change;
-	  if (code==15)
-	    {
-	      change=0;
-	      runlength=6;
-	    }
-	  else
-	    {
-	      int ichange=code%3;
-	      runlength=code/3+1;
-	      change=ichange-1;
-	    }
-	  small_index+=change;
-	}
+        {
+          unsigned int code=readbits(&ptr,&bitptr,4);
+          int change;
+          if (code==15)
+            {
+              change=0;
+              runlength=6;
+            }
+          else
+            {
+              int ichange=code%3;
+              runlength=code/3+1;
+              change=ichange-1;
+            }
+          small_index+=change;
+        }
       else if (instr==INSTR_FLIP)
-	{
-	  swapatoms=1-swapatoms;
-	}
+        {
+          swapatoms=1-swapatoms;
+        }
       else if (instr==INSTR_LARGE_BASE_CHANGE)
-	{
-	  unsigned int ichange=readbits(&ptr,&bitptr,2);
-	  int change=(int)(ichange&0x1U)+1;
-	  if (ichange&0x2U)
-	    change=-change;
-	  small_index+=change;
-	}
+        {
+          unsigned int ichange=readbits(&ptr,&bitptr,2);
+          int change=(int)(ichange&0x1U)+1;
+          if (ichange&0x2U)
+            change=-change;
+          small_index+=change;
+        }
       else
-	{
-	  fprintf(stderr,"TRAJNG: BUG! Encoded unknown instruction.\n");
-	  exit(EXIT_FAILURE);
-	}
+        {
+          fprintf(stderr,"TRAJNG: BUG! Encoded unknown instruction.\n");
+          exit(EXIT_FAILURE);
+        }
 #ifdef SHOWIT
       fprintf(stderr,"Number of triplets left is %d\n",ntriplets_left);
 #endif

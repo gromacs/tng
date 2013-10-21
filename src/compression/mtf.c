@@ -19,7 +19,7 @@
 /* Move to front coding.
    Acceptable inputs are max 8 bits (0-0xFF) */
 static void comp_conv_to_mtf_byte(unsigned char *vals, int nvals,
-				  unsigned char *valsmtf)
+                                  unsigned char *valsmtf)
 {
   int i;
   /* Indices into a linked list */
@@ -41,27 +41,27 @@ static void comp_conv_to_mtf_byte(unsigned char *vals, int nvals,
       int oldptr=-1;
       int r=0;
       while (dict[ptr]!=v)
-	{
-	  oldptr=ptr;
-	  ptr=list[ptr];
-	  r++;
-	}
+        {
+          oldptr=ptr;
+          ptr=list[ptr];
+          r++;
+        }
       valsmtf[i]=(unsigned char)r;
       /* Move it to front in list */
       /* Is it the head? Then it is already at the front. */
       if (oldptr!=-1)
-	{
-	  /* Remove it from inside the list */
-	  list[oldptr]=list[ptr];
-	  /* Move it to the front. */
-	  list[ptr]=head;
-	  head=ptr;
-	}
+        {
+          /* Remove it from inside the list */
+          list[oldptr]=list[ptr];
+          /* Move it to the front. */
+          list[ptr]=head;
+          head=ptr;
+        }
     }
 }
 
 void Ptngc_comp_conv_to_mtf_partial(unsigned int *vals, int nvals,
-			      unsigned int *valsmtf)
+                              unsigned int *valsmtf)
 {
   unsigned char *tmp=warnmalloc(nvals*2);
   int i, j;
@@ -70,23 +70,23 @@ void Ptngc_comp_conv_to_mtf_partial(unsigned int *vals, int nvals,
   for (j=0; j<3; j++)
     {
       for (i=0; i<nvals; i++)
-	tmp[i]=(unsigned char)((vals[i]>>(8*j))&0xFF);
+        tmp[i]=(unsigned char)((vals[i]>>(8*j))&0xFF);
       comp_conv_to_mtf_byte(tmp,nvals,tmp+nvals);
       for (i=0; i<nvals; i++)
-	valsmtf[i]|=(((unsigned int)(tmp[nvals+i]))<<(8*j));
+        valsmtf[i]|=(((unsigned int)(tmp[nvals+i]))<<(8*j));
     }
   free(tmp);
 }
 
 void Ptngc_comp_conv_to_mtf_partial3(unsigned int *vals, int nvals,
-			       unsigned char *valsmtf)
+                               unsigned char *valsmtf)
 {
   unsigned char *tmp=warnmalloc(nvals);
   int i, j;
   for (j=0; j<3; j++)
     {
       for (i=0; i<nvals; i++)
-	tmp[i]=(unsigned char)((vals[i]>>(8*j))&0xFF);
+        tmp[i]=(unsigned char)((vals[i]>>(8*j))&0xFF);
       comp_conv_to_mtf_byte(tmp,nvals,valsmtf+j*nvals);
     }
   free(tmp);
@@ -94,7 +94,7 @@ void Ptngc_comp_conv_to_mtf_partial3(unsigned int *vals, int nvals,
 
 /* Move to front decoding */
 static void comp_conv_from_mtf_byte(unsigned char *valsmtf, int nvals,
-			     unsigned char *vals)
+                             unsigned char *vals)
 {
   int i;
   /* Indices into a linked list */
@@ -116,27 +116,27 @@ static void comp_conv_from_mtf_byte(unsigned char *valsmtf, int nvals,
       int oldptr=-1;
       int cnt=0;
       while (cnt<r)
-	{
-	  oldptr=ptr;
-	  ptr=list[ptr];
-	  cnt++;
-	}
+        {
+          oldptr=ptr;
+          ptr=list[ptr];
+          cnt++;
+        }
       vals[i]=(unsigned int)dict[ptr];
       /* Move it to front in list */
       /* Is it the head? Then it is already at the front. */
       if (oldptr!=-1)
-	{
-	  /* Remove it from inside the list */
-	  list[oldptr]=list[ptr];
-	  /* Move it to the front. */
-	  list[ptr]=head;
-	  head=ptr;
-	}
+        {
+          /* Remove it from inside the list */
+          list[oldptr]=list[ptr];
+          /* Move it to the front. */
+          list[ptr]=head;
+          head=ptr;
+        }
     }
 }
 
 void Ptngc_comp_conv_from_mtf_partial(unsigned int *valsmtf, int nvals,
-				unsigned int *vals)
+                                unsigned int *vals)
 {
   unsigned char *tmp=warnmalloc(nvals*2);
   int i, j;
@@ -145,16 +145,16 @@ void Ptngc_comp_conv_from_mtf_partial(unsigned int *valsmtf, int nvals,
   for (j=0; j<3; j++)
     {
       for (i=0; i<nvals; i++)
-	tmp[i]=(unsigned char)((valsmtf[i]>>(8*j))&0xFF);
+        tmp[i]=(unsigned char)((valsmtf[i]>>(8*j))&0xFF);
       comp_conv_from_mtf_byte(tmp,nvals,tmp+nvals);
       for (i=0; i<nvals; i++)
-	vals[i]|=(((unsigned int)(tmp[nvals+i]))<<(8*j));
+        vals[i]|=(((unsigned int)(tmp[nvals+i]))<<(8*j));
     }
   free(tmp);
 }
 
 void Ptngc_comp_conv_from_mtf_partial3(unsigned char *valsmtf, int nvals,
-				 unsigned int *vals)
+                                 unsigned int *vals)
 {
   unsigned char *tmp=warnmalloc(nvals);
   int i, j;
@@ -164,7 +164,7 @@ void Ptngc_comp_conv_from_mtf_partial3(unsigned char *valsmtf, int nvals,
     {
       comp_conv_from_mtf_byte(valsmtf+j*nvals,nvals,tmp);
       for (i=0; i<nvals; i++)
-	vals[i]|=(((unsigned int)(tmp[i]))<<(8*j));
+        vals[i]|=(((unsigned int)(tmp[i]))<<(8*j));
     }
   free(tmp);
 }
@@ -172,8 +172,8 @@ void Ptngc_comp_conv_from_mtf_partial3(unsigned char *valsmtf, int nvals,
 /* Move to front coding.
    Acceptable inputs are max 24 bits (0-0xFFFFFF) */
 void Ptngc_comp_conv_to_mtf(unsigned int *vals, int nvals,
-		      unsigned int *dict, int ndict,
-		      unsigned int *valsmtf)
+                      unsigned int *dict, int ndict,
+                      unsigned int *valsmtf)
 {
   int i;
   /* Indices into a linked list */
@@ -192,30 +192,30 @@ void Ptngc_comp_conv_to_mtf(unsigned int *vals, int nvals,
       int oldptr=-1;
       int r=0;
       while (dict[ptr]!=v)
-	{
-	  oldptr=ptr;
-	  ptr=list[ptr];
-	  r++;
-	}
+        {
+          oldptr=ptr;
+          ptr=list[ptr];
+          r++;
+        }
       valsmtf[i]=r;
       /* Move it to front in list */
       /* Is it the head? Then it is already at the front. */
       if (oldptr!=-1)
-	{
-	  /* Remove it from inside the list */
-	  list[oldptr]=list[ptr];
-	  /* Move it to the front. */
-	  list[ptr]=head;
-	  head=ptr;
-	}
+        {
+          /* Remove it from inside the list */
+          list[oldptr]=list[ptr];
+          /* Move it to the front. */
+          list[ptr]=head;
+          head=ptr;
+        }
     }
   free(list);
 }
 
 /* Move to front decoding */
 void Ptngc_comp_conv_from_mtf(unsigned int *valsmtf, int nvals,
-			unsigned int *dict, int ndict,
-			unsigned int *vals)
+                        unsigned int *dict, int ndict,
+                        unsigned int *vals)
 {
   int i;
   /* Indices into a linked list */
@@ -234,22 +234,22 @@ void Ptngc_comp_conv_from_mtf(unsigned int *valsmtf, int nvals,
       int oldptr=-1;
       int cnt=0;
       while (cnt<r)
-	{
-	  oldptr=ptr;
-	  ptr=list[ptr];
-	  cnt++;
-	}
+        {
+          oldptr=ptr;
+          ptr=list[ptr];
+          cnt++;
+        }
       vals[i]=dict[ptr];
       /* Move it to front in list */
       /* Is it the head? Then it is already at the front. */
       if (oldptr!=-1)
-	{
-	  /* Remove it from inside the list */
-	  list[oldptr]=list[ptr];
-	  /* Move it to the front. */
-	  list[ptr]=head;
-	  head=ptr;
-	}
+        {
+          /* Remove it from inside the list */
+          list[oldptr]=list[ptr];
+          /* Move it to the front. */
+          list[ptr]=head;
+          head=ptr;
+        }
     }
   free(list);
 }

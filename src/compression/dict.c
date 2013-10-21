@@ -23,8 +23,8 @@ void Ptngc_comp_canonical_dict(unsigned int *dict, int *ndict)
 }
 
 void Ptngc_comp_make_dict_hist(unsigned int *vals, int nvals,
-			 unsigned int *dict, int *ndict,
-			 unsigned int *hist)
+                         unsigned int *dict, int *ndict,
+                         unsigned int *hist)
 {
   int i;
   int j=0;
@@ -37,9 +37,9 @@ void Ptngc_comp_make_dict_hist(unsigned int *vals, int nvals,
   for (i=0; i<0x20004; i++)
     if (hist[i]!=0)
       {
-	hist[j]=hist[i];
-	dict[j]=dict[i];
-	j++;
+        hist[j]=hist[i];
+        dict[j]=dict[i];
+        j++;
       }
   *ndict=j;
 }

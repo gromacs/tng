@@ -38,9 +38,9 @@ void Ptngc_widemul(unsigned int i1, unsigned int i2, unsigned int *ohi, unsigned
 {
 #if defined(TRAJNG_X86_GCC_INLINE_MULDIV)
   __asm__ __volatile__ ("mull %%edx\n\t"
-			: "=a" (i1), "=d" (i2)
-			: "a" (i1),"d" (i2)
-			: "cc");
+                        : "=a" (i1), "=d" (i2)
+                        : "a" (i1),"d" (i2)
+                        : "cc");
   *ohi=i2;
   *olo=i1;
 #else /* TRAJNG X86 GCC INLINE MULDIV */
@@ -56,7 +56,7 @@ void Ptngc_widemul(unsigned int i1, unsigned int i2, unsigned int *ohi, unsigned
 
   unsigned int a_U,a_L; /* upper and lower half of a */
   unsigned int b_U,b_L; /* upper and lower half of b */
-  
+
   unsigned int x_UU,x_UL,x_LU,x_LL; /* temporary storage. */
   unsigned int x,x_U,x_L; /* temporary storage. */
 
@@ -70,11 +70,11 @@ void Ptngc_widemul(unsigned int i1, unsigned int i2, unsigned int *ohi, unsigned
   x=a_L*b_L;
   x_LL=x & L_m;
   x_LU=x>>bits;
-  
+
   x=a_U*b_L;
   x_LU+=x & L_m;
   x_UL=x>>bits;
- 
+
   x=a_L*b_U;
   x_LU+=x & L_m;
   x_UL+=x>>bits;
@@ -105,9 +105,9 @@ void Ptngc_widediv(unsigned int hi, unsigned int lo, unsigned int i, unsigned in
 {
 #if defined(TRAJNG_X86_GCC_INLINE_MULDIV)
   __asm__ __volatile__ ("divl %%ecx\n\t"
-			: "=a" (lo), "=d" (hi)
-			: "a" (lo),"d" (hi), "c" (i)
-			: "cc");
+                        : "=a" (lo), "=d" (hi)
+                        : "a" (lo),"d" (hi), "c" (i)
+                        : "cc");
   *result=lo;
   *remainder=hi;
 #else /* TRAJNG X86 GCC INLINE MULDIV */
@@ -126,7 +126,7 @@ void Ptngc_widediv(unsigned int hi, unsigned int lo, unsigned int i, unsigned in
   unsigned int hibit=bits2-1U;
   unsigned int hibit_mask=1U<<hibit;
   unsigned int allbits=(hibit_mask-1U)|hibit_mask;
-  
+
   /* Do division. */
   rmask=hibit_mask;
   res=0;
@@ -135,26 +135,26 @@ void Ptngc_widediv(unsigned int hi, unsigned int lo, unsigned int i, unsigned in
   while (rmask)
     {
       if ((s_U<hi) || ((s_U==hi) && (s_L<=lo)))
-	{
-	  /* Subtract */
-	  hi-=s_U;
-	  if (s_L>lo)
-	    {
-	      unsigned int t;
-	      hi--; /* Borrow */
-	      t=allbits-s_L;
-	      lo+=t+1;
-	    }
-	  else
-	    lo-=s_L;
-     
-	  /* Set bit. */
-	  res|=rmask;
-	}
+        {
+          /* Subtract */
+          hi-=s_U;
+          if (s_L>lo)
+            {
+              unsigned int t;
+              hi--; /* Borrow */
+              t=allbits-s_L;
+              lo+=t+1;
+            }
+          else
+            lo-=s_L;
+
+          /* Set bit. */
+          res|=rmask;
+        }
       rmask>>=1;
       s_L>>=1;
       if (s_U & 1U)
-	s_L|=hibit_mask;
+        s_L|=hibit_mask;
       s_U>>=1;
     }
   *remainder=lo;
@@ -179,7 +179,7 @@ static void largeint_add_gen(unsigned int v1, unsigned int *largeint, int n, int
       v2=(largeint[j]+carry)&0xFFFFFFFFU;
       carry=0;
       if ((((unsigned int)-1)&0xFFFFFFFFU) -1<largeint[j])
-	carry=1;
+        carry=1;
       largeint[j]=v2;
       j++;
     }
@@ -200,13 +200,13 @@ void Ptngc_largeint_mul(unsigned int v1, unsigned int *largeint_in, unsigned int
   for (i=0; i<n; i++)
     {
       if (largeint_in[i]!=0U)
-	{
-	  unsigned int lo,hi;
-	  Ptngc_widemul(v1,largeint_in[i],&hi,&lo); /* 32x32->64 mul */
-	  largeint_add_gen(lo,largeint_out,n,i);
-	  if (i+1<n)
-	    largeint_add_gen(hi,largeint_out,n,i+1);
-	}
+        {
+          unsigned int lo,hi;
+          Ptngc_widemul(v1,largeint_in[i],&hi,&lo); /* 32x32->64 mul */
+          largeint_add_gen(lo,largeint_out,n,i);
+          if (i+1<n)
+            largeint_add_gen(hi,largeint_out,n,i+1);
+        }
     }
 }
 

@@ -66,15 +66,15 @@ static void printvals(char *name, unsigned int *vals, int nvals)
     fprintf(stderr,"\n");
   }
 #endif
-  
+
 }
 #endif
 
 
 static void bwlzh_compress_gen(unsigned int *vals, int nvals,
-			       unsigned char *output, int *output_len,
-			       int enable_lz77,
-			       int verbose)
+                               unsigned char *output, int *output_len,
+                               int enable_lz77,
+                               int verbose)
 {
   unsigned int *vals16;
   int nvals16;
@@ -119,7 +119,7 @@ static void bwlzh_compress_gen(unsigned int *vals, int nvals,
   lens=tmpmem+max_vals_per_block*15;
 #ifdef PARTIAL_MTF3
   mtf3=warnmalloc(max_vals_per_block*3*3*sizeof *mtf3); /* 3 due to expansion of 32 bit to 16 bit, 3 due to up to 3 bytes
-							   per 16 value. */
+                                                           per 16 value. */
 #endif
   if (verbose)
     {
@@ -131,20 +131,20 @@ static void bwlzh_compress_gen(unsigned int *vals, int nvals,
   output[outdata++]=(((unsigned int)nvals)>>8)&0xFFU;
   output[outdata++]=(((unsigned int)nvals)>>16)&0xFFU;
   output[outdata++]=(((unsigned int)nvals)>>24)&0xFFU;
-  
+
   valsleft=nvals;
   valstart=0;
   while (valsleft)
     {
       int reducealgo=1; /* Reduce algo is LZ77. */
       if (!enable_lz77)
-	reducealgo=0;
+        reducealgo=0;
       thisvals=valsleft;
       if (thisvals>max_vals_per_block)
-	thisvals=max_vals_per_block;
+        thisvals=max_vals_per_block;
       valsleft-=thisvals;
       if (verbose)
-	fprintf(stderr,"Creating vals16 block from %d values.\n",thisvals);
+        fprintf(stderr,"Creating vals16 block from %d values.\n",thisvals);
 
 #ifdef SHOWIT
       printvals("vals",vals+valstart,thisvals);
@@ -160,15 +160,15 @@ static void bwlzh_compress_gen(unsigned int *vals, int nvals,
 #ifdef SHOWIT
       printvals("vals16",vals16,nvals16);
 #endif
-      
+
       if (verbose)
-	{
-	  fprintf(stderr,"Resulting vals16 values: %d\n",nvals16);
-	}
+        {
+          fprintf(stderr,"Resulting vals16 values: %d\n",nvals16);
+        }
       if (verbose)
-	{
-	  fprintf(stderr,"BWT\n");
-	}
+        {
+          fprintf(stderr,"BWT\n");
+        }
       Ptngc_comp_to_bwt(vals16,nvals16,bwt,&bwt_index);
 
 #ifdef SHOWIT
@@ -181,7 +181,7 @@ static void bwlzh_compress_gen(unsigned int *vals, int nvals,
       output[outdata++]=(((unsigned int)thisvals)>>8)&0xFFU;
       output[outdata++]=(((unsigned int)thisvals)>>16)&0xFFU;
       output[outdata++]=(((unsigned int)thisvals)>>24)&0xFFU;
-      
+
       /* Store the number of nvals16 values in this block. */
       output[outdata++]=((unsigned int)nvals16)&0xFFU;
       output[outdata++]=(((unsigned int)nvals16)>>8)&0xFFU;
@@ -193,261 +193,261 @@ static void bwlzh_compress_gen(unsigned int *vals, int nvals,
       output[outdata++]=(((unsigned int)bwt_index)>>8)&0xFFU;
       output[outdata++]=(((unsigned int)bwt_index)>>16)&0xFFU;
       output[outdata++]=(((unsigned int)bwt_index)>>24)&0xFFU;
-      
+
       if (verbose)
-	fprintf(stderr,"MTF\n");
+        fprintf(stderr,"MTF\n");
 #ifdef PARTIAL_MTF3
       Ptngc_comp_conv_to_mtf_partial3(bwt,nvals16,
-				mtf3);
+                                mtf3);
       for (imtfinner=0; imtfinner<3; imtfinner++)
-	{
-	  int i;
-	  if (verbose)
-	    fprintf(stderr,"Doing partial MTF: %d\n",imtfinner);
-	  for (i=0; i<nvals16; i++)
-	    mtf[i]=(unsigned int)mtf3[imtfinner*nvals16+i];
+        {
+          int i;
+          if (verbose)
+            fprintf(stderr,"Doing partial MTF: %d\n",imtfinner);
+          for (i=0; i<nvals16; i++)
+            mtf[i]=(unsigned int)mtf3[imtfinner*nvals16+i];
 #else
 #ifdef PARTIAL_MTF
-	  Ptngc_comp_conv_to_mtf_partial(bwt,nvals16,mtf);
+          Ptngc_comp_conv_to_mtf_partial(bwt,nvals16,mtf);
 #else
       int ndict;
-	  Ptngc_comp_canonical_dict(dict,&ndict);
-	  Ptngc_comp_conv_to_mtf(bwt,nvals16,
-			   dict,ndict,mtf);
+          Ptngc_comp_canonical_dict(dict,&ndict);
+          Ptngc_comp_conv_to_mtf(bwt,nvals16,
+                           dict,ndict,mtf);
 #endif
 
 #ifdef SHOWIT
-	  printvals("mtf",mtf,nvals16);
+          printvals("mtf",mtf,nvals16);
 #endif
 #endif
-      
 
-	  if (reducealgo==1)
-	    {
-	      if (verbose)
-		fprintf(stderr,"LZ77\n");
-	      reducealgo=1;
-	      Ptngc_comp_to_lz77(mtf,nvals16,rle,&nrle,lens,&nlens,offsets,&noffsets);
-      
-	      if (verbose)
-		{
-		  fprintf(stderr,"Resulting LZ77 values: %d\n",nrle);
-		  fprintf(stderr,"Resulting LZ77 lens: %d\n",nlens);
-		  fprintf(stderr,"Resulting LZ77 offsets: %d\n",noffsets);
-		}
+
+          if (reducealgo==1)
+            {
+              if (verbose)
+                fprintf(stderr,"LZ77\n");
+              reducealgo=1;
+              Ptngc_comp_to_lz77(mtf,nvals16,rle,&nrle,lens,&nlens,offsets,&noffsets);
+
+              if (verbose)
+                {
+                  fprintf(stderr,"Resulting LZ77 values: %d\n",nrle);
+                  fprintf(stderr,"Resulting LZ77 lens: %d\n",nlens);
+                  fprintf(stderr,"Resulting LZ77 offsets: %d\n",noffsets);
+                }
 #ifdef SHOWIT
-	      printvals("lz77 table",rle,nrle);
-	      printvals("lz77 lengths",lens,nlens);
-	      printvals("lz77 offsets",offsets,noffsets);
+              printvals("lz77 table",rle,nrle);
+              printvals("lz77 lengths",lens,nlens);
+              printvals("lz77 offsets",offsets,noffsets);
 #endif
 
 #if 0
-	      if (noffsets)
-		{
-		  unsigned int thist[0x20004];
-		  unsigned int coarse[17]={0,};
-		  int jj;
-		  Ptngc_comp_make_dict_hist(lens,nlens,dict,&ndict,thist);
-		  for (jj=0; jj<ndict; jj++)
-		    fprintf(stderr,"%d %u %u L\n",jj,dict[jj],thist[jj]);
+              if (noffsets)
+                {
+                  unsigned int thist[0x20004];
+                  unsigned int coarse[17]={0,};
+                  int jj;
+                  Ptngc_comp_make_dict_hist(lens,nlens,dict,&ndict,thist);
+                  for (jj=0; jj<ndict; jj++)
+                    fprintf(stderr,"%d %u %u L\n",jj,dict[jj],thist[jj]);
 
-		  Ptngc_comp_make_dict_hist(offsets,noffsets,dict,&ndict,thist);
-		  for (jj=0; jj<ndict; jj++)
-		    {
-		      unsigned int v=dict[jj];
-		      int numbits=0;
-		      while (v)
-			{
-			  numbits++;
-			  v>>=1;
-			}
-		      coarse[numbits-1]+=thist[jj];
-		    }
+                  Ptngc_comp_make_dict_hist(offsets,noffsets,dict,&ndict,thist);
+                  for (jj=0; jj<ndict; jj++)
+                    {
+                      unsigned int v=dict[jj];
+                      int numbits=0;
+                      while (v)
+                        {
+                          numbits++;
+                          v>>=1;
+                        }
+                      coarse[numbits-1]+=thist[jj];
+                    }
 #if 1
-		  for (jj=0; jj<ndict; jj++)
-		    fprintf(stderr,"%d %u %u O\n",jj,dict[jj],thist[jj]);
+                  for (jj=0; jj<ndict; jj++)
+                    fprintf(stderr,"%d %u %u O\n",jj,dict[jj],thist[jj]);
 #else
-		  for (jj=0; jj<17; jj++)
-		    fprintf(stderr,"%d %u\n",jj+1,coarse[jj]);
+                  for (jj=0; jj<17; jj++)
+                    fprintf(stderr,"%d %u\n",jj+1,coarse[jj]);
 #endif
 
-		}
-	      exit(0);
+                }
+              exit(0);
 #endif
 
-	      if (nlens<2)
-		reducealgo=0;
+              if (nlens<2)
+                reducealgo=0;
 
 #ifdef SHOWTEST
-	      reducealgo=1;
+              reducealgo=1;
 #endif
-	    }
-	  if (reducealgo==0)
-	    {
-	      if (verbose)
-		fprintf(stderr,"RLE\n");
-	      /* Do RLE. For any repetetitive characters. */
-	      Ptngc_comp_conv_to_rle(mtf,nvals16,rle,&nrle,1);
-	  
+            }
+          if (reducealgo==0)
+            {
+              if (verbose)
+                fprintf(stderr,"RLE\n");
+              /* Do RLE. For any repetetitive characters. */
+              Ptngc_comp_conv_to_rle(mtf,nvals16,rle,&nrle,1);
+
 #ifdef SHOWIT
-	      printvals("rle",rle,nrle);
+              printvals("rle",rle,nrle);
 #endif
-	      if (verbose)
-		fprintf(stderr,"Resulting RLE values: %d\n",nrle);
-	    }
+              if (verbose)
+                fprintf(stderr,"Resulting RLE values: %d\n",nrle);
+            }
 
-	  /* reducealgo: RLE == 0, LZ77 == 1 */
-	  output[outdata++]=reducealgo;
+          /* reducealgo: RLE == 0, LZ77 == 1 */
+          output[outdata++]=reducealgo;
 
-	  if (verbose)
-	    fprintf(stderr,"Huffman\n");
-      
-	  huffalgo=-1;
-	  Ptngc_comp_huff_compress_verbose(rle,nrle,bwlzhhuff,&bwlzhhufflen,&huffdatalen,nhufflen,&huffalgo,1);
+          if (verbose)
+            fprintf(stderr,"Huffman\n");
+
+          huffalgo=-1;
+          Ptngc_comp_huff_compress_verbose(rle,nrle,bwlzhhuff,&bwlzhhufflen,&huffdatalen,nhufflen,&huffalgo,1);
 #ifdef SHOWTEST
-	  {
-	    int i;
-	    fprintf(stderr,"Huffman\n");
-	    for (i=0; i<bwlzhhufflen; i++)
-	      fprintf(stderr,"%02x",(unsigned int)bwlzhhuff[i]);
-	    fprintf(stderr,"\n");
-	    exit(0);
-	  }
+          {
+            int i;
+            fprintf(stderr,"Huffman\n");
+            for (i=0; i<bwlzhhufflen; i++)
+              fprintf(stderr,"%02x",(unsigned int)bwlzhhuff[i]);
+            fprintf(stderr,"\n");
+            exit(0);
+          }
 #endif
-	  if (verbose)
-	    {
-	      int i;
-	      fprintf(stderr,"Huffman data length is %d B.\n",huffdatalen);
-	      for (i=0; i<N_HUFFMAN_ALGO; i++)
-		fprintf(stderr,"Huffman dictionary for algorithm %s is %d B.\n",Ptngc_comp_get_huff_algo_name(i),nhufflen[i]-huffdatalen);
-	      fprintf(stderr,"Resulting algorithm: %s. Size=%d B\n",Ptngc_comp_get_huff_algo_name(huffalgo),bwlzhhufflen);
-	    }
+          if (verbose)
+            {
+              int i;
+              fprintf(stderr,"Huffman data length is %d B.\n",huffdatalen);
+              for (i=0; i<N_HUFFMAN_ALGO; i++)
+                fprintf(stderr,"Huffman dictionary for algorithm %s is %d B.\n",Ptngc_comp_get_huff_algo_name(i),nhufflen[i]-huffdatalen);
+              fprintf(stderr,"Resulting algorithm: %s. Size=%d B\n",Ptngc_comp_get_huff_algo_name(huffalgo),bwlzhhufflen);
+            }
 
-	  /* Store the number of huffman values in this block. */
-	  output[outdata++]=((unsigned int)nrle)&0xFFU;
-	  output[outdata++]=(((unsigned int)nrle)>>8)&0xFFU;
-	  output[outdata++]=(((unsigned int)nrle)>>16)&0xFFU;
-	  output[outdata++]=(((unsigned int)nrle)>>24)&0xFFU;
+          /* Store the number of huffman values in this block. */
+          output[outdata++]=((unsigned int)nrle)&0xFFU;
+          output[outdata++]=(((unsigned int)nrle)>>8)&0xFFU;
+          output[outdata++]=(((unsigned int)nrle)>>16)&0xFFU;
+          output[outdata++]=(((unsigned int)nrle)>>24)&0xFFU;
 
-	  /* Store the size of the huffman block. */
-	  output[outdata++]=((unsigned int)bwlzhhufflen)&0xFFU;
-	  output[outdata++]=(((unsigned int)bwlzhhufflen)>>8)&0xFFU;
-	  output[outdata++]=(((unsigned int)bwlzhhufflen)>>16)&0xFFU;
-	  output[outdata++]=(((unsigned int)bwlzhhufflen)>>24)&0xFFU;
+          /* Store the size of the huffman block. */
+          output[outdata++]=((unsigned int)bwlzhhufflen)&0xFFU;
+          output[outdata++]=(((unsigned int)bwlzhhufflen)>>8)&0xFFU;
+          output[outdata++]=(((unsigned int)bwlzhhufflen)>>16)&0xFFU;
+          output[outdata++]=(((unsigned int)bwlzhhufflen)>>24)&0xFFU;
 
-	  /* Store the huffman block. */
-	  memcpy(output+outdata,bwlzhhuff,bwlzhhufflen);
-	  outdata+=bwlzhhufflen;
+          /* Store the huffman block. */
+          memcpy(output+outdata,bwlzhhuff,bwlzhhufflen);
+          outdata+=bwlzhhufflen;
 
-	  if (reducealgo==1)
-	    {
-	      /* Store the number of values in this block. */
-	      output[outdata++]=((unsigned int)noffsets)&0xFFU;
-	      output[outdata++]=(((unsigned int)noffsets)>>8)&0xFFU;
-	      output[outdata++]=(((unsigned int)noffsets)>>16)&0xFFU;
-	      output[outdata++]=(((unsigned int)noffsets)>>24)&0xFFU;
+          if (reducealgo==1)
+            {
+              /* Store the number of values in this block. */
+              output[outdata++]=((unsigned int)noffsets)&0xFFU;
+              output[outdata++]=(((unsigned int)noffsets)>>8)&0xFFU;
+              output[outdata++]=(((unsigned int)noffsets)>>16)&0xFFU;
+              output[outdata++]=(((unsigned int)noffsets)>>24)&0xFFU;
 
-	      if (noffsets>0)
-		{
-		  if (verbose)
-		    fprintf(stderr,"Huffman for offsets\n");
-      
-		  huffalgo=-1;
-		  Ptngc_comp_huff_compress_verbose(offsets,noffsets,bwlzhhuff,&bwlzhhufflen,&huffdatalen,nhufflen,&huffalgo,1);
-		  if (verbose)
-		    {
-		      int i;
-		      fprintf(stderr,"Huffman data length is %d B.\n",huffdatalen);
-		      for (i=0; i<N_HUFFMAN_ALGO; i++)
-			fprintf(stderr,"Huffman dictionary for algorithm %s is %d B.\n",Ptngc_comp_get_huff_algo_name(i),nhufflen[i]-huffdatalen);
-		      fprintf(stderr,"Resulting algorithm: %s. Size=%d B\n",Ptngc_comp_get_huff_algo_name(huffalgo),bwlzhhufflen);
-		    }
+              if (noffsets>0)
+                {
+                  if (verbose)
+                    fprintf(stderr,"Huffman for offsets\n");
 
-		  /* If huffman was bad for these offsets, just store the offsets as pairs of bytes. */
-		  if (bwlzhhufflen<noffsets*2)
-		    {
-		      output[outdata++]=0;
+                  huffalgo=-1;
+                  Ptngc_comp_huff_compress_verbose(offsets,noffsets,bwlzhhuff,&bwlzhhufflen,&huffdatalen,nhufflen,&huffalgo,1);
+                  if (verbose)
+                    {
+                      int i;
+                      fprintf(stderr,"Huffman data length is %d B.\n",huffdatalen);
+                      for (i=0; i<N_HUFFMAN_ALGO; i++)
+                        fprintf(stderr,"Huffman dictionary for algorithm %s is %d B.\n",Ptngc_comp_get_huff_algo_name(i),nhufflen[i]-huffdatalen);
+                      fprintf(stderr,"Resulting algorithm: %s. Size=%d B\n",Ptngc_comp_get_huff_algo_name(huffalgo),bwlzhhufflen);
+                    }
 
-		      /* Store the size of the huffman block. */
-		      output[outdata++]=((unsigned int)bwlzhhufflen)&0xFFU;
-		      output[outdata++]=(((unsigned int)bwlzhhufflen)>>8)&0xFFU;
-		      output[outdata++]=(((unsigned int)bwlzhhufflen)>>16)&0xFFU;
-		      output[outdata++]=(((unsigned int)bwlzhhufflen)>>24)&0xFFU;
+                  /* If huffman was bad for these offsets, just store the offsets as pairs of bytes. */
+                  if (bwlzhhufflen<noffsets*2)
+                    {
+                      output[outdata++]=0;
 
-		      /* Store the huffman block. */
-		      memcpy(output+outdata,bwlzhhuff,bwlzhhufflen);
-		      outdata+=bwlzhhufflen;
-		    }
-		  else
-		    {
-		      int i;
-		      output[outdata++]=1;
-		      for (i=0; i<noffsets; i++)
-			{
-			  output[outdata++]=((unsigned int)offsets[i])&0xFFU;
-			  output[outdata++]=(((unsigned int)offsets[i])>>8)&0xFFU;
-			}
-		      if (verbose)
-			fprintf(stderr,"Store raw offsets: %d B\n",noffsets*2);
-		    }
-		}
+                      /* Store the size of the huffman block. */
+                      output[outdata++]=((unsigned int)bwlzhhufflen)&0xFFU;
+                      output[outdata++]=(((unsigned int)bwlzhhufflen)>>8)&0xFFU;
+                      output[outdata++]=(((unsigned int)bwlzhhufflen)>>16)&0xFFU;
+                      output[outdata++]=(((unsigned int)bwlzhhufflen)>>24)&0xFFU;
+
+                      /* Store the huffman block. */
+                      memcpy(output+outdata,bwlzhhuff,bwlzhhufflen);
+                      outdata+=bwlzhhufflen;
+                    }
+                  else
+                    {
+                      int i;
+                      output[outdata++]=1;
+                      for (i=0; i<noffsets; i++)
+                        {
+                          output[outdata++]=((unsigned int)offsets[i])&0xFFU;
+                          output[outdata++]=(((unsigned int)offsets[i])>>8)&0xFFU;
+                        }
+                      if (verbose)
+                        fprintf(stderr,"Store raw offsets: %d B\n",noffsets*2);
+                    }
+                }
 
 #if 0
-	      {
-		int i,ndict;
-		FILE *f=fopen("len.dict","w");
-		Ptngc_comp_make_dict_hist(lens,nlens,dict,&ndict,hist);
-		for (i=0; i<ndict; i++)
-		  fprintf(f,"%d %d %d\n",i,dict[i],hist[i]);
-		fclose(f);
-		f=fopen("off.dict","w");
-		Ptngc_comp_make_dict_hist(offsets,noffsets,dict,&ndict,hist);
-		for (i=0; i<ndict; i++)
-		  fprintf(f,"%d %d %d\n",i,dict[i],hist[i]);
-		fclose(f);
-		f=fopen("len.time","w");
-		for (i=0; i<ndict; i++)
-		  fprintf(f,"%d\n",lens[i]);
-		fclose(f);
-		f=fopen("off.time","w");
-		for (i=0; i<ndict; i++)
-		  fprintf(f,"%d\n",offsets[i]);
-		fclose(f);
-	      }
+              {
+                int i,ndict;
+                FILE *f=fopen("len.dict","w");
+                Ptngc_comp_make_dict_hist(lens,nlens,dict,&ndict,hist);
+                for (i=0; i<ndict; i++)
+                  fprintf(f,"%d %d %d\n",i,dict[i],hist[i]);
+                fclose(f);
+                f=fopen("off.dict","w");
+                Ptngc_comp_make_dict_hist(offsets,noffsets,dict,&ndict,hist);
+                for (i=0; i<ndict; i++)
+                  fprintf(f,"%d %d %d\n",i,dict[i],hist[i]);
+                fclose(f);
+                f=fopen("len.time","w");
+                for (i=0; i<ndict; i++)
+                  fprintf(f,"%d\n",lens[i]);
+                fclose(f);
+                f=fopen("off.time","w");
+                for (i=0; i<ndict; i++)
+                  fprintf(f,"%d\n",offsets[i]);
+                fclose(f);
+              }
 #endif
 
-	      if (verbose)
-		fprintf(stderr,"Huffman for lengths\n");
-      
-	      huffalgo=-1;
-	      Ptngc_comp_huff_compress_verbose(lens,nlens,bwlzhhuff,&bwlzhhufflen,&huffdatalen,nhufflen,&huffalgo,1);
-	      if (verbose)
-		{
-		  int i;
-		  fprintf(stderr,"Huffman data length is %d B.\n",huffdatalen);
-		  for (i=0; i<N_HUFFMAN_ALGO; i++)
-		    fprintf(stderr,"Huffman dictionary for algorithm %s is %d B.\n",Ptngc_comp_get_huff_algo_name(i),nhufflen[i]-huffdatalen);
-		  fprintf(stderr,"Resulting algorithm: %s. Size=%d B\n",Ptngc_comp_get_huff_algo_name(huffalgo),bwlzhhufflen);
-		}
+              if (verbose)
+                fprintf(stderr,"Huffman for lengths\n");
 
-	      /* Store the number of values in this block. */
-	      output[outdata++]=((unsigned int)nlens)&0xFFU;
-	      output[outdata++]=(((unsigned int)nlens)>>8)&0xFFU;
-	      output[outdata++]=(((unsigned int)nlens)>>16)&0xFFU;
-	      output[outdata++]=(((unsigned int)nlens)>>24)&0xFFU;
-	  
-	      /* Store the size of the huffman block. */
-	      output[outdata++]=((unsigned int)bwlzhhufflen)&0xFFU;
-	      output[outdata++]=(((unsigned int)bwlzhhufflen)>>8)&0xFFU;
-	      output[outdata++]=(((unsigned int)bwlzhhufflen)>>16)&0xFFU;
-	      output[outdata++]=(((unsigned int)bwlzhhufflen)>>24)&0xFFU;
-	  
-	      /* Store the huffman block. */
-	      memcpy(output+outdata,bwlzhhuff,bwlzhhufflen);
-	      outdata+=bwlzhhufflen;
-	    }
+              huffalgo=-1;
+              Ptngc_comp_huff_compress_verbose(lens,nlens,bwlzhhuff,&bwlzhhufflen,&huffdatalen,nhufflen,&huffalgo,1);
+              if (verbose)
+                {
+                  int i;
+                  fprintf(stderr,"Huffman data length is %d B.\n",huffdatalen);
+                  for (i=0; i<N_HUFFMAN_ALGO; i++)
+                    fprintf(stderr,"Huffman dictionary for algorithm %s is %d B.\n",Ptngc_comp_get_huff_algo_name(i),nhufflen[i]-huffdatalen);
+                  fprintf(stderr,"Resulting algorithm: %s. Size=%d B\n",Ptngc_comp_get_huff_algo_name(huffalgo),bwlzhhufflen);
+                }
+
+              /* Store the number of values in this block. */
+              output[outdata++]=((unsigned int)nlens)&0xFFU;
+              output[outdata++]=(((unsigned int)nlens)>>8)&0xFFU;
+              output[outdata++]=(((unsigned int)nlens)>>16)&0xFFU;
+              output[outdata++]=(((unsigned int)nlens)>>24)&0xFFU;
+
+              /* Store the size of the huffman block. */
+              output[outdata++]=((unsigned int)bwlzhhufflen)&0xFFU;
+              output[outdata++]=(((unsigned int)bwlzhhufflen)>>8)&0xFFU;
+              output[outdata++]=(((unsigned int)bwlzhhufflen)>>16)&0xFFU;
+              output[outdata++]=(((unsigned int)bwlzhhufflen)>>24)&0xFFU;
+
+              /* Store the huffman block. */
+              memcpy(output+outdata,bwlzhhuff,bwlzhhufflen);
+              outdata+=bwlzhhufflen;
+            }
 #ifdef PARTIAL_MTF3
-	}
+        }
 #endif
     }
 
@@ -463,39 +463,39 @@ static void bwlzh_compress_gen(unsigned int *vals, int nvals,
 
 
 void DECLSPECDLLEXPORT bwlzh_compress(unsigned int *vals, int nvals,
-		  unsigned char *output, int *output_len)
+                  unsigned char *output, int *output_len)
 {
   bwlzh_compress_gen(vals,nvals,output,output_len,1,0);
 }
 
 void DECLSPECDLLEXPORT bwlzh_compress_verbose(unsigned int *vals, int nvals,
-			  unsigned char *output, int *output_len)
+                          unsigned char *output, int *output_len)
 {
   bwlzh_compress_gen(vals,nvals,output,output_len,1,1);
 }
 
 
 void DECLSPECDLLEXPORT bwlzh_compress_no_lz77(unsigned int *vals, int nvals,
-		  unsigned char *output, int *output_len)
+                  unsigned char *output, int *output_len)
 {
   bwlzh_compress_gen(vals,nvals,output,output_len,0,0);
 }
 
 void DECLSPECDLLEXPORT bwlzh_compress_no_lz77_verbose(unsigned int *vals, int nvals,
-			  unsigned char *output, int *output_len)
+                          unsigned char *output, int *output_len)
 {
   bwlzh_compress_gen(vals,nvals,output,output_len,0,1);
 }
 
 
 static void bwlzh_decompress_gen(unsigned char *input, int nvals,
-			       unsigned int *vals,
-			       int verbose)
+                               unsigned int *vals,
+                               int verbose)
 {
   unsigned int *vals16;
   int nvals16;
   int bwt_index;
-  unsigned int *bwt=NULL; 
+  unsigned int *bwt=NULL;
   unsigned int *mtf=NULL;
 #ifdef PARTIAL_MTF3
   unsigned char *mtf3=NULL;
@@ -532,7 +532,7 @@ static void bwlzh_decompress_gen(unsigned char *input, int nvals,
   lens=tmpmem+max_vals_per_block*15;
 #ifdef PARTIAL_MTF3
   mtf3=warnmalloc(max_vals_per_block*3*3*sizeof *mtf3); /* 3 due to expansion of 32 bit to 16 bit, 3 due to up to 3 bytes
-							   per 16 value. */
+                                                           per 16 value. */
 #endif
 
   if (verbose)
@@ -542,9 +542,9 @@ static void bwlzh_decompress_gen(unsigned char *input, int nvals,
 
   /* Read the number of real values in the whole block. */
   nvalsfile=(int)(((unsigned int)input[inpdata]) |
-		  (((unsigned int)input[inpdata+1])<<8) |
-		  (((unsigned int)input[inpdata+2])<<16) |
-		  (((unsigned int)input[inpdata+3])<<24));
+                  (((unsigned int)input[inpdata+1])<<8) |
+                  (((unsigned int)input[inpdata+2])<<16) |
+                  (((unsigned int)input[inpdata+3])<<24));
   inpdata+=4;
 
   if (nvalsfile!=nvals)
@@ -552,7 +552,7 @@ static void bwlzh_decompress_gen(unsigned char *input, int nvals,
       fprintf(stderr,"BWLZH: The number of values found in the file is different from the number of values expected.\n");
       exit(EXIT_FAILURE);
     }
-  
+
   valsleft=nvals;
   valstart=0;
   while (valsleft)
@@ -561,182 +561,182 @@ static void bwlzh_decompress_gen(unsigned char *input, int nvals,
       int reducealgo;
       /* Read the number of real values in this block. */
       thisvals=(int)(((unsigned int)input[inpdata]) |
-		     (((unsigned int)input[inpdata+1])<<8) |
-		     (((unsigned int)input[inpdata+2])<<16) |
-		     (((unsigned int)input[inpdata+3])<<24));
+                     (((unsigned int)input[inpdata+1])<<8) |
+                     (((unsigned int)input[inpdata+2])<<16) |
+                     (((unsigned int)input[inpdata+3])<<24));
       inpdata+=4;
-      
+
       valsleft-=thisvals;
 
       /* Read the number of nvals16 values in this block. */
       nvals16=(int)(((unsigned int)input[inpdata]) |
-		    (((unsigned int)input[inpdata+1])<<8) |
-		    (((unsigned int)input[inpdata+2])<<16) |
-		    (((unsigned int)input[inpdata+3])<<24));
+                    (((unsigned int)input[inpdata+1])<<8) |
+                    (((unsigned int)input[inpdata+2])<<16) |
+                    (((unsigned int)input[inpdata+3])<<24));
       inpdata+=4;
 
       /* Read the BWT index. */
       bwt_index=(int)(((unsigned int)input[inpdata]) |
-		      (((unsigned int)input[inpdata+1])<<8) |
-		      (((unsigned int)input[inpdata+2])<<16) |
-		      (((unsigned int)input[inpdata+3])<<24));
+                      (((unsigned int)input[inpdata+1])<<8) |
+                      (((unsigned int)input[inpdata+2])<<16) |
+                      (((unsigned int)input[inpdata+3])<<24));
       inpdata+=4;
 
       if (thisvals>max_vals_per_block)
-	{
-	  /* More memory must be allocated for decompression. */
-	  max_vals_per_block=thisvals;
-	  if (verbose)
-	    fprintf(stderr,"Allocating more memory: %d B\n",(int)(max_vals_per_block*15*sizeof *tmpmem));
-	  tmpmem=warnrealloc(tmpmem,max_vals_per_block*18*sizeof *tmpmem);
-	  vals16=tmpmem;
-	  bwt=tmpmem+max_vals_per_block*3;
-	  mtf=tmpmem+max_vals_per_block*6;
-	  rle=tmpmem+max_vals_per_block*9;
-	  offsets=tmpmem+max_vals_per_block*12;
-	  lens=tmpmem+max_vals_per_block*15;
+        {
+          /* More memory must be allocated for decompression. */
+          max_vals_per_block=thisvals;
+          if (verbose)
+            fprintf(stderr,"Allocating more memory: %d B\n",(int)(max_vals_per_block*15*sizeof *tmpmem));
+          tmpmem=warnrealloc(tmpmem,max_vals_per_block*18*sizeof *tmpmem);
+          vals16=tmpmem;
+          bwt=tmpmem+max_vals_per_block*3;
+          mtf=tmpmem+max_vals_per_block*6;
+          rle=tmpmem+max_vals_per_block*9;
+          offsets=tmpmem+max_vals_per_block*12;
+          lens=tmpmem+max_vals_per_block*15;
 #ifdef PARTIAL_MTF3
-	  mtf3=warnrealloc(mtf3,max_vals_per_block*3*3*sizeof *mtf3); /* 3 due to expansion of 32 bit to 16 bit, 3 due to up to 3 bytes
-									 per 16 value. */
-#endif	  
-	}
+          mtf3=warnrealloc(mtf3,max_vals_per_block*3*3*sizeof *mtf3); /* 3 due to expansion of 32 bit to 16 bit, 3 due to up to 3 bytes
+                                                                         per 16 value. */
+#endif
+        }
 
 #ifdef PARTIAL_MTF3
       for (imtfinner=0; imtfinner<3; imtfinner++)
-	{
-	  int i;
-	  if (verbose)
-	    fprintf(stderr,"Doing partial MTF: %d\n",imtfinner);
+        {
+          int i;
+          if (verbose)
+            fprintf(stderr,"Doing partial MTF: %d\n",imtfinner);
 #endif
 
-	  reducealgo=(int)input[inpdata];
-	  inpdata++;
+          reducealgo=(int)input[inpdata];
+          inpdata++;
 
-	  /* Read the number of huffman values in this block. */
-	  nrle=(int)(((unsigned int)input[inpdata]) |
-		     (((unsigned int)input[inpdata+1])<<8) |
-		     (((unsigned int)input[inpdata+2])<<16) |
-		     (((unsigned int)input[inpdata+3])<<24));
-	  inpdata+=4;
+          /* Read the number of huffman values in this block. */
+          nrle=(int)(((unsigned int)input[inpdata]) |
+                     (((unsigned int)input[inpdata+1])<<8) |
+                     (((unsigned int)input[inpdata+2])<<16) |
+                     (((unsigned int)input[inpdata+3])<<24));
+          inpdata+=4;
 
-	  /* Read the size of the huffman block. */
-	  bwlzhhufflen=(int)(((unsigned int)input[inpdata]) |
-			     (((unsigned int)input[inpdata+1])<<8) |
-			     (((unsigned int)input[inpdata+2])<<16) |
-			     (((unsigned int)input[inpdata+3])<<24));
-	  inpdata+=4;
+          /* Read the size of the huffman block. */
+          bwlzhhufflen=(int)(((unsigned int)input[inpdata]) |
+                             (((unsigned int)input[inpdata+1])<<8) |
+                             (((unsigned int)input[inpdata+2])<<16) |
+                             (((unsigned int)input[inpdata+3])<<24));
+          inpdata+=4;
 
-	  if (verbose)
-	    fprintf(stderr,"Decompressing huffman block of length %d.\n",bwlzhhufflen);
-	  /* Decompress the huffman block. */
-	  Ptngc_comp_huff_decompress(input+inpdata,bwlzhhufflen,rle);
-	  inpdata+=bwlzhhufflen;
+          if (verbose)
+            fprintf(stderr,"Decompressing huffman block of length %d.\n",bwlzhhufflen);
+          /* Decompress the huffman block. */
+          Ptngc_comp_huff_decompress(input+inpdata,bwlzhhufflen,rle);
+          inpdata+=bwlzhhufflen;
 
-	  if (reducealgo==1) /* LZ77 */
-	    {
-	      int offstore;
-	      /* Read the number of huffman values in this block. */
-	      noffsets=(int)(((unsigned int)input[inpdata]) |
-			     (((unsigned int)input[inpdata+1])<<8) |
-			     (((unsigned int)input[inpdata+2])<<16) |
-			     (((unsigned int)input[inpdata+3])<<24));
-	      inpdata+=4;
+          if (reducealgo==1) /* LZ77 */
+            {
+              int offstore;
+              /* Read the number of huffman values in this block. */
+              noffsets=(int)(((unsigned int)input[inpdata]) |
+                             (((unsigned int)input[inpdata+1])<<8) |
+                             (((unsigned int)input[inpdata+2])<<16) |
+                             (((unsigned int)input[inpdata+3])<<24));
+              inpdata+=4;
 
-	      if (noffsets>0)
-		{
-		  /* How are the offsets stored? */
-		  offstore=(int)input[inpdata++];
-		  if (offstore==0)
-		    {
-		      /* Read the size of the huffman block. */
-		      bwlzhhufflen=(int)(((unsigned int)input[inpdata]) |
-					 (((unsigned int)input[inpdata+1])<<8) |
-					 (((unsigned int)input[inpdata+2])<<16) |
-					 (((unsigned int)input[inpdata+3])<<24));
-		      inpdata+=4;
-		  
-		      if (verbose)
-			fprintf(stderr,"Decompressing offset huffman block.\n");
-		  
-		      /* Decompress the huffman block. */
-		      Ptngc_comp_huff_decompress(input+inpdata,bwlzhhufflen,offsets);
-		      inpdata+=bwlzhhufflen;
-		    }
-		  else
-		    {
-		      int i;
-		      if (verbose)
-			fprintf(stderr,"Reading offset block.\n");
-		      for (i=0; i<noffsets; i++)
-			{
-			  offsets[i]=(int)(((unsigned int)input[inpdata]) |
-					   (((unsigned int)input[inpdata+1])<<8));
-			  inpdata+=2;
-			}
-		    }
-		}
+              if (noffsets>0)
+                {
+                  /* How are the offsets stored? */
+                  offstore=(int)input[inpdata++];
+                  if (offstore==0)
+                    {
+                      /* Read the size of the huffman block. */
+                      bwlzhhufflen=(int)(((unsigned int)input[inpdata]) |
+                                         (((unsigned int)input[inpdata+1])<<8) |
+                                         (((unsigned int)input[inpdata+2])<<16) |
+                                         (((unsigned int)input[inpdata+3])<<24));
+                      inpdata+=4;
+
+                      if (verbose)
+                        fprintf(stderr,"Decompressing offset huffman block.\n");
+
+                      /* Decompress the huffman block. */
+                      Ptngc_comp_huff_decompress(input+inpdata,bwlzhhufflen,offsets);
+                      inpdata+=bwlzhhufflen;
+                    }
+                  else
+                    {
+                      int i;
+                      if (verbose)
+                        fprintf(stderr,"Reading offset block.\n");
+                      for (i=0; i<noffsets; i++)
+                        {
+                          offsets[i]=(int)(((unsigned int)input[inpdata]) |
+                                           (((unsigned int)input[inpdata+1])<<8));
+                          inpdata+=2;
+                        }
+                    }
+                }
 #if 0
-	      {
-		int i;
-		for (i=0; i<nrle; i++)
-		  fprintf(stderr,"RLE %d: %d\n",i,rle[i]);
-		for (i=0; i<noffsets; i++)
-		  fprintf(stderr,"OFFSET %d: %d\n",i,offsets[i]);
-	      }
+              {
+                int i;
+                for (i=0; i<nrle; i++)
+                  fprintf(stderr,"RLE %d: %d\n",i,rle[i]);
+                for (i=0; i<noffsets; i++)
+                  fprintf(stderr,"OFFSET %d: %d\n",i,offsets[i]);
+              }
 #endif
 
 
-	      /* Read the number of huffman values in this block. */
-	      nlens=(int)(((unsigned int)input[inpdata]) |
-			  (((unsigned int)input[inpdata+1])<<8) |
-			  (((unsigned int)input[inpdata+2])<<16) |
-			  (((unsigned int)input[inpdata+3])<<24));
-	      inpdata+=4;
+              /* Read the number of huffman values in this block. */
+              nlens=(int)(((unsigned int)input[inpdata]) |
+                          (((unsigned int)input[inpdata+1])<<8) |
+                          (((unsigned int)input[inpdata+2])<<16) |
+                          (((unsigned int)input[inpdata+3])<<24));
+              inpdata+=4;
 
-	      /* Read the size of the huffman block. */
-	      bwlzhhufflen=(int)(((unsigned int)input[inpdata]) |
-				 (((unsigned int)input[inpdata+1])<<8) |
-				 (((unsigned int)input[inpdata+2])<<16) |
-				 (((unsigned int)input[inpdata+3])<<24));
-	      inpdata+=4;
-	  
-	      if (verbose)
-		fprintf(stderr,"Decompressing length huffman block.\n");
-	  
-	      /* Decompress the huffman block. */
-	      Ptngc_comp_huff_decompress(input+inpdata,bwlzhhufflen,lens);
-	      inpdata+=bwlzhhufflen;
+              /* Read the size of the huffman block. */
+              bwlzhhufflen=(int)(((unsigned int)input[inpdata]) |
+                                 (((unsigned int)input[inpdata+1])<<8) |
+                                 (((unsigned int)input[inpdata+2])<<16) |
+                                 (((unsigned int)input[inpdata+3])<<24));
+              inpdata+=4;
 
-	      if (verbose)
-		fprintf(stderr,"Decompressing LZ77.\n");
-	  
-	      Ptngc_comp_from_lz77(rle,nrle,lens,nlens,offsets,noffsets,mtf,nvals16);
-	    }
-	  else if (reducealgo==0) /* RLE */
-	    {
+              if (verbose)
+                fprintf(stderr,"Decompressing length huffman block.\n");
+
+              /* Decompress the huffman block. */
+              Ptngc_comp_huff_decompress(input+inpdata,bwlzhhufflen,lens);
+              inpdata+=bwlzhhufflen;
+
+              if (verbose)
+                fprintf(stderr,"Decompressing LZ77.\n");
+
+              Ptngc_comp_from_lz77(rle,nrle,lens,nlens,offsets,noffsets,mtf,nvals16);
+            }
+          else if (reducealgo==0) /* RLE */
+            {
 #ifdef SHOWIT
-	      printvals("rle",rle,nrle);
+              printvals("rle",rle,nrle);
 #endif
-	  
-	      if (verbose)
-		fprintf(stderr,"Decompressing rle block.\n");
-	      Ptngc_comp_conv_from_rle(rle,mtf,nvals16);
-	    }
+
+              if (verbose)
+                fprintf(stderr,"Decompressing rle block.\n");
+              Ptngc_comp_conv_from_rle(rle,mtf,nvals16);
+            }
 
 #ifdef PARTIAL_MTF3
-	  for (i=0; i<nvals16; i++)
-	    mtf3[imtfinner*nvals16+i]=(unsigned char)mtf[i];
-	}
+          for (i=0; i<nvals16; i++)
+            mtf3[imtfinner*nvals16+i]=(unsigned char)mtf[i];
+        }
 #else
 #ifdef SHOWIT
       printvals("mtf",mtf,nvals16);
 #endif
-      
+
 #endif
 
 
       if (verbose)
-	fprintf(stderr,"Inverse MTF.\n");
+        fprintf(stderr,"Inverse MTF.\n");
 #ifdef PARTIAL_MTF3
       Ptngc_comp_conv_from_mtf_partial3(mtf3,nvals16,bwt);
 #else
@@ -744,7 +744,7 @@ static void bwlzh_decompress_gen(unsigned char *input, int nvals,
       Ptngc_comp_conv_from_mtf_partial(mtf,nvals16,bwt);
 #else
       int ndict;
-      Ptngc_comp_canonical_dict(dict,&ndict);      
+      Ptngc_comp_canonical_dict(dict,&ndict);
       Ptngc_comp_conv_from_mtf(mtf,nvals16,dict,ndict,bwt);
 #endif
 #endif
@@ -753,9 +753,9 @@ static void bwlzh_decompress_gen(unsigned char *input, int nvals,
       printvals("bwt",bwt,nvals16);
       fprintf(stderr,"BWT INDEX is %d\n",bwt_index);
 #endif
-      
+
       if (verbose)
-	fprintf(stderr,"Inverse BWT.\n");
+        fprintf(stderr,"Inverse BWT.\n");
       Ptngc_comp_from_bwt(bwt,nvals16,bwt_index,vals16);
 
 #ifdef SHOWIT
@@ -763,7 +763,7 @@ static void bwlzh_decompress_gen(unsigned char *input, int nvals,
 #endif
 
       if (verbose)
-	fprintf(stderr,"Decompressing vals16 block.\n");
+        fprintf(stderr,"Decompressing vals16 block.\n");
       Ptngc_comp_conv_from_vals16(vals16,nvals16,vals+valstart,&valsnew);
 
 #ifdef SHOWIT
@@ -771,10 +771,10 @@ static void bwlzh_decompress_gen(unsigned char *input, int nvals,
 #endif
 
       if (valsnew!=thisvals)
-	{
-	  fprintf(stderr,"BWLZH: Block contained different number of values than expected.\n");
-	  exit(EXIT_FAILURE);
-	}
+        {
+          fprintf(stderr,"BWLZH: Block contained different number of values than expected.\n");
+          exit(EXIT_FAILURE);
+        }
       valstart+=thisvals;
     }
   free(hist);
@@ -788,13 +788,13 @@ static void bwlzh_decompress_gen(unsigned char *input, int nvals,
 
 
 void DECLSPECDLLEXPORT bwlzh_decompress(unsigned char *input, int nvals,
-		    unsigned int *vals)
+                    unsigned int *vals)
 {
   bwlzh_decompress_gen(input,nvals,vals,0);
 }
 
 void DECLSPECDLLEXPORT bwlzh_decompress_verbose(unsigned char *input, int nvals,
-			    unsigned int *vals)
+                            unsigned int *vals)
 {
   bwlzh_decompress_gen(input,nvals,vals,1);
 }

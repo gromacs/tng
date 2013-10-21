@@ -69,10 +69,10 @@ static int comp_htree(const void *leafptr1, const void *leafptr2, const void *pr
 }
 
 static void assign_codes(union htree_nodeleaf *htree,
-			 struct codelength *codelength,
-			 unsigned int code,
-			 int length,
-			 int top)
+                         struct codelength *codelength,
+                         unsigned int code,
+                         int length,
+                         int top)
 {
 #if 0
   printf("Assign codes called with code %d length %d\n",code,length);
@@ -83,18 +83,18 @@ static void assign_codes(union htree_nodeleaf *htree,
       codelength[htree->leaf.idict].code=(code<<1)|htree->leaf.bit;
 #if 0
       printf("I am a leaf: %d %d\n",
-	     codelength[htree->leaf.idict].length,
-	     codelength[htree->leaf.idict].code);
+             codelength[htree->leaf.idict].length,
+             codelength[htree->leaf.idict].code);
 #endif
     }
   else
     {
       if (!top)
-	{
-	  code<<=1;
-	  code|=htree->node.bit;
-	  length++;
-	}
+        {
+          code<<=1;
+          code|=htree->node.bit;
+          length++;
+        }
 #if 0
       printf("I am a node length: %d\n",length);
       printf("I am a node code: %d\n",code);
@@ -109,14 +109,14 @@ static void free_nodes(union htree_nodeleaf *htree, int top)
   if (htree->nodeleaf==htree_leaf)
     {
       if (!top)
-	free(htree);
+        free(htree);
     }
   else
     {
       free_nodes(htree->node.n1,0);
       free_nodes(htree->node.n2,0);
       if (!top)
-	free(htree);
+        free(htree);
     }
 }
 
@@ -174,12 +174,12 @@ static unsigned int readbits(int length, unsigned char **input, int *bitptr)
       *bitptr=(*bitptr)+1;
       extract_mask>>=1;
       if (!extract_mask)
-	{
-	  extract_mask=0x80U;
-	  *input=(*input)+1;
-	  *bitptr=0;
-	  thisval=**input;
-	}
+        {
+          extract_mask=0x80U;
+          *input=(*input)+1;
+          *bitptr=0;
+          thisval=**input;
+        }
     }
   return val;
 }
@@ -219,14 +219,14 @@ static int comp_codes_value(const void *codeptr1, const void *codeptr2, const vo
 huffman_dict_unpacked array should be 131077 long (note five longer than
 0x20000) */
 void Ptngc_comp_conv_to_huffman(unsigned int *vals, int nvals,
-			  unsigned int *dict, int ndict,
-			  unsigned int *prob,
-			  unsigned char *huffman,
-			  int *huffman_len,
-			  unsigned char *huffman_dict,
-			  int *huffman_dictlen,
-			  unsigned int *huffman_dict_unpacked,
-			  int *huffman_dict_unpackedlen)
+                          unsigned int *dict, int ndict,
+                          unsigned int *prob,
+                          unsigned char *huffman,
+                          int *huffman_len,
+                          unsigned char *huffman_dict,
+                          int *huffman_dictlen,
+                          unsigned int *huffman_dict_unpacked,
+                          int *huffman_dict_unpackedlen)
 {
   int i;
   int nleft;
@@ -239,121 +239,121 @@ void Ptngc_comp_conv_to_huffman(unsigned int *vals, int nvals,
   while (longcodes)
     {
       /* Create array of leafs (will be array of nodes/trees during
-	 buildup of tree. */
+         buildup of tree. */
       htree=warnmalloc(ndict*sizeof *htree);
       codelength=warnmalloc(ndict*sizeof *codelength);
       bitptr=0;
       huffman_ptr=huffman;
       for (i=0; i<ndict; i++)
-	{
-	  htree[i].nodeleaf=htree_leaf;
-	  htree[i].leaf.idict=i;
-	  htree[i].leaf.prob=prob[i];
-	}
+        {
+          htree[i].nodeleaf=htree_leaf;
+          htree[i].leaf.idict=i;
+          htree[i].leaf.prob=prob[i];
+        }
       /* Sort the leafs wrt probability. */
       Ptngc_merge_sort(htree,ndict,sizeof *htree,comp_htree,NULL);
 
 #if 0
       for (i=0; i<ndict; i++)
-	{
-	  printf("%d %d\n",dict[htree[i].leaf.idict],htree[i].leaf.prob);
-	}
+        {
+          printf("%d %d\n",dict[htree[i].leaf.idict],htree[i].leaf.prob);
+        }
 #endif
 
       /* Build tree. */
       if (ndict==1)
-	{
-	  codelength[0].code=1;
-	  codelength[0].length=1;
-	}
+        {
+          codelength[0].code=1;
+          codelength[0].length=1;
+        }
       else
-	{
-	  /* Nodes and leafs left. */
-	  nleft=ndict;
+        {
+          /* Nodes and leafs left. */
+          nleft=ndict;
 
-	  /* Take the two least probable symbols (which are at the end of the
-	     array and combine them until there is nothing left. */
-	  while (nleft>1)
-	    {
-	      union htree_nodeleaf *n1=warnmalloc(sizeof *n1);
-	      union htree_nodeleaf *n2=warnmalloc(sizeof *n2);
-	      int new_place;
-	      int p1,p2, new_prob;
-	      *n1=htree[nleft-1];
-	      *n2=htree[nleft-2];
-	      if (n1->nodeleaf==htree_leaf)
-		{
-		  p1=n1->leaf.prob;
-		  n1->leaf.bit=0;
-		}
-	      else
-		{
-		  p1=n1->node.prob;
-		  n1->node.bit=0;
-		}
-	      if (n2->nodeleaf==htree_leaf)
-		{
-		  p2=n2->leaf.prob;
-		  n2->leaf.bit=1;
-		}
-	      else
-		{
-		  p2=n2->node.prob;
-		  n2->node.bit=1;
-		}
-	      nleft--;
-	      /* Create a new node */
-	      htree[nleft-1].nodeleaf=htree_node;
-	      htree[nleft-1].node.n1=n1;
-	      htree[nleft-1].node.n2=n2;
-	      new_prob=p1+p2;
-	      htree[nleft-1].node.prob=new_prob;
-	      /* Use insertion sort to place this in the correct place in the
-		 array. */
-	      /* Where should it be inserted? */
-	      new_place=nleft;
-	      while (new_place>0)
-		{
-		  int pc;
-		  if (htree[new_place-1].nodeleaf==htree_node)
-		    pc=htree[new_place-1].node.prob;
-		  else
-		    pc=htree[new_place-1].leaf.prob;
-		  if (new_prob<pc)
-		    break;
-		  else
-		    new_place--;
-		}
-	      if (new_place!=nleft)
-		{
-		  /* Shift array (overlapping regions!) */
-		  union htree_nodeleaf nodecopy=htree[nleft-1];
-		  memmove(htree+new_place+1,
-			  htree+new_place,
-			  (nleft-1-new_place)*sizeof *htree);
-		  htree[new_place]=nodecopy;
-		}
-	    }
-	}
+          /* Take the two least probable symbols (which are at the end of the
+             array and combine them until there is nothing left. */
+          while (nleft>1)
+            {
+              union htree_nodeleaf *n1=warnmalloc(sizeof *n1);
+              union htree_nodeleaf *n2=warnmalloc(sizeof *n2);
+              int new_place;
+              int p1,p2, new_prob;
+              *n1=htree[nleft-1];
+              *n2=htree[nleft-2];
+              if (n1->nodeleaf==htree_leaf)
+                {
+                  p1=n1->leaf.prob;
+                  n1->leaf.bit=0;
+                }
+              else
+                {
+                  p1=n1->node.prob;
+                  n1->node.bit=0;
+                }
+              if (n2->nodeleaf==htree_leaf)
+                {
+                  p2=n2->leaf.prob;
+                  n2->leaf.bit=1;
+                }
+              else
+                {
+                  p2=n2->node.prob;
+                  n2->node.bit=1;
+                }
+              nleft--;
+              /* Create a new node */
+              htree[nleft-1].nodeleaf=htree_node;
+              htree[nleft-1].node.n1=n1;
+              htree[nleft-1].node.n2=n2;
+              new_prob=p1+p2;
+              htree[nleft-1].node.prob=new_prob;
+              /* Use insertion sort to place this in the correct place in the
+                 array. */
+              /* Where should it be inserted? */
+              new_place=nleft;
+              while (new_place>0)
+                {
+                  int pc;
+                  if (htree[new_place-1].nodeleaf==htree_node)
+                    pc=htree[new_place-1].node.prob;
+                  else
+                    pc=htree[new_place-1].leaf.prob;
+                  if (new_prob<pc)
+                    break;
+                  else
+                    new_place--;
+                }
+              if (new_place!=nleft)
+                {
+                  /* Shift array (overlapping regions!) */
+                  union htree_nodeleaf nodecopy=htree[nleft-1];
+                  memmove(htree+new_place+1,
+                          htree+new_place,
+                          (nleft-1-new_place)*sizeof *htree);
+                  htree[new_place]=nodecopy;
+                }
+            }
+        }
       /* Create codes from tree */
       assign_codes(htree,codelength,0,0,1);
       /* Canonicalize */
       /* First put values into to the codelength array for sorting. */
       for (i=0; i<ndict; i++)
-	{
-	  codelength[i].dict=dict[i];
-	  codelength[i].prob=prob[i];
-	}
+        {
+          codelength[i].dict=dict[i];
+          codelength[i].prob=prob[i];
+        }
       /* Sort codes wrt length/value */
       Ptngc_merge_sort(codelength,ndict,sizeof *codelength,comp_codes,NULL);
       /* Canonicalize codes. */
       code=0;
       for (i=0; i<ndict; i++)
-	{
-	  codelength[i].code=code;
-	  if (i<ndict-1)
-	    code=(code+1)<<(codelength[i+1].length-codelength[i].length);
-	}
+        {
+          codelength[i].code=code;
+          if (i<ndict-1)
+            code=(code+1)<<(codelength[i+1].length-codelength[i].length);
+        }
       /* Free all nodes / leaves. */
       free_nodes(htree,1);
       /* Free array that held nodes/leaves. */
@@ -362,44 +362,44 @@ void Ptngc_comp_conv_to_huffman(unsigned int *vals, int nvals,
       longcodes=0;
       /* Check if there is a too long huffman code. */
       for (i=0; i<ndict; i++)
-	if (codelength[i].length>MAX_HUFFMAN_LEN)
-	  longcodes=1;
+        if (codelength[i].length>MAX_HUFFMAN_LEN)
+          longcodes=1;
 
       /* If the codes are too long alter the probabilities. */
       if (longcodes)
-	{
-	  for (i=0; i<ndict; i++)
-	    {
-	      prob[i]>>=1;
-	      if (prob[i]==0)
-		prob[i]=1;
-	    }
+        {
+          for (i=0; i<ndict; i++)
+            {
+              prob[i]>>=1;
+              if (prob[i]==0)
+                prob[i]=1;
+            }
 
-	  /* Free codelength. We will compute a new one. */
-	  free(codelength);
-	}
+          /* Free codelength. We will compute a new one. */
+          free(codelength);
+        }
     }
 
 #if 0
   {
     for (i=0; i<ndict; i++)
       {
-	printf("%d %d\t\t %d %d ",codelength[i].dict,codelength[i].prob,codelength[i].length,codelength[i].code);
-	{
-	  unsigned int c=codelength[i].code;
-	  int j;
-	  unsigned int mask=1<<(codelength[i].length-1);
-	  for (j=codelength[i].length-1; j>=0; j--)
-	    {
-	      int bit=c&mask;
-	      if (bit)
-		printf("1");
-	      else
-		printf("0");
-	      mask>>=1;
-	    }
-	  printf("\n");
-	}
+        printf("%d %d\t\t %d %d ",codelength[i].dict,codelength[i].prob,codelength[i].length,codelength[i].code);
+        {
+          unsigned int c=codelength[i].code;
+          int j;
+          unsigned int mask=1<<(codelength[i].length-1);
+          for (j=codelength[i].length-1; j>=0; j--)
+            {
+              int bit=c&mask;
+              if (bit)
+                printf("1");
+              else
+                printf("0");
+              mask>>=1;
+            }
+          printf("\n");
+        }
       }
   }
 #endif
@@ -409,8 +409,8 @@ void Ptngc_comp_conv_to_huffman(unsigned int *vals, int nvals,
     {
       int r;
       for (r=0; r<ndict; r++)
-	if (codelength[r].dict==vals[i])
-	  break;
+        if (codelength[r].dict==vals[i])
+          break;
       writebits(codelength[r].code,codelength[r].length,&huffman_ptr,&bitptr);
     }
   if (bitptr)
@@ -440,20 +440,20 @@ void Ptngc_comp_conv_to_huffman(unsigned int *vals, int nvals,
       int ihave=0;
       int j;
       for (j=0; j<ndict; j++)
-	if (codelength[j].dict==(unsigned int)i)
-	  {
+        if (codelength[j].dict==(unsigned int)i)
+          {
 
-	    ihave=1;
-	    writebits(1,1,&huffman_ptr,&bitptr);
-	    writebits(codelength[j].length,5,&huffman_ptr,&bitptr);
-	    huffman_dict_unpacked[3+i]=codelength[j].length;
-	    break;
-	  }
+            ihave=1;
+            writebits(1,1,&huffman_ptr,&bitptr);
+            writebits(codelength[j].length,5,&huffman_ptr,&bitptr);
+            huffman_dict_unpacked[3+i]=codelength[j].length;
+            break;
+          }
       if (!ihave)
-	{
-	  writebits(0,1,&huffman_ptr,&bitptr);
-	  huffman_dict_unpacked[3+i]=0;
-	}
+        {
+          writebits(0,1,&huffman_ptr,&bitptr);
+          huffman_dict_unpacked[3+i]=0;
+        }
     }
   if (bitptr)
     writebits(0,8-bitptr,&huffman_ptr,&bitptr);
@@ -465,12 +465,12 @@ void Ptngc_comp_conv_to_huffman(unsigned int *vals, int nvals,
 }
 
 void Ptngc_comp_conv_from_huffman(unsigned char *huffman,
-			    unsigned int *vals, int nvals,
-			    int ndict,
-			    unsigned char *huffman_dict,
-			    int huffman_dictlen,
-			    unsigned int *huffman_dict_unpacked,
-			    int huffman_dict_unpackedlen)
+                            unsigned int *vals, int nvals,
+                            int ndict,
+                            unsigned char *huffman_dict,
+                            int huffman_dictlen,
+                            unsigned int *huffman_dict_unpacked,
+                            int huffman_dict_unpackedlen)
 {
   struct codelength *codelength=warnmalloc(ndict*sizeof *codelength);
   int i,j;
@@ -485,19 +485,19 @@ void Ptngc_comp_conv_from_huffman(unsigned char *huffman,
       maxdict=huffman_dict_unpacked[0]|(huffman_dict_unpacked[1]<<8)|(huffman_dict_unpacked[2]<<16);
       j=0;
       for(i=0; i<=maxdict; i++)
-	{
-	  if (huffman_dict_unpacked[3+i]!=0)
-	    {
-	      codelength[j].length=huffman_dict_unpacked[3+i];
-	      codelength[j].dict=i;
+        {
+          if (huffman_dict_unpacked[3+i]!=0)
+            {
+              codelength[j].length=huffman_dict_unpacked[3+i];
+              codelength[j].dict=i;
 #if 0
-	      printf("%d %d\n",
-		     codelength[j].length,
-		     codelength[j].dict);
+              printf("%d %d\n",
+                     codelength[j].length,
+                     codelength[j].dict);
 #endif
-	      j++;
-	    }
-	}
+              j++;
+            }
+        }
     }
   else
     {
@@ -507,20 +507,20 @@ void Ptngc_comp_conv_from_huffman(unsigned char *huffman,
       bitptr=0;
       j=0;
       for(i=0; i<=maxdict; i++)
-	{
-	  int bit=readbits(1,&huffman_ptr,&bitptr);
-	  if (bit)
-	    {
-	      codelength[j].length=readbits(5,&huffman_ptr,&bitptr);
-	      codelength[j].dict=i;
+        {
+          int bit=readbits(1,&huffman_ptr,&bitptr);
+          if (bit)
+            {
+              codelength[j].length=readbits(5,&huffman_ptr,&bitptr);
+              codelength[j].dict=i;
 #if 0
-	      printf("%d %d\n",
-		     codelength[j].length,
-		     codelength[j].dict);
+              printf("%d %d\n",
+                     codelength[j].length,
+                     codelength[j].dict);
 #endif
-	      j++;
-	    }
-	}
+              j++;
+            }
+        }
     }
   /* Sort codes wrt length/value. */
   Ptngc_merge_sort(codelength,ndict,sizeof *codelength,comp_codes,NULL);
@@ -530,28 +530,28 @@ void Ptngc_comp_conv_from_huffman(unsigned char *huffman,
     {
       codelength[i].code=code;
       if (i<ndict-1)
-	code=(code+1)<<(codelength[i+1].length-codelength[i].length);
+        code=(code+1)<<(codelength[i+1].length-codelength[i].length);
     }
 #if 0
   {
     for (i=0; i<ndict; i++)
       {
-	printf("%d -\t\t %d %d ",codelength[i].dict,codelength[i].length,codelength[i].code);
-	{
-	  unsigned int c=codelength[i].code;
-	  int j;
-	  unsigned int mask=1<<(codelength[i].length-1);
-	  for (j=codelength[i].length-1; j>=0; j--)
-	    {
-	      int bit=c&mask;
-	      if (bit)
-		printf("1");
-	      else
-		printf("0");
-	      mask>>=1;
-	    }
-	  printf("\n");
-	}
+        printf("%d -\t\t %d %d ",codelength[i].dict,codelength[i].length,codelength[i].code);
+        {
+          unsigned int c=codelength[i].code;
+          int j;
+          unsigned int mask=1<<(codelength[i].length-1);
+          for (j=codelength[i].length-1; j>=0; j--)
+            {
+              int bit=c&mask;
+              if (bit)
+                printf("1");
+              else
+                printf("0");
+              mask>>=1;
+            }
+          printf("\n");
+        }
       }
   }
 #endif
@@ -565,17 +565,17 @@ void Ptngc_comp_conv_from_huffman(unsigned char *huffman,
       symbol=readbits(len,&huffman_ptr,&bitptr);
       j=0;
       while (symbol!=codelength[j].code)
-	{
-	  int newlen;
-	  j++;
-	  newlen=codelength[j].length;
-	  if (newlen!=len)
-	    {
-	      symbol<<=(newlen-len);
-	      symbol|=readbits(newlen-len,&huffman_ptr,&bitptr);
-	      len=newlen;
-	    }
-	}
+        {
+          int newlen;
+          j++;
+          newlen=codelength[j].length;
+          if (newlen!=len)
+            {
+              symbol<<=(newlen-len);
+              symbol|=readbits(newlen-len,&huffman_ptr,&bitptr);
+              len=newlen;
+            }
+        }
       vals[i]=codelength[j].dict;
     }
   /* Free info about codes and length. */

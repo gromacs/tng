@@ -258,7 +258,7 @@ struct tng_trajectory {
     /** A handle to the input file */
     FILE *input_file;
     /** The length of the input file */
-    long int input_file_len;
+    long input_file_len;
     /** The path of the output trajectory file */
     char *output_file_path;
     /** A handle to the output file */
@@ -343,9 +343,9 @@ struct tng_trajectory {
     /** The currently active frame set */
     struct tng_trajectory_frame_set current_trajectory_frame_set;
     /** The pos in the src file of the current frame set */
-    long int current_trajectory_frame_set_input_file_pos;
+    long current_trajectory_frame_set_input_file_pos;
     /** The pos in the dest file of the current frame set */
-    long int current_trajectory_frame_set_output_file_pos;
+    long current_trajectory_frame_set_output_file_pos;
     /** The number of frame sets in the trajectory N.B. Not saved in file and
      *  cannot be trusted to be up-to-date */
     int64_t n_trajectory_frame_sets;
@@ -2947,7 +2947,7 @@ static tng_function_status tng_frame_set_block_read
                  tng_gen_block_t block,
                  const char hash_mode)
 {
-    long int file_pos;
+    long file_pos;
     int offset = 0;
     int64_t i, prev_n_particles;
     tng_bool same_hash;
@@ -2985,7 +2985,7 @@ static tng_function_status tng_frame_set_block_read
     /* FIXME: Does not check if the size of the contents matches the expected
      * size or if the contents can be read. */
 
-    file_pos = (long int)ftell(tng_data->input_file) -
+    file_pos = (int64_t)ftell(tng_data->input_file) -
                (block->block_contents_size + block->header_contents_size);
 
     if(hash_mode == TNG_USE_HASH)
@@ -3863,7 +3863,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_pos_float_find_algo(start_pos, (int)n_particles,
                                                         (int)algo_find_n_frames,
-                                                        0.001, 0,
+                                                        (float)0.001, 0,
                                                         tng_data->
                                                         compress_algo_pos,
                                                         &new_len);
@@ -3871,7 +3871,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
                 if(algo_find_n_frames < n_frames)
                 {
                     dest = tng_compress_pos_float(start_pos, (int)n_particles,
-                                                  (int)n_frames, 0.001, 0,
+                                                  (int)n_frames, (float)0.001, 0,
                                                   tng_data->compress_algo_pos,
                                                   &new_len);
                 }
@@ -3898,7 +3898,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             if(type == TNG_FLOAT_DATA)
             {
                 dest = tng_compress_pos_float(start_pos, (int)n_particles,
-                                              (int)n_frames, 0.001, 0,
+                                              (int)n_frames, (float)0.001, 0,
                                               tng_data->compress_algo_pos, &new_len);
             }
             else
@@ -3930,14 +3930,14 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_vel_float_find_algo(start_pos, (int)n_particles,
                                                         (int)algo_find_n_frames,
-                                                        0.001, 0,
+                                                        (float)0.001, 0,
                                                         tng_data->
                                                         compress_algo_vel,
                                                         &new_len);
                 if(algo_find_n_frames < n_frames)
                 {
                     dest = tng_compress_vel_float(start_pos, (int)n_particles,
-                                                  (int)n_frames, 0.001, 0,
+                                                  (int)n_frames, (float)0.001, 0,
                                                   tng_data->compress_algo_pos,
                                                   &new_len);
                 }
@@ -3964,7 +3964,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             if(type == TNG_FLOAT_DATA)
             {
                 dest = tng_compress_vel_float(start_pos, (int)n_particles,
-                                              (int)n_frames, 0.001, 0,
+                                              (int)n_frames, (float)0.001, 0,
                                               tng_data->
                                               compress_algo_vel,
                                               &new_len);
@@ -3985,7 +3985,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
         return(TNG_FAILURE);
     }
 
-    offset = (char *)start_pos - block->block_contents;
+    offset = (unsigned long)((char *)start_pos - block->block_contents);
 
     block->block_contents_size = new_len + offset;
 
@@ -4022,7 +4022,8 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
     char *temp;
     double *d_dest = 0;
     float *f_dest = 0;
-    int offset, result;
+    unsigned long offset;
+    int result;
     (void)tng_data;
 
     if(block->id != TNG_TRAJ_POSITIONS &&
@@ -4068,10 +4069,10 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
         return(TNG_FAILURE);
     }
 
-    offset = (char *)start_pos - (char *)block->block_contents;
+    offset = (unsigned long)((char *)start_pos - (char *)block->block_contents);
 
 
-    block->block_contents_size = uncompressed_len + offset;
+    block->block_contents_size = (int64_t)(uncompressed_len + offset);
 
     temp = realloc(block->block_contents, uncompressed_len + offset);
     if(!temp)
@@ -4120,7 +4121,7 @@ static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
 {
     Bytef *dest;
     char *temp;
-    uLong max_len, stat, offset;
+    unsigned long max_len, stat, offset;
     (void)tng_data;
 
     max_len = compressBound(len);
@@ -4593,7 +4594,7 @@ static tng_function_status tng_particle_data_read
 
     if(codec_id != TNG_UNCOMPRESSED)
     {
-        data_size = n_frames_div * size * n_particles * n_values;
+        data_size = (unsigned long)(n_frames_div * size * n_particles * n_values);
         switch(codec_id)
         {
         case TNG_XTC_COMPRESSION:
@@ -4739,10 +4740,10 @@ static tng_function_status tng_particle_data_block_write
                  const char hash_mode)
 {
     int64_t n_particles, num_first_particle, n_frames, stride_length;
-    int64_t frame_step;
+    int64_t frame_step, data_start_pos;
     int64_t i, j, k;
-    int offset = 0, size, data_start_pos;
-    unsigned int len;
+    int offset = 0, size;
+    size_t len;
     char dependency, temp, *temp_name;
     double multiplier;
     char ***first_dim_values, **second_dim_values;
@@ -4803,7 +4804,7 @@ static tng_function_status tng_particle_data_block_write
         temp_name = realloc(block->name, len);
         if(!temp_name)
         {
-            printf("Cannot allocate memory (%d bytes). %s: %d\n", len,
+            printf("Cannot allocate memory (%ld bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             free(block->name);
             block->name = 0;
@@ -5096,7 +5097,7 @@ static tng_function_status tng_particle_data_block_write
                 {
                     for(i = offset; i < block->block_contents_size; i+=size)
                     {
-                        *(float *)(block->block_contents + i) *= multiplier;
+                        *(float *)(block->block_contents + i) *= (float)multiplier;
                         if(tng_data->input_endianness_swap_func_32 &&
                         tng_data->input_endianness_swap_func_32(tng_data,
                         (int32_t *)(block->block_contents + i))
@@ -5183,7 +5184,7 @@ static tng_function_status tng_particle_data_block_write
             data->codec_id = TNG_UNCOMPRESSED;
             break;
         case TNG_TNG_COMPRESSION:
-            printf("TEST: frame_step: %"PRId64", n_particles: %"PRId64", block_contents_size: %"PRId64", start_pos: %d\n",
+            printf("TEST: frame_step: %"PRId64", n_particles: %"PRId64", block_contents_size: %"PRId64", start_pos: %"PRId64"\n",
                    frame_step, n_particles, block->block_contents_size, data_start_pos);
             stat = tng_compress(tng_data, block, frame_step,
                                 n_particles, data->datatype,
@@ -7059,8 +7060,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_get
                  tng_molecule_t molecule,
                  int64_t *cnt)
 {
-    int index = -1;
-    int64_t i;
+    int64_t i, index = -1;
 
     for(i = tng_data->n_molecules; i--;)
     {
@@ -7084,8 +7084,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set
                  tng_molecule_t molecule,
                  const int64_t cnt)
 {
-    int index = -1;
-    int64_t i, old_cnt;
+    int64_t i, old_cnt, index = -1;
 
     for(i = tng_data->n_molecules; i--;)
     {
@@ -7307,8 +7306,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
                  const int64_t id,
                  tng_residue_t *residue)
 {
-    int64_t i;
-    int curr_index;
+    int64_t i, curr_index;
     tng_residue_t new_residues, temp_residue, last_residue;
     tng_molecule_t molecule = chain->molecule;
     tng_function_status stat = TNG_SUCCESS;
@@ -9585,7 +9583,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
     fseek(tng_data->input_file,
           (long)file_pos,
           SEEK_SET);
-    tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
+    tng_data->current_trajectory_frame_set_input_file_pos = (long)file_pos;
     /* Read block headers first to see what block is found. */
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
@@ -9912,7 +9910,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
             fseek(tng_data->input_file,
                   (long)file_pos,
                   SEEK_SET);
-            tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
+            tng_data->current_trajectory_frame_set_input_file_pos = (long)file_pos;
             /* Read block headers first to see what block is found. */
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
@@ -10435,7 +10433,7 @@ tng_function_status DECLSPECDLLEXPORT tng_block_read_next(tng_trajectory_t tng_d
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next(tng_trajectory_t tng_data,
                                             const char hash_mode)
 {
-    long int file_pos;
+    long file_pos;
     tng_gen_block_t block;
     tng_function_status stat = TNG_SUCCESS;
 
@@ -10444,11 +10442,11 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next(tng_trajectory_t t
         return(TNG_CRITICAL);
     }
 
-    file_pos = (long int)tng_data->current_trajectory_frame_set.next_frame_set_file_pos;
+    file_pos = (long)tng_data->current_trajectory_frame_set.next_frame_set_file_pos;
 
     if(file_pos < 0 && tng_data->current_trajectory_frame_set_input_file_pos <= 0)
     {
-        file_pos = tng_data->first_trajectory_frame_set_input_file_pos;
+        file_pos = (long)tng_data->first_trajectory_frame_set_input_file_pos;
     }
 
     if(file_pos > 0)
@@ -10535,8 +10533,9 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
     tng_function_status stat;
 
     tng_data->current_trajectory_frame_set_output_file_pos =
-    tng_data->last_trajectory_frame_set_output_file_pos =
     ftell(tng_data->output_file);
+    tng_data->last_trajectory_frame_set_output_file_pos =
+    tng_data->current_trajectory_frame_set_output_file_pos;
 
     if(tng_data->current_trajectory_frame_set_output_file_pos <= 0)
     {
@@ -10613,7 +10612,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
                  const int64_t first_frame,
                  const int64_t n_frames)
 {
-    int i;
+    int64_t i;
     tng_gen_block_t block;
     tng_trajectory_frame_set_t frame_set;
     tng_particle_mapping_t mapping;
@@ -10987,7 +10986,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
                  const int64_t codec_id,
                  void *new_data)
 {
-    int i, j, k, size, len;
+    int i, size, len;
+    int64_t j, k;
     int64_t tot_n_particles, n_frames_div;
     char ***first_dim_values, **second_dim_values;
     tng_trajectory_frame_set_t frame_set;
@@ -11140,8 +11140,9 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
 {
     int64_t header_pos, file_pos;
     int64_t output_file_len, n_values_per_frame, size, contents_size;
-    int64_t header_size, temp_first, temp_last, temp_current;
+    int64_t header_size, temp_first, temp_last;
     int64_t i, last_frame;
+    long temp_current;
     tng_gen_block_t block;
     tng_trajectory_frame_set_t frame_set;
     FILE *temp = tng_data->input_file;
@@ -11553,9 +11554,10 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
 {
     int64_t header_pos, file_pos, tot_n_particles;
     int64_t output_file_len, n_values_per_frame, size, contents_size;
-    int64_t header_size, temp_first, temp_last, temp_current;
+    int64_t header_size, temp_first, temp_last;
     int64_t mapping_block_end_pos, num_first_particle, block_n_particles;
     int64_t i, last_frame;
+    long temp_current;
     tng_gen_block_t block;
     tng_trajectory_frame_set_t frame_set;
     FILE *temp = tng_data->input_file;
@@ -12134,7 +12136,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_values_free
                  const int64_t n_values_per_frame,
                  const char type)
 {
-    int i, j;
+    int64_t i, j;
     (void)tng_data;
 
     if(values)
@@ -12244,7 +12246,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free
                  const int64_t n_values_per_frame,
                  const char type)
 {
-    int i, j, k;
+    int64_t i, j, k;
     (void)tng_data;
 
     if(values)
@@ -12289,8 +12291,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
                  int64_t *n_values_per_frame,
                  char *type)
 {
-    int64_t file_pos, block_index;
-    int i, j, len, size;
+    int64_t i, j, file_pos, block_index;
+    int len, size;
     tng_non_particle_data_t data;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
@@ -12531,7 +12533,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
 {
     int64_t i, j, n_frames, file_pos, current_frame_pos, first_frame;
     int64_t block_index;
-    int len, size;
+    int size;
+    size_t len;
     tng_non_particle_data_t data;
     tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
@@ -13267,7 +13270,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
 {
     int64_t i, j, k, mapping, n_frames, file_pos, current_frame_pos, i_step;
     int64_t first_frame, block_index;
-    int len, size;
+    int size;
+    size_t len;
     tng_particle_data_t data;
     tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
