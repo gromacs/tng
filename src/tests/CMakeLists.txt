@@ -6,8 +6,10 @@ link_directories(${TNG_IO_BINARY_DIR}/src/lib)
 
 set(EXAMPLE_FILES_DIR ${CMAKE_BINARY_DIR}/example_files/ CACHE STRING "Directory where to find input test files and save output files.")
 
-configure_file(${TNG_IO_SOURCE_DIR}/include/tng_io_testing.h.in ${CMAKE_BINARY_DIR}/generated/tng_io_testing.h)
-include_directories(${CMAKE_BINARY_DIR}/generated/)
+# Generate these two header files - even if the testing suites are not built. Avoids cppcheck errors.
+configure_file(${TNG_IO_SOURCE_DIR}/include/tng_io_testing.h.in ${CMAKE_BINARY_DIR}/include/tng_io_testing.h)
+configure_file(${TNG_IO_SOURCE_DIR}/include/compression/tng_compress_testing.h.in ${CMAKE_BINARY_DIR}/include/tng_compress_testing.h)
+include_directories(${CMAKE_BINARY_DIR}/include/)
 
 if(TNG_BUILD_TEST)
     add_executable(tng_testing tng_io_testing.c)

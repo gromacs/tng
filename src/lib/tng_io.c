@@ -7348,7 +7348,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
             * residues of this chain */
             if(temp_residue != last_residue)
             {
-                temp_residue++;
+                ++temp_residue;
                 memmove(temp_residue + 1, temp_residue,
                         last_residue - temp_residue);
             }
