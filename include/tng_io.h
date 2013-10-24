@@ -264,8 +264,8 @@
  *
  */
 
-#ifndef _TNGIO_H
-#define _TNGIO_H     1
+#ifndefTNG_IO_H
+#defineTNG_IO_H     1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2589,4 +2589,4 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
 }  /* end extern "C" */
 #endif
 
-#endif /* _TNGIO_H */
+#endif /*TNG_IO_H */

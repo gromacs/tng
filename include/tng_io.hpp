@@ -1,5 +1,5 @@
-#ifndef _TNGIO_HPP
-#define _TNGIO_HPP
+#ifndefTNG_IO_HPP
+#defineTNG_IO_HPP
 
 #include "tng_io.h"
 
