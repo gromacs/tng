@@ -317,7 +317,7 @@ struct tng_trajectory {
     int64_t medium_stride_length;
     /** The number of frame sets in a long stride step */
     int64_t long_stride_length;
-    /** The current (can change from one frame set to another time length
+    /** The current (can change from one frame set to another) time length
      *  (in seconds) of one frame */
     double time_per_frame;
 
@@ -6843,8 +6843,8 @@ tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
                                       const char *new_name)
 {
     unsigned int len;
-    (void)tng_data;
     tng_function_status stat;
+    (void)tng_data;
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -6884,8 +6884,8 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
                                       const char *new_type)
 {
     unsigned int len;
-    (void)tng_data;
     tng_function_status stat;
+    (void)tng_data;
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -7075,8 +7075,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_set
                  const char *new_name)
 {
     unsigned int len;
-    (void)tng_data;
     tng_function_status stat;
+    (void)tng_data;
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -7226,8 +7226,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
                  tng_chain_t *chain)
 {
     int64_t i, n_chains;
-    (void)tng_data;
     tng_function_status stat;
+    (void)tng_data;
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -7334,8 +7334,8 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
                  const char *new_name)
 {
     unsigned int len;
-    (void)tng_data;
     tng_function_status stat;
+    (void)tng_data;
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -7378,8 +7378,8 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find
                  tng_residue_t *residue)
 {
     int64_t i, n_residues;
-    (void)tng_data;
     tng_function_status stat;
+    (void)tng_data;
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -7523,8 +7523,8 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_set(tng_trajectory_t tng_
                                                            const char *new_name)
 {
     unsigned int len;
-    (void)tng_data;
     tng_function_status stat;
+    (void)tng_data;
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -14657,8 +14657,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_get
     tng_residue_t res;
     tng_chain_t chain;
     int64_t i;
-    (void)tng_data;
     tng_function_status stat;
+    (void)tng_data;
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
