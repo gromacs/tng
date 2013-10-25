@@ -5194,8 +5194,8 @@ static tng_function_status tng_particle_data_block_write
             data->codec_id = TNG_UNCOMPRESSED;
             break;
         case TNG_TNG_COMPRESSION:
-            printf("TEST: frame_step: %"PRId64", n_particles: %"PRId64", block_contents_size: %"PRId64", start_pos: %"PRId64"\n",
-                   frame_step, n_particles, block->block_contents_size, data_start_pos);
+/*             printf("TEST: frame_step: %"PRId64", n_particles: %"PRId64", block_contents_size: %"PRId64", start_pos: %"PRId64"\n",
+                    frame_step, n_particles, block->block_contents_size, data_start_pos);*/
             stat = tng_compress(tng_data, block, frame_step,
                                 n_particles, data->datatype,
                                 block->block_contents + data_start_pos);
@@ -14575,7 +14575,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
                 (tng_trajectory_t *tng_data_p)
 {
     tng_trajectory_frame_set_t frame_set;
-    tng_function_status stat;
 
     if(tng_data_p == 0)
     {
@@ -14584,12 +14583,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
         return(TNG_FAILURE);
     }
 
-    stat = tng_check_trajectory_container(*tng_data_p);
-    if(stat != TNG_SUCCESS)
+    if(*tng_data_p == 0)
     {
-        printf("Trajectory container not properly setup. %s: %d\n",
-               __FILE__, __LINE__);
-        return(stat);
+        return(TNG_SUCCESS);
     }
 
     frame_set = &(*tng_data_p)->current_trajectory_frame_set;
