@@ -427,6 +427,16 @@ static TNG_INLINE double tng_max_d(double a, double b)
 }
 */
 
+static TNG_INLINE tng_function_status tng_check_trajectory_container
+                (const tng_trajectory_t tng_data)
+{
+    if(tng_data == 0)
+    {
+        return(TNG_FAILURE);
+    }
+    return(TNG_SUCCESS);
+}
+
 /** This function swaps the byte order of a 32 bit numerical variable
  * to big endian.
  * It does not only work with integer, but e.g. floats need casting.
@@ -6834,6 +6844,15 @@ tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
 {
     unsigned int len;
     (void)tng_data;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -6866,6 +6885,15 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
 {
     unsigned int len;
     (void)tng_data;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     len = tng_min_i((int)strlen(new_type) + 1, TNG_MAX_STR_LEN);
 
@@ -6932,6 +6960,16 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_add
     int id;
     int64_t i;
     tng_bool found_id = TNG_TRUE;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
 
     /* Find an unused ID */
     id = 0;
@@ -6963,7 +7001,16 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
 {
     tng_molecule_t new_molecules;
     int64_t *new_molecule_cnt_list, i;
-    tng_function_status stat = TNG_SUCCESS;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
 
     new_molecules = realloc(tng_data->molecules,
                             sizeof(struct tng_molecule) *
@@ -7029,6 +7076,16 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_set
 {
     unsigned int len;
     (void)tng_data;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -7061,6 +7118,15 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_get
                  int64_t *cnt)
 {
     int64_t i, index = -1;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     for(i = tng_data->n_molecules; i--;)
     {
@@ -7085,6 +7151,15 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set
                  const int64_t cnt)
 {
     int64_t i, old_cnt, index = -1;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     for(i = tng_data->n_molecules; i--;)
     {
@@ -7114,6 +7189,15 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_find
                  tng_molecule_t *molecule)
 {
     int64_t i, n_molecules;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     n_molecules = tng_data->n_molecules;
 
@@ -7143,6 +7227,15 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
 {
     int64_t i, n_chains;
     (void)tng_data;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     n_chains = molecule->n_chains;
 
@@ -7181,7 +7274,15 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
                  tng_chain_t *chain)
 {
     int64_t i;
-    tng_function_status stat = TNG_SUCCESS;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     tng_chain_t new_chains;
 
@@ -7234,6 +7335,15 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
 {
     unsigned int len;
     (void)tng_data;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -7269,6 +7379,15 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find
 {
     int64_t i, n_residues;
     (void)tng_data;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     n_residues = chain->n_residues;
 
@@ -7309,7 +7428,15 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
     int64_t i, curr_index;
     tng_residue_t new_residues, temp_residue, last_residue;
     tng_molecule_t molecule = chain->molecule;
-    tng_function_status stat = TNG_SUCCESS;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(chain->n_residues)
     {
@@ -7397,6 +7524,15 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_set(tng_trajectory_t tng_
 {
     unsigned int len;
     (void)tng_data;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -7446,7 +7582,15 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
     int64_t i;
     tng_atom_t new_atoms;
     tng_molecule_t molecule = residue->chain->molecule;
-    tng_function_status stat = TNG_SUCCESS;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(!residue->n_atoms)
     {
@@ -7585,6 +7729,15 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
     int64_t cnt = 0, i, *molecule_cnt_list;
     tng_molecule_t mol;
     tng_bool found = TNG_FALSE;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(tng_data->var_num_atoms_flag)
     {
@@ -7632,6 +7785,15 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_of_particle_nr_get
     tng_molecule_t mol;
     tng_atom_t atom;
     tng_bool found = TNG_FALSE;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(tng_data->var_num_atoms_flag)
     {
@@ -7684,6 +7846,15 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
     tng_molecule_t mol;
     tng_atom_t atom;
     tng_bool found = TNG_FALSE;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(tng_data->var_num_atoms_flag)
     {
@@ -7736,6 +7907,15 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_name_of_particle_nr_get
     tng_molecule_t mol;
     tng_atom_t atom;
     tng_bool found = TNG_FALSE;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(tng_data->var_num_atoms_flag)
     {
@@ -7784,6 +7964,15 @@ tng_function_status tng_atom_type_of_particle_nr_get
     tng_molecule_t mol;
     tng_atom_t atom;
     tng_bool found = TNG_FALSE;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(tng_data->var_num_atoms_flag)
     {
@@ -7830,8 +8019,18 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
 {
     int64_t i;
     tng_particle_mapping_t mapping;
-    tng_trajectory_frame_set_t frame_set =
-    &tng_data->current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     /* Sanity check of the particle ranges. Split into multiple if
      * statements for improved readability */
@@ -8078,8 +8277,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy(tng_trajectory_t *t
     int64_t i, j, k, l;
     int64_t n_particles, n_values_per_frame;
     tng_trajectory_t tng_data = *tng_data_p;
-    tng_trajectory_frame_set_t frame_set =
-    &tng_data->current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
 
     tng_particle_mapping_t mapping;
 
@@ -8087,6 +8285,8 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy(tng_trajectory_t *t
     {
         return(TNG_SUCCESS);
     }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     if(tng_data->input_file_path)
     {
@@ -8555,6 +8755,16 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
 tng_function_status DECLSPECDLLEXPORT tng_input_file_get(const tng_trajectory_t tng_data,
                                        char *file_name, const int max_len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     strncpy(file_name, tng_data->input_file_path, max_len - 1);
     file_name[max_len - 1] = 0;
 
@@ -8570,6 +8780,15 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_set(tng_trajectory_t tng_da
 {
     unsigned int len;
     char *temp;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(tng_data->input_file_path && strcmp(tng_data->input_file_path,
                                            file_name) == 0)
@@ -8602,6 +8821,16 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_set(tng_trajectory_t tng_da
 tng_function_status tng_output_file_get(const tng_trajectory_t tng_data,
                                        char *file_name, const int max_len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     strncpy(file_name, tng_data->output_file_path, max_len - 1);
     file_name[max_len - 1] = 0;
 
@@ -8617,6 +8846,15 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_set(tng_trajectory_t tng_d
 {
     int len;
     char *temp;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(tng_data->output_file_path &&
        strcmp(tng_data->output_file_path, file_name) == 0)
@@ -8651,6 +8889,15 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_endianness_get
 {
     tng_endianness_32 end_32;
     tng_endianness_64 end_64;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(tng_data->output_endianness_swap_func_32)
     {
@@ -8724,6 +8971,16 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_endianness_set
                 (tng_trajectory_t tng_data,
                  const tng_file_endianness endianness)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     /* Tne endianness cannot be changed if the data has already been written
      * to the output file. */
     if(ftell(tng_data->output_file) > 0)
@@ -8785,6 +9042,16 @@ tng_function_status DECLSPECDLLEXPORT tng_first_program_name_get
                     (const tng_trajectory_t tng_data,
                      char *name, const int max_len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     strncpy(name, tng_data->first_program_name, max_len - 1);
     name[max_len - 1] = 0;
 
@@ -8799,6 +9066,15 @@ tng_function_status DECLSPECDLLEXPORT tng_first_program_name_set(tng_trajectory_
                                                                  const char *new_name)
 {
     unsigned int len;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -8827,6 +9103,16 @@ tng_function_status DECLSPECDLLEXPORT tng_last_program_name_get
                     (const tng_trajectory_t tng_data,
                      char *name, const int max_len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     strncpy(name, tng_data->last_program_name, max_len - 1);
     name[max_len - 1] = 0;
 
@@ -8842,6 +9128,15 @@ tng_function_status DECLSPECDLLEXPORT tng_last_program_name_set
                      const char *new_name)
 {
     unsigned int len;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -8870,6 +9165,16 @@ tng_function_status DECLSPECDLLEXPORT tng_first_user_name_get
                     (const tng_trajectory_t tng_data,
                      char *name, const int max_len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     strncpy(name, tng_data->first_user_name, max_len - 1);
     name[max_len - 1] = 0;
 
@@ -8885,6 +9190,15 @@ tng_function_status DECLSPECDLLEXPORT tng_first_user_name_set
                      const char *new_name)
 {
     unsigned int len;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -8915,6 +9229,16 @@ tng_function_status DECLSPECDLLEXPORT tng_last_user_name_get
                     (const tng_trajectory_t tng_data,
                      char *name, const int max_len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     strncpy(name, tng_data->last_user_name, max_len - 1);
     name[max_len - 1] = 0;
 
@@ -8930,6 +9254,15 @@ tng_function_status DECLSPECDLLEXPORT tng_last_user_name_set
                      const char *new_name)
 {
     unsigned int len;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -8960,6 +9293,16 @@ tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_get
                     (const tng_trajectory_t tng_data,
                      char *name, const int max_len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     strncpy(name, tng_data->first_computer_name, max_len - 1);
     name[max_len - 1] = 0;
 
@@ -8975,6 +9318,15 @@ tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_set
                      const char *new_name)
 {
     unsigned int len;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -9005,6 +9357,16 @@ tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_get
                     (const tng_trajectory_t tng_data,
                      char *name, const int max_len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     strncpy(name, tng_data->last_computer_name, max_len - 1);
     name[max_len - 1] = 0;
 
@@ -9020,6 +9382,15 @@ tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_set
                      const char *new_name)
 {
     unsigned int len;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -9051,6 +9422,16 @@ tng_function_status DECLSPECDLLEXPORT tng_first_signature_get
                     (const tng_trajectory_t tng_data,
                      char *signature, const int max_len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     strncpy(signature, tng_data->first_pgp_signature, max_len - 1);
     signature[max_len - 1] = 0;
 
@@ -9066,6 +9447,15 @@ tng_function_status DECLSPECDLLEXPORT tng_first_signature_set
                      const char *signature)
 {
     unsigned int len;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     len = tng_min_i((int)strlen(signature) + 1, TNG_MAX_STR_LEN);
 
@@ -9097,6 +9487,16 @@ tng_function_status DECLSPECDLLEXPORT tng_last_signature_get
                     (const tng_trajectory_t tng_data,
                      char *signature, const int max_len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     strncpy(signature, tng_data->last_pgp_signature, max_len - 1);
     signature[max_len - 1] = 0;
 
@@ -9112,6 +9512,15 @@ tng_function_status DECLSPECDLLEXPORT tng_last_signature_set
                      const char *signature)
 {
     unsigned int len;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     len = tng_min_i((int)strlen(signature) + 1, TNG_MAX_STR_LEN);
 
@@ -9143,6 +9552,16 @@ tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_get
                     (const tng_trajectory_t tng_data,
                      char *name, const int max_len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     strncpy(name, tng_data->forcefield_name, max_len - 1);
     name[max_len - 1] = 0;
 
@@ -9158,6 +9577,15 @@ tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_set
                      const char *new_name)
 {
     unsigned int len;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -9188,6 +9616,16 @@ tng_function_status DECLSPECDLLEXPORT tng_medium_stride_length_get
                     (const tng_trajectory_t tng_data,
                      int64_t *len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     *len = tng_data->medium_stride_length;
 
     return(TNG_SUCCESS);
@@ -9197,6 +9635,16 @@ tng_function_status DECLSPECDLLEXPORT tng_medium_stride_length_set
                     (tng_trajectory_t tng_data,
                      const int64_t len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     if(len >= tng_data->long_stride_length)
     {
         return(TNG_FAILURE);
@@ -9210,6 +9658,16 @@ tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_get
                 (const tng_trajectory_t tng_data,
                  int64_t *len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     *len = tng_data->long_stride_length;
 
     return(TNG_SUCCESS);
@@ -9219,6 +9677,16 @@ tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_set
                 (tng_trajectory_t tng_data,
                  const int64_t len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     if(len <= tng_data->medium_stride_length)
     {
         return(TNG_FAILURE);
@@ -9232,6 +9700,16 @@ tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_get
                 (const tng_trajectory_t tng_data,
                  double *time)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     *time = tng_data->time_per_frame;
 
     return(TNG_SUCCESS);
@@ -9241,8 +9719,18 @@ tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_set
                 (tng_trajectory_t tng_data,
                  const double time)
 {
-    tng_trajectory_frame_set_t frame_set =
-    &tng_data->current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     /* If the current frame set is not finished write it to disk before
        changing time per frame. */
@@ -9261,6 +9749,16 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_len_get
                     (const tng_trajectory_t tng_data,
                      int64_t *len)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     *len = tng_data->input_file_len;
 
     return(TNG_SUCCESS);
@@ -9273,6 +9771,14 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_get
     tng_gen_block_t block;
     tng_function_status stat;
     int64_t file_pos;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     file_pos = tng_data->last_trajectory_frame_set_input_file_pos;
 
@@ -9315,6 +9821,16 @@ tng_function_status DECLSPECDLLEXPORT tng_num_particles_get
                     (const tng_trajectory_t tng_data,
                      int64_t *n)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     if(tng_data->var_num_atoms_flag == TNG_CONSTANT_N_ATOMS)
     {
         *n = tng_data->n_particles;
@@ -9332,6 +9848,15 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
                      int64_t *n)
 {
     int64_t *cnt_list, cnt = 0, i;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(tng_data->var_num_atoms_flag == TNG_CONSTANT_N_ATOMS)
     {
@@ -9356,6 +9881,16 @@ tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_get
                 (const tng_trajectory_t tng_data,
                  int64_t *exp)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     *exp = tng_data->distance_unit_exponential;
 
     return(TNG_SUCCESS);
@@ -9365,6 +9900,16 @@ tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_set
                 (const tng_trajectory_t tng_data,
                  const int64_t exp)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     tng_data->distance_unit_exponential = exp;
 
     return(TNG_SUCCESS);
@@ -9374,6 +9919,16 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_per_frame_set_get
                 (const tng_trajectory_t tng_data,
                  int64_t *n)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     *n = tng_data->frame_set_n_frames;
 
     return(TNG_SUCCESS);
@@ -9383,6 +9938,16 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_per_frame_set_set
                 (const tng_trajectory_t tng_data,
                  const int64_t n)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     tng_data->frame_set_n_frames = n;
 
     return(TNG_SUCCESS);
@@ -9394,11 +9959,20 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
 {
     int64_t long_stride_length, medium_stride_length;
     int64_t file_pos;
-    tng_trajectory_frame_set_t frame_set =
-    &tng_data->current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
     tng_function_status stat;
     int64_t cnt = 0;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     file_pos = tng_data->first_trajectory_frame_set_input_file_pos;
 
@@ -9530,6 +10104,16 @@ tng_function_status DECLSPECDLLEXPORT tng_current_frame_set_get
                 (tng_trajectory_t tng_data,
                  tng_trajectory_frame_set_t *frame_set_p)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     *frame_set_p = &tng_data->current_trajectory_frame_set;
 
     return(TNG_SUCCESS);
@@ -9541,10 +10125,19 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
 {
     int64_t long_stride_length, medium_stride_length;
     int64_t file_pos, curr_nr = 0, n_frame_sets;
-    tng_trajectory_frame_set_t frame_set =
-    &tng_data->current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
     tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     stat = tng_num_frame_sets_get(tng_data, &n_frame_sets);
 
@@ -9862,10 +10455,19 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
     int64_t first_frame, last_frame, n_frames_per_frame_set;
     int64_t long_stride_length, medium_stride_length;
     int64_t file_pos;
-    tng_trajectory_frame_set_t frame_set =
-    &tng_data->current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
     tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     first_frame = tng_max_i64(frame_set->first_frame, 0);
     last_frame = first_frame + frame_set->n_frames - 1;
@@ -10202,7 +10804,17 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_next_frame_set_file_pos_get
                  const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
 {
+    tng_function_status stat;
     (void)tng_data;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     *pos = frame_set->next_frame_set_file_pos;
 
     return(TNG_SUCCESS);
@@ -10213,7 +10825,17 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_prev_frame_set_file_pos_get
                  const tng_trajectory_frame_set_t frame_set,
                  int64_t *pos)
 {
+    tng_function_status stat;
     (void)tng_data;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     *pos = frame_set->prev_frame_set_file_pos;
 
     return(TNG_SUCCESS);
@@ -10225,7 +10847,17 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_frame_range_get
                  int64_t *first_frame,
                  int64_t *last_frame)
 {
+    tng_function_status stat;
     (void)tng_data;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     *first_frame = frame_set->first_frame;
     *last_frame = *first_frame + frame_set->n_frames - 1;
 
@@ -10309,6 +10941,15 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_read(tng_trajectory_t tng
 {
     int cnt = 0, prev_pos = 0;
     tng_gen_block_t block;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     tng_data->n_trajectory_frame_sets = 0;
 
@@ -10356,6 +10997,15 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write(tng_trajectory_t tn
 {
     int i;
     tng_gen_block_t data_block;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
@@ -10405,6 +11055,16 @@ tng_function_status DECLSPECDLLEXPORT tng_block_read_next(tng_trajectory_t tng_d
                                         tng_gen_block_t block,
                                         const char hash_mode)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     switch(block->id)
     {
     case TNG_TRAJECTORY_FRAME_SET:
@@ -10435,7 +11095,15 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next(tng_trajectory_t t
 {
     long file_pos;
     tng_gen_block_t block;
-    tng_function_status stat = TNG_SUCCESS;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(tng_input_file_init(tng_data) != TNG_SUCCESS)
     {
@@ -10527,10 +11195,19 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
 {
     int i, j;
     tng_gen_block_t block;
-    tng_trajectory_frame_set_t frame_set =
-    &tng_data->current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
 
     tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     tng_data->current_trajectory_frame_set_output_file_pos =
     ftell(tng_data->output_file);
@@ -10618,6 +11295,15 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
     tng_particle_mapping_t mapping;
     FILE *temp = tng_data->input_file;
     int64_t curr_pos;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
@@ -10815,6 +11501,14 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new
 {
     tng_function_status stat;
 
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     stat = tng_frame_set_new(tng_data, first_frame, n_frames);
     if(stat != TNG_SUCCESS)
     {
@@ -10829,6 +11523,16 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_first_frame_time_set
                 (tng_trajectory_t tng_data,
                  const double first_frame_time)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     tng_data->current_trajectory_frame_set.first_frame_time = first_frame_time;
 
     return(TNG_SUCCESS);
@@ -10852,6 +11556,15 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
     char **first_dim_values;
     char *new_data_c=new_data;
     int64_t n_frames_div;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
@@ -10993,6 +11706,15 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
     tng_trajectory_frame_set_t frame_set;
     tng_particle_data_t data;
     char *new_data_c=new_data;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
@@ -11150,6 +11872,14 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
     tng_function_status stat;
     char dependency, sparse_data, datatype;
     void *copy;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
@@ -11566,6 +12296,14 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
     tng_particle_mapping_t mapping;
     char dependency, sparse_data, datatype;
     void *copy;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
@@ -12137,7 +12875,16 @@ tng_function_status DECLSPECDLLEXPORT tng_data_values_free
                  const char type)
 {
     int64_t i, j;
+    tng_function_status stat;
     (void)tng_data;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(values)
     {
@@ -12247,7 +12994,16 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free
                  const char type)
 {
     int64_t i, j, k;
+    tng_function_status stat;
     (void)tng_data;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     if(values)
     {
@@ -12295,10 +13051,19 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
     int size;
     size_t len;
     tng_non_particle_data_t data;
-    tng_trajectory_frame_set_t frame_set =
-    &tng_data->current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
     tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     block_index = -1;
     data = 0;
@@ -12425,11 +13190,20 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
     int64_t file_pos, data_size, n_frames_div, block_index;
     int i, size;
     tng_non_particle_data_t data;
-    tng_trajectory_frame_set_t frame_set =
-    &tng_data->current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
-    tng_function_status stat;
     void *temp;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     block_index = -1;
     data = 0;
@@ -12540,6 +13314,14 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
     tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
     tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     block_index = -1;
 
@@ -12734,8 +13516,16 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
     int size;
     tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
-    tng_function_status stat;
     void *current_values = 0, *temp;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     frame_set = &tng_data->current_trajectory_frame_set;
     first_frame = frame_set->first_frame;
@@ -12924,12 +13714,20 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
     int size;
     size_t len;
     tng_particle_data_t data;
-    tng_trajectory_frame_set_t frame_set =
-    &tng_data->current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
+    char block_type_flag;
     tng_function_status stat;
 
-    char block_type_flag;
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     block_index = -1;
     data = 0;
@@ -13119,13 +13917,21 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
     int64_t block_index;
     int size;
     tng_particle_data_t data;
-    tng_trajectory_frame_set_t frame_set =
-    &tng_data->current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
-    tng_function_status stat;
     void *temp;
-
     char block_type_flag;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     block_index = -1;
     data = 0;
@@ -13276,8 +14082,16 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
     tng_particle_data_t data;
     tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
-    tng_function_status stat;
     char block_type_flag;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     block_index = -1;
 
@@ -13507,8 +14321,16 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
     int size;
     tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
-    tng_function_status stat;
     void *current_values = 0, *temp;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
 
     frame_set = &tng_data->current_trajectory_frame_set;
     first_frame = frame_set->first_frame;
@@ -13693,6 +14515,16 @@ tng_function_status DECLSPECDLLEXPORT tng_time_get_str
                  char *time)
 {
     struct tm *time_data;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     time_t secs;
 
     secs = tng_data->time;
@@ -13742,8 +14574,25 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
                 (tng_trajectory_t *tng_data_p)
 {
-    tng_trajectory_frame_set_t frame_set = &(*tng_data_p)->
-                                           current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
+    tng_function_status stat;
+
+    if(tng_data_p == 0)
+    {
+        printf("Empty pointer to trajectory when attempting to close. %s: %d\n",
+               __FILE__, __LINE__);
+        return(TNG_FAILURE);
+    }
+
+    stat = tng_check_trajectory_container(*tng_data_p);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    frame_set = &(*tng_data_p)->current_trajectory_frame_set;
 
     if(frame_set->n_unwritten_frames > 0)
     {
@@ -13760,6 +14609,16 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
                  int64_t **molecule_cnt_list,
                  tng_molecule_t *mols)
 {
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
     /* FIXME: This should return a copy of the molecules instead */
     *n_mols = tng_data->n_molecules;
 
@@ -13776,6 +14635,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
                  tng_molecule_t *mol)
 {
     tng_function_status stat;
+
     stat = tng_molecule_add(tng_data, name, mol);
     if(stat != TNG_SUCCESS)
     {
@@ -13802,6 +14662,16 @@ tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_get
     tng_chain_t chain;
     int64_t i;
     (void)tng_data;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
 
     *n_particles = mol->n_atoms;
 
@@ -14080,12 +14950,21 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
                  const char particle_dependency,
                  const char compression)
 {
-    tng_trajectory_frame_set_t frame_set = &tng_data->
-                                           current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
     tng_particle_data_t p_data;
     tng_non_particle_data_t np_data;
     int64_t n_particles, n_frames = 100*f;
     tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     if(!frame_set || tng_data->n_trajectory_frame_sets <= 0)
     {
@@ -14227,13 +15106,22 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                  const char particle_dependency,
                  const char compression)
 {
-    tng_trajectory_frame_set_t frame_set = &tng_data->
-                                           current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
     tng_particle_data_t p_data;
     tng_non_particle_data_t np_data;
     int64_t n_particles, n_frames = 10000, stride_length = 100, frame_pos;
-    tng_function_status stat;
     char block_type_flag;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     if(frame_nr < 0)
     {
