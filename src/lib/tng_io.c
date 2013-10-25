@@ -7274,6 +7274,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
                  tng_chain_t *chain)
 {
     int64_t i;
+    tng_chain_t new_chains;
     tng_function_status stat;
 
     stat = tng_check_trajectory_container(tng_data);
@@ -7283,8 +7284,6 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
                __FILE__, __LINE__);
         return(stat);
     }
-
-    tng_chain_t new_chains;
 
     new_chains = realloc(molecule->chains,
                          sizeof(struct tng_chain) *
@@ -14515,6 +14514,7 @@ tng_function_status DECLSPECDLLEXPORT tng_time_get_str
                  char *time)
 {
     struct tm *time_data;
+    time_t secs;
     tng_function_status stat;
 
     stat = tng_check_trajectory_container(tng_data);
@@ -14524,8 +14524,6 @@ tng_function_status DECLSPECDLLEXPORT tng_time_get_str
                __FILE__, __LINE__);
         return(stat);
     }
-
-    time_t secs;
 
     secs = tng_data->time;
 
