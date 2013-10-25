@@ -1,11 +1,12 @@
-add_library(tng_io tng_io.c md5.c)
+if(TNG_BUILD_FORTRAN)
+  add_library(tng_io tng_io.c md5.c tng_io_fortran.c)
+else()
+  add_library(tng_io tng_io.c md5.c)
+endif()
+
 
 if(HAVE_INTTYPES_H)
   set_property(TARGET tng_io APPEND PROPERTY COMPILE_DEFINITIONS USE_STD_INTTYPES_H)
-endif()
-
-if(TNG_BUILD_FORTRAN)
-  set_property(TARGET tng_io APPEND PROPERTY COMPILE_DEFINITIONS TNG_BUILD_FORTRAN)
 endif()
 
 if(ZLIB_FOUND)
