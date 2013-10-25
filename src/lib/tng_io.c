@@ -15122,6 +15122,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
         return(stat);
     }
 
+    if(values == 0)
+    {
+        return(TNG_FAILURE);
+    }
+
     frame_set = &tng_data->current_trajectory_frame_set;
 
     if(frame_nr < 0)
