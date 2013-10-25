@@ -14964,6 +14964,13 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
         return(stat);
     }
 
+    if(f <= 0)
+    {
+        printf("Cannot set writing frequency to %"PRId64". %s: %d\n",
+               f, __FILE__, __LINE__);
+        return(TNG_FAILURE);
+    }
+
     frame_set = &tng_data->current_trajectory_frame_set;
 
     if(!frame_set || tng_data->n_trajectory_frame_sets <= 0)
