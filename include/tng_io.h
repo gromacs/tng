@@ -374,14 +374,14 @@ typedef enum {TNG_NO_HASH,
 typedef enum {TNG_NON_TRAJECTORY_BLOCK, TNG_TRAJECTORY_BLOCK} tng_block_type;
 
 /** Block IDs of standard non trajectory blocks. */
-typedef enum {TNG_GENERAL_INFO = 0x0000000000000000L,
+typedef enum {TNG_GENERAL_INFO = 0x0000000000000000LL,
               TNG_MOLECULES,
               TNG_TRAJECTORY_FRAME_SET,
               TNG_PARTICLE_MAPPING} tng_non_trajectory_block_ids;
 
 /** Block IDs of standard trajectory blocks. Box shape and partial charges can
  * be either trajectory blocks or non-trajectory blocks */
-typedef enum {TNG_TRAJ_BOX_SHAPE = 0x0000000010000000L,
+typedef enum {TNG_TRAJ_BOX_SHAPE = 0x0000000010000000LL,
               TNG_TRAJ_POSITIONS,
               TNG_TRAJ_VELOCITIES,
               TNG_TRAJ_FORCES,
@@ -392,7 +392,7 @@ typedef enum {TNG_TRAJ_BOX_SHAPE = 0x0000000010000000L,
               TNG_TRAJ_OCCUPANCY} tng_trajectory_block_ids;
 
 /* GROMACS data block IDs. */
-enum {TNG_GMX_LAMBDA = 0x1000000010000000L};
+enum {TNG_GMX_LAMBDA = 0x1000000010000000LL};
 
 /** Flag to specify if a data block contains data related to particles or not.*/
 typedef enum {TNG_NON_PARTICLE_BLOCK_DATA,
