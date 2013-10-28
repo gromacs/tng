@@ -374,25 +374,25 @@ typedef enum {TNG_NO_HASH,
 typedef enum {TNG_NON_TRAJECTORY_BLOCK, TNG_TRAJECTORY_BLOCK} tng_block_type;
 
 /** Block IDs of standard non trajectory blocks. */
-typedef enum {TNG_GENERAL_INFO = 0x0000000000000000LL,
-              TNG_MOLECULES,
-              TNG_TRAJECTORY_FRAME_SET,
-              TNG_PARTICLE_MAPPING} tng_non_trajectory_block_ids;
+#define TNG_GENERAL_INFO 0x0000000000000000LL
+#define TNG_MOLECULES 0x0000000000000001LL
+#define TNG_TRAJECTORY_FRAME_SET 0x0000000000000002LL
+#define TNG_PARTICLE_MAPPING 0x0000000000000003LL
 
 /** Block IDs of standard trajectory blocks. Box shape and partial charges can
  * be either trajectory blocks or non-trajectory blocks */
-typedef enum {TNG_TRAJ_BOX_SHAPE = 0x0000000010000000LL,
-              TNG_TRAJ_POSITIONS,
-              TNG_TRAJ_VELOCITIES,
-              TNG_TRAJ_FORCES,
-              TNG_TRAJ_PARTIAL_CHARGES,
-              TNG_TRAJ_FORMAL_CHARGES,
-              TNG_TRAJ_B_FACTORS,
-              TNG_TRAJ_ANISOTROPIC_B_FACTORS,
-              TNG_TRAJ_OCCUPANCY} tng_trajectory_block_ids;
+#define TNG_TRAJ_BOX_SHAPE 0x0000000010000000LL
+#define TNG_TRAJ_POSITIONS 0x0000000010000001LL
+#define TNG_TRAJ_VELOCITIES 0x0000000010000002LL
+#define TNG_TRAJ_FORCES 0x0000000010000003LL
+#define TNG_TRAJ_PARTIAL_CHARGES 0x0000000010000004LL
+#define TNG_TRAJ_FORMAL_CHARGES 0x0000000010000005LL
+#define TNG_TRAJ_B_FACTORS 0x0000000010000006LL
+#define TNG_TRAJ_ANISOTROPIC_B_FACTORS 0x0000000010000007LL
+#define TNG_TRAJ_OCCUPANCY 0x0000000010000008LL
 
 /* GROMACS data block IDs. */
-typedef enum {TNG_GMX_LAMBDA = 0x1000000010000000LL} tng_gmx_data_block_ids;
+#define TNG_GMX_LAMBDA 0x1000000010000000LL
 
 /** Flag to specify if a data block contains data related to particles or not.*/
 typedef enum {TNG_NON_PARTICLE_BLOCK_DATA,
