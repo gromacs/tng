@@ -2832,6 +2832,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_double_write
  * set is set.
  * @param tng_data is the trajectory to use.
  * @param frame_nr is the frame number of the data.
+ * @param time is the time stamp of the frame (in seconds).
  * @param values is a 1D array of data to add. The array should be of length
  * n_particles * n_values_per_frame if writing particle related data, otherwise
  * it should be n_values_per_frame.
@@ -2855,9 +2856,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_double_write
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
  */
-tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
+                 const double time,
                  const float *values,
                  const int64_t n_values_per_frame,
                  const int64_t block_id,
@@ -2871,6 +2873,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
  * the frame set is set.
  * @param tng_data is the trajectory to use.
  * @param frame_nr is the frame number of the data.
+ * @param time is the time stamp of the frame (in seconds).
  * @param values is a 1D array of data to add. The array should be of length
  * n_particles * n_values_per_frame if writing particle related data, otherwise
  * it should be n_values_per_frame.
@@ -2894,9 +2897,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
  */
-tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_double_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
+                 const double time,
                  const double *values,
                  const int64_t n_values_per_frame,
                  const int64_t block_id,
@@ -2913,7 +2917,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
  * @param time is the time stamp of the frame (in seconds).
  * @param positions is a 1D array of data to add. The array should be of length
  * n_particles * 3.
- * @details This function uses tng_util_generic_write() and will
+ * @details This function uses tng_util_generic_with_time_write() and will
  * create a positions data block if none exists. Positions are stored as three
  * values per frame and compressed using TNG compression.
  * N.b. Since compressed data is written a whole block at a time the data is not
@@ -2938,7 +2942,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
  * @param time is the time stamp of the frame (in seconds).
  * @param positions is a 1D array of data to add. The array should be of length
  * n_particles * 3.
- * @details This function uses tng_util_generic_write() and will
+ * @details This function uses tng_util_generic_with_time_double_write() and will
  * create a positions data block if none exists. Positions are stored as three
  * values per frame and compressed using TNG compression.
  * N.b. Since compressed data is written a whole block at a time the data is not
@@ -2963,7 +2967,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_double_write
  * @param time is the time stamp of the frame (in seconds).
  * @param velocities is a 1D array of data to add. The array should be of length
  * n_particles * 3.
- * @details This function uses tng_util_generic_write() and will
+ * @details This function uses tng_util_generic_with_time_write() and will
  * create a velocities data block if none exists. Velocities are stored as three
  * values per frame and compressed using TNG compression.
  * N.b. Since compressed data is written a whole block at a time the data is not
@@ -2988,7 +2992,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
  * @param time is the time stamp of the frame (in seconds).
  * @param velocities is a 1D array of data to add. The array should be of length
  * n_particles * 3.
- * @details This function uses tng_util_generic_write() and will
+ * @details This function uses tng_util_generic_with_time_double_write() and will
  * create a velocities data block if none exists. Velocities are stored as three
  * values per frame and compressed using TNG compression.
  * N.b. Since compressed data is written a whole block at a time the data is not
@@ -3013,7 +3017,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_double_write
  * @param time is the time stamp of the frame (in seconds).
  * @param forces is a 1D array of data to add. The array should be of length
  * n_particles * 3.
- * @details This function uses tng_util_generic_write() and will
+ * @details This function uses tng_util_generic_with_time_write() and will
  * create a forces data block if none exists. Forces are stored as three
  * values per frame and compressed using gzip compression.
  * N.b. Since compressed data is written a whole block at a time the data is not
@@ -3038,7 +3042,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
  * @param time is the time stamp of the frame (in seconds).
  * @param forces is a 1D array of data to add. The array should be of length
  * n_particles * 3.
- * @details This function uses tng_util_generic_write() and will
+ * @details This function uses tng_util_generic_with_time_double_write() and will
  * create a forces data block if none exists. Forces are stored as three
  * values per frame and compressed using gzip compression.
  * N.b. Since compressed data is written a whole block at a time the data is not
@@ -3062,7 +3066,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_double_write
  * @param frame_nr is the frame number of the data.
  * @param time is the time stamp of the frame (in seconds).
  * @param box_shape is a 1D array of data to add. The array should be of length 9.
- * @details This function uses tng_util_generic_write() and will
+ * @details This function uses tng_util_generic_with_time_write() and will
  * create a box shape data block if none exists. Box shapes are stored as 9
  * values per frame and compressed using TNG compression.
  * N.b. Since compressed data is written a whole block at a time the data is not
@@ -3086,7 +3090,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
  * @param frame_nr is the frame number of the data.
  * @param time is the time stamp of the frame (in seconds).
  * @param box_shape is a 1D array of data to add. The array should be of length 9.
- * @details This function uses tng_util_generic_write() and will
+ * @details This function uses tng_util_generic_with_time_double_write() and will
  * create a box shape data block if none exists. Box shapes are stored as 9
  * values per frame and compressed using TNG compression.
  * N.b. Since compressed data is written a whole block at a time the data is not
