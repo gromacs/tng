@@ -373,14 +373,21 @@ typedef enum {TNG_NO_HASH,
 /** Non trajectory blocks come before the first frame set block */
 typedef enum {TNG_NON_TRAJECTORY_BLOCK, TNG_TRAJECTORY_BLOCK} tng_block_type;
 
-/** Block IDs of standard non trajectory blocks. */
+/** @defgroup def1 Standard non-trajectory blocks
+ *  Block IDs of standard non-trajectory blocks.
+ * @{
+ */
 #define TNG_GENERAL_INFO 0x0000000000000000LL
 #define TNG_MOLECULES 0x0000000000000001LL
 #define TNG_TRAJECTORY_FRAME_SET 0x0000000000000002LL
 #define TNG_PARTICLE_MAPPING 0x0000000000000003LL
+/** @} */
 
-/** Block IDs of standard trajectory blocks. Box shape and partial charges can
- * be either trajectory blocks or non-trajectory blocks */
+/** @defgroup def2 Standard trajectory blocks
+ * Block IDs of standard trajectory blocks. Box shape and partial charges can
+ * be either trajectory blocks or non-trajectory blocks
+ * @{
+ */
 #define TNG_TRAJ_BOX_SHAPE 0x0000000010000000LL
 #define TNG_TRAJ_POSITIONS 0x0000000010000001LL
 #define TNG_TRAJ_VELOCITIES 0x0000000010000002LL
@@ -390,9 +397,15 @@ typedef enum {TNG_NON_TRAJECTORY_BLOCK, TNG_TRAJECTORY_BLOCK} tng_block_type;
 #define TNG_TRAJ_B_FACTORS 0x0000000010000006LL
 #define TNG_TRAJ_ANISOTROPIC_B_FACTORS 0x0000000010000007LL
 #define TNG_TRAJ_OCCUPANCY 0x0000000010000008LL
+/** @} */
 
-/* GROMACS data block IDs. */
+
+/** @defgroup def3 GROMACS data block IDs
+ *  Block IDs of data blocks specific to GROMACS.
+ * @{
+ */
 #define TNG_GMX_LAMBDA 0x1000000010000000LL
+/** @} */
 
 /** Flag to specify if a data block contains data related to particles or not.*/
 typedef enum {TNG_NON_PARTICLE_BLOCK_DATA,
