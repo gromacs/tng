@@ -2977,6 +2977,30 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_double_write
                  const double *forces);
 
 /**
+ * @brief High-level function for adding data to box shape data blocks. If the
+ * frame is at the beginning of a frame set the time stamp of the frame set
+ * is set.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param time is the time stamp of the frame (in seconds).
+ * @param box_shape is a 1D array of data to add. The array should be of length 9.
+ * @details This function uses tng_util_generic_write() and will
+ * create a box shape data block if none exists. Box shapes are stored as 9
+ * values per frame and compressed using TNG compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const double time,
+                 const float *box_shape);
+
+/**
  * @brief High-level function for adding data to box shape data blocks at
  * double precision. If the frame is at the beginning of a frame set the
  * time stamp of the frame set is set.
