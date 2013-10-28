@@ -15775,18 +15775,24 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_double_write
                                          TNG_GZIP_COMPRESSION));
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double time,
-                 const float *positions)
+                 const float *values,
+                 const int64_t n_values_per_frame,
+                 const int64_t block_id,
+                 const char *block_name,
+                 const char particle_dependency,
+                 const char compression)
 {
     tng_function_status stat;
 
-    stat = tng_util_generic_write(tng_data, frame_nr, positions, 3,
-                                  TNG_TRAJ_POSITIONS, "POSITIONS",
-                                  TNG_PARTICLE_BLOCK_DATA,
-                                  TNG_TNG_COMPRESSION);
+    stat = tng_util_generic_write(tng_data, frame_nr, values, n_values_per_frame,
+                                  block_id, block_name,
+                                  particle_dependency,
+                                  compression);
+
     if(stat != TNG_SUCCESS)
     {
         return(stat);
@@ -15796,6 +15802,47 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
         stat = tng_frame_set_first_frame_time_set(tng_data, time);
     }
     return(stat);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_double_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const double time,
+                 const double *values,
+                 const int64_t n_values_per_frame,
+                 const int64_t block_id,
+                 const char *block_name,
+                 const char particle_dependency,
+                 const char compression)
+{
+    tng_function_status stat;
+
+    stat = tng_util_generic_double_write(tng_data, frame_nr, values, n_values_per_frame,
+                                         block_id, block_name,
+                                         particle_dependency,
+                                         compression);
+
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
+    {
+        stat = tng_frame_set_first_frame_time_set(tng_data, time);
+    }
+    return(stat);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const double time,
+                 const float *positions)
+{
+    return(tng_util_generic_with_time_write(tng_data, frame_nr, time, positions,
+                                            3, TNG_TRAJ_POSITIONS, "POSITIONS",
+                                            TNG_PARTICLE_BLOCK_DATA,
+                                            TNG_TNG_COMPRESSION));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_double_write
@@ -15804,21 +15851,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_double_write
                  const double time,
                  const double *positions)
 {
-    tng_function_status stat;
-
-    stat = tng_util_generic_double_write(tng_data, frame_nr, positions, 3,
-                                         TNG_TRAJ_POSITIONS, "POSITIONS",
-                                         TNG_PARTICLE_BLOCK_DATA,
-                                         TNG_TNG_COMPRESSION);
-    if(stat != TNG_SUCCESS)
-    {
-        return(stat);
-    }
-    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
-    {
-        stat = tng_frame_set_first_frame_time_set(tng_data, time);
-    }
-    return(stat);
+    return(tng_util_generic_with_time_double_write(tng_data, frame_nr, time,
+                                                   positions, 3,
+                                                   TNG_TRAJ_POSITIONS,
+                                                   "POSITIONS",
+                                                   TNG_PARTICLE_BLOCK_DATA,
+                                                   TNG_TNG_COMPRESSION));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
@@ -15827,21 +15865,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
                  const double time,
                  const float *velocities)
 {
-    tng_function_status stat;
-
-    stat = tng_util_generic_write(tng_data, frame_nr, velocities, 3,
-                                  TNG_TRAJ_VELOCITIES, "VELOCITIES",
-                                  TNG_PARTICLE_BLOCK_DATA,
-                                  TNG_TNG_COMPRESSION);
-    if(stat != TNG_SUCCESS)
-    {
-        return(stat);
-    }
-    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
-    {
-        stat = tng_frame_set_first_frame_time_set(tng_data, time);
-    }
-    return(stat);
+    return(tng_util_generic_with_time_write(tng_data, frame_nr, time,
+                                            velocities, 3,
+                                            TNG_TRAJ_VELOCITIES,
+                                            "VELOCITIES",
+                                            TNG_PARTICLE_BLOCK_DATA,
+                                            TNG_TNG_COMPRESSION));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_double_write
@@ -15850,21 +15879,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_double_write
                  const double time,
                  const double *velocities)
 {
-    tng_function_status stat;
-
-    stat = tng_util_generic_double_write(tng_data, frame_nr, velocities, 3,
-                                         TNG_TRAJ_VELOCITIES, "VELOCITIES",
-                                         TNG_PARTICLE_BLOCK_DATA,
-                                         TNG_TNG_COMPRESSION);
-    if(stat != TNG_SUCCESS)
-    {
-        return(stat);
-    }
-    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
-    {
-        stat = tng_frame_set_first_frame_time_set(tng_data, time);
-    }
-    return(stat);
+    return(tng_util_generic_with_time_double_write(tng_data, frame_nr, time,
+                                                   velocities, 3,
+                                                   TNG_TRAJ_VELOCITIES,
+                                                   "VELOCITIES",
+                                                   TNG_PARTICLE_BLOCK_DATA,
+                                                   TNG_TNG_COMPRESSION));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
@@ -15873,21 +15893,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
                  const double time,
                  const float *forces)
 {
-    tng_function_status stat;
-
-    stat = tng_util_generic_write(tng_data, frame_nr, forces, 3,
-                                  TNG_TRAJ_FORCES, "FORCES",
-                                  TNG_PARTICLE_BLOCK_DATA,
-                                  TNG_GZIP_COMPRESSION);
-    if(stat != TNG_SUCCESS)
-    {
-        return(stat);
-    }
-    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
-    {
-        stat = tng_frame_set_first_frame_time_set(tng_data, time);
-    }
-    return(stat);
+    return(tng_util_generic_with_time_write(tng_data, frame_nr, time, forces,
+                                            3, TNG_TRAJ_FORCES, "FORCES",
+                                            TNG_PARTICLE_BLOCK_DATA,
+                                            TNG_GZIP_COMPRESSION));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_double_write
@@ -15896,21 +15905,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_double_write
                  const double time,
                  const double *forces)
 {
-    tng_function_status stat;
-
-    stat = tng_util_generic_double_write(tng_data, frame_nr, forces, 3,
-                                         TNG_TRAJ_FORCES, "FORCES",
-                                         TNG_PARTICLE_BLOCK_DATA,
-                                         TNG_GZIP_COMPRESSION);
-    if(stat != TNG_SUCCESS)
-    {
-        return(stat);
-    }
-    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
-    {
-        stat = tng_frame_set_first_frame_time_set(tng_data, time);
-    }
-    return(stat);
+    return(tng_util_generic_with_time_double_write(tng_data, frame_nr, time,
+                                                   forces, 3,
+                                                   TNG_TRAJ_FORCES, "FORCES",
+                                                   TNG_PARTICLE_BLOCK_DATA,
+                                                   TNG_GZIP_COMPRESSION));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
@@ -15919,21 +15918,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
                  const double time,
                  const float *box_shape)
 {
-    tng_function_status stat;
-
-    stat = tng_util_generic_write(tng_data, frame_nr, box_shape, 9,
-                                  TNG_TRAJ_BOX_SHAPE, "BOX SHAPE",
-                                  TNG_NON_PARTICLE_BLOCK_DATA,
-                                  TNG_GZIP_COMPRESSION);
-    if(stat != TNG_SUCCESS)
-    {
-        return(stat);
-    }
-    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
-    {
-        stat = tng_frame_set_first_frame_time_set(tng_data, time);
-    }
-    return(stat);
+    return(tng_util_generic_with_time_write(tng_data, frame_nr, time, box_shape,
+                                            9, TNG_TRAJ_BOX_SHAPE, "BOX SHAPE",
+                                            TNG_NON_PARTICLE_BLOCK_DATA,
+                                            TNG_GZIP_COMPRESSION));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_double_write
@@ -15942,20 +15930,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_double_write
                  const double time,
                  const double *box_shape)
 {
-    tng_function_status stat;
-
-    stat = tng_util_generic_double_write(tng_data, frame_nr, box_shape, 9,
-                                         TNG_TRAJ_BOX_SHAPE, "BOX SHAPE",
-                                         TNG_NON_PARTICLE_BLOCK_DATA,
-                                         TNG_GZIP_COMPRESSION);
-    if(stat != TNG_SUCCESS)
-    {
-        return(stat);
-    }
-    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
-    {
-        stat = tng_frame_set_first_frame_time_set(tng_data, time);
-    }
-    return(stat);
+    return(tng_util_generic_with_time_double_write(tng_data, frame_nr,
+                                                   time, box_shape, 9,
+                                                   TNG_TRAJ_BOX_SHAPE,
+                                                   "BOX SHAPE",
+                                                   TNG_NON_PARTICLE_BLOCK_DATA,
+                                                   TNG_GZIP_COMPRESSION));
 }
 

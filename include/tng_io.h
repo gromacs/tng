@@ -2827,6 +2827,84 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_double_write
                  const double *box_shape);
 
 /**
+ * @brief High-level function for writing data of one frame to a data block.
+ * If the frame is at the beginning of a frame set the time stamp of the frame
+ * set is set.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param values is a 1D array of data to add. The array should be of length
+ * n_particles * n_values_per_frame if writing particle related data, otherwise
+ * it should be n_values_per_frame.
+ * @param n_values_per_frame is the number of values to store per frame. If the
+ * data is particle dependent there will be n_values_per_frame stored per
+ * particle each frame.
+ * @param block_id is the ID of the block, of which to set the output interval.
+ * @param block_name is a string that will be used as name of the block.
+ * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
+ * data is not related to specific particles (e.g. box shape) or
+ * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
+ * positions).
+ * @param compression is the compression routine to use when writing the data.
+ * @details n_values_per_frame, block_name, particle_dependency and
+ * compression are only used if the data block did not exist before calling
+ * this function, in which case it is created.
+ * N.b. Data is written a whole block at a time. The data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const float *values,
+                 const int64_t n_values_per_frame,
+                 const int64_t block_id,
+                 const char *block_name,
+                 const char particle_dependency,
+                 const char compression);
+
+/**
+ * @brief High-level function for writing data of one frame to a double precision
+ * data block. If the frame is at the beginning of a frame set the time stamp of
+ * the frame set is set.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param values is a 1D array of data to add. The array should be of length
+ * n_particles * n_values_per_frame if writing particle related data, otherwise
+ * it should be n_values_per_frame.
+ * @param n_values_per_frame is the number of values to store per frame. If the
+ * data is particle dependent there will be n_values_per_frame stored per
+ * particle each frame.
+ * @param block_id is the ID of the block, of which to set the output interval.
+ * @param block_name is a string that will be used as name of the block.
+ * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
+ * data is not related to specific particles (e.g. box shape) or
+ * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
+ * positions).
+ * @param compression is the compression routine to use when writing the data.
+ * @details n_values_per_frame, block_name, particle_dependency and
+ * compression are only used if the data block did not exist before calling
+ * this function, in which case it is created.
+ * N.b. Data is written a whole block at a time. The data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const double *values,
+                 const int64_t n_values_per_frame,
+                 const int64_t block_id,
+                 const char *block_name,
+                 const char particle_dependency,
+                 const char compression);
+
+/**
  * @brief High-level function for adding data to positions data blocks. If the
  * frame is at the beginning of a frame set the time stamp of the frame set
  * is set.
