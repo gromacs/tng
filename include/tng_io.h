@@ -2316,6 +2316,38 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
                  const char compression);
 
 /**
+ * @brief High-level function for setting the writing interval of data blocks
+ * containing double precision data.
+ * @param tng_data is the trajectory to use.
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
+ * frame.
+ * @param n_values_per_frame is the number of values to store per frame. If the
+ * data is particle dependent there will be n_values_per_frame stored per
+ * particle each frame.
+ * @param block_id is the ID of the block, of which to set the output interval.
+ * @param block_name is a string that will be used as name of the block.
+ * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
+ * data is not related to specific particles (e.g. box shape) or
+ * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
+ * positions).
+ * @param compression is the compression routine to use when writing the data.
+ * @details n_values_per_frame, block_name, particle_dependency and
+ * compression are only used if the data block did not exist before calling
+ * this function, in which case it is created.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i,
+                 const int64_t n_values_per_frame,
+                 const int64_t block_id,
+                 const char *block_name,
+                 const char particle_dependency,
+                 const char compression);
+
+/**
  * @brief High-level function for setting the writing interval of data blocks.
  * Obsolete! Use tng_util_generic_write_interval_set()
  * @param tng_data is the trajectory to use.
@@ -2367,6 +2399,22 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_interval_set
 
 /**
  * @brief High-level function for setting the writing interval of position
+ * data blocks containing double precision data.
+ * @param tng_data is the trajectory to use.
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
+ * frame.
+ * @details This function uses tng_util_generic_write_interval_set() and will
+ * create a positions data block if none exists.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_interval_double_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i);
+
+/**
+ * @brief High-level function for setting the writing interval of position
  * data blocks. Obsolete! Use tng_util_pos_write_interval_set()
  * @param tng_data is the trajectory to use.
  * @param i is the output interval, i.e. i == 10 means data written every 10th
@@ -2396,6 +2444,22 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequency_set
  * has occured.
  */
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_interval_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i);
+
+/**
+ * @brief High-level function for setting the writing interval of velocity
+ * data blocks containing double precision data.
+ * @param tng_data is the trajectory to use.
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
+ * frame.
+ * @details This function uses tng_util_generic_write_interval_set() and will
+ * create a velocities data block if none exists.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_interval_double_set
                 (tng_trajectory_t tng_data,
                  const int64_t i);
 
@@ -2435,6 +2499,22 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write_interval_set
 
 /**
  * @brief High-level function for setting the writing interval of force
+ * data blocks containing double precision data.
+ * @param tng_data is the trajectory to use.
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
+ * frame.
+ * @details This function uses tng_util_generic_write_interval_set() and will
+ * create a forces data block if none exists.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_force_write_interval_double_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i);
+
+/**
+ * @brief High-level function for setting the writing interval of force
  * data blocks. Obsolete! Use tng_util_force_write_interval_set()
  * @param tng_data is the trajectory to use.
  * @param i is the output interval, i.e. i == 10 means data written every 10th
@@ -2464,6 +2544,22 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write_frequency_set
  * has occured.
  */
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_interval_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i);
+
+/**
+ * @brief High-level function for setting the writing interval of box shape
+ * data blocks containing double precision data.
+ * @param tng_data is the trajectory to use.
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
+ * frame.
+ * @details This function uses tng_util_generic_write_interval_set() and will
+ * create a box shape data block if none exists.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_interval_double_set
                 (tng_trajectory_t tng_data,
                  const int64_t i);
 
@@ -2523,6 +2619,44 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                  const char compression);
 
 /**
+ * @brief High-level function for writing data of one frame to a double precision
+ * data block.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param values is a 1D array of data to add. The array should be of length
+ * n_particles * n_values_per_frame if writing particle related data, otherwise
+ * it should be n_values_per_frame.
+ * @param n_values_per_frame is the number of values to store per frame. If the
+ * data is particle dependent there will be n_values_per_frame stored per
+ * particle each frame.
+ * @param block_id is the ID of the block, of which to set the output interval.
+ * @param block_name is a string that will be used as name of the block.
+ * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
+ * data is not related to specific particles (e.g. box shape) or
+ * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
+ * positions).
+ * @param compression is the compression routine to use when writing the data.
+ * @details n_values_per_frame, block_name, particle_dependency and
+ * compression are only used if the data block did not exist before calling
+ * this function, in which case it is created.
+ * N.b. Data is written a whole block at a time. The data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const double *values,
+                 const int64_t n_values_per_frame,
+                 const int64_t block_id,
+                 const char *block_name,
+                 const char particle_dependency,
+                 const char compression);
+
+/**
  * @brief High-level function for adding data to positions data blocks.
  * @param tng_data is the trajectory to use.
  * @param frame_nr is the frame number of the data.
@@ -2542,6 +2676,28 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const float *positions);
+
+/**
+ * @brief High-level function for adding data to positions data blocks at double
+ * precision.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param positions is a 1D array of data to add. The array should be of length
+ * n_particles * 3.
+ * @details This function uses tng_util_generic_write() and will
+ * create a positions data block if none exists. Positions are stored as three
+ * values per frame and compressed using TNG compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_double_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const double *positions);
 
 /**
  * @brief High-level function for adding data to velocities data blocks.
@@ -2565,6 +2721,28 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write
                  const float *velocities);
 
 /**
+ * @brief High-level function for adding data to velocities data blocks at double
+ * precision.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param velocities is a 1D array of data to add. The array should be of length
+ * n_particles * 3.
+ * @details This function uses tng_util_generic_write() and will
+ * create a velocities data block if none exists. Velocities are stored as three
+ * values per frame and compressed using TNG compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_double_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const double *velocities);
+
+/**
  * @brief High-level function for adding data to forces data blocks.
  * @param tng_data is the trajectory to use.
  * @param frame_nr is the frame number of the data.
@@ -2586,6 +2764,28 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write
                  const float *forces);
 
 /**
+ * @brief High-level function for adding data to forces data blocks at double
+ * precision.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param forces is a 1D array of data to add. The array should be of length
+ * n_particles * 3.
+ * @details This function uses tng_util_generic_write() and will
+ * create a forces data block if none exists. Forces are stored as three
+ * values per frame and compressed using gzip compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_force_double_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const double *forces);
+
+/**
  * @brief High-level function for adding data to box shape data blocks.
  * @param tng_data is the trajectory to use.
  * @param frame_nr is the frame number of the data.
@@ -2604,6 +2804,27 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const float *box_shape);
+
+/**
+ * @brief High-level function for adding data to box shape data blocks at double
+ * precision.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param box_shape is a 1D array of data to add. The array should be of length 9.
+ * @details This function uses tng_util_generic_write() and will
+ * create a box shape data block if none exists. Box shapes are stored as 9
+ * values per frame and compressed using TNG compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_double_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const double *box_shape);
 
 /**
  * @brief High-level function for adding data to positions data blocks. If the
@@ -2631,6 +2852,31 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
                  const float *positions);
 
 /**
+ * @brief High-level function for adding data to positions data blocks at double
+ * precision. If the frame is at the beginning of a frame set the time stamp of
+ * the frame set is set.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param time is the time stamp of the frame (in seconds).
+ * @param positions is a 1D array of data to add. The array should be of length
+ * n_particles * 3.
+ * @details This function uses tng_util_generic_write() and will
+ * create a positions data block if none exists. Positions are stored as three
+ * values per frame and compressed using TNG compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_double_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const double time,
+                 const double *positions);
+
+/**
  * @brief High-level function for adding data to velocities data blocks. If the
  * frame is at the beginning of a frame set the time stamp of the frame set
  * is set.
@@ -2654,6 +2900,31 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
                  const int64_t frame_nr,
                  const double time,
                  const float *velocities);
+
+/**
+ * @brief High-level function for adding data to velocities data blocks at
+ * double precision. If the frame is at the beginning of a frame set the
+ * time stamp of the frame set is set.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param time is the time stamp of the frame (in seconds).
+ * @param velocities is a 1D array of data to add. The array should be of length
+ * n_particles * 3.
+ * @details This function uses tng_util_generic_write() and will
+ * create a velocities data block if none exists. Velocities are stored as three
+ * values per frame and compressed using TNG compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_double_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const double time,
+                 const double *velocities);
 
 /**
  * @brief High-level function for adding data to forces data blocks. If the
@@ -2681,9 +2952,34 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
                  const float *forces);
 
 /**
- * @brief High-level function for adding data to box shape data blocks. If the
- * frame is at the beginning of a frame set the time stamp of the frame set
- * is set.
+ * @brief High-level function for adding data to forces data blocks at
+ * double precision. If the frame is at the beginning of a frame set
+ * the time stamp of the frame set is set.
+ * @param tng_data is the trajectory to use.
+ * @param frame_nr is the frame number of the data.
+ * @param time is the time stamp of the frame (in seconds).
+ * @param forces is a 1D array of data to add. The array should be of length
+ * n_particles * 3.
+ * @details This function uses tng_util_generic_write() and will
+ * create a forces data block if none exists. Forces are stored as three
+ * values per frame and compressed using gzip compression.
+ * N.b. Since compressed data is written a whole block at a time the data is not
+ * actually written to disk until the frame set is finished or the TNG
+ * trajectory is closed.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_double_write
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 const double time,
+                 const double *forces);
+
+/**
+ * @brief High-level function for adding data to box shape data blocks at
+ * double precision. If the frame is at the beginning of a frame set the
+ * time stamp of the frame set is set.
  * @param tng_data is the trajectory to use.
  * @param frame_nr is the frame number of the data.
  * @param time is the time stamp of the frame (in seconds).
@@ -2698,11 +2994,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
  */
-tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_double_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double time,
-                 const float *box_shape);
+                 const double *box_shape);
 
 /** @} */ /* end of group2 */
 
