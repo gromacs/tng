@@ -1872,7 +1872,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
  * will be filled with data. The length of the array will be (n_frames * n_values_per_frame).
  * Since **values is allocated in this function it is the callers
  * responsibility to free the memory.
- * @param stride_length is set to the stride length (writing frequency) of
+ * @param stride_length is set to the stride length (writing interval) of
  * the data.
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
@@ -2023,7 +2023,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
  * (n_frames * n_particles * n_values_per_frame).
  * Since **values is allocated in this function it is the callers
  * responsibility to free the memory.
- * @param stride_length is set to the stride length (writing frequency) of
+ * @param stride_length is set to the stride length (writing interval) of
  * the data.
  * @param n_particles is set to the number of particles in the returned data. This is
  * needed to properly reach and/or free the data afterwards.
@@ -2131,7 +2131,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
  * which will contain the positions. The data is stored sequentially in order
  * of frames. For each frame the positions (x, y and z coordinates) are stored.
  * The memory must be freed afterwards.
- * @param stride_length will be set to the writing frequency of the stored data.
+ * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2149,7 +2149,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read
  * which will contain the velocities. The data is stored sequentially in order
  * of frames. For each frame the velocities (in x, y and z) are stored.
  * The memory must be freed afterwards.
- * @param stride_length will be set to the writing frequency of the stored data.
+ * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2167,7 +2167,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read
  * which will contain the forces. The data is stored sequentially in order
  * of frames. For each frame the forces (in x, y and z) are stored.
  * The memory must be freed afterwards.
- * @param stride_length will be set to the writing frequency of the stored data.
+ * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2185,7 +2185,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read
  * of frames. For each frame the box shape is stored as nine values.
  * If the box shape is not modified during the trajectory, but as general data,
  * that will be returned instead.
- * @param stride_length will be set to the writing frequency of the stored data.
+ * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2205,7 +2205,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
  * which will contain the positions. The data is stored sequentially in order
  * of frames. For each frame the positions (x, y and z coordinates) are stored.
  * The memory must be freed afterwards.
- * @param stride_length will be set to the writing frequency of the stored data.
+ * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2227,7 +2227,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read_range
  * which will contain the velocities. The data is stored sequentially in order
  * of frames. For each frame the velocities (in x, y and z) are stored.
  * The memory must be freed afterwards.
- * @param stride_length will be set to the writing frequency of the stored data.
+ * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2249,7 +2249,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read_range
  * which will contain the forces. The data is stored sequentially in order
  * of frames. For each frame the forces (in x, y and z) are stored.
  * The memory must be freed afterwards.
- * @param stride_length will be set to the writing frequency of the stored data.
+ * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2272,7 +2272,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
  * of frames. For each frame the box shape is stored as nine values.
  * If the box shape is not modified during the trajectory, but as general data,
  * that will be returned instead.
- * @param stride_length will be set to the writing frequency of the stored data.
+ * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2285,14 +2285,14 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
                  int64_t *stride_length);
 
 /**
- * @brief High-level function for setting the writing frequency of data blocks.
+ * @brief High-level function for setting the writing interval of data blocks.
  * @param tng_data is the trajectory to use.
- * @param f is the output frequency, i.e. f == 10 means data written every 10th
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
  * @param n_values_per_frame is the number of values to store per frame. If the
  * data is particle dependent there will be n_values_per_frame stored per
  * particle each frame.
- * @param block_id is the ID of the block, of which to set the output frequency.
+ * @param block_id is the ID of the block, of which to set the output interval.
  * @param block_name is a string that will be used as name of the block.
  * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
  * data is not related to specific particles (e.g. box shape) or
@@ -2306,9 +2306,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
  */
-tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
                 (tng_trajectory_t tng_data,
-                 const int64_t f,
+                 const int64_t i,
                  const int64_t n_values_per_frame,
                  const int64_t block_id,
                  const char *block_name,
@@ -2316,68 +2316,174 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
                  const char compression);
 
 /**
- * @brief High-level function for setting the writing frequency of position
+ * @brief High-level function for setting the writing interval of data blocks.
+ * Obsolete! Use tng_util_generic_write_interval_set()
+ * @param tng_data is the trajectory to use.
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
+ * frame.
+ * @param n_values_per_frame is the number of values to store per frame. If the
+ * data is particle dependent there will be n_values_per_frame stored per
+ * particle each frame.
+ * @param block_id is the ID of the block, of which to set the output interval.
+ * @param block_name is a string that will be used as name of the block.
+ * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
+ * data is not related to specific particles (e.g. box shape) or
+ * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
+ * positions).
+ * @param compression is the compression routine to use when writing the data.
+ * @details n_values_per_frame, block_name, particle_dependency and
+ * compression are only used if the data block did not exist before calling
+ * this function, in which case it is created.
+ * This function is replaced by the more correcly named
+ * tng_util_generic_write_interval_set(), but is kept for compatibility.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i,
+                 const int64_t n_values_per_frame,
+                 const int64_t block_id,
+                 const char *block_name,
+                 const char particle_dependency,
+                 const char compression);
+
+/**
+ * @brief High-level function for setting the writing interval of position
  * data blocks.
  * @param tng_data is the trajectory to use.
- * @param f is the output frequency, i.e. f == 10 means data written every 10th
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
- * @details This function uses tng_util_generic_write_frequency_set() and will
+ * @details This function uses tng_util_generic_write_interval_set() and will
  * create a positions data block if none exists.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_interval_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i);
+
+/**
+ * @brief High-level function for setting the writing interval of position
+ * data blocks. Obsolete! Use tng_util_pos_write_interval_set()
+ * @param tng_data is the trajectory to use.
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
+ * frame.
+ * @details This function uses tng_util_generic_write_interval_set() and will
+ * create a positions data block if none exists.
+ * This function is replaced by the more correcly named
+ * tng_util_pos_write_interval_set(), but is kept for compatibility.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
  */
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequency_set
                 (tng_trajectory_t tng_data,
-                 const int64_t f);
+                 const int64_t i);
 
 /**
- * @brief High-level function for setting the writing frequency of velocity
+ * @brief High-level function for setting the writing interval of velocity
  * data blocks.
  * @param tng_data is the trajectory to use.
- * @param f is the output frequency, i.e. f == 10 means data written every 10th
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
- * @details This function uses tng_util_generic_write_frequency_set() and will
+ * @details This function uses tng_util_generic_write_interval_set() and will
  * create a velocities data block if none exists.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_interval_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i);
+
+/**
+ * @brief High-level function for setting the writing interval of velocity
+ * data blocks. Obsolete! Use tng_util_vel_write_interval_set()
+ * @param tng_data is the trajectory to use.
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
+ * frame.
+ * @details This function uses tng_util_generic_write_interval_set() and will
+ * create a velocities data block if none exists.
+ * This function is replaced by the more correcly named
+ * tng_util_vel_write_interval_set(), but is kept for compatibility.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
  */
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_frequency_set
                 (tng_trajectory_t tng_data,
-                 const int64_t f);
+                 const int64_t i);
 
 /**
- * @brief High-level function for setting the writing frequency of force
+ * @brief High-level function for setting the writing interval of force
  * data blocks.
  * @param tng_data is the trajectory to use.
- * @param f is the output frequency, i.e. f == 10 means data written every 10th
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
- * @details This function uses tng_util_generic_write_frequency_set() and will
+ * @details This function uses tng_util_generic_write_interval_set() and will
  * create a forces data block if none exists.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_force_write_interval_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i);
+
+/**
+ * @brief High-level function for setting the writing interval of force
+ * data blocks. Obsolete! Use tng_util_force_write_interval_set()
+ * @param tng_data is the trajectory to use.
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
+ * frame.
+ * @details This function uses tng_util_generic_write_interval_set() and will
+ * create a forces data block if none exists.
+ * This function is replaced by the more correcly named
+ * tng_util_force_write_interval_set(), but is kept for compatibility.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
  */
 tng_function_status DECLSPECDLLEXPORT tng_util_force_write_frequency_set
                 (tng_trajectory_t tng_data,
-                 const int64_t f);
+                 const int64_t i);
 
 /**
- * @brief High-level function for setting the writing frequency of box shape
+ * @brief High-level function for setting the writing interval of box shape
  * data blocks.
  * @param tng_data is the trajectory to use.
- * @param f is the output frequency, i.e. f == 10 means data written every 10th
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
- * @details This function uses tng_util_generic_write_frequency_set() and will
+ * @details This function uses tng_util_generic_write_interval_set() and will
  * create a box shape data block if none exists.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_interval_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i);
+
+/**
+ * @brief High-level function for setting the writing interval of velocity
+ * data blocks. Obsolete! Use tng_util_box_shape_write_interval_set()
+ * @param tng_data is the trajectory to use.
+ * @param i is the output interval, i.e. i == 10 means data written every 10th
+ * frame.
+ * @details This function uses tng_util_generic_write_interval_set() and will
+ * create a box shape data block if none exists.
+ * This function is replaced by the more correcly named
+ * tng_util_box_shape_write_interval_set(), but is kept for compatibility.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
  */
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_frequency_set
                 (tng_trajectory_t tng_data,
-                 const int64_t f);
+                 const int64_t i);
 
 /**
  * @brief High-level function for writing data of one frame to a data block.
@@ -2389,7 +2495,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_frequency_set
  * @param n_values_per_frame is the number of values to store per frame. If the
  * data is particle dependent there will be n_values_per_frame stored per
  * particle each frame.
- * @param block_id is the ID of the block, of which to set the output frequency.
+ * @param block_id is the ID of the block, of which to set the output interval.
  * @param block_name is a string that will be used as name of the block.
  * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
  * data is not related to specific particles (e.g. box shape) or

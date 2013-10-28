@@ -14935,9 +14935,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
     return(stat);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
                 (tng_trajectory_t tng_data,
-                 const int64_t f,
+                 const int64_t i,
                  const int64_t n_values_per_frame,
                  const int64_t block_id,
                  const char *block_name,
@@ -14947,7 +14947,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
     tng_trajectory_frame_set_t frame_set;
     tng_particle_data_t p_data;
     tng_non_particle_data_t np_data;
-    int64_t n_particles, n_frames = 100*f;
+    int64_t n_particles, n_frames = 100*i;
     tng_function_status stat;
 
     stat = tng_check_trajectory_container(tng_data);
@@ -14958,10 +14958,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
         return(stat);
     }
 
-    if(f <= 0)
+    if(i <= 0)
     {
         printf("Cannot set writing frequency to %"PRId64". %s: %d\n",
-               f, __FILE__, __LINE__);
+               i, __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
 
@@ -14993,7 +14993,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
                                             block_name,
                                             TNG_FLOAT_DATA,
                                             TNG_TRAJECTORY_BLOCK,
-                                            n_frames, n_values_per_frame, f,
+                                            n_frames, n_values_per_frame, i,
                                             0, n_particles,
                                             compression, 0);
             if(stat != TNG_SUCCESS)
@@ -15005,7 +15005,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
             p_data = &frame_set->tr_particle_data[frame_set->
                                                   n_particle_data_blocks - 1];
             stat = tng_allocate_particle_data_mem(tng_data, p_data, n_frames,
-                                                  f, n_particles,
+                                                  i, n_particles,
                                                   n_values_per_frame);
             if(stat != TNG_SUCCESS)
             {
@@ -15016,7 +15016,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
         }
         else
         {
-            p_data->stride_length = f;
+            p_data->stride_length = i;
         }
     }
     else
@@ -15026,7 +15026,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
             stat = tng_data_block_add(tng_data, block_id, block_name,
                                       TNG_FLOAT_DATA, TNG_TRAJECTORY_BLOCK,
                                       n_frames, n_values_per_frame,
-                                      f, compression, 0);
+                                      i, compression, 0);
             if(stat != TNG_SUCCESS)
             {
                 printf("Error %s adding data block. %s: %d\n", block_name,
@@ -15036,7 +15036,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
             np_data = &frame_set->tr_data[frame_set->
                                           n_data_blocks - 1];
             stat = tng_allocate_data_mem(tng_data, np_data, n_frames,
-                                         f, n_values_per_frame);
+                                         i, n_values_per_frame);
             if(stat != TNG_SUCCESS)
             {
                 printf("Error allocating particle data memory. %s: %d\n",
@@ -15046,55 +15046,107 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
         }
         else
         {
-            np_data->stride_length = f;
+            np_data->stride_length = i;
         }
     }
 
     return(TNG_SUCCESS);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i,
+                 const int64_t n_values_per_frame,
+                 const int64_t block_id,
+                 const char *block_name,
+                 const char particle_dependency,
+                 const char compression)
+{
+    printf("Using obsolete function tng_util_generic_write_frequency_set()."
+           "See documentation. %s: %d", __FILE__, __LINE__);
+    return(tng_util_generic_write_interval_set(tng_data, i, n_values_per_frame,
+                                               block_id, block_name,
+                                               particle_dependency,
+                                               compression));
+}
+tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_interval_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i)
+{
+    return(tng_util_generic_write_interval_set(tng_data, i, 3,
+                                               TNG_TRAJ_POSITIONS,
+                                               "POSITIONS",
+                                               TNG_PARTICLE_BLOCK_DATA,
+                                               TNG_TNG_COMPRESSION));
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequency_set
                 (tng_trajectory_t tng_data,
-                 const int64_t f)
+                 const int64_t i)
 {
-    return(tng_util_generic_write_frequency_set(tng_data, f, 3,
-                                                TNG_TRAJ_POSITIONS,
-                                                "POSITIONS",
-                                                TNG_PARTICLE_BLOCK_DATA,
-                                                TNG_TNG_COMPRESSION));
+    printf("Using obsolete function tng_util_pos_write_frequency_set()."
+           "See documentation. %s: %d", __FILE__, __LINE__);
+    return(tng_util_pos_write_interval_set(tng_data, i));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_interval_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i)
+{
+    return(tng_util_generic_write_interval_set(tng_data, i, 3,
+                                               TNG_TRAJ_VELOCITIES,
+                                               "VELOCITIES",
+                                               TNG_PARTICLE_BLOCK_DATA,
+                                               TNG_TNG_COMPRESSION));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_frequency_set
                 (tng_trajectory_t tng_data,
-                 const int64_t f)
+                 const int64_t i)
 {
-    return(tng_util_generic_write_frequency_set(tng_data, f, 3,
-                                                TNG_TRAJ_VELOCITIES,
-                                                "VELOCITIES",
-                                                TNG_PARTICLE_BLOCK_DATA,
-                                                TNG_TNG_COMPRESSION));
+    printf("Using obsolete function tng_util_vel_write_frequency_set()."
+           "See documentation. %s: %d", __FILE__, __LINE__);
+    return(tng_util_vel_write_interval_set(tng_data, i));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_force_write_interval_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i)
+{
+    return(tng_util_generic_write_interval_set(tng_data, i, 3,
+                                               TNG_TRAJ_FORCES,
+                                               "FORCES",
+                                               TNG_PARTICLE_BLOCK_DATA,
+                                               TNG_GZIP_COMPRESSION));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_write_frequency_set
                 (tng_trajectory_t tng_data,
-                 const int64_t f)
+                 const int64_t i)
 {
-    return(tng_util_generic_write_frequency_set(tng_data, f, 3,
-                                                TNG_TRAJ_FORCES,
-                                                "FORCES",
-                                                TNG_PARTICLE_BLOCK_DATA,
+    printf("Using obsolete function tng_util_force_write_frequency_set()."
+           "See documentation. %s: %d", __FILE__, __LINE__);
+    return(tng_util_force_write_interval_set(tng_data, i));
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_interval_set
+                (tng_trajectory_t tng_data,
+                 const int64_t i)
+{
+    return(tng_util_generic_write_interval_set(tng_data, i, 9,
+                                                TNG_TRAJ_BOX_SHAPE,
+                                                "BOX SHAPE",
+                                                TNG_NON_PARTICLE_BLOCK_DATA,
                                                 TNG_GZIP_COMPRESSION));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_frequency_set
                 (tng_trajectory_t tng_data,
-                 const int64_t f)
+                 const int64_t i)
 {
-    return(tng_util_generic_write_frequency_set(tng_data, f, 9,
-                                                TNG_TRAJ_BOX_SHAPE,
-                                                "BOX SHAPE",
-                                                TNG_NON_PARTICLE_BLOCK_DATA,
-                                                TNG_GZIP_COMPRESSION));
+    printf("Using obsolete function tng_util_box_shape_write_frequency_set()."
+           "See documentation. %s: %d", __FILE__, __LINE__);
+    return(tng_util_box_shape_write_interval_set(tng_data, i));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
