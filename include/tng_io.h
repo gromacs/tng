@@ -392,7 +392,7 @@ typedef enum {TNG_TRAJ_BOX_SHAPE = 0x0000000010000000LL,
               TNG_TRAJ_OCCUPANCY} tng_trajectory_block_ids;
 
 /* GROMACS data block IDs. */
-enum {TNG_GMX_LAMBDA = 0x1000000010000000LL};
+typedef enum {TNG_GMX_LAMBDA = 0x1000000010000000LL} tng_gmx_data_block_ids;
 
 /** Flag to specify if a data block contains data related to particles or not.*/
 typedef enum {TNG_NON_PARTICLE_BLOCK_DATA,
