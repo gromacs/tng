@@ -4,6 +4,7 @@ target_link_libraries(tng_compress m)
 endif()
 
 set_property(TARGET tng_compress PROPERTY LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+set_property(TARGET tng_compress PROPERTY ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
 install(TARGETS tng_compress
         LIBRARY DESTINATION lib
