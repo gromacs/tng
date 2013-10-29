@@ -4,6 +4,11 @@ else()
   add_library(tng_io tng_io.c md5.c)
 endif()
 
+set_property(TARGET tng_io PROPERTY LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+
+install(TARGETS tng_io
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
 
 if(HAVE_INTTYPES_H)
   set_property(TARGET tng_io APPEND PROPERTY COMPILE_DEFINITIONS USE_STD_INTTYPES_H)

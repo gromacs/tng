@@ -33,6 +33,8 @@ check_include_file(inttypes.h   HAVE_INTTYPES_H)
 
 add_subdirectory(src)
 
+install(FILES include/tng_io.h DESTINATION include/)
+
 file(COPY example_files DESTINATION .)
 
 #-- Add an Option to toggle the generation of the API documentation
@@ -53,3 +55,4 @@ if(TNG_BUILD_DOCUMENTATION)
   # IF you do NOT want the documentation to be generated EVERY time you build the project
   # then leave out the 'ALL' keyword from the above command.
 endif()
+
