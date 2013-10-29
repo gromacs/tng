@@ -650,6 +650,14 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get_
     return(tng_residue_name_of_particle_nr_get(tng_data, nr, name, max_len));
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_residue_id_of_particle_nr_get_
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 int64_t *id)
+{
+    return(tng_residue_id_of_particle_nr_get(tng_data, nr, id));
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_atom_name_of_particle_nr_get_
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,

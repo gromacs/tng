@@ -7896,6 +7896,61 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
     return(TNG_SUCCESS);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_residue_id_of_particle_nr_get
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 int64_t *id)
+{
+    int64_t cnt = 0, i, *molecule_cnt_list;
+    tng_molecule_t mol;
+    tng_atom_t atom;
+    tng_bool found = TNG_FALSE;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    if(tng_data->var_num_atoms_flag)
+    {
+        molecule_cnt_list = tng_data->current_trajectory_frame_set.
+                            molecule_cnt_list;
+    }
+    else
+    {
+        molecule_cnt_list = tng_data->molecule_cnt_list;
+    }
+
+    for(i = 0; i < tng_data->n_molecules; i++)
+    {
+        mol = &tng_data->molecules[i];
+        if(cnt + mol->n_atoms * molecule_cnt_list[i] - 1 < nr)
+        {
+            cnt += mol->n_atoms * molecule_cnt_list[i];
+            continue;
+        }
+        atom = &mol->atoms[nr % mol->n_atoms];
+        found = TNG_TRUE;
+        break;
+    }
+    if(!found)
+    {
+        return(TNG_FAILURE);
+    }
+    if(!atom->residue)
+    {
+        return(TNG_FAILURE);
+    }
+
+    *id = atom->residue->id;
+
+    return(TNG_SUCCESS);
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_atom_name_of_particle_nr_get
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,

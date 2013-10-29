@@ -1464,6 +1464,21 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
                  int max_len);
 
 /**
+ * @brief Get the residue name of real particle number (number in mol system).
+ * @param tng_data is the trajectory data container containing the atom.
+ * @param nr is the real number of the particle in the molecular system.
+ * @param name is a string, which is set to the name of the residue. Memory
+ * must be reserved beforehand.
+ * @param max_len is the maximum length of name.
+ * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_residue_id_of_particle_nr_get
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 int64_t *id);
+
+/**
  * @brief Get the atom name of real particle number (number in mol system).
  * @param tng_data is the trajectory data container containing the atom.
  * @param nr is the real number of the particle in the molecular system.
