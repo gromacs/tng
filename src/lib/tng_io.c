@@ -2473,7 +2473,7 @@ static tng_function_status tng_molecules_block_read
             }
         }
         offset += sizeof(molecule->n_bonds);
-
+        
         if(molecule->n_bonds > 0)
         {
             tng_data->molecules[i].bonds = malloc(molecule->n_bonds *
@@ -2535,6 +2535,10 @@ static tng_function_status tng_molecules_block_read
 
                 bond++;
             }
+        }
+        else
+        {
+            molecule->bonds = 0;
         }
     }
 
@@ -13663,7 +13667,10 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                  tot_n_frames / *stride_length + 1:
                  tot_n_frames / *stride_length;
     data_size = n_frames_div * size * (*n_values_per_frame);
-
+    
+/*     printf("size: %d, n_frames_div: %"PRId64", data_size: %"PRId64"\n",
+              size, n_frames_div, data_size);
+*/
     temp = realloc(*values, data_size);
     if(!temp)
     {
@@ -13683,25 +13690,24 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
     else
     {
         current_frame_pos = start_frame_nr - frame_set->first_frame;
-
+        
         frame_size = size * (*n_values_per_frame);
 
         last_frame_pos = tng_min_i64(n_frames,
-                                     end_frame_nr - current_frame_pos);
-
+                                     end_frame_nr - start_frame_nr);
+        
         n_frames_div = current_frame_pos / *stride_length;
         n_frames_div_2 = (last_frame_pos % *stride_length) ?
                        last_frame_pos / *stride_length + 1:
                        last_frame_pos / *stride_length;
         n_frames_div_2 = tng_max_i64(1, n_frames_div_2);
-
+        
         memcpy(*values, (char *)current_values + n_frames_div * frame_size,
                n_frames_div_2 * frame_size);
+        
+        current_frame_pos += n_frames - current_frame_pos;
 
-        current_frame_pos += n_frames - frame_set->first_frame -
-                            current_frame_pos;
-
-        while(current_frame_pos <= end_frame_nr)
+        while(current_frame_pos <= end_frame_nr - start_frame_nr)
         {
             stat = tng_frame_set_read_next(tng_data, hash_mode);
             if(stat != TNG_SUCCESS)
@@ -13743,7 +13749,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                    current_values,
                    n_frames_div_2 * frame_size);
 
-            current_frame_pos += frame_set->n_frames;
+            current_frame_pos += n_frames;
         }
     }
 
@@ -14495,21 +14501,23 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
         frame_size = size * (*n_particles) * (*n_values_per_frame);
 
         last_frame_pos = tng_min_i64(n_frames,
-                                     end_frame_nr - current_frame_pos);
-
+                                     end_frame_nr - start_frame_nr);
+                
         n_frames_div = current_frame_pos / *stride_length;
         n_frames_div_2 = (last_frame_pos % *stride_length) ?
                        last_frame_pos / *stride_length + 1:
                        last_frame_pos / *stride_length;
-        n_frames_div_2 = tng_max_i64(1, n_frames_div_2);
+        n_frames_div_2 = tng_max_i64(1, n_frames_div_2 + 1);
 
+/*        printf("current_frame_pos: %"PRId64", n_frames_div: %"PRId64", n_frames_div_2: %"PRId64"\n",
+               current_frame_pos, n_frames_div, n_frames_div_2);
+*/
         memcpy(*values, (char *)current_values + n_frames_div * frame_size,
                n_frames_div_2 * frame_size);
 
-        current_frame_pos += n_frames - frame_set->first_frame -
-                            current_frame_pos;
-
-        while(current_frame_pos <= end_frame_nr)
+        current_frame_pos += n_frames - current_frame_pos;
+                            
+        while(current_frame_pos <= end_frame_nr - start_frame_nr)
         {
             stat = tng_frame_set_read_next(tng_data, hash_mode);
             if(stat != TNG_SUCCESS)
@@ -14673,7 +14681,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
     frame_set = &tng_data->current_trajectory_frame_set;
     first_frame = frame_set->first_frame;
     
-    *time = frame_set->first_frame_time + (tng_data->time_per_frame * frame_nr - first_frame);
+    if(tng_data->time_per_frame <= 0)
+    {
+        return(TNG_FAILURE);
+    }
+    
+    *time = frame_set->first_frame_time + (tng_data->time_per_frame * (frame_nr - first_frame));
     
     return(TNG_SUCCESS);
 }
