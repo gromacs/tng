@@ -14652,6 +14652,32 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
     return(tng_trajectory_destroy(tng_data_p));
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 double *time)
+{
+    int64_t first_frame;
+
+    tng_trajectory_frame_set_t frame_set;
+    tng_function_status stat;
+    
+    stat = tng_frame_set_of_frame_find(tng_data, frame_nr);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Cannot find frame nr %"PRId64". %s: %d\n",
+               frame_nr, __FILE__, __LINE__);
+        return(stat);
+    }
+    
+    frame_set = &tng_data->current_trajectory_frame_set;
+    first_frame = frame_set->first_frame;
+    
+    *time = frame_set->first_frame_time + (tng_data->time_per_frame * frame_nr - first_frame);
+    
+    return(TNG_SUCCESS);
+}
+                
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
                 (tng_trajectory_t tng_data,
                  int64_t *n_mols,

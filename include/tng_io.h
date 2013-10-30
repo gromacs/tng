@@ -2142,6 +2142,19 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
  */
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
                 (tng_trajectory_t *tng_data_p);
+
+/**
+ * @brief High-level function for getting the time (in seconds) of a frame.
+ * @param tng_data is the trajectory containing the frame.
+ * @param frame_nr is the frame number of which to get the time.
+ * @param time is set to the time (in seconds) of the specified frame.
+ * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if a
+ * minor error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
+                (tng_trajectory_t tng_data,
+                 const int64_t frame_nr,
+                 double *time);
 /*
 // tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
 //                 (tng_trajectory_t tng_data,
