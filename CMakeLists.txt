@@ -11,6 +11,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+option(BUILD_SHARED_LIBS "Enable shared libraries" ON)
+
 option(TNG_BUILD_FORTRAN "Build Fortran compatible library and examples for testing" OFF)
 
 option(TNG_BUILD_EXAMPLES "Build examples showing usage of the TNG API" ON)
