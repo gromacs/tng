@@ -3,14 +3,12 @@
  *                      VERSION 1.4
  *
  * Written by Magnus Lundborg
- * Copyright (c) 2012, The GROMACS development team.
+ * Copyright (c) 2012-2013, The GROMACS development team.
  * Check out http://www.gromacs.org for more information.
  *
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; either version 2.1
- * of the License, or (at your option) any later version.
+ * modify it under the terms of the Revised BSD License.
  */
 
 /** @file tng_io.h
@@ -51,8 +49,8 @@
  * Copyright (c) 2012, The GROMACS development team.
  * check out http://www.gromacs.org for more information.
  *
- * The TNG API is released under LGPL 2.1 and is free to redistribute according
- * to that license (or a later version of the LGPL license).
+ * The TNG API is released under the Revised BSD License and is free to
+ * redistribute according to that license.
  *
  * A license file (named COPYING) should be included with each copy of the API.
  *
@@ -76,7 +74,8 @@
  *
  * Revisions
  *
- * v. 1.4 - More flexible support for digital signatures in header.
+ * v. 1.4 - Changed from LGPL to the Revised BSD License.
+ *        - More flexible support for digital signatures in header.
  *        - Block ID numbers changed.
  *
  * v. 1.3 - Second stable release of the API.

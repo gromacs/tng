@@ -1,3 +1,16 @@
+/* This code is part of the tng binary trajectory format.
+ *
+ *                      VERSION 1.4
+ *
+ * Written by Anders Gärdenäs
+ * Copyright (c) 2012-2013, The GROMACS development team.
+ * Check out http://www.gromacs.org for more information.
+ *
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Revised BSD License.
+ */
+
 #ifndef TNG_IO_HPP
 #define TNG_IO_HPP
 
@@ -102,7 +115,7 @@ public:
     {
         return status = tng_output_file_set(traj, file_name);
     }
-    
+
     /**
     * @brief Get the endianness of the output file.
     * current output file.
@@ -429,8 +442,8 @@ public:
     {
         return status = tng_time_per_frame_get(traj, time);
     }
-    
-    
+
+
     /**
     * @brief Set the time per frame of the trajectory.
     * @param len is the new time per frame.
@@ -442,7 +455,7 @@ public:
         return status = tng_time_per_frame_set(traj, time);
     }
 
-                
+
     /**
     * @brief Get the length of the input file.
     * @param len is pointing to a value set to the file length.
@@ -834,7 +847,7 @@ public:
         return status =  tng_frame_set_new(traj, first_frame, n_frames);
     }
 
-    
+
     /**
     * @brief Create and initialise a frame set with the time of the first frame
     * specified.
@@ -864,7 +877,7 @@ public:
     tng_function_status setTimeOfFirstFrameOfFrameSet
                     (const double first_frame_time)
     {
-        return status = tng_frame_set_first_frame_time_set(traj, 
+        return status = tng_frame_set_first_frame_time_set(traj,
                                                            first_frame_time);
     }
 
@@ -1121,7 +1134,7 @@ public:
                                               n_values_per_frame, type);
     }
 
-    
+
     /**
     * @brief Read and retrieve a vector (1D array) of non-particle data,
     * in a specific interval.
@@ -1233,7 +1246,7 @@ public:
         return status = tng_particle_data_vector_get(traj, block_id,
                                                      values, n_frames,
                                                      stride_length,
-                                                     n_particles, 
+                                                     n_particles,
                                                      n_values_per_frame, type);
     }
 
@@ -1277,7 +1290,7 @@ public:
             type));
     }
 
-    
+
     /**
     * @brief Read and retrieve a vector (1D array) particle data, in a
     * specific interval.
@@ -1442,7 +1455,7 @@ tng_function_status Trajectory::findMolecule
                 int64_t id,
                 Molecule_t molecule)
 {
-    return status = tng_molecule_find(traj, name, id, 
+    return status = tng_molecule_find(traj, name, id,
                             &molecule->mol);
 }
 
@@ -1545,7 +1558,7 @@ public:
                                              atom_type, &atom->atom);
     }
 
-    
+
     /**
     * @brief Add an atom with a specific ID to a residue.
     * @param atom_name is a string containing the name of the atom.
@@ -1636,7 +1649,7 @@ public:
         return status = tng_chain_residue_add(traj->traj, chain,
                                               name, &residue->residue);
     }
-    
+
     /**
     * @brief Add a residue with a specific ID to a chain.
     * @param name is a string containing the name of the residue.
@@ -1684,7 +1697,7 @@ tng_function_status Molecule::findChain
                 int64_t id,
                 Chain *chain)
 {
-    return status = tng_molecule_chain_find(traj->traj, mol, name, id, 
+    return status = tng_molecule_chain_find(traj->traj, mol, name, id,
                                             &chain->chain);
 }
 

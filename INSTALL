@@ -7,8 +7,10 @@ make
 Test by running:
 bin/tng_testing
 
-No system wide installations are made yet (no 'make install'), which means that
-programs using the library must specify explicitly where to look for it.
+Make a system-wide installation by:
+make install
+(this will require administrative privileges on most systems, i.e. 'sudo make install'
+on a Unix like system with a sudoers file)
 
 
 Useful cmake flags:

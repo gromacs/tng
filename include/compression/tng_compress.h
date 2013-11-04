@@ -5,9 +5,7 @@
  *
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; either version 2.1
- * of the License, or (at your option) any later version.
+ * modify it under the terms of the Revised BSD License.
  */
 
 #ifndef TNG_COMPRESS_H
@@ -41,27 +39,27 @@
    ]
    desired_precision what to round the numbers to, i.e. integers will be created as:
    round(pos[]/desired_precision).
-   
+
    algo should first be determined by calling
    tng_compress_pos_find_algo
-   
+
    The compressed data is returned in a malloced pointer (so free can
    be called to free the memory), the number of chars in the compressed
    data is put into *nitems.
 
    If too large values are input (compared to the precision), NULL is returned.
 */
-   
+
 char DECLSPECDLLEXPORT *tng_compress_pos(double *pos, int natoms, int nframes,
-					 double desired_precision, 
+					 double desired_precision,
 					 int speed, int *algo,
 					 int *nitems);
 
 char DECLSPECDLLEXPORT *tng_compress_pos_float(float *pos, int natoms, int nframes,
-					       float desired_precision, 
+					       float desired_precision,
 					       int speed, int *algo,
 					       int *nitems);
-   
+
 char DECLSPECDLLEXPORT *tng_compress_pos_int(int *pos, int natoms, int nframes,
 					     unsigned long prec_hi, unsigned long prec_lo,
 					     int speed,int *algo,
@@ -78,13 +76,13 @@ char DECLSPECDLLEXPORT *tng_compress_pos_int(int *pos, int natoms, int nframes,
    speed=3:  Same as 2 and also includes the XTC3 algorithm which will use BWLZH
              compression when it seems likely to give better
              compression. Also includes the interframe BWLZH algorithm for
-             coordinates and velocities. 
+             coordinates and velocities.
    speed=4:  Enable the inter frame BWLZH algorithm for the coordinates.
              The one-to-one BWLZH algorithm is enabled for velocities.
    speed=5:  Enable the LZ77 part of the BWLZH algorithm.
    speed=6:  Enable the intra frame BWLZH algorithm for the coordinates. Always try
              the BWLZH compression in the XTC3 algorithm.
-   
+
    Set speed=0 to allow tng_compression to set the default speed (which is currently 2).
    For very good compression it makes sense to choose speed=4 or speed=5
 
@@ -108,7 +106,7 @@ char DECLSPECDLLEXPORT *tng_compress_pos_int_find_algo(int *pos, int natoms, int
 						       unsigned long prec_hi, unsigned long prec_lo,
 						       int speed,int *algo,
 						       int *nitems);
-   
+
 /* This returns the number of integers required for the storage of the algorithm
    with the best compression ratio. */
 int DECLSPECDLLEXPORT tng_compress_nalgo(void);
@@ -132,7 +130,7 @@ char DECLSPECDLLEXPORT *tng_compress_vel_int(int *vel, int natoms, int nframes,
 					     unsigned long prec_hi, unsigned long prec_lo,
 					     int speed, int *algo,
 					     int *nitems);
-   
+
 char DECLSPECDLLEXPORT *tng_compress_vel_find_algo(double *vel, int natoms, int nframes,
 						   double desired_precision,
 						   int speed,
@@ -152,9 +150,9 @@ char DECLSPECDLLEXPORT *tng_compress_vel_int_find_algo(int *vel, int natoms, int
 						       int *nitems);
 
 /* From a compressed block, obtain information about
-   whether it is a position or velocity block: 
+   whether it is a position or velocity block:
    *vel=1 means velocity block, *vel=0 means position block.
-   It also gives info about the number of atoms, 
+   It also gives info about the number of atoms,
    frames, and the precision used to compress the block, and the algorithms used to
    compress the block. The return value=0 if the block looks like a tng compressed block,
    and 1 otherwise. If the return value is 1 no information is returned. */
@@ -184,7 +182,7 @@ void DECLSPECDLLEXPORT tng_compress_int_to_float(int *posvel_int,unsigned long p
 /* Compression algorithms (matching the original trajng
    assignments) The compression backends require that some of the
    algorithms must have the same value. */
-   
+
 #define TNG_COMPRESS_ALGO_STOPBIT 1
 #define TNG_COMPRESS_ALGO_TRIPLET 2
 #define TNG_COMPRESS_ALGO_BWLZH1  8

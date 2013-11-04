@@ -5,9 +5,7 @@
  *
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; either version 2.1
- * of the License, or (at your option) any later version.
+ * modify it under the terms of the Revised BSD License.
  */
 
 
@@ -18,7 +16,7 @@ void Ptngc_comp_conv_to_rle(unsigned int *vals, int nvals,
 		      unsigned int *rle, int *nrle,
 		      int min_rle);
 
-void Ptngc_comp_conv_from_rle(unsigned int *rle, 
+void Ptngc_comp_conv_from_rle(unsigned int *rle,
 			unsigned int *vals, int nvals);
 
 #endif

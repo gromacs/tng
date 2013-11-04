@@ -54,8 +54,6 @@
 #  define md5_INCLUDED
 
 
-/* The comment below does not apply to the version included in the TNG
- * library. */
 /*
  * This package supports both compile-time and run-time determination of CPU
  * byte order.  If ARCH_IS_BIG_ENDIAN is defined as 0, the code will be

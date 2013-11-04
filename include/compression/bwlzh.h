@@ -5,9 +5,7 @@
  *
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; either version 2.1
- * of the License, or (at your option) any later version.
+ * modify it under the terms of the Revised BSD License.
  */
 
 
@@ -32,7 +30,7 @@ void DECLSPECDLLEXPORT bwlzh_decompress(unsigned char *input, int nvals,
 
 
 /* The routines below are mostly useful for testing, and for internal
-   use by the library. */ 
+   use by the library. */
 
 void DECLSPECDLLEXPORT bwlzh_compress_verbose(unsigned int *vals, int nvals,
 			  unsigned char *output, int *output_len);
