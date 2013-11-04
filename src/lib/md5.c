@@ -1,45 +1,15 @@
-/*
- *
- *             This source code is distributed with
- *
- *                 G   R   O   M   A   C   S
- *
- *          GROningen MAchine for Chemical Simulations
- *
- *                           VERSION 4.5
- * Written by David van der Spoel, Erik Lindahl, Berk Hess, and others.
- * Copyright (c) 1991-2010, The GROMACS development team,
- * check out http://www.gromacs.org for more information.
- *
- * Gromacs is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * If you want to redistribute modifications, please consider that
- * scientific software is very special. Version control is crucial -
- * bugs must be traceable. We will be happy to consider code for
- * inclusion in the official distribution, but derived work must not
- * be called official GROMACS. Details are found in the README & COPYING
- * files - if they are missing, get the official version at www.gromacs.org.
- *
- * To help us fund GROMACS development, we humbly ask that you cite
- * the papers on the package - you can find them in the top README file.
- *
- * For more info, check our website at http://www.gromacs.org
- *
- * And Hey:
- * GROningen Mixture of Alchemy and Childrens' Stories
- */
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+/* This file has been modified in the TNG library distribution. Modifications
+ * are marked below. */
 
-#ifdef GMX_INTEGER_BIG_ENDIAN
+/* The define below was added in the TNG library distribution of this file. */
+#ifdef TNG_INTEGER_BIG_ENDIAN
 #define ARCH_IS_BIG_ENDIAN 1
 #else
 #define ARCH_IS_BIG_ENDIAN 0
 #endif
+
+/* The defines below were added in TNG library distribution of this file
+ * in order to compile properly in MSVC */
 
 #ifndef USE_WINDOWS
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
@@ -181,6 +151,7 @@
 #define T63    0x2ad7d2bb
 #define T64 /* 0xeb86d391 */ (T_MASK ^ 0x14792c6e)
 
+/* In the TNG library inline has been changed to TNG_INLINE */
 static TNG_INLINE void
 md5_process(md5_state_t *pms, const md5_byte_t *data /*[64]*/)
 {

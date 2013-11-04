@@ -1,3 +1,7 @@
+
+/* This file has been modified in the TNG library distribution. Modifications
+ * are marked below. */
+
 /*
   Copyright (C) 1999, 2002 Aladdin Enterprises.  All rights reserved.
 
@@ -49,6 +53,9 @@
 #ifndef md5_INCLUDED
 #  define md5_INCLUDED
 
+
+/* The comment below does not apply to the version included in the TNG
+ * library. */
 /*
  * This package supports both compile-time and run-time determination of CPU
  * byte order.  If ARCH_IS_BIG_ENDIAN is defined as 0, the code will be
@@ -70,16 +77,20 @@ typedef struct md5_state_s {
 } md5_state_t;
 
 #ifdef __cplusplus
-extern "C" 
+extern "C"
 {
 #endif
 
+/* The USE_WINDOWS define below was added in TNG library distribution of this
+ * file in order to compile properly in MSVC */
 #ifndef USE_WINDOWS
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
 #define USE_WINDOWS
 #endif /* win32... */
 #endif /* not defined USE_WINDOWS */
 
+/* The DECLSPECDLLEXPORT define below was added in the TNG library distribution
+ * of this file. It is also used in the function declarations. */
 #ifndef DECLSPECDLLEXPORT
 #ifdef USE_WINDOWS
 #define DECLSPECDLLEXPORT __declspec(dllexport)
