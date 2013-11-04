@@ -7818,6 +7818,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molsystem_bonds_get
     cnt = 0;
     for(i = 0; i < tng_data->n_molecules; i++)
     {
+        mol = &tng_data->molecules[i];
+        mol_cnt = molecule_cnt_list[i];
         for(j = 0; j < mol_cnt; j++)
         {
             for(k = 0; k < mol->n_bonds; k++)
