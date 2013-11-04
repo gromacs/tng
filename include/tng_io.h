@@ -975,6 +975,18 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
                 (const tng_trajectory_t tng_data,
                  int64_t *n);
 
+/** @brief Get the list of the count of each molecule.
+ * @param tng_data is the trajectory from which to get the molecule count list.
+ * @param mol_cnt_list is a list of the count of each molecule in the
+ * mol system. This is a pointer to the list in the TNG container, which
+ * means that it should be handled carefully.
+ * @return TNG_SUCCESS (0) if succesful or TNG_FAILURE(1) if the list of
+ * molecule counts was not valid.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_list_get
+                (const tng_trajectory_t tng_data,
+                 int64_t **mol_cnt_list);
+
 /**
  * @brief Get the exponential used for distances in the trajectory.
  * @param tng_data is the trajectory from which to get the information.
@@ -1430,6 +1442,28 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
                  const int64_t nr,
                  char *name,
                  int max_len);
+
+/**
+ * @brief Get the bonds of the current molecular system.
+ * @param tng_data is the trajectory data container containing the molecular
+ * system.
+ * @param n_bonds is set to the number of bonds in the molecular system and
+ * thereby also the lengths of the two lists: from_atoms and to_atoms.
+ * @param from_atoms is a list (memory reserved by this function) of atoms
+ * (number of atom in mol system) in bonds.
+ * @param to_atoms is a list (memory reserved by this function) of atoms
+ * (number of atom in mol system) in bonds.
+ * @details The two lists of atoms use the same index, i.e. from_atoms[0]
+ * and to_atoms[0] are linked with a bond. Since memory is reserved in
+ * this function it must be freed afterwards.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molsystem_bonds_get
+                (const tng_trajectory_t tng_data,
+                 int64_t *n_bonds,
+                 int64_t **from_atoms,
+                 int64_t **to_atoms);
 
 /**
  * @brief Get the chain name of real particle number (number in mol system).
@@ -2155,13 +2189,29 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  double *time);
+
+/**
+ * @brief High-level function for getting the molecules in the mol system.
+ * @param tng_data is the trajectory containing the mol system.
+ * @param n_mols is set to the number of molecules in the system.
+ * @param molecule_cnt_list will be a copy of the counts of each molecule
+ * in the mol system.
+ * @param mols will be a list of copies of the molecules in the mol system.
+ * @details Memory is reserved for molecule_cnt_list and mols in this function.
+ * If the pointers do not point at already allocated memory they must be NULL
+ * pointers so that new memory can be reserved. The memory of molecule_cnt_list
+ * and mols must be freed afterwards.
+ * mols will contain copies of the molecules in the mol system, but these
+ * molecules still contain pointers to the actual atoms and residues etc., which
+ * means that the data of the molecules should be handled with care.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
+                (tng_trajectory_t tng_data,
+                 int64_t *n_mols,
+                 int64_t **molecule_cnt_list,
+                 tng_molecule_t **mols);
+
 /*
-// tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
-//                 (tng_trajectory_t tng_data,
-//                  int64_t *n_mols,
-//                  int64_t *molecule_cnt_list,
-//                  tng_molecule_t *mols);
-//
 // tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
 //                 (tng_trajectory_t tng_data,
 //                  const char *name,

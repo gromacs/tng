@@ -2473,7 +2473,7 @@ static tng_function_status tng_molecules_block_read
             }
         }
         offset += sizeof(molecule->n_bonds);
-        
+
         if(molecule->n_bonds > 0)
         {
             tng_data->molecules[i].bonds = malloc(molecule->n_bonds *
@@ -7729,7 +7729,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
                  char *name,
                  int max_len)
 {
-    int64_t cnt = 0, i, *molecule_cnt_list;
+    int64_t cnt = 0, i, *molecule_cnt_list = 0;
     tng_molecule_t mol;
     tng_bool found = TNG_FALSE;
     tng_function_status stat;
@@ -7742,15 +7742,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
         return(stat);
     }
 
-    if(tng_data->var_num_atoms_flag)
-    {
-        molecule_cnt_list = tng_data->current_trajectory_frame_set.
-                            molecule_cnt_list;
-    }
-    else
-    {
-        molecule_cnt_list = tng_data->molecule_cnt_list;
-    }
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7778,13 +7770,79 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
     return(TNG_SUCCESS);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_molsystem_bonds_get
+                (const tng_trajectory_t tng_data,
+                 int64_t *n_bonds,
+                 int64_t **from_atoms,
+                 int64_t **to_atoms)
+{
+    int64_t atom_cnt = 0, cnt, mol_cnt, i, j, k;
+    int64_t from_atom, to_atom, *molecule_cnt_list = 0;
+    tng_molecule_t mol;
+    tng_bond_t bond;
+    tng_function_status stat;
+
+    stat = tng_check_trajectory_container(tng_data);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Trajectory container not properly setup. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
+
+    *n_bonds = 0;
+    /* First count the total number of bonds to allocate memory */
+    for(i = 0; i < tng_data->n_molecules; i++)
+    {
+        mol = &tng_data->molecules[i];
+        mol_cnt = molecule_cnt_list[i];
+        *n_bonds += mol_cnt * mol->n_bonds;
+    }
+    *from_atoms = malloc(sizeof(int64_t) * (*n_bonds));
+    if(!*from_atoms)
+    {
+        printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+               sizeof(int64_t) * (*n_bonds), __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+    *to_atoms = malloc(sizeof(int64_t) * (*n_bonds));
+    if(!*to_atoms)
+    {
+        printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+               sizeof(int64_t) * (*n_bonds), __FILE__, __LINE__);
+        free(*from_atoms);
+        *from_atoms = 0;
+        return(TNG_CRITICAL);
+    }
+
+    cnt = 0;
+    for(i = 0; i < tng_data->n_molecules; i++)
+    {
+        for(j = 0; j < mol_cnt; j++)
+        {
+            for(k = 0; k < mol->n_bonds; k++)
+            {
+                bond = &mol->bonds[k];
+                from_atom = atom_cnt + j * mol_cnt + bond->from_atom_id;
+                to_atom = atom_cnt + j * mol_cnt + bond->to_atom_id;
+                *from_atoms[cnt] = from_atom;
+                *to_atoms[cnt++] = to_atom;
+            }
+        }
+    }
+
+    return(TNG_SUCCESS);
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_chain_name_of_particle_nr_get
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  char *name,
                  int max_len)
 {
-    int64_t cnt = 0, i, *molecule_cnt_list;
+    int64_t cnt = 0, i, *molecule_cnt_list = 0;
     tng_molecule_t mol;
     tng_atom_t atom;
     tng_bool found = TNG_FALSE;
@@ -7798,15 +7856,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_of_particle_nr_get
         return(stat);
     }
 
-    if(tng_data->var_num_atoms_flag)
-    {
-        molecule_cnt_list = tng_data->current_trajectory_frame_set.
-                            molecule_cnt_list;
-    }
-    else
-    {
-        molecule_cnt_list = tng_data->molecule_cnt_list;
-    }
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7845,7 +7895,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
                  char *name,
                  int max_len)
 {
-    int64_t cnt = 0, i, *molecule_cnt_list;
+    int64_t cnt = 0, i, *molecule_cnt_list = 0;
     tng_molecule_t mol;
     tng_atom_t atom;
     tng_bool found = TNG_FALSE;
@@ -7859,15 +7909,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
         return(stat);
     }
 
-    if(tng_data->var_num_atoms_flag)
-    {
-        molecule_cnt_list = tng_data->current_trajectory_frame_set.
-                            molecule_cnt_list;
-    }
-    else
-    {
-        molecule_cnt_list = tng_data->molecule_cnt_list;
-    }
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7905,7 +7947,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_id_of_particle_nr_get
                  const int64_t nr,
                  int64_t *id)
 {
-    int64_t cnt = 0, i, *molecule_cnt_list;
+    int64_t cnt = 0, i, *molecule_cnt_list = 0;
     tng_molecule_t mol;
     tng_atom_t atom;
     tng_bool found = TNG_FALSE;
@@ -7919,15 +7961,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_id_of_particle_nr_get
         return(stat);
     }
 
-    if(tng_data->var_num_atoms_flag)
-    {
-        molecule_cnt_list = tng_data->current_trajectory_frame_set.
-                            molecule_cnt_list;
-    }
-    else
-    {
-        molecule_cnt_list = tng_data->molecule_cnt_list;
-    }
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7961,7 +7995,7 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_name_of_particle_nr_get
                  char *name,
                  int max_len)
 {
-    int64_t cnt = 0, i, *molecule_cnt_list;
+    int64_t cnt = 0, i, *molecule_cnt_list = 0;
     tng_molecule_t mol;
     tng_atom_t atom;
     tng_bool found = TNG_FALSE;
@@ -7975,15 +8009,7 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_name_of_particle_nr_get
         return(stat);
     }
 
-    if(tng_data->var_num_atoms_flag)
-    {
-        molecule_cnt_list = tng_data->current_trajectory_frame_set.
-                            molecule_cnt_list;
-    }
-    else
-    {
-        molecule_cnt_list = tng_data->molecule_cnt_list;
-    }
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -8018,7 +8044,7 @@ tng_function_status tng_atom_type_of_particle_nr_get
                  char *type,
                  int max_len)
 {
-    int64_t cnt = 0, i, *molecule_cnt_list;
+    int64_t cnt = 0, i, *molecule_cnt_list = 0;
     tng_molecule_t mol;
     tng_atom_t atom;
     tng_bool found = TNG_FALSE;
@@ -8032,15 +8058,7 @@ tng_function_status tng_atom_type_of_particle_nr_get
         return(stat);
     }
 
-    if(tng_data->var_num_atoms_flag)
-    {
-        molecule_cnt_list = tng_data->current_trajectory_frame_set.
-                            molecule_cnt_list;
-    }
-    else
-    {
-        molecule_cnt_list = tng_data->molecule_cnt_list;
-    }
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -9905,7 +9923,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
                     (const tng_trajectory_t tng_data,
                      int64_t *n)
 {
-    int64_t *cnt_list, cnt = 0, i;
+    int64_t *cnt_list = 0, cnt = 0, i;
     tng_function_status stat;
 
     stat = tng_check_trajectory_container(tng_data);
@@ -9916,14 +9934,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
         return(stat);
     }
 
-    if(tng_data->var_num_atoms_flag == TNG_CONSTANT_N_ATOMS)
-    {
-        cnt_list = tng_data->molecule_cnt_list;
-    }
-    else
-    {
-        cnt_list = tng_data->current_trajectory_frame_set.molecule_cnt_list;
-    }
+    tng_molecule_cnt_list_get(tng_data, &cnt_list);
 
     for(i = tng_data->n_molecules; i --;)
     {
@@ -9932,6 +9943,26 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
 
     *n = cnt;
 
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_list_get
+                (const tng_trajectory_t tng_data,
+                 int64_t **mol_cnt_list)
+{
+    if(tng_data->var_num_atoms_flag)
+    {
+        *mol_cnt_list = tng_data->current_trajectory_frame_set.
+                       molecule_cnt_list;
+    }
+    else
+    {
+        *mol_cnt_list = tng_data->molecule_cnt_list;
+    }
+    if(*mol_cnt_list == 0)
+    {
+        return(TNG_FAILURE);
+    }
     return(TNG_SUCCESS);
 }
 
@@ -13667,7 +13698,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                  tot_n_frames / *stride_length + 1:
                  tot_n_frames / *stride_length;
     data_size = n_frames_div * size * (*n_values_per_frame);
-    
+
 /*     printf("size: %d, n_frames_div: %"PRId64", data_size: %"PRId64"\n",
               size, n_frames_div, data_size);
 */
@@ -13690,21 +13721,21 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
     else
     {
         current_frame_pos = start_frame_nr - frame_set->first_frame;
-        
+
         frame_size = size * (*n_values_per_frame);
 
         last_frame_pos = tng_min_i64(n_frames,
                                      end_frame_nr - start_frame_nr);
-        
+
         n_frames_div = current_frame_pos / *stride_length;
         n_frames_div_2 = (last_frame_pos % *stride_length) ?
                        last_frame_pos / *stride_length + 1:
                        last_frame_pos / *stride_length;
         n_frames_div_2 = tng_max_i64(1, n_frames_div_2);
-        
+
         memcpy(*values, (char *)current_values + n_frames_div * frame_size,
                n_frames_div_2 * frame_size);
-        
+
         current_frame_pos += n_frames - current_frame_pos;
 
         while(current_frame_pos <= end_frame_nr - start_frame_nr)
@@ -14502,7 +14533,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
 
         last_frame_pos = tng_min_i64(n_frames,
                                      end_frame_nr - start_frame_nr);
-                
+
         n_frames_div = current_frame_pos / *stride_length;
         n_frames_div_2 = (last_frame_pos % *stride_length) ?
                        last_frame_pos / *stride_length + 1:
@@ -14516,7 +14547,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                n_frames_div_2 * frame_size);
 
         current_frame_pos += n_frames - current_frame_pos;
-                            
+
         while(current_frame_pos <= end_frame_nr - start_frame_nr)
         {
             stat = tng_frame_set_read_next(tng_data, hash_mode);
@@ -14669,7 +14700,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
 
     tng_trajectory_frame_set_t frame_set;
     tng_function_status stat;
-    
+
     stat = tng_frame_set_of_frame_find(tng_data, frame_nr);
     if(stat != TNG_SUCCESS)
     {
@@ -14677,26 +14708,28 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
                frame_nr, __FILE__, __LINE__);
         return(stat);
     }
-    
+
     frame_set = &tng_data->current_trajectory_frame_set;
     first_frame = frame_set->first_frame;
-    
+
     if(tng_data->time_per_frame <= 0)
     {
         return(TNG_FAILURE);
     }
-    
+
     *time = frame_set->first_frame_time + (tng_data->time_per_frame * (frame_nr - first_frame));
-    
+
     return(TNG_SUCCESS);
 }
-                
+
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
                 (tng_trajectory_t tng_data,
                  int64_t *n_mols,
                  int64_t **molecule_cnt_list,
-                 tng_molecule_t *mols)
+                 tng_molecule_t **mols)
 {
+    int64_t *temp_int, data_size;
+    tng_molecule_t *temp_mol;
     tng_function_status stat;
 
     stat = tng_check_trajectory_container(tng_data);
@@ -14707,11 +14740,41 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
         return(stat);
     }
 
-    /* FIXME: This should return a copy of the molecules instead */
     *n_mols = tng_data->n_molecules;
 
-    *molecule_cnt_list = tng_data->molecule_cnt_list;
-    *mols = tng_data->molecules;
+    data_size = sizeof(int64_t) * (*n_mols);
+
+    temp_int = realloc(*molecule_cnt_list, data_size);
+    if(!temp_int)
+    {
+        printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+               data_size, __FILE__, __LINE__);
+        free(*molecule_cnt_list);
+        *molecule_cnt_list = 0;
+        return(TNG_CRITICAL);
+    }
+    *molecule_cnt_list = temp_int;
+
+    memcpy(*molecule_cnt_list, tng_data->molecule_cnt_list, data_size);
+
+    data_size = sizeof(tng_molecule_t) * (*n_mols);
+
+    temp_mol = realloc(*mols, data_size);
+    if(!temp_mol)
+    {
+        printf("Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+               data_size, __FILE__, __LINE__);
+        free(*mols);
+        *mols = 0;
+        return(TNG_CRITICAL);
+    }
+    *mols = temp_mol;
+
+    memcpy(*mols, tng_data->molecules, data_size);
+
+    /* FIXME: mols still contain pointers to residues and atoms in the
+     * actual TNG mol system. They should probably be made copies as
+     * well. */
 
     return(TNG_SUCCESS);
 }
