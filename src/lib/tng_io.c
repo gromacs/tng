@@ -7923,11 +7923,12 @@ tng_function_status DECLSPECDLLEXPORT tng_molsystem_bonds_get
             for(k = 0; k < mol->n_bonds; k++)
             {
                 bond = &mol->bonds[k];
-                from_atom = atom_cnt + j * mol_cnt + bond->from_atom_id;
-                to_atom = atom_cnt + j * mol_cnt + bond->to_atom_id;
-                *from_atoms[cnt] = from_atom;
-                *to_atoms[cnt++] = to_atom;
+                from_atom = atom_cnt + bond->from_atom_id;
+                to_atom = atom_cnt + bond->to_atom_id;
+                (*from_atoms)[cnt] = from_atom;
+                (*to_atoms)[cnt++] = to_atom;
             }
+            atom_cnt += mol->n_atoms;
         }
     }
 
