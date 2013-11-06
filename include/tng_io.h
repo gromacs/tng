@@ -1288,6 +1288,23 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
                  tng_chain_t *chain);
 
 /**
+ * @brief Add a bond between two atoms to a molecule.
+ * @param tng_data is the trajectory data container containing the molecule.
+ * @param molecule is the molecule containing the atoms to connect.
+ * @param from_atom_id is the id of one of the two atoms in the bond.
+ * @param to_atom_id is the id of the other atom in the bond.
+ * @param bond is a pointer to the newly created bond.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (!) if a minor error
+ * has occured or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_bond_add
+                (const tng_trajectory_t tng_data,
+                 tng_molecule_t molecule,
+                 const int64_t from_atom_id,
+                 const int64_t to_atom_id,
+                 tng_bond_t *bond);
+
+/**
  * @brief Set the name of a chain.
  * @param tng_data is the trajectory data container containing the atom..
  * @param chain is the chain to rename.
@@ -1443,6 +1460,19 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
                  int max_len);
 
 /**
+ * @brief Get the molecule id of real particle number (number in mol system).
+ * @param tng_data is the trajectory data container containing the atom.
+ * @param nr is the real number of the particle in the molecular system.
+ * @param id is will be set to the id of the molecule.
+ * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_id_of_particle_nr_get
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 int64_t *id);
+
+/**
  * @brief Get the bonds of the current molecular system.
  * @param tng_data is the trajectory data container containing the molecular
  * system.
@@ -1497,7 +1527,8 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
                  int max_len);
 
 /**
- * @brief Get the residue id of real particle number (number in mol system).
+ * @brief Get the residue id (local to molecule) of real particle number
+ * (number in mol system).
  * @param tng_data is the trajectory data container containing the atom.
  * @param nr is the real number of the particle in the molecular system.
  * @param id is a pointer to the variable, which will be set to the ID.
@@ -1505,6 +1536,20 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
  * has occured.
  */
 tng_function_status DECLSPECDLLEXPORT tng_residue_id_of_particle_nr_get
+                (const tng_trajectory_t tng_data,
+                 const int64_t nr,
+                 int64_t *id);
+
+/**
+ * @brief Get the residue id (based on other molecules and molecule counts)
+ * of real particle number (number in mol system).
+ * @param tng_data is the trajectory data container containing the atom.
+ * @param nr is the real number of the particle in the molecular system.
+ * @param id is a pointer to the variable, which will be set to the ID.
+ * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_global_residue_id_of_particle_nr_get
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  int64_t *id);
