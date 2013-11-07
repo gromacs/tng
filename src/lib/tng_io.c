@@ -485,6 +485,7 @@ static tng_function_status tng_swap_byte_order_big_endian_32
 static tng_function_status tng_swap_byte_order_big_endian_64
                 (const tng_trajectory_t tng_data, int64_t *v)
 {
+    TNG_ASSERT(v != 0, "NULL pointer when swapping byte order.");
     switch(tng_data->endianness_64)
     {
     case TNG_LITTLE_ENDIAN_64: /* Byte order is reversed. */
@@ -537,6 +538,7 @@ static tng_function_status tng_swap_byte_order_big_endian_64
 static tng_function_status tng_swap_byte_order_little_endian_32
                 (const tng_trajectory_t tng_data, int32_t *v)
 {
+    TNG_ASSERT(v != 0, "NULL pointer when swapping byte order.");
     switch(tng_data->endianness_32)
     {
     case TNG_LITTLE_ENDIAN_32: /* Already correct */
@@ -575,6 +577,7 @@ static tng_function_status tng_swap_byte_order_little_endian_32
 static tng_function_status tng_swap_byte_order_little_endian_64
                 (const tng_trajectory_t tng_data, int64_t *v)
 {
+    TNG_ASSERT(v != 0, "NULL pointer when swapping byte order.");
     switch(tng_data->endianness_64)
     {
     case TNG_LITTLE_ENDIAN_64: /* Already correct */
@@ -651,6 +654,13 @@ static tng_function_status tng_md5_hash_match_verify(tng_gen_block_t block,
 {
     md5_state_t md5_state;
     char hash[TNG_MD5_HASH_LEN];
+
+    TNG_ASSERT(block != 0, "Block not set (NULL) when verifying MD5 hash.");
+    if(block->block_contents_size == 0)
+    {
+        return(TNG_FAILURE);
+    }
+    TNG_ASSERT(block->block_contents != 0, "Block contents not set (NULL) when generating MD5 hash.");
 
     if(strncmp(block->md5_hash, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 16) == 0)
     {
@@ -1049,13 +1059,14 @@ static tng_function_status tng_block_header_write
 {
     int name_len, offset = 0;
 
+    TNG_ASSERT(block != 0, "Trying to write uninitialized block (NULL pointer).");
+
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
         printf("TNG library: Cannot initialise destination file. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
-
 
     if(!block->name)
     {
@@ -1186,6 +1197,8 @@ static tng_function_status tng_general_info_block_read
     tng_bool same_hash;
 
     void *temp;
+
+    TNG_ASSERT(block != 0, "Trying to read data to an uninitialized block (NULL pointer)");
 
     if(tng_input_file_init(tng_data) != TNG_SUCCESS)
     {
@@ -1828,6 +1841,8 @@ static tng_function_status tng_chain_data_read(tng_trajectory_t tng_data,
 {
     int len;
 
+    TNG_ASSERT(offset != 0, "Offset must not be a NULL pointer.");
+
     memcpy(&chain->id, block->block_contents+*offset,
             sizeof(chain->id));
     if(tng_data->input_endianness_swap_func_64)
@@ -1880,6 +1895,8 @@ static tng_function_status tng_chain_data_write(tng_trajectory_t tng_data,
 {
     int len;
 
+    TNG_ASSERT(offset != 0, "Offset must not be a NULL pointer.");
+
     memcpy(block->block_contents+*offset, &chain->id, sizeof(chain->id));
     if(tng_data->output_endianness_swap_func_64)
     {
@@ -1927,6 +1944,8 @@ static tng_function_status tng_residue_data_read(tng_trajectory_t tng_data,
                                                  int *offset)
 {
     int len;
+
+    TNG_ASSERT(offset != 0, "Offset must not be a NULL pointer.");
 
     memcpy(&residue->id, block->block_contents+*offset,
         sizeof(residue->id));
@@ -1980,6 +1999,8 @@ static tng_function_status tng_residue_data_write(tng_trajectory_t tng_data,
 {
     int len;
 
+    TNG_ASSERT(offset != 0, "Offset must not be a NULL pointer.");
+
     memcpy(block->block_contents+*offset, &residue->id, sizeof(residue->id));
     if(tng_data->output_endianness_swap_func_64)
     {
@@ -2028,6 +2049,8 @@ static tng_function_status tng_atom_data_read(tng_trajectory_t tng_data,
 {
     int len;
 
+    TNG_ASSERT(offset != 0, "Offset must not be a NULL pointer.");
+
     memcpy(&atom->id, block->block_contents+*offset,
         sizeof(atom->id));
     if(tng_data->input_endianness_swap_func_64)
@@ -2072,6 +2095,8 @@ static tng_function_status tng_atom_data_write(tng_trajectory_t tng_data,
                                                int *offset)
 {
     int len;
+
+    TNG_ASSERT(offset != 0, "Offset must not be a NULL pointer.");
 
     memcpy(block->block_contents+*offset, &atom->id,
             sizeof(atom->id));
@@ -4523,6 +4548,8 @@ static tng_function_status tng_particle_data_read
     &tng_data->current_trajectory_frame_set;
     char block_type_flag;
 
+    TNG_ASSERT(offset != 0, "Offset must not be a NULL pointer.");
+
     switch(datatype)
     {
     case TNG_CHAR_DATA:
@@ -5455,6 +5482,8 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
     char block_type_flag;
+
+    TNG_ASSERT(offset != 0, "Offset must not be a NULL pointer.");
 
 /*     printf("TNG library: %s\n", block->name);*/
 
@@ -8333,6 +8362,8 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
     tng_trajectory_frame_set_t frame_set;
     tng_trajectory_t tng_data;
 
+    TNG_ASSERT(*tng_data_p == 0, "Pointer to tng_trajectory_t must be NULL to initialise the trajectory");
+
     *tng_data_p = malloc(sizeof(struct tng_trajectory));
     if(!*tng_data_p)
     {
@@ -8863,6 +8894,9 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
     tng_trajectory_frame_set_t frame_set;
     tng_trajectory_t dest;
 
+    TNG_ASSERT(src != 0, "Source trajectory must not be NULL.");
+    TNG_ASSERT(*dest_p == 0, "Pointer to tng_trajectory_t must be NULL to initialise the trajectory");
+
     *dest_p = malloc(sizeof(struct tng_trajectory));
     if(!*dest_p)
     {
@@ -8980,6 +9014,8 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_get(const tng_trajectory_t 
 {
     tng_function_status stat;
 
+    TNG_ASSERT(file_name, "file_name must not be a NULL pointer");
+
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
     {
@@ -9004,6 +9040,8 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_set(tng_trajectory_t tng_da
     unsigned int len;
     char *temp;
     tng_function_status stat;
+
+    TNG_ASSERT(file_name, "file_name must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9046,6 +9084,8 @@ tng_function_status tng_output_file_get(const tng_trajectory_t tng_data,
 {
     tng_function_status stat;
 
+    TNG_ASSERT(file_name, "file_name must not be a NULL pointer");
+
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
     {
@@ -9070,6 +9110,8 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_set(tng_trajectory_t tng_d
     int len;
     char *temp;
     tng_function_status stat;
+
+    TNG_ASSERT(file_name, "file_name must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9113,6 +9155,8 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_endianness_get
     tng_endianness_32 end_32;
     tng_endianness_64 end_64;
     tng_function_status stat;
+
+    TNG_ASSERT(endianness, "endianness must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9267,6 +9311,8 @@ tng_function_status DECLSPECDLLEXPORT tng_first_program_name_get
 {
     tng_function_status stat;
 
+    TNG_ASSERT(name, "name must not be a NULL pointer");
+
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
     {
@@ -9290,6 +9336,8 @@ tng_function_status DECLSPECDLLEXPORT tng_first_program_name_set(tng_trajectory_
 {
     unsigned int len;
     tng_function_status stat;
+
+    TNG_ASSERT(new_name, "new_name must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9328,6 +9376,8 @@ tng_function_status DECLSPECDLLEXPORT tng_last_program_name_get
 {
     tng_function_status stat;
 
+    TNG_ASSERT(name, "name must not be a NULL pointer");
+
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
     {
@@ -9352,6 +9402,8 @@ tng_function_status DECLSPECDLLEXPORT tng_last_program_name_set
 {
     unsigned int len;
     tng_function_status stat;
+
+    TNG_ASSERT(new_name, "new_name must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9390,6 +9442,8 @@ tng_function_status DECLSPECDLLEXPORT tng_first_user_name_get
 {
     tng_function_status stat;
 
+    TNG_ASSERT(name, "name must not be a NULL pointer");
+
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
     {
@@ -9414,6 +9468,8 @@ tng_function_status DECLSPECDLLEXPORT tng_first_user_name_set
 {
     unsigned int len;
     tng_function_status stat;
+
+    TNG_ASSERT(new_name, "new_name must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9454,6 +9510,8 @@ tng_function_status DECLSPECDLLEXPORT tng_last_user_name_get
 {
     tng_function_status stat;
 
+    TNG_ASSERT(name, "name must not be a NULL pointer");
+
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
     {
@@ -9478,6 +9536,8 @@ tng_function_status DECLSPECDLLEXPORT tng_last_user_name_set
 {
     unsigned int len;
     tng_function_status stat;
+
+    TNG_ASSERT(new_name, "new_name must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9518,6 +9578,8 @@ tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_get
 {
     tng_function_status stat;
 
+    TNG_ASSERT(name, "name must not be a NULL pointer");
+
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
     {
@@ -9542,6 +9604,8 @@ tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_set
 {
     unsigned int len;
     tng_function_status stat;
+
+    TNG_ASSERT(new_name, "new_name must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9580,6 +9644,8 @@ tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_get
                     (const tng_trajectory_t tng_data,
                      char *name, const int max_len)
 {
+    TNG_ASSERT(name, "name must not be a NULL pointer");
+
     tng_function_status stat;
 
     stat = tng_check_trajectory_container(tng_data);
@@ -9606,6 +9672,8 @@ tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_set
 {
     unsigned int len;
     tng_function_status stat;
+
+    TNG_ASSERT(new_name, "new_name must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9647,6 +9715,8 @@ tng_function_status DECLSPECDLLEXPORT tng_first_signature_get
 {
     tng_function_status stat;
 
+    TNG_ASSERT(signature, "signature must not be a NULL pointer");
+
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
     {
@@ -9671,6 +9741,8 @@ tng_function_status DECLSPECDLLEXPORT tng_first_signature_set
 {
     unsigned int len;
     tng_function_status stat;
+
+    TNG_ASSERT(signature, "signature must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9712,6 +9784,8 @@ tng_function_status DECLSPECDLLEXPORT tng_last_signature_get
 {
     tng_function_status stat;
 
+    TNG_ASSERT(signature, "signature must not be a NULL pointer");
+
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
     {
@@ -9736,6 +9810,8 @@ tng_function_status DECLSPECDLLEXPORT tng_last_signature_set
 {
     unsigned int len;
     tng_function_status stat;
+
+    TNG_ASSERT(signature, "signature must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9777,6 +9853,8 @@ tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_get
 {
     tng_function_status stat;
 
+    TNG_ASSERT(name, "name must not be a NULL pointer");
+
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
     {
@@ -9801,6 +9879,8 @@ tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_set
 {
     unsigned int len;
     tng_function_status stat;
+
+    TNG_ASSERT(new_name, "new_name must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9840,6 +9920,8 @@ tng_function_status DECLSPECDLLEXPORT tng_medium_stride_length_get
                      int64_t *len)
 {
     tng_function_status stat;
+
+    TNG_ASSERT(len, "len must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9883,6 +9965,8 @@ tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_get
 {
     tng_function_status stat;
 
+    TNG_ASSERT(len, "len must not be a NULL pointer");
+
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
     {
@@ -9924,6 +10008,8 @@ tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_get
                  double *time)
 {
     tng_function_status stat;
+
+    TNG_ASSERT(time, "time must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -9974,6 +10060,8 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_len_get
 {
     tng_function_status stat;
 
+    TNG_ASSERT(len, "len must not be a NULL pointer");
+
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
     {
@@ -9994,6 +10082,8 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_get
     tng_gen_block_t block;
     tng_function_status stat;
     int64_t file_pos;
+
+    TNG_ASSERT(n, "n must not be a NULL pointer");
 
     stat = tng_check_trajectory_container(tng_data);
     if(stat != TNG_SUCCESS)
@@ -10044,7 +10134,7 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
                 (tng_trajectory_t tng_data,
                  const int64_t n)
 {
-    tng_data->n_molecules = n;
+    tng_data->n_particles = n;
 
     return(TNG_SUCCESS);
 }

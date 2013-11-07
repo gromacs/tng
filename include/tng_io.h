@@ -269,6 +269,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 
 #ifdef USE_STD_INTTYPES_H
@@ -341,6 +342,12 @@ typedef unsigned __int64 uint64_t;
 #define TNG_MD5_HASH_LEN 16
 /** The maximum allowed length of a string */
 #define TNG_MAX_STR_LEN 1024
+
+#ifndef NDEBUG
+#define TNG_ASSERT(cnd, msg) if(!cnd) {printf("%s\n", msg); assert(cnd);}
+#else
+#define TNG_ASSERT(cnd, msg) ((void) 0)
+#endif
 
 /** Flag to specify the endianness of a TNG file */
 typedef enum {TNG_BIG_ENDIAN,
