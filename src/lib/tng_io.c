@@ -4053,6 +4053,7 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
 
     if(type == TNG_FLOAT_DATA)
     {
+        printf("TNG library: test! Uncompressed len: %"PRId64"\n", uncompressed_len);
         f_dest = malloc(uncompressed_len);
         if(!f_dest)
         {
@@ -4060,7 +4061,6 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
                 uncompressed_len, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
-
         result = tng_compress_uncompress_float(start_pos, f_dest);
     }
     else
@@ -4082,7 +4082,6 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
     }
 
     offset = (unsigned long)((char *)start_pos - (char *)block->block_contents);
-
 
     block->block_contents_size = (int64_t)(uncompressed_len + offset);
 
@@ -4613,6 +4612,7 @@ static tng_function_status tng_particle_data_read
             printf("TNG library: XTC compression not implemented yet.\n");
             break;
         case TNG_TNG_COMPRESSION:
+/*            printf("TNG library: Before TNG uncompression: %"PRId64"\n", block->block_contents_size);*/
             if(tng_uncompress(tng_data, block, datatype,
                               block->block_contents + *offset,
                               data_size) != TNG_SUCCESS)
@@ -4621,10 +4621,11 @@ static tng_function_status tng_particle_data_read
                        __FILE__, __LINE__);
                 return(TNG_CRITICAL);
             }
+/*            printf("TNG library: After TNG uncompression: %"PRId64"\n", block->block_contents_size);*/
             break;
 #ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
-/*             printf("TNG library: Before uncompression: %"PRId64"\n", block->block_contents_size); */
+/*            printf("TNG library: Before GZIP uncompression: %"PRId64"\n", block->block_contents_size);*/
             if(tng_gzip_uncompress(tng_data, block,
                                    block->block_contents + *offset,
                                    data_size) != TNG_SUCCESS)
@@ -4633,12 +4634,11 @@ static tng_function_status tng_particle_data_read
                     __LINE__);
                 return(TNG_CRITICAL);
             }
-/*             printf("TNG library: After uncompression: %"PRId64"\n", block->block_contents_size); */
+/*            printf("TNG library: After GZIP uncompression: %"PRId64"\n", block->block_contents_size);*/
             break;
 #endif
         }
     }
-
     /* Allocate memory */
     if(!data->values || data->n_frames != n_frames ||
        data->n_values_per_frame != n_values)
@@ -6107,7 +6107,7 @@ static tng_function_status tng_data_block_contents_read
     {
         free(block->block_contents);
     }
-
+    
     block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
@@ -6146,7 +6146,6 @@ static tng_function_status tng_data_block_contents_read
     memcpy(&dependency, block->block_contents+offset,
            sizeof(dependency));
     offset += sizeof(dependency);
-
 
     if(dependency & TNG_FRAME_DEPENDENT)
     {
@@ -6280,7 +6279,7 @@ static tng_function_status tng_data_block_contents_read
         }
         offset += sizeof(block_n_particles);
     }
-
+    
     if (dependency & TNG_PARTICLE_DEPENDENT)
     {
         return(tng_particle_data_read(tng_data, block,
@@ -13753,6 +13752,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
     int64_t last_frame_pos;
     int size;
     tng_trajectory_frame_set_t frame_set;
+    tng_non_particle_data_t np_data;
     tng_gen_block_t block;
     void *current_values = 0, *temp;
     tng_function_status stat;
@@ -13804,6 +13804,12 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                     file_pos, __FILE__, __LINE__);
             return(stat);
         }
+    }
+
+    stat = tng_data_find(tng_data, block_id, &np_data);
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
     }
 
     stat = tng_data_vector_get(tng_data, block_id, &current_values,
@@ -14560,6 +14566,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
     int64_t file_pos, current_frame_pos, last_frame_pos, data_size, frame_size;
     int size;
     tng_trajectory_frame_set_t frame_set;
+    tng_particle_data_t p_data;
     tng_gen_block_t block;
     void *current_values = 0, *temp;
     tng_function_status stat;
@@ -14580,7 +14587,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
     {
         return(stat);
     }
-
+    
     /* Do not re-read the frame set. */
     if(first_frame != frame_set->first_frame ||
        frame_set->n_particle_data_blocks <= 0)
@@ -14594,7 +14601,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
             block->id != TNG_TRAJECTORY_FRAME_SET)
         {
             stat = tng_block_read_next(tng_data, block,
-                                    hash_mode);
+                                       hash_mode);
             if(stat != TNG_CRITICAL)
             {
                 file_pos = ftell(tng_data->input_file);
@@ -14612,7 +14619,12 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
             return(stat);
         }
     }
-
+    stat = tng_particle_data_find(tng_data, block_id, &p_data);
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+    
     stat = tng_particle_data_vector_get(tng_data, block_id, &current_values,
                                         &n_frames, stride_length, n_particles,
                                         n_values_per_frame, type);
@@ -14689,9 +14701,6 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                        last_frame_pos / *stride_length;
         n_frames_div_2 = tng_max_i64(1, n_frames_div_2 + 1);
 
-/*        printf("TNG library: current_frame_pos: %"PRId64", n_frames_div: %"PRId64", n_frames_div_2: %"PRId64"\n",
-               current_frame_pos, n_frames_div, n_frames_div_2);
-*/
         memcpy(*values, (char *)current_values + n_frames_div * frame_size,
                n_frames_div_2 * frame_size);
 
