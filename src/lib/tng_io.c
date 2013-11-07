@@ -3950,7 +3950,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
                 {
                     dest = tng_compress_vel_float(start_pos, (int)n_particles,
                                                   (int)n_frames, (float)0.001, 0,
-                                                  tng_data->compress_algo_pos,
+                                                  tng_data->compress_algo_vel,
                                                   &new_len);
                 }
             }
@@ -3966,7 +3966,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
                 {
                     dest = tng_compress_vel(start_pos, (int)n_particles,
                                             (int)n_frames, 0.001, 0,
-                                            tng_data->compress_algo_pos,
+                                            tng_data->compress_algo_vel,
                                             &new_len);
                 }
             }
@@ -4053,7 +4053,6 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
 
     if(type == TNG_FLOAT_DATA)
     {
-        printf("TNG library: test! Uncompressed len: %"PRId64"\n", uncompressed_len);
         f_dest = malloc(uncompressed_len);
         if(!f_dest)
         {
@@ -6107,7 +6106,7 @@ static tng_function_status tng_data_block_contents_read
     {
         free(block->block_contents);
     }
-    
+
     block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
@@ -6279,7 +6278,7 @@ static tng_function_status tng_data_block_contents_read
         }
         offset += sizeof(block_n_particles);
     }
-    
+
     if (dependency & TNG_PARTICLE_DEPENDENT)
     {
         return(tng_particle_data_read(tng_data, block,
@@ -7346,7 +7345,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_bond_add
                __FILE__, __LINE__);
         return(stat);
     }
-    
+
     for(i = 0; i < molecule->n_bonds; i++)
     {
         *bond = &molecule->bonds[i];
@@ -7357,7 +7356,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_bond_add
             return(TNG_SUCCESS);
         }
     }
-    
+
     new_bonds = realloc(molecule->bonds,
                         sizeof(struct tng_bond) *
                         (molecule->n_bonds + 1));
@@ -7376,12 +7375,12 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_bond_add
     molecule->bonds = new_bonds;
 
     *bond = &new_bonds[molecule->n_bonds];
-    
+
     (*bond)->from_atom_id = from_atom_id;
     (*bond)->to_atom_id = to_atom_id;
-    
+
     molecule->n_bonds++;
-    
+
     return(TNG_SUCCESS);
 }
 
@@ -14587,7 +14586,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
     {
         return(stat);
     }
-    
+
     /* Do not re-read the frame set. */
     if(first_frame != frame_set->first_frame ||
        frame_set->n_particle_data_blocks <= 0)
@@ -14624,7 +14623,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
     {
         return(stat);
     }
-    
+
     stat = tng_particle_data_vector_get(tng_data, block_id, &current_values,
                                         &n_frames, stride_length, n_particles,
                                         n_values_per_frame, type);
