@@ -953,6 +953,19 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_get
                  int64_t *n);
 
 /**
+ * @brief Set the number of particles, in the case no molecular system is used.
+ * @param tng_data is the trajectory of which to get the number of particles.
+ * @param n is the number of particles to use.
+ * @details When creating a molecular system the number of particles are set
+ * automatically. This should only be used when there is no molecular system
+ * specified or if the number of atoms needs to be overridden for some reason.
+ * @return TNG_SUCCESS (0) if succesful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
+                (tng_trajectory_t tng_data,
+                 const int64_t n);
+
+/**
  * @brief Get the current number of particles.
  * @param tng_data is the trajectory from which to get the number of particles.
  * @param n is pointing to a value set to the number of particles.

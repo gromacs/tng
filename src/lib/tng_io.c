@@ -10040,9 +10040,18 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_get
     return(TNG_SUCCESS);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
+                (tng_trajectory_t tng_data,
+                 const int64_t n)
+{
+    tng_data->n_molecules = n;
+
+    return(TNG_SUCCESS);
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_num_particles_get
-                    (const tng_trajectory_t tng_data,
-                     int64_t *n)
+                (const tng_trajectory_t tng_data,
+                 int64_t *n)
 {
     tng_function_status stat;
 
