@@ -56,6 +56,7 @@
  *
  * @section install_sec Installation
  *
+ * \code
  * mkdir build
  *
  * cd build
@@ -64,9 +65,12 @@
  *
  * make
  *
+ * make install
+ * \endcode
  * Test by running:
- *
+ * \code
  * bin/tests/tng_testing
+ * \endcode
  *
  * @section change_sec Change Log
  *
@@ -75,6 +79,7 @@
  * Revisions
  *
  * v. 1.4 - Changed from LGPL to the Revised BSD License.
+ *
  *        - More flexible support for digital signatures in header.
  *        - Block ID numbers changed.
  *
@@ -543,6 +548,7 @@ extern "C"
 /**
  * @brief Setup a trajectory data container.
  * @param tng_data_p a pointer to memory to initialise as a trajectory.
+ * @pre tng_data_p must not be pointing at a reserved memory block.
  * @details Memory is allocated during initialisation.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
@@ -568,6 +574,9 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy
  * end of the parallel block.
  * @param src the original trajectory.
  * @param dest_p a pointer to memory to initialise as a trajectory.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre tng_data_p must not be pointing at a reserved memory block.
  * @details Memory is allocated during initialisation.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
@@ -582,6 +591,10 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src
  * memory must be allocated before.
  * @param max_len maximum char length of the string, i.e. how much memory has
  * been reserved for file_name. This includes \0 terminating character.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code file_name != 0 \endcode The pointer to the file name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred (source string longer than destination string).
  */
@@ -593,6 +606,10 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_get
  * @brief Set the name of the input file.
  * @param tng_data the trajectory of which to set the input file name.
  * @param file_name the name of the input file.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code file_name != 0 \endcode The pointer to the file name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -607,6 +624,10 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_set
  * memory must be allocated before.
  * @param max_len maximum char length of the string, i.e. how much memory has
  * been reserved for file_name. This includes \0 terminating character.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code file_name != 0 \endcode The pointer to the file name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred (source string longer than destination string).
  */
@@ -618,6 +639,10 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_get
  * @brief Set the name of the output file.
  * @param tng_data the trajectory of which to set the output file name.
  * @param file_name the name of the output file.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code file_name != 0 \endcode The pointer to the file name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -630,6 +655,10 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_set
  * @param tng_data the trajectory of which to get the endianness of the current
  * output file.
  * @param endianness will contain the enumeration of the endianness.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code endianness != 0 \endcode The pointer to the endianness container
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the endianness
  * could not be retrieved.
  */
@@ -642,6 +671,8 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_endianness_get
  * output file.
  * @param endianness the enumeration of the endianness, can be either
  * TNG_BIG_ENDIAN (0) or TNG_LITTLE_ENDIAN (1).
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @details The endianness cannot be changed after file output has started.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if the endianness
  * could not be set.
@@ -657,6 +688,10 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_endianness_set
  * memory must be allocated before.
  * @param max_len maximum char length of the string, i.e. how much memory has
  * been reserved for name. This includes \0 terminating character.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred (source string longer than destination string).
  */
@@ -668,6 +703,10 @@ tng_function_status DECLSPECDLLEXPORT tng_first_program_name_get
  * @brief Set the name of the program used when creating the trajectory.
  * @param tng_data the trajectory of which to set the program name.
  * @param new_name is a string containing the wanted name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code new_name != 0 \endcode The pointer to the new_name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -682,6 +721,10 @@ tng_function_status DECLSPECDLLEXPORT tng_first_program_name_set
  * memory must be allocated before.
  * @param max_len maximum char length of the string, i.e. how much memory has
  * been reserved for name. This includes \0 terminating character.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred (source string longer than destination string).
  */
@@ -693,6 +736,10 @@ tng_function_status DECLSPECDLLEXPORT tng_last_program_name_get
  * @brief Set the name of the program used when last modifying the trajectory.
  * @param tng_data the trajectory of which to set the program name.
  * @param new_name is a string containing the wanted name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code new_name != 0 \endcode The pointer to the new_name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -707,6 +754,10 @@ tng_function_status DECLSPECDLLEXPORT tng_last_program_name_set
  * memory must be allocated before.
  * @param max_len maximum char length of the string, i.e. how much memory has
  * been reserved for name. This includes \0 terminating character.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred (source string longer than destination string).
  */
@@ -718,6 +769,10 @@ tng_function_status DECLSPECDLLEXPORT tng_first_user_name_get
  * @brief Set the name of the user who created the trajectory.
  * @param tng_data the trajectory of which to set the user name.
  * @param new_name is a string containing the wanted name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code new_name != 0 \endcode The pointer to the new_name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -732,6 +787,10 @@ tng_function_status DECLSPECDLLEXPORT tng_first_user_name_set
  * memory must be allocated before.
  * @param max_len maximum char length of the string, i.e. how much memory has
  * been reserved for name. This includes \0 terminating character.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred (source string longer than destination string).
  */
@@ -743,6 +802,10 @@ tng_function_status DECLSPECDLLEXPORT tng_last_user_name_get
  * @brief Set the name of the user who last modified the trajectory.
  * @param tng_data the trajectory of which to set the user name.
  * @param new_name is a string containing the wanted name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code new_name != 0 \endcode The pointer to the new_name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -757,6 +820,10 @@ tng_function_status DECLSPECDLLEXPORT tng_last_user_name_set
  * memory must be allocated before.
  * @param max_len maximum char length of the string, i.e. how much memory has
  * been reserved for name. This includes \0 terminating character.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred (source string longer than destination string).
  */
@@ -768,6 +835,10 @@ tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_get
  * @brief Set the name of the computer used when creating the trajectory.
  * @param tng_data the trajectory of which to set the computer name.
  * @param new_name is a string containing the wanted name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code new_name != 0 \endcode The pointer to the new_name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -782,6 +853,10 @@ tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_set
  * memory must be allocated before.
  * @param max_len maximum char length of the string, i.e. how much memory has
  * been reserved for name. This includes \0 terminating character.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred (source string longer than destination string).
  */
@@ -793,6 +868,10 @@ tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_get
  * @brief Set the name of the computer used when last modifying the trajectory.
  * @param tng_data the trajectory of which to set the computer name.
  * @param new_name is a string containing the wanted name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code new_name != 0 \endcode The pointer to the new_name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -807,6 +886,10 @@ tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_set
  * memory must be allocated before.
  * @param max_len maximum char length of the string, i.e. how much memory has
  * been reserved for name. This includes \0 terminating character.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code signature != 0 \endcode The pointer to the signature
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred (source string longer than destination string).
  */
@@ -818,6 +901,10 @@ tng_function_status DECLSPECDLLEXPORT tng_first_signature_get
  * @brief Set the pgp_signature of the user creating the trajectory.
  * @param tng_data the trajectory of which to set the computer name.
  * @param signature is a string containing the pgp_signature.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code signature != 0 \endcode The pointer to the signature
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -832,6 +919,10 @@ tng_function_status DECLSPECDLLEXPORT tng_first_signature_set
  * memory must be allocated before.
  * @param max_len maximum char length of the string, i.e. how much memory has
  * been reserved for name. This includes \0 terminating character.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code signature != 0 \endcode The pointer to the signature
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred (source string longer than destination string).
  */
@@ -843,6 +934,10 @@ tng_function_status DECLSPECDLLEXPORT tng_last_signature_get
  * @brief Set the pgp_signature of the user last modifying the trajectory.
  * @param tng_data the trajectory of which to set the computer name.
  * @param signature is a string containing the pgp_signature.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code signature != 0 \endcode The pointer to the signature
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -857,6 +952,10 @@ tng_function_status DECLSPECDLLEXPORT tng_last_signature_set
  * memory must be allocated before.
  * @param max_len maximum char length of the string, i.e. how much memory has
  * been reserved for name. This includes \0 terminating character.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred (source string longer than destination string).
  */
@@ -868,6 +967,10 @@ tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_get
  * @brief Set the name of the forcefield used in the trajectory.
  * @param tng_data the trajectory of which to set the forcefield name.
  * @param new_name is a string containing the wanted name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code new_name != 0 \endcode The pointer to the new_name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -879,6 +982,9 @@ tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_set
  * @brief Get the medium stride length of the trajectory.
  * @param tng_data is the trajectory from which to get the stride length.
  * @param len is pointing to a value set to the stride length.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code len != 0 \endcode The pointer to len must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_medium_stride_length_get
@@ -889,6 +995,8 @@ tng_function_status DECLSPECDLLEXPORT tng_medium_stride_length_get
  * @brief Set the medium stride length of the trajectory.
  * @param tng_data is the trajectory of which to set the stride length.
  * @param len is the wanted medium stride length.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred.
  */
@@ -900,6 +1008,9 @@ tng_function_status DECLSPECDLLEXPORT tng_medium_stride_length_set
  * @brief Get the long stride length of the trajectory.
  * @param tng_data is the trajectory from which to get the stride length.
  * @param len is pointing to a value set to the stride length.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code len != 0 \endcode The pointer to len must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_get
@@ -910,6 +1021,8 @@ tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_get
  * @brief Set the long stride length of the trajectory.
  * @param tng_data is the trajectory of which to set the stride length.
  * @param len is the wanted long stride length.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred.
  */
@@ -921,6 +1034,9 @@ tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_set
  * @brief Get the current time per frame of the trajectory.
  * @param tng_data is the trajectory from which to get the time per frame.
  * @param time is pointing to a value set to the time per frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code time != 0 \endcode The pointer to time must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_get
@@ -931,6 +1047,9 @@ tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_get
  * @brief Set the time per frame of the trajectory.
  * @param tng_data is the trajectory of which to set the time per frame.
  * @param time is the new time per frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code time > 0 \endcode The time per frame must be >= 0.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred.
  */
@@ -942,6 +1061,9 @@ tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_set
  * @brief Get the length of the input file.
  * @param tng_data is the trajectory from which to get the input file length.
  * @param len is pointing to a value set to the file length.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code len != 0 \endcode The pointer to len must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_input_file_len_get
@@ -952,6 +1074,9 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_len_get
  * @brief Get the number of frames in the trajectory
  * @param tng_data the trajectory of which to get the number of frames.
  * @param n is pointing to a value set to the number of frames.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred (could not find last frame set).
  */
@@ -963,6 +1088,8 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_get
  * @brief Set the number of particles, in the case no molecular system is used.
  * @param tng_data is the trajectory of which to get the number of particles.
  * @param n is the number of particles to use.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @details When creating a molecular system the number of particles are set
  * automatically. This should only be used when there is no molecular system
  * specified or if the number of atoms needs to be overridden for some reason.
@@ -976,6 +1103,9 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
  * @brief Get the current number of particles.
  * @param tng_data is the trajectory from which to get the number of particles.
  * @param n is pointing to a value set to the number of particles.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
  * @details If variable number of particles are used this function will return
  * the number of particles in the current frame set.
  * @return TNG_SUCCESS (0) if successful.
@@ -988,6 +1118,9 @@ tng_function_status DECLSPECDLLEXPORT tng_num_particles_get
  * @brief Get the current total number of molecules.
  * @param tng_data is the trajectory from which to get the number of molecules.
  * @param n is pointing to a value set to the number of molecules.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
  * @details If variable number of particles are used this function will return
  * the total number of molecules in the current frame set.
  * @return TNG_SUCCESS (0) if successful.
@@ -1001,17 +1134,22 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
  * @param mol_cnt_list is a list of the count of each molecule in the
  * mol system. This is a pointer to the list in the TNG container, which
  * means that it should be handled carefully.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE(1) if the list of
  * molecule counts was not valid.
  */
 tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_list_get
                 (const tng_trajectory_t tng_data,
-                 int64_t **mol_cnt_list);
+                 int64_t *mol_cnt_list);
 
 /**
  * @brief Get the exponential used for distances in the trajectory.
  * @param tng_data is the trajectory from which to get the information.
  * @param exp is pointing to a value set to the distance unit exponential.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code exp != 0 \endcode The pointer to exp must not be a NULL pointer.
  * @details Example: If the distances are specified in nm (default) exp is -9.
  * If the distances are specified in Å exp is -10.
  * @return TNG_SUCCESS (0) if successful.
@@ -1024,6 +1162,8 @@ tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_get
  * @brief Set the exponential used for distances in the trajectory.
  * @param tng_data is the trajectory of which to set the unit exponential.
  * @param exp is the distance unit exponential to use.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @details Example: If the distances are specified in nm (default) exp is -9.
  * If the distances are specified in Å exp is -10.
  * @return TNG_SUCCESS (0) if successful.
@@ -1036,6 +1176,9 @@ tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_set
  * @brief Get the number of frames per frame set.
  * @param tng_data is the trajectory from which to get the number of frames
  * per frame set.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
  * @param n is pointing to a value set to the number of frames per frame set.
  * @return TNG_SUCCESS (0) if successful.
  */
@@ -1048,6 +1191,8 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_per_frame_set_get
  * @param tng_data is the trajectory of which to set the number of frames
  * per frame set.
  * @param n is the number of frames per frame set.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @details This does not affect already existing frame sets. For
  * consistency the number of frames per frame set should be set
  * betfore creating any frame sets.
@@ -1062,6 +1207,9 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_per_frame_set_set
  * @details This updates tng_data->n_trajectory_frame_sets before returning it.
  * @param tng_data is the trajectory from which to get the number of frame sets.
  * @param n is pointing to a value set to the number of frame sets.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1074,6 +1222,8 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
  * @param tng_data is the trajectory from which to get the frame set.
  * @param frame_set_p will be set to point at the memory position of
  * the found frame set.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_current_frame_set_get
@@ -1084,6 +1234,9 @@ tng_function_status DECLSPECDLLEXPORT tng_current_frame_set_get
  * @brief Find the requested frame set number.
  * @param tng_data is the trajectory from which to get the frame set.
  * @param nr is the frame set number to search for.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code nr >= 0 \endcode The frame set number (nr) must be >= 0.
  * @details tng_data->current_trajectory_frame_set will contain the
  * found trajectory if successful.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -1097,6 +1250,9 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
  * @brief Find the frame set containing a specific frame.
  * @param tng_data is the trajectory from which to get the frame set.
  * @param frame is the frame number to search for.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame >= 0 \endcode The frame number must be >= 0.
  * @details tng_data->current_trajectory_frame_set will contain the
  * found trajectory if successful.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -1112,6 +1268,9 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
  * @param frame_set is the frame set of which to get the position of the
  * following frame set.
  * @param pos is pointing to a value set to the file position.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code pos != 0 \endcode The pointer to pos must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_next_frame_set_file_pos_get
@@ -1125,6 +1284,9 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_next_frame_set_file_pos_get
  * @param frame_set is the frame set of which to get the position of the
  * previous frame set.
  * @param pos is pointing to a value set to the file position.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code pos != 0 \endcode The pointer to pos must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_prev_frame_set_file_pos_get
@@ -1138,6 +1300,12 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_prev_frame_set_file_pos_get
  * @param frame_set is the frame set of which to get the frame range.
  * @param first_frame is set to the first frame of the frame set.
  * @param last_frame is set to the last frame of the frame set.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code first_frame != 0 \endcode The pointer to first_frame must
+ * not be a NULL pointer.
+ * @pre \code last_frame != 0 \endcode The pointer to last_frame must
+ * not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_frame_range_get
@@ -1175,6 +1343,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_destroy
  * @param tng_data is the trajectory data container containing the block..
  * @param name is a pointer to the string containing the name of the new molecule.
  * @param molecule is a pointer to the newly created molecule.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
  * not be set properly or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1189,6 +1361,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_add
  * @param name is a pointer to the string containing the name of the new molecule.
  * @param id is the ID of the created molecule.
  * @param molecule is a pointer to the newly created molecule.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
  * not be set properly or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1203,6 +1379,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
  * @param tng_data is the trajectory data container containing the molecule..
  * @param molecule is the molecule to rename.
  * @param new_name is a string containing the wanted name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code new_name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -1216,6 +1396,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_set
  * @param tng_data is the trajectory data container containing the molecule..
  * @param molecule is the molecule of which to get the count.
  * @param cnt is a pointer to the variable to be populated with the count.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code cnt != 0 \endcode The pointer to the molecule count
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1229,6 +1413,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_get
  * @param tng_data is the trajectory data container containing the molecule..
  * @param molecule is the molecule of which to set the count.
  * @param cnt is the number of instances of this molecule.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1245,6 +1431,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set
  * @param id is the id of the molecule to look for. If id is -1 only the name of
  * the molecule will be used for finding the molecule.
  * @param molecule is a pointer to the molecule if it was found - otherwise 0.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if the molecule is found or TNG_FAILURE (1) if the
  * molecule is not found.
  * @details If name is an empty string and id is -1 the first molecule will be
@@ -1265,6 +1455,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_find
  * @param id is the id of the chain to look for. If id is -1 only the name of
  * the chain will be used for finding the chain.
  * @param chain is a pointer to the chain if it was found - otherwise 0.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if the chain is found or TNG_FAILURE (1) if the
  * chain is not found.
  * @details If name is an empty string and id is -1 the first chain will be
@@ -1283,6 +1477,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
  * @param molecule is the molecule to add a chain to.
  * @param name is a string containing the name of the chain.
  * @param chain is a pointer to the newly created chain.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
  * not be set properly or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1299,6 +1497,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_add
  * @param name is a string containing the name of the chain.
  * @param id is the ID of the created chain.
  * @param chain is a pointer to the newly created chain.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
  * not be set properly or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1316,6 +1518,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
  * @param from_atom_id is the id of one of the two atoms in the bond.
  * @param to_atom_id is the id of the other atom in the bond.
  * @param bond is a pointer to the newly created bond.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (!) if a minor error
  * has occured or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1331,6 +1535,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_bond_add
  * @param tng_data is the trajectory data container containing the atom..
  * @param chain is the chain to rename.
  * @param new_name is a string containing the wanted name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code new_name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -1347,6 +1555,10 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
  * @param id is the id of the residue to find. If id == -1 the first residue
  * that matches the specified name will be found.
  * @param residue is a pointer to the residue if it was found - otherwise 0.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if the residue is found or TNG_FAILURE (1) if the
  * residue is not found.
  * @details If name is an empty string the first residue will be found.
@@ -1364,6 +1576,10 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find
  * @param chain is the chain to add a residue to.
  * @param name is a string containing the name of the residue.
  * @param residue is a pointer to the newly created residue.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
  * not be set properly or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1380,6 +1596,10 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_add
  * @param name is a string containing the name of the residue.
  * @param id is the ID of the created residue.
  * @param residue is a pointer to the newly created residue.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
  * not be set properly or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1395,6 +1615,10 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
  * @param tng_data is the trajectory data container containing the residue.
  * @param residue is the residue to rename.
  * @param new_name is a string containing the wanted name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code new_name != 0 \endcode The new name to set (new_name) must
+ * not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -1410,6 +1634,12 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_set
  * @param atom_name is a string containing the name of the atom.
  * @param atom_type is a string containing the atom type of the atom.
  * @param atom is a pointer to the newly created atom.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code atom_name != 0 \endcode The pointer to the atom name string
+ * must not be a NULL pointer.
+ * @pre \code atom_type != 0 \endcode The pointer to the atom_type string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
  * not be set properly or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1428,6 +1658,12 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_add
  * @param atom_type is a string containing the atom type of the atom.
  * @param id is the ID of the created atom.
  * @param atom is a pointer to the newly created atom.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code atom_name != 0 \endcode The pointer to the atom name string
+ * must not be a NULL pointer.
+ * @pre \code atom_type != 0 \endcode The pointer to the atom_type string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the ID could
  * not be set properly or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1444,6 +1680,10 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
  * @param tng_data is the trajectory data container containing the atom.
  * @param atom is the atom to rename.
  * @param new_name is a string containing the wanted name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code new_name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -1457,6 +1697,10 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_name_set
  * @param tng_data is the trajectory data container containing the atom.
  * @param atom is the atom to change.
  * @param new_type is a string containing the atom type.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code new_type != 0 \endcode The pointer to the atom type string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -1472,6 +1716,10 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_type_set
  * @param name is a string, which is set to the name of the molecule. Memory
  * must be reserved beforehand.
  * @param max_len is the maximum length of name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
  * has occured.
  */
@@ -1486,6 +1734,9 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
  * @param tng_data is the trajectory data container containing the atom.
  * @param nr is the real number of the particle in the molecular system.
  * @param id is will be set to the id of the molecule.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code id != 0 \endcode The pointer to id must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
  * has occured.
  */
@@ -1504,6 +1755,14 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_id_of_particle_nr_get
  * (number of atom in mol system) in bonds.
  * @param to_atoms is a list (memory reserved by this function) of atoms
  * (number of atom in mol system) in bonds.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n_bonds != 0 \endcode The pointer to n_bonds must not be a
+ * NULL pointer.
+ * @pre \code from_atoms != 0 \endcode The pointer to from_atoms must not
+ * be a NULL pointer.
+ * @pre \code to_atoms != 0 \endcode The pointer to to_atoms must not
+ * be a NULL pointer.
  * @details The two lists of atoms use the same index, i.e. from_atoms[0]
  * and to_atoms[0] are linked with a bond. Since memory is reserved in
  * this function it must be freed afterwards.
@@ -1523,6 +1782,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molsystem_bonds_get
  * @param name is a string, which is set to the name of the chain. Memory
  * must be reserved beforehand.
  * @param max_len is the maximum length of name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
  * has occured.
  */
@@ -1539,6 +1802,10 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_of_particle_nr_get
  * @param name is a string, which is set to the name of the residue. Memory
  * must be reserved beforehand.
  * @param max_len is the maximum length of name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
  * has occured.
  */
@@ -1554,6 +1821,9 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
  * @param tng_data is the trajectory data container containing the atom.
  * @param nr is the real number of the particle in the molecular system.
  * @param id is a pointer to the variable, which will be set to the ID.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code id != 0 \endcode The pointer to id must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
  * has occured.
  */
@@ -1568,6 +1838,9 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_id_of_particle_nr_get
  * @param tng_data is the trajectory data container containing the atom.
  * @param nr is the real number of the particle in the molecular system.
  * @param id is a pointer to the variable, which will be set to the ID.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code id != 0 \endcode The pointer to id must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
  * has occured.
  */
@@ -1583,6 +1856,10 @@ tng_function_status DECLSPECDLLEXPORT tng_global_residue_id_of_particle_nr_get
  * @param name is a string, which is set to the name of the atom. Memory
  * must be reserved beforehand.
  * @param max_len is the maximum length of name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
  * has occured.
  */
@@ -1599,6 +1876,10 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_name_of_particle_nr_get
  * @param type is a string, which is set to the type of the atom. Memory
  * must be reserved beforehand.
  * @param max_len is the maximum length of type.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code type != 0 \endcode The pointer to the type string
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (!) if a minor error
  * has occured.
  */
@@ -1617,11 +1898,13 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_type_of_particle_nr_get
  * the mapping block.
  * @details The mapping information is added to the currently active frame set
  * of tng_data
- * @param first_particle_number is the first particle number of this mapping
+ * @param num_first_particle is the first particle number of this mapping
  * block.
  * @param n_particles is the number of particles in this mapping block.
  * @param mapping_table is a list of the real particle numbers (i.e. the numbers
  * used in the molecular system). The list is n_particles long.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @details mapping_table[0] is the real particle number of the first particle
  * in the following data blocks.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -1629,7 +1912,7 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_type_of_particle_nr_get
  */
 tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
                 (tng_trajectory_t tng_data,
-                 const int64_t first_particle_number,
+                 const int64_t num_first_particle,
                  const int64_t n_particles,
                  const int64_t *mapping_table);
 
@@ -1644,6 +1927,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
  * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
  * compared to the md5 hash of the read contents to ensure valid data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -1661,6 +1946,8 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_read
  * will be opened.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
  * If hash_mode == TNG_USE_HASH an md5 hash for each header block will be generated.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -1681,6 +1968,10 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
  * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
  * compared to the md5 hash of the read contents to ensure valid data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code block != 0 \endcode The block container (block) must be
+ * initialised before using it.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1699,6 +1990,8 @@ tng_function_status DECLSPECDLLEXPORT tng_block_read_next
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
  * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
  * compared to the md5 hash of the read contents to ensure valid data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1715,6 +2008,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next
  * opened.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
  * If hash_mode == TNG_USE_HASH an md5 hash for each header block will be generated.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1728,6 +2023,10 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_write
  * set.
  * @param first_frame is the first frame of the frame set.
  * @param n_frames is the number of frames in the frame set.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code first_frame >= 0 \endcode The first frame must not be negative.
+ * @pre \code n_frames >= 0 \endcode The number of frames must not be negative.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1744,6 +2043,12 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
  * @param first_frame is the first frame of the frame set.
  * @param n_frames is the number of frames in the frame set.
  * @param first_frame_time is the time stamp of the first frame (in seconds).
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code first_frame >= 0 \endcode The first frame must not be negative.
+ * @pre \code n_frames >= 0 \endcode The number of frames must not be negative.
+ * @pre \code first_frame_time >= 0 \endcode The time stamp of the first frame
+ * must not be negative.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1758,6 +2063,10 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new
  * @param tng_data is the trajectory containing the frame set.
  * @param first_frame_time is the time stamp of the first frame in the
  * frame set.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code first_frame_time >= 0 \endcode The time stamp of the first frame
+ * must not be negative.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_first_frame_time_set
@@ -1782,6 +2091,12 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_first_frame_time_set
  * data block
  * @param codec_id is the ID of the codec to compress the data.
  * @param new_data is an array of data values to add.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code block_name != 0 \endcode The pointer to the block name must
+ * not be a NULL pointer.
+ * @pre \code n_values_per_frame > 0 \endcode n_values_per_frame must be
+ * a positive integer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1813,11 +2128,20 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
  * for a box shape block)
  * @param stride_length is how many frames are between each entry in the
  * data block
- * @param first_particle_number is the number of the first particle stored
+ * @param num_first_particle is the number of the first particle stored
  * in this data block
  * @param n_particles is the number of particles stored in this data block
  * @param codec_id is the ID of the codec to compress the data.
  * @param new_data is an array of data values to add.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code block_name != 0 \endcode The pointer to the block name must
+ * not be a NULL pointer.
+ * @pre \code n_values_per_frame > 0 \endcode n_values_per_frame must be
+ * a positive integer.
+ * @pre \code num_first_particle >= 0 \endcode The number of the
+ * first particle must be >= 0.
+ * @pre \code n_particles >= 0 \endcode n_particles must be >= 0.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1830,7 +2154,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
                  int64_t n_frames,
                  const int64_t n_values_per_frame,
                  int64_t stride_length,
-                 const int64_t first_particle_number,
+                 const int64_t num_first_particle,
                  const int64_t n_particles,
                  const int64_t codec_id,
                  void *new_data);
@@ -1842,11 +2166,16 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
  * will be opened.
  * @param frame_nr is the index number of the frame to write.
  * @param block_id is the ID of the data block to write the data to.
- * @param data is an array of data to write. The length of the array should
+ * @param values is an array of data to write. The length of the array should
  * equal n_values_per_frame.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
  * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
  * compared to the md5 hash of the read contents to ensure valid data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code values != 0 \endcode The pointer to the values must not be a NULL
+ * pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1854,7 +2183,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const int64_t block_id,
-                 const void *data,
+                 const void *values,
                  const char hash_mode);
 
 /**
@@ -1868,11 +2197,19 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
  * @param val_first_particle is the number of the first particle in the data
  * array.
  * @param val_n_particles is the number of particles in the data array.
- * @param data is a 1D-array of data to write. The length of the array should
+ * @param values is a 1D-array of data to write. The length of the array should
  * equal n_particles * n_values_per_frame.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
  * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
  * compared to the md5 hash of the read contents to ensure valid data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code val_first_particle >= 0 \endcode The number of the
+ * first particle must be >= 0.
+ * @pre \code val_n_particles >= 0 \endcode The number of particles must be >= 0.
+ * @pre \code values != 0 \endcode The pointer to the values must not be a NULL
+ * pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
@@ -1882,7 +2219,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
                  const int64_t block_id,
                  const int64_t val_first_particle,
                  const int64_t val_n_particles,
-                 const void *data,
+                 const void *values,
                  const char hash_mode);
 
 /**
@@ -1935,6 +2272,14 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n_frames != 0 \endcode The pointer to the number of frames
+ * must not be a NULL pointer.
+ * @pre \code n_values_per_frame != 0 \endcode The pointer to the number of
+ * values per frame must not be a NULL pointer.
+ * @pre \code type != 0 \endcode The pointer to the data type must not
+ * be a NULL pointer.
  * @details This function is obsolete and only retained for compatibility. Use
  * tng_data_vector_get() instead.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -1963,6 +2308,16 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get(tng_trajectory_t tng_data,
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n_frames != 0 \endcode The pointer to the number of frames
+ * must not be a NULL pointer.
+ * @pre \code stride_length != 0 \endcode The pointer to the stride length
+ * must not be a NULL pointer.
+ * @pre \code n_values_per_frame != 0 \endcode The pointer to the number of
+ * values per frame must not be a NULL pointer.
+ * @pre \code type != 0 \endcode The pointer to the data type must not
+ * be a NULL pointer.
  * @details This does only work for numerical (int, float, double) data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
@@ -1995,6 +2350,14 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_get
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code start_frame_nr <= end_frame_nr \endcode The first frame must be before
+ * the last frame.
+ * @pre \code n_values_per_frame != 0 \endcode The pointer to the number of
+ * values per frame must not be a NULL pointer.
+ * @pre \code type != 0 \endcode The pointer to the data type must not
+ * be a NULL pointer.
  * @details This function is obsolete and only retained for compatibility. Use
  * tng_data_vector_interval_get() instead.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2031,6 +2394,16 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code start_frame_nr <= end_frame_nr \endcode The first frame must be before
+ * the last frame.
+ * @pre \code stride_length != 0 \endcode The pointer to the stride length
+ * must not be a NULL pointer.
+ * @pre \code n_values_per_frame != 0 \endcode The pointer to the number of
+ * values per frame must not be a NULL pointer.
+ * @pre \code type != 0 \endcode The pointer to the data type must not
+ * be a NULL pointer.
  * @details This does only work for numerical (int, float, double) data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
@@ -2067,6 +2440,16 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n_frames != 0 \endcode The pointer to the number of frames
+ * must not be a NULL pointer.
+ * @pre \code n_particles != 0 \endcode The pointer to the number of particles must
+ * not be a NULL pointer.
+ * @pre \code n_values_per_frame != 0 \endcode The pointer to the number of
+ * values per frame must not be a NULL pointer.
+ * @pre \code type != 0 \endcode The pointer to the data type must not
+ * be a NULL pointer.
  * @details This function is obsolete and only retained for compatibility. Use
  * tng_particle_data_vector_get() instead.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2103,6 +2486,16 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n_particles != 0 \endcode The pointer to the number of particles must
+ * not be a NULL pointer.
+ * @pre \code stride_length != 0 \endcode The pointer to the stride length
+ * must not be a NULL pointer.
+ * @pre \code n_values_per_frame != 0 \endcode The pointer to the number of
+ * values per frame must not be a NULL pointer.
+ * @pre \code type != 0 \endcode The pointer to the data type must not
+ * be a NULL pointer.
  * @details This does only work for numerical (int, float, double) data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
@@ -2141,6 +2534,18 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n_frames != 0 \endcode The pointer to the number of frames
+ * must not be a NULL pointer.
+ * @pre \code start_frame_nr <= end_frame_nr \endcode The first frame must be before
+ * the last frame.
+ * @pre \code n_particles != 0 \endcode The pointer to the number of particles must
+ * not be a NULL pointer.
+ * @pre \code n_values_per_frame != 0 \endcode The pointer to the number of
+ * values per frame must not be a NULL pointer.
+ * @pre \code type != 0 \endcode The pointer to the data type must not
+ * be a NULL pointer.
  * @details This function is obsolete and only retained for compatibility. Use
  * tng_particle_data_vector_interval_get() instead.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2184,6 +2589,18 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
  * @param n_values_per_frame is set to the number of values per frame in the data.
  * This is needed to properly reach and/or free the data afterwards.
  * @param type is set to the data type of the data in the array.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code start_frame_nr <= end_frame_nr \endcode The first frame must be before
+ * the last frame.
+ * @pre \code n_particles != 0 \endcode The pointer to the number of particles must
+ * not be a NULL pointer.
+ * @pre \code stride_length != 0 \endcode The pointer to the stride length
+ * must not be a NULL pointer.
+ * @pre \code n_values_per_frame != 0 \endcode The pointer to the number of
+ * values per frame must not be a NULL pointer.
+ * @pre \code type != 0 \endcode The pointer to the data type must not
+ * be a NULL pointer.
  * @details This does only work for numerical (int, float, double) data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
@@ -2200,10 +2617,15 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                  int64_t *n_values_per_frame,
                  char *type);
 
-/** @brief Get the date and time of initial file creation in ISO format (string).
- *  @param tng_data is a trajectory data container.
- *  @param time is a pointer to the string in which the date will be stored. Memory
-   must be reserved beforehand.
+/**
+ * @brief Get the date and time of initial file creation in ISO format (string).
+ * @param tng_data is a trajectory data container.
+ * @param time is a pointer to the string in which the date will be stored. Memory
+ * must be reserved beforehand.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code time != 0 \endcode The pointer to the time must not be a NULL
+ * pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_time_get_str
@@ -2225,6 +2647,10 @@ tng_function_status DECLSPECDLLEXPORT tng_time_get_str
  * 'w' or 'a' for reading, writing or appending respectively.
  * @param tng_data_p is a pointer to the opened trajectory. This must be
  * closed by the user.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code filename != 0 \endcode The pointer to the filename must not be a
+ * NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2248,6 +2674,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
  * @param tng_data is the trajectory containing the frame.
  * @param frame_nr is the frame number of which to get the time.
  * @param time is set to the time (in seconds) of the specified frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code time != 0 \endcode The pointer to the time must not be a
+ * NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE (1) if a
  * minor error has occured.
  */
@@ -2263,6 +2693,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
  * @param molecule_cnt_list will be pointing to the list of counts of each molecule
  * in the mol system.
  * @param mols pointing to the list of molecules in the mol system.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n_mols != 0 \endcode The pointer to the number of molecules must
+ * not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
@@ -2310,6 +2744,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
  * The variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code positions != 0 \endcode The pointer to the positions array
+ * must not be a NULL pointer.
+ * @pre \code stride_length != 0 \endcode The pointer to the stride length
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2329,6 +2769,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read
  * variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code velocities != 0 \endcode The pointer to the velocities array
+ * must not be a NULL pointer.
+ * @pre \code stride_length != 0 \endcode The pointer to the stride length
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2348,6 +2794,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read
  * variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code forces != 0 \endcode The pointer to the forces array
+ * must not be a NULL pointer.
+ * @pre \code stride_length != 0 \endcode The pointer to the stride length
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2367,6 +2819,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read
  * If the box shape is not modified during the trajectory, but as general data,
  * that will be returned instead.
  * @param stride_length will be set to the writing interval of the stored data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code box_shape != 0 \endcode The pointer to the box_shape array
+ * must not be a NULL pointer.
+ * @pre \code stride_length != 0 \endcode The pointer to the stride length
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2388,6 +2846,14 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
  * The variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code start_frame_nr <= end_frame_nr \endcode The first frame must be before
+ * the last frame.
+ * @pre \code positions != 0 \endcode The pointer to the positions array
+ * must not be a NULL pointer.
+ * @pre \code stride_length != 0 \endcode The pointer to the stride length
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2411,6 +2877,14 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read_range
  * variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code start_frame_nr <= end_frame_nr \endcode The first frame must be before
+ * the last frame.
+ * @pre \code velocities != 0 \endcode The pointer to the velocities array
+ * must not be a NULL pointer.
+ * @pre \code stride_length != 0 \endcode The pointer to the stride length
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2434,6 +2908,14 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read_range
  * variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code start_frame_nr <= end_frame_nr \endcode The first frame must be before
+ * the last frame.
+ * @pre \code forces != 0 \endcode The pointer to the forces array
+ * must not be a NULL pointer.
+ * @pre \code stride_length != 0 \endcode The pointer to the stride length
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2459,6 +2941,14 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
  * variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code start_frame_nr <= end_frame_nr \endcode The first frame must be before
+ * the last frame.
+ * @pre \code box_shape != 0 \endcode The pointer to the box_shape array
+ * must not be a NULL pointer.
+ * @pre \code stride_length != 0 \endcode The pointer to the stride length
+ * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
@@ -2479,12 +2969,18 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
  * data is particle dependent there will be n_values_per_frame stored per
  * particle each frame.
  * @param block_id is the ID of the block, of which to set the output interval.
- * @param block_name is a string that will be used as name of the block.
+ * @param block_name is a string that will be used as name of the block. Only
+ * required if the block did not exist, i.e. a new block is created.
  * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
  * data is not related to specific particles (e.g. box shape) or
  * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
- * positions).
+ * positions). Only required if the block did not exist, i.e. a new block is
+ * created.
  * @param compression is the compression routine to use when writing the data.
+ * Only required if the block did not exist, i.e. a new block is created.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code i >= 0 \endcode The writing interval must be >= 0.
  * @details n_values_per_frame, block_name, particle_dependency and
  * compression are only used if the data block did not exist before calling
  * this function, in which case it is created.
@@ -2511,12 +3007,18 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
  * data is particle dependent there will be n_values_per_frame stored per
  * particle each frame.
  * @param block_id is the ID of the block, of which to set the output interval.
- * @param block_name is a string that will be used as name of the block.
+ * @param block_name is a string that will be used as name of the block. Only
+ * required if the block did not exist, i.e. a new block is created.
  * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
  * data is not related to specific particles (e.g. box shape) or
  * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
- * positions).
+ * positions). Only required if the block did not exist, i.e. a new block is
+ * created.
  * @param compression is the compression routine to use when writing the data.
+ * Only required if the block did not exist, i.e. a new block is created.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code i >= 0 \endcode The writing interval must be >= 0.
  * @details n_values_per_frame, block_name, particle_dependency and
  * compression are only used if the data block did not exist before calling
  * this function, in which case it is created.
@@ -2543,12 +3045,15 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
  * data is particle dependent there will be n_values_per_frame stored per
  * particle each frame.
  * @param block_id is the ID of the block, of which to set the output interval.
- * @param block_name is a string that will be used as name of the block.
+ * @param block_name is a string that will be used as name of the block. Only
+ * required if the block did not exist, i.e. a new block is created.
  * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
  * data is not related to specific particles (e.g. box shape) or
  * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
- * positions).
+ * positions). Only required if the block did not exist, i.e. a new block is
+ * created.
  * @param compression is the compression routine to use when writing the data.
+ * Only required if the block did not exist, i.e. a new block is created.
  * @details n_values_per_frame, block_name, particle_dependency and
  * compression are only used if the data block did not exist before calling
  * this function, in which case it is created.
@@ -2573,6 +3078,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
  * @param tng_data is the trajectory to use.
  * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code i >= 0 \endcode The writing interval must be >= 0.
  * @details This function uses tng_util_generic_write_interval_set() and will
  * create a positions data block if none exists.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2589,6 +3097,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_interval_set
  * @param tng_data is the trajectory to use.
  * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code i >= 0 \endcode The writing interval must be >= 0.
  * @details This function uses tng_util_generic_write_interval_set() and will
  * create a positions data block if none exists.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2605,6 +3116,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_interval_double_set
  * @param tng_data is the trajectory to use.
  * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code i >= 0 \endcode The writing interval must be >= 0.
  * @details This function uses tng_util_generic_write_interval_set() and will
  * create a positions data block if none exists.
  * This function is replaced by the more correcly named
@@ -2623,6 +3137,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequency_set
  * @param tng_data is the trajectory to use.
  * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code i >= 0 \endcode The writing interval must be >= 0.
  * @details This function uses tng_util_generic_write_interval_set() and will
  * create a velocities data block if none exists.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2639,6 +3156,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_interval_set
  * @param tng_data is the trajectory to use.
  * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code i >= 0 \endcode The writing interval must be >= 0.
  * @details This function uses tng_util_generic_write_interval_set() and will
  * create a velocities data block if none exists.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2673,6 +3193,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_frequency_set
  * @param tng_data is the trajectory to use.
  * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code i >= 0 \endcode The writing interval must be >= 0.
  * @details This function uses tng_util_generic_write_interval_set() and will
  * create a forces data block if none exists.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2689,6 +3212,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write_interval_set
  * @param tng_data is the trajectory to use.
  * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code i >= 0 \endcode The writing interval must be >= 0.
  * @details This function uses tng_util_generic_write_interval_set() and will
  * create a forces data block if none exists.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2723,6 +3249,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write_frequency_set
  * @param tng_data is the trajectory to use.
  * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code i >= 0 \endcode The writing interval must be >= 0.
  * @details This function uses tng_util_generic_write_interval_set() and will
  * create a box shape data block if none exists.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2739,6 +3268,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_interval_set
  * @param tng_data is the trajectory to use.
  * @param i is the output interval, i.e. i == 10 means data written every 10th
  * frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code i >= 0 \endcode The writing interval must be >= 0.
  * @details This function uses tng_util_generic_write_interval_set() and will
  * create a box shape data block if none exists.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2778,12 +3310,20 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_frequency_set
  * data is particle dependent there will be n_values_per_frame stored per
  * particle each frame.
  * @param block_id is the ID of the block, of which to set the output interval.
- * @param block_name is a string that will be used as name of the block.
+ * @param block_name is a string that will be used as name of the block. Only
+ * required if the block did not exist, i.e. a new block is created.
  * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
  * data is not related to specific particles (e.g. box shape) or
  * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
- * positions).
+ * positions). Only required if the block did not exist, i.e. a new block is
+ * created.
  * @param compression is the compression routine to use when writing the data.
+ * Only required if the block did not exist, i.e. a new block is created.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code values != 0 \endcode The pointer to the values array must not
+ * be a NULL pointer.
  * @details n_values_per_frame, block_name, particle_dependency and
  * compression are only used if the data block did not exist before calling
  * this function, in which case it is created.
@@ -2816,12 +3356,20 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
  * data is particle dependent there will be n_values_per_frame stored per
  * particle each frame.
  * @param block_id is the ID of the block, of which to set the output interval.
- * @param block_name is a string that will be used as name of the block.
+ * @param block_name is a string that will be used as name of the block. Only
+ * required if the block did not exist, i.e. a new block is created.
  * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
  * data is not related to specific particles (e.g. box shape) or
  * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
- * positions).
+ * positions). Only required if the block did not exist, i.e. a new block is
+ * created.
  * @param compression is the compression routine to use when writing the data.
+ * Only required if the block did not exist, i.e. a new block is created.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code values != 0 \endcode The pointer to the values array must not
+ * be a NULL pointer.
  * @details n_values_per_frame, block_name, particle_dependency and
  * compression are only used if the data block did not exist before calling
  * this function, in which case it is created.
@@ -2848,6 +3396,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
  * @param frame_nr is the frame number of the data.
  * @param positions is a 1D array of data to add. The array should be of length
  * n_particles * 3.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code positions != 0 \endcode The pointer to the positions array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_write() and will
  * create a positions data block if none exists. Positions are stored as three
  * values per frame and compressed using TNG compression.
@@ -2870,6 +3423,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write
  * @param frame_nr is the frame number of the data.
  * @param positions is a 1D array of data to add. The array should be of length
  * n_particles * 3.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code positions != 0 \endcode The pointer to the positions array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_write() and will
  * create a positions data block if none exists. Positions are stored as three
  * values per frame and compressed using TNG compression.
@@ -2891,6 +3449,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_double_write
  * @param frame_nr is the frame number of the data.
  * @param velocities is a 1D array of data to add. The array should be of length
  * n_particles * 3.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code velocities != 0 \endcode The pointer to the velocities array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_write() and will
  * create a velocities data block if none exists. Velocities are stored as three
  * values per frame and compressed using TNG compression.
@@ -2913,6 +3476,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write
  * @param frame_nr is the frame number of the data.
  * @param velocities is a 1D array of data to add. The array should be of length
  * n_particles * 3.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code velocities != 0 \endcode The pointer to the velocities array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_write() and will
  * create a velocities data block if none exists. Velocities are stored as three
  * values per frame and compressed using TNG compression.
@@ -2934,6 +3502,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_double_write
  * @param frame_nr is the frame number of the data.
  * @param forces is a 1D array of data to add. The array should be of length
  * n_particles * 3.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code forces != 0 \endcode The pointer to the forces array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_write() and will
  * create a forces data block if none exists. Forces are stored as three
  * values per frame and compressed using gzip compression.
@@ -2956,6 +3529,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write
  * @param frame_nr is the frame number of the data.
  * @param forces is a 1D array of data to add. The array should be of length
  * n_particles * 3.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code forces != 0 \endcode The pointer to the forces array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_write() and will
  * create a forces data block if none exists. Forces are stored as three
  * values per frame and compressed using gzip compression.
@@ -2976,6 +3554,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_double_write
  * @param tng_data is the trajectory to use.
  * @param frame_nr is the frame number of the data.
  * @param box_shape is a 1D array of data to add. The array should be of length 9.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code box_shape != 0 \endcode The pointer to the box_shape array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_write() and will
  * create a box shape data block if none exists. Box shapes are stored as 9
  * values per frame and compressed using TNG compression.
@@ -2997,6 +3580,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write
  * @param tng_data is the trajectory to use.
  * @param frame_nr is the frame number of the data.
  * @param box_shape is a 1D array of data to add. The array should be of length 9.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code box_shape != 0 \endcode The pointer to the box_shape array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_write() and will
  * create a box shape data block if none exists. Box shapes are stored as 9
  * values per frame and compressed using TNG compression.
@@ -3026,12 +3614,21 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_double_write
  * data is particle dependent there will be n_values_per_frame stored per
  * particle each frame.
  * @param block_id is the ID of the block, of which to set the output interval.
- * @param block_name is a string that will be used as name of the block.
+ * @param block_name is a string that will be used as name of the block. Only
+ * required if the block did not exist, i.e. a new block is created.
  * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
  * data is not related to specific particles (e.g. box shape) or
  * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
- * positions).
+ * positions). Only required if the block did not exist, i.e. a new block is
+ * created.
  * @param compression is the compression routine to use when writing the data.
+ * Only required if the block did not exist, i.e. a new block is created.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code time >= 0 \endcode The time stamp must be >= 0.
+ * @pre \code values != 0 \endcode The pointer to the values array must not
+ * be a NULL pointer.
  * @details n_values_per_frame, block_name, particle_dependency and
  * compression are only used if the data block did not exist before calling
  * this function, in which case it is created.
@@ -3067,12 +3664,21 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_write
  * data is particle dependent there will be n_values_per_frame stored per
  * particle each frame.
  * @param block_id is the ID of the block, of which to set the output interval.
- * @param block_name is a string that will be used as name of the block.
+ * @param block_name is a string that will be used as name of the block. Only
+ * required if the block did not exist, i.e. a new block is created.
  * @param particle_dependency should be TNG_NON_PARTICLE_BLOCK_DATA (0) if the
  * data is not related to specific particles (e.g. box shape) or
  * TNG_PARTICLE_BLOCK_DATA (1) is it is related to specific particles (e.g.
- * positions).
+ * positions). Only required if the block did not exist, i.e. a new block is
+ * created.
  * @param compression is the compression routine to use when writing the data.
+ * Only required if the block did not exist, i.e. a new block is created.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code time >= 0 \endcode The time stamp must be >= 0.
+ * @pre \code values != 0 \endcode The pointer to the values array must not
+ * be a NULL pointer.
  * @details n_values_per_frame, block_name, particle_dependency and
  * compression are only used if the data block did not exist before calling
  * this function, in which case it is created.
@@ -3103,6 +3709,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_double_write
  * @param time is the time stamp of the frame (in seconds).
  * @param positions is a 1D array of data to add. The array should be of length
  * n_particles * 3.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code time >= 0 \endcode The time stamp must be >= 0.
+ * @pre \code positions != 0 \endcode The pointer to the positions array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_with_time_write() and will
  * create a positions data block if none exists. Positions are stored as three
  * values per frame and compressed using TNG compression.
@@ -3128,6 +3740,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
  * @param time is the time stamp of the frame (in seconds).
  * @param positions is a 1D array of data to add. The array should be of length
  * n_particles * 3.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code time >= 0 \endcode The time stamp must be >= 0.
+ * @pre \code positions != 0 \endcode The pointer to the positions array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_with_time_double_write() and will
  * create a positions data block if none exists. Positions are stored as three
  * values per frame and compressed using TNG compression.
@@ -3153,6 +3771,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_double_write
  * @param time is the time stamp of the frame (in seconds).
  * @param velocities is a 1D array of data to add. The array should be of length
  * n_particles * 3.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code time >= 0 \endcode The time stamp must be >= 0.
+ * @pre \code velocities != 0 \endcode The pointer to the velocities array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_with_time_write() and will
  * create a velocities data block if none exists. Velocities are stored as three
  * values per frame and compressed using TNG compression.
@@ -3178,6 +3802,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
  * @param time is the time stamp of the frame (in seconds).
  * @param velocities is a 1D array of data to add. The array should be of length
  * n_particles * 3.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code time >= 0 \endcode The time stamp must be >= 0.
+ * @pre \code velocities != 0 \endcode The pointer to the velocities array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_with_time_double_write() and will
  * create a velocities data block if none exists. Velocities are stored as three
  * values per frame and compressed using TNG compression.
@@ -3203,6 +3833,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_double_write
  * @param time is the time stamp of the frame (in seconds).
  * @param forces is a 1D array of data to add. The array should be of length
  * n_particles * 3.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code time >= 0 \endcode The time stamp must be >= 0.
+ * @pre \code forces != 0 \endcode The pointer to the forces array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_with_time_write() and will
  * create a forces data block if none exists. Forces are stored as three
  * values per frame and compressed using gzip compression.
@@ -3228,6 +3864,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
  * @param time is the time stamp of the frame (in seconds).
  * @param forces is a 1D array of data to add. The array should be of length
  * n_particles * 3.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code time >= 0 \endcode The time stamp must be >= 0.
+ * @pre \code forces != 0 \endcode The pointer to the forces array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_with_time_double_write() and will
  * create a forces data block if none exists. Forces are stored as three
  * values per frame and compressed using gzip compression.
@@ -3252,6 +3894,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_double_write
  * @param frame_nr is the frame number of the data.
  * @param time is the time stamp of the frame (in seconds).
  * @param box_shape is a 1D array of data to add. The array should be of length 9.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code time >= 0 \endcode The time stamp must be >= 0.
+ * @pre \code box_shape != 0 \endcode The pointer to the box_shape array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_with_time_write() and will
  * create a box shape data block if none exists. Box shapes are stored as 9
  * values per frame and compressed using TNG compression.
@@ -3276,6 +3924,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
  * @param frame_nr is the frame number of the data.
  * @param time is the time stamp of the frame (in seconds).
  * @param box_shape is a 1D array of data to add. The array should be of length 9.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code frame_nr >= 0 \endcode The frame number to write must be >= 0.
+ * @pre \code time >= 0 \endcode The time stamp must be >= 0.
+ * @pre \code box_shape != 0 \endcode The pointer to the box_shape array must not
+ * be a NULL pointer.
  * @details This function uses tng_util_generic_with_time_double_write() and will
  * create a box shape data block if none exists. Box shapes are stored as 9
  * values per frame and compressed using TNG compression.

@@ -6860,6 +6860,7 @@ tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
     (void)tng_data;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(new_name, "TNG library: new_name must not be a NULL pointer.");
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -6894,6 +6895,7 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
     (void)tng_data;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(new_type, "TNG library: new_type must not be a NULL pointer.");
 
     len = tng_min_i((int)strlen(new_type) + 1, TNG_MAX_STR_LEN);
 
@@ -6962,6 +6964,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_add
     tng_bool found_id = TNG_TRUE;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
     /* Find an unused ID */
     id = 0;
@@ -6996,6 +6999,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
     tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
     new_molecules = realloc(tng_data->molecules,
                             sizeof(struct tng_molecule) *
@@ -7063,6 +7067,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_set
     (void)tng_data;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(new_name, "TNG library: new_name must not be a NULL pointer.");
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -7097,6 +7102,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_get
     int64_t i, index = -1;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(cnt, "TNG library: cnt must not be a NULL pointer.");
 
     for(i = tng_data->n_molecules; i--;)
     {
@@ -7154,6 +7160,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_find
     int64_t i, n_molecules;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
     n_molecules = tng_data->n_molecules;
 
@@ -7185,6 +7192,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
     (void)tng_data;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
     n_chains = molecule->n_chains;
 
@@ -7211,6 +7219,9 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_add
                  const char *name,
                  tng_chain_t *chain)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
+
     return(tng_molecule_chain_w_id_add(tng_data, molecule, name,
                                        molecule->n_chains + 1, chain));
 }
@@ -7227,6 +7238,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
     tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
     new_chains = realloc(molecule->chains,
                          sizeof(struct tng_chain) *
@@ -7329,6 +7341,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
     (void)tng_data;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(new_name, "TNG library: new_name must not be a NULL pointer.");
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -7366,6 +7379,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find
     (void)tng_data;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
     n_residues = chain->n_residues;
 
@@ -7392,6 +7406,9 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_add
                  const char *name,
                  tng_residue_t *residue)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
+
     return(tng_chain_residue_w_id_add(tng_data, chain, name,
                                       chain->n_residues + 1, residue));
 }
@@ -7409,6 +7426,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
     tng_function_status stat = TNG_SUCCESS;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
     if(chain->n_residues)
     {
@@ -7498,6 +7516,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_set(tng_trajectory_t tng_
     (void)tng_data;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(new_name, "TNG library: new_name must not be a NULL pointer");
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
 
@@ -7531,6 +7550,10 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_add
                  const char *atom_type,
                  tng_atom_t *atom)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(atom_name, "TNG library: atom_name must not be a NULL pointer.");
+    TNG_ASSERT(atom_type, "TNG library: atom_type must not be a NULL pointer.");
+
     return(tng_residue_atom_w_id_add(tng_data, residue, atom_name, atom_type,
                                      residue->chain->molecule->n_atoms + 1,
                                      atom));
@@ -7550,6 +7573,8 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
     tng_function_status stat = TNG_SUCCESS;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(atom_name, "TNG library: atom_name must not be a NULL pointer.");
+    TNG_ASSERT(atom_type, "TNG library: atom_type must not be a NULL pointer.");
 
     if(!residue->n_atoms)
     {
@@ -7690,8 +7715,9 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
     tng_bool found = TNG_FALSE;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7729,8 +7755,9 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_id_of_particle_nr_get
     tng_bool found = TNG_FALSE;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(id, "TNG library: id must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7765,8 +7792,11 @@ tng_function_status DECLSPECDLLEXPORT tng_molsystem_bonds_get
     tng_bond_t bond;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(n_bonds, "TNG library: n_bonds must not be a NULL pointer.");
+    TNG_ASSERT(from_atoms, "TNG library: from_atoms must not be a NULL pointer.");
+    TNG_ASSERT(to_atoms, "TNG library: to_atoms must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
 
     *n_bonds = 0;
     /* First count the total number of bonds to allocate memory */
@@ -7827,8 +7857,9 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_of_particle_nr_get
     tng_bool found = TNG_FALSE;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7873,8 +7904,9 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
     tng_bool found = TNG_FALSE;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7918,8 +7950,9 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_id_of_particle_nr_get
     tng_bool found = TNG_FALSE;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(id, "TNG library: id must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7958,8 +7991,9 @@ tng_function_status DECLSPECDLLEXPORT tng_global_residue_id_of_particle_nr_get
     tng_bool found = TNG_FALSE;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(id, "TNG library: id must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -8002,8 +8036,9 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_name_of_particle_nr_get
     tng_bool found = TNG_FALSE;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -8044,8 +8079,9 @@ tng_function_status tng_atom_type_of_particle_nr_get
     tng_bool found = TNG_FALSE;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(type, "TNG library: type must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -8697,7 +8733,6 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
     tng_trajectory_t dest;
 
     TNG_ASSERT(src != 0, "TNG library: Source trajectory must not be NULL.");
-    TNG_ASSERT(*dest_p == 0, "TNG library: Pointer to tng_trajectory_t must be NULL to initialise the trajectory");
 
     *dest_p = malloc(sizeof(struct tng_trajectory));
     if(!*dest_p)
@@ -9588,6 +9623,7 @@ tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_set
     tng_trajectory_frame_set_t frame_set;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(time >= 0, "TNG library: The time per frame must be >= 0.");
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
@@ -9701,7 +9737,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(n, "TNG library: n must not be a NULL pointer");
 
-    tng_molecule_cnt_list_get(tng_data, &cnt_list);
+    tng_molecule_cnt_list_get(tng_data, cnt_list);
 
     for(i = tng_data->n_molecules; i --;)
     {
@@ -9715,18 +9751,20 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_list_get
                 (const tng_trajectory_t tng_data,
-                 int64_t **mol_cnt_list)
+                 int64_t *mol_cnt_list)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+
     if(tng_data->var_num_atoms_flag)
     {
-        *mol_cnt_list = tng_data->current_trajectory_frame_set.
-                        molecule_cnt_list;
+        mol_cnt_list = tng_data->current_trajectory_frame_set.
+                       molecule_cnt_list;
     }
     else
     {
-        *mol_cnt_list = tng_data->molecule_cnt_list;
+        mol_cnt_list = tng_data->molecule_cnt_list;
     }
-    if(*mol_cnt_list == 0)
+    if(mol_cnt_list == 0)
     {
         return(TNG_FAILURE);
     }
@@ -9943,6 +9981,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
     tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(nr >= 0, "The frame set number (nr) must be >= 0");
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
@@ -10267,6 +10306,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
     tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(frame >= 0, "TNG library: frame must be >= 0.");
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
@@ -10770,8 +10810,9 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_read
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_file_headers_write(tng_trajectory_t tng_data,
-                                           const char hash_mode)
+tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
+                (tng_trajectory_t tng_data,
+                 const char hash_mode)
 {
     int i;
     tng_gen_block_t data_block;
@@ -10861,8 +10902,6 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next(tng_trajectory_t t
     tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
-    TNG_ASSERT(tng_data->first_trajectory_frame_set_input_file_pos || tng_data->current_trajectory_frame_set.next_frame_set_file_pos, "TNG library: pos must not be a NULL pointer");
-
 
     if(tng_input_file_init(tng_data) != TNG_SUCCESS)
     {
@@ -11049,8 +11088,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
     int64_t curr_pos;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
-    TNG_ASSERT(first_frame >= 0, "TNG library: first_frame must be positive.");
-    TNG_ASSERT(n_frames >= 0, "TNG library: n_frames must be positive.");
+    TNG_ASSERT(first_frame >= 0, "TNG library: first_frame must be >= 0.");
+    TNG_ASSERT(n_frames >= 0, "TNG library: n_frames must be >= 0.");
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
@@ -11249,9 +11288,9 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new
     tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
-    TNG_ASSERT(first_frame >= 0, "TNG library: first_frame must be positive.");
-    TNG_ASSERT(n_frames >= 0, "TNG library: n_frames must be positive.");
-    TNG_ASSERT(first_frame_time >= 0, "TNG library: first_frame_time must be positive.");
+    TNG_ASSERT(first_frame >= 0, "TNG library: first_frame must be >= 0.");
+    TNG_ASSERT(n_frames >= 0, "TNG library: n_frames must be >= 0.");
+    TNG_ASSERT(first_frame_time >= 0, "TNG library: first_frame_time must be >= 0.");
 
 
     stat = tng_frame_set_new(tng_data, first_frame, n_frames);
@@ -11269,7 +11308,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_first_frame_time_set
                  const double first_frame_time)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
-    TNG_ASSERT(first_frame_time >= 0, "TNG library: first_frame_time must be positive.");
+    TNG_ASSERT(first_frame_time >= 0, "TNG library: first_frame_time must be >= 0.");
 
     tng_data->current_trajectory_frame_set.first_frame_time = first_frame_time;
 
@@ -11296,8 +11335,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
     int64_t n_frames_div;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
-    TNG_ASSERT(block_name, "TNG library: block_name mustnot be a NULL pointer.");
-    TNG_ASSERT(n_frames > 0, "TNG library: n_frames must be a positive integer.");
+    TNG_ASSERT(block_name, "TNG library: block_name must not be a NULL pointer.");
     TNG_ASSERT(n_values_per_frame > 0, "TNG library: n_values_per_frame must be a positive integer.");
 
     frame_set = &tng_data->current_trajectory_frame_set;
@@ -11443,7 +11481,6 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(block_name, "TNG library: block_name mustnot be a NULL pointer.");
-    TNG_ASSERT(n_frames > 0, "TNG library: n_frames must be a positive integer.");
     TNG_ASSERT(n_values_per_frame > 0, "TNG library: n_values_per_frame must be a positive integer.");
     TNG_ASSERT(num_first_particle >= 0, "TNG library: num_first_particle must be >= 0.");
     TNG_ASSERT(n_particles >= 0, "TNG library: n_particles must be >= 0.");
@@ -14243,6 +14280,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
                  const char mode,
                  tng_trajectory_t *tng_data_p)
 {
+    TNG_ASSERT(filename, "TNG library: filename must not be a NULL pointer.");
+
     if(mode != 'r' && mode != 'w' && mode != 'a')
     {
         return(TNG_FAILURE);
@@ -14305,6 +14344,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
 {
     int64_t first_frame;
 
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(time, "TNG library: time must not be a NULL pointer");
 
     tng_trajectory_frame_set_t frame_set;
@@ -14340,6 +14380,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
     tng_trajectory_frame_set_t frame_set;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(n_mols, "TNG library: n_mols must not be a NULL pointer.");
 
     *n_mols = tng_data->n_molecules;
 
@@ -14489,6 +14530,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read
     char type;
     tng_function_status stat;
 
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(positions, "TNG library: positions must not be a NULL pointer");
     TNG_ASSERT(stride_length, "TNG library: stride_length must not be a NULL pointer");
 
     stat = tng_num_frames_get(tng_data, &n_frames);
@@ -14516,6 +14559,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read
     char type;
     tng_function_status stat;
 
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(velocities, "TNG library: velocities must not be a NULL pointer");
     TNG_ASSERT(stride_length, "TNG library: stride_length must not be a NULL pointer");
 
     stat = tng_num_frames_get(tng_data, &n_frames);
@@ -14543,6 +14588,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read
     char type;
     tng_function_status stat;
 
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(forces, "TNG library: forces must not be a NULL pointer");
     TNG_ASSERT(stride_length, "TNG library: stride_length must not be a NULL pointer");
 
     stat = tng_num_frames_get(tng_data, &n_frames);
@@ -14571,6 +14618,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
     char type;
     tng_function_status stat;
 
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(box_shape, "TNG library: box_shape must not be a NULL pointer");
     TNG_ASSERT(stride_length, "TNG library: stride_length must not be a NULL pointer");
 
     stat = tng_num_frames_get(tng_data, &n_frames);
@@ -14600,6 +14649,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read_range
     char type;
     tng_function_status stat;
 
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(positions, "TNG library: positions must not be a NULL pointer");
     TNG_ASSERT(first_frame <= last_frame, "TNG library: first_frame must be lower or equal to last_frame.");
     TNG_ASSERT(stride_length, "TNG library: stride_length must not be a NULL pointer");
 
@@ -14626,6 +14677,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read_range
     char type;
     tng_function_status stat;
 
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(velocities, "TNG library: velocities must not be a NULL pointer");
     TNG_ASSERT(first_frame <= last_frame, "TNG library: first_frame must be lower or equal to last_frame.");
     TNG_ASSERT(stride_length, "TNG library: stride_length must not be a NULL pointer");
 
@@ -14652,6 +14705,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
     char type;
     tng_function_status stat;
 
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(forces, "TNG library: forces must not be a NULL pointer");
     TNG_ASSERT(first_frame <= last_frame, "TNG library: first_frame must be lower or equal to last_frame.");
     TNG_ASSERT(stride_length, "TNG library: stride_length must not be a NULL pointer");
 
@@ -14678,6 +14733,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
     char type;
     tng_function_status stat;
 
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(box_shape, "TNG library: box_shape must not be a NULL pointer");
     TNG_ASSERT(first_frame <= last_frame, "TNG library: first_frame must be lower or equal to last_frame.");
     TNG_ASSERT(stride_length, "TNG library: stride_length must not be a NULL pointer");
 
@@ -14708,8 +14765,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
     tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
-    TNG_ASSERT(i > 0, "TNG library: i (writing interval) must be >= 0.");
-    TNG_ASSERT(block_name, "TNG library: block_name must not be a NULL pointer");
+    TNG_ASSERT(i >= 0, "TNG library: i (writing interval) must be >= 0.");
 
     if(i <= 0)
     {
@@ -14743,12 +14799,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
         != TNG_SUCCESS)
         {
             stat = tng_particle_data_block_add(tng_data, block_id,
-                                            block_name,
-                                            TNG_FLOAT_DATA,
-                                            TNG_TRAJECTORY_BLOCK,
-                                            n_frames, n_values_per_frame, i,
-                                            0, n_particles,
-                                            compression, 0);
+                                               block_name,
+                                               TNG_FLOAT_DATA,
+                                               TNG_TRAJECTORY_BLOCK,
+                                               n_frames, n_values_per_frame, i,
+                                               0, n_particles,
+                                               compression, 0);
             if(stat != TNG_SUCCESS)
             {
                 printf("TNG library: Error %s adding data block. %s: %d\n", block_name,
@@ -14769,7 +14825,19 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
         }
         else
         {
-            p_data->stride_length = i;
+            if(p_data->stride_length != i)
+            {
+                p_data->stride_length = i;
+                stat = tng_allocate_particle_data_mem(tng_data, p_data, n_frames,
+                                                      i, n_particles,
+                                                      n_values_per_frame);
+                if(stat != TNG_SUCCESS)
+                {
+                    printf("TNG library: Error allocating particle data memory. %s: %d\n",
+                           __FILE__, __LINE__);
+                    return(stat);
+                }
+            }
         }
     }
     else
@@ -14799,7 +14867,18 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
         }
         else
         {
-            np_data->stride_length = i;
+            if(np_data->stride_length != i)
+            {
+                np_data->stride_length = i;
+                stat = tng_allocate_data_mem(tng_data, np_data, n_frames,
+                                             i, n_values_per_frame);
+                if(stat != TNG_SUCCESS)
+                {
+                    printf("TNG library: Error allocating particle data memory. %s: %d\n",
+                           __FILE__, __LINE__);
+                    return(stat);
+                }
+            }
         }
     }
 
@@ -14822,8 +14901,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
     tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
-    TNG_ASSERT(i > 0, "TNG library: i (writing interval) must be >= 0.");
-    TNG_ASSERT(block_name, "TNG library: block_name must not be a NULL pointer");
+    TNG_ASSERT(i >= 0, "TNG library: i (writing interval) must be >= 0.");
 
     if(i <= 0)
     {
@@ -14940,6 +15018,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_interval_set
                 (tng_trajectory_t tng_data,
                  const int64_t i)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(i > 0, "TNG library: i (writing interval) must be >= 0.");
 
     return(tng_util_generic_write_interval_set(tng_data, i, 3,
@@ -14953,6 +15032,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_interval_double_set
                 (tng_trajectory_t tng_data,
                  const int64_t i)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(i > 0, "TNG library: i (writing interval) must be >= 0.");
 
     return(tng_util_generic_write_interval_double_set(tng_data, i, 3,
@@ -14975,6 +15055,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_interval_set
                 (tng_trajectory_t tng_data,
                  const int64_t i)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(i > 0, "TNG library: i (writing interval) must be >= 0.");
 
     return(tng_util_generic_write_interval_set(tng_data, i, 3,
@@ -14988,6 +15069,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_interval_double_set
                 (tng_trajectory_t tng_data,
                  const int64_t i)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(i > 0, "TNG library: i (writing interval) must be >= 0.");
 
     return(tng_util_generic_write_interval_double_set(tng_data, i, 3,
@@ -15010,6 +15092,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write_interval_set
                 (tng_trajectory_t tng_data,
                  const int64_t i)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(i > 0, "TNG library: i (writing interval) must be >= 0.");
 
     return(tng_util_generic_write_interval_set(tng_data, i, 3,
@@ -15023,6 +15106,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write_interval_double_set
                 (tng_trajectory_t tng_data,
                  const int64_t i)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(i > 0, "TNG library: i (writing interval) must be >= 0.");
 
     return(tng_util_generic_write_interval_double_set(tng_data, i, 3,
@@ -15045,6 +15129,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_interval_set
                 (tng_trajectory_t tng_data,
                  const int64_t i)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(i > 0, "TNG library: i (writing interval) must be >= 0.");
 
     return(tng_util_generic_write_interval_set(tng_data, i, 9,
@@ -15058,6 +15143,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_interval_double_s
                 (tng_trajectory_t tng_data,
                  const int64_t i)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(i > 0, "TNG library: i (writing interval) must be >= 0.");
 
     return(tng_util_generic_write_interval_double_set(tng_data, i, 9,
@@ -15096,7 +15182,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(values, "TNG library: values must not be a NULL pointer");
-    TNG_ASSERT(block_name, "TNG library: block_name must not be a NULL pointer");
 
     if(particle_dependency == TNG_PARTICLE_BLOCK_DATA)
     {
@@ -15162,13 +15247,13 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
         != TNG_SUCCESS)
         {
             stat = tng_particle_data_block_add(tng_data, block_id,
-                                            block_name,
-                                            TNG_FLOAT_DATA,
-                                            block_type_flag,
-                                            n_frames, n_values_per_frame,
-                                            stride_length,
-                                            0, n_particles,
-                                            compression, 0);
+                                               block_name,
+                                               TNG_FLOAT_DATA,
+                                               block_type_flag,
+                                               n_frames, n_values_per_frame,
+                                               stride_length,
+                                               0, n_particles,
+                                               compression, 0);
             if(stat != TNG_SUCCESS)
             {
                 printf("TNG library: Error %s adding data block. %s: %d\n", block_name,
@@ -15285,7 +15370,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(values, "TNG library: values must not be a NULL pointer");
-    TNG_ASSERT(block_name, "TNG library: block_name must not be a NULL pointer");
 
     if(particle_dependency == TNG_PARTICLE_BLOCK_DATA)
     {
@@ -15459,6 +15543,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write
                  const int64_t frame_nr,
                  const float *positions)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(positions, "TNG library: positions must not be a NULL pointer");
 
@@ -15473,6 +15558,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_double_write
                  const int64_t frame_nr,
                  const double *positions)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(positions, "TNG library: positions must not be a NULL pointer");
 
@@ -15487,6 +15573,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write
                  const int64_t frame_nr,
                  const float *velocities)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(velocities, "TNG library: velocities must not be a NULL pointer");
 
@@ -15501,6 +15588,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_double_write
                  const int64_t frame_nr,
                  const double *velocities)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(velocities, "TNG library: velocities must not be a NULL pointer");
 
@@ -15515,6 +15603,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write
                  const int64_t frame_nr,
                  const float *forces)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(forces, "TNG library: forces must not be a NULL pointer");
 
@@ -15529,6 +15618,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_double_write
                  const int64_t frame_nr,
                  const double *forces)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(forces, "TNG library: forces must not be a NULL pointer");
 
@@ -15543,6 +15633,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write
                  const int64_t frame_nr,
                  const float *box_shape)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(box_shape, "TNG library: box_shape must not be a NULL pointer");
 
@@ -15557,6 +15648,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_double_write
                  const int64_t frame_nr,
                  const double *box_shape)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(box_shape, "TNG library: box_shape must not be a NULL pointer");
 
@@ -15579,10 +15671,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_write
 {
     tng_function_status stat;
 
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(time >= 0, "TNG library: time must be >= 0.");
     TNG_ASSERT(values, "TNG library: values must not be a NULL pointer");
-    TNG_ASSERT(block_name, "TNG library: block_name must not be a NULL pointer");
 
     stat = tng_util_generic_write(tng_data, frame_nr, values, n_values_per_frame,
                                   block_id, block_name,
@@ -15613,10 +15705,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_double_write
 {
     tng_function_status stat;
 
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(time >= 0, "TNG library: time must be >= 0.");
     TNG_ASSERT(values, "TNG library: values must not be a NULL pointer");
-    TNG_ASSERT(block_name, "TNG library: block_name must not be a NULL pointer");
 
     stat = tng_util_generic_double_write(tng_data, frame_nr, values, n_values_per_frame,
                                          block_id, block_name,
@@ -15640,6 +15732,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
                  const double time,
                  const float *positions)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(time >= 0, "TNG library: time must be >= 0.");
     TNG_ASSERT(positions, "TNG library: positions must not be a NULL pointer");
@@ -15656,6 +15749,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_double_write
                  const double time,
                  const double *positions)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(time >= 0, "TNG library: time must be >= 0.");
     TNG_ASSERT(positions, "TNG library: positions must not be a NULL pointer");
@@ -15674,6 +15768,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
                  const double time,
                  const float *velocities)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(time >= 0, "TNG library: time must be >= 0.");
     TNG_ASSERT(velocities, "TNG library: velocities must not be a NULL pointer");
@@ -15692,6 +15787,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_double_write
                  const double time,
                  const double *velocities)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(time >= 0, "TNG library: time must be >= 0.");
     TNG_ASSERT(velocities, "TNG library: velocities must not be a NULL pointer");
@@ -15710,6 +15806,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
                  const double time,
                  const float *forces)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(time >= 0, "TNG library: time must be >= 0.");
     TNG_ASSERT(forces, "TNG library: forces must not be a NULL pointer");
@@ -15726,6 +15823,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_double_write
                  const double time,
                  const double *forces)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(time >= 0, "TNG library: time must be >= 0.");
     TNG_ASSERT(forces, "TNG library: forces must not be a NULL pointer");
@@ -15743,6 +15841,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
                  const double time,
                  const float *box_shape)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(time >= 0, "TNG library: time must be >= 0.");
     TNG_ASSERT(box_shape, "TNG library: box_shape must not be a NULL pointer");
@@ -15759,6 +15858,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_double_write
                  const double time,
                  const double *box_shape)
 {
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(frame_nr >= 0, "TNG library: frame_nr must be >= 0.");
     TNG_ASSERT(time >= 0, "TNG library: time must be >= 0.");
     TNG_ASSERT(box_shape, "TNG library: box_shape must not be a NULL pointer");
