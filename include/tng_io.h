@@ -344,9 +344,9 @@ typedef unsigned __int64 uint64_t;
 #define TNG_MAX_STR_LEN 1024
 
 #ifndef NDEBUG
-#define TNG_ASSERT(cnd, msg) if(!cnd) {printf("%s\n", msg); assert(cnd);}
+#define TNG_ASSERT(cnd, msg) if(!(cnd)) {printf("%s\n", msg); assert(cnd);}
 #else
-#define TNG_ASSERT(cnd, msg) ((void) 0)
+#define TNG_ASSERT(cnd, msg) (void)0;
 #endif
 
 /** Flag to specify the endianness of a TNG file */
@@ -966,7 +966,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_get
  * @details When creating a molecular system the number of particles are set
  * automatically. This should only be used when there is no molecular system
  * specified or if the number of atoms needs to be overridden for some reason.
- * @return TNG_SUCCESS (0) if succesful.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
                 (tng_trajectory_t tng_data,
@@ -1001,7 +1001,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
  * @param mol_cnt_list is a list of the count of each molecule in the
  * mol system. This is a pointer to the list in the TNG container, which
  * means that it should be handled carefully.
- * @return TNG_SUCCESS (0) if succesful or TNG_FAILURE(1) if the list of
+ * @return TNG_SUCCESS (0) if successful or TNG_FAILURE(1) if the list of
  * molecule counts was not valid.
  */
 tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_list_get
@@ -2260,22 +2260,16 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
  * @brief High-level function for getting the molecules in the mol system.
  * @param tng_data is the trajectory containing the mol system.
  * @param n_mols is set to the number of molecules in the system.
- * @param molecule_cnt_list will be a copy of the counts of each molecule
+ * @param molecule_cnt_list will be pointing to the list of counts of each molecule
  * in the mol system.
- * @param mols will be a list of copies of the molecules in the mol system.
- * @details Memory is reserved for molecule_cnt_list and mols in this function.
- * If the pointers do not point at already allocated memory they must be NULL
- * pointers so that new memory can be reserved. The memory of molecule_cnt_list
- * and mols must be freed afterwards.
- * mols will contain copies of the molecules in the mol system, but these
- * molecules still contain pointers to the actual atoms and residues etc., which
- * means that the data of the molecules should be handled with care.
+ * @param mols pointing to the list of molecules in the mol system.
+ * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
                 (tng_trajectory_t tng_data,
                  int64_t *n_mols,
-                 int64_t **molecule_cnt_list,
-                 tng_molecule_t **mols);
+                 int64_t *molecule_cnt_list,
+                 tng_molecule_t *mols);
 
 /*
 // tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
@@ -2313,6 +2307,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
  * @param positions will be set to point at a 1-dimensional array of floats,
  * which will contain the positions. The data is stored sequentially in order
  * of frames. For each frame the positions (x, y and z coordinates) are stored.
+ * The variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2330,7 +2325,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read
  * @param tng_data is the trajectory to read from.
  * @param velocities will be set to point at a 1-dimensional array of floats,
  * which will contain the velocities. The data is stored sequentially in order
- * of frames. For each frame the velocities (in x, y and z) are stored.
+ * of frames. For each frame the velocities (in x, y and z) are stored. The
+ * variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2348,7 +2344,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read
  * @param tng_data is the trajectory to read from.
  * @param forces will be set to point at a 1-dimensional array of floats,
  * which will contain the forces. The data is stored sequentially in order
- * of frames. For each frame the forces (in x, y and z) are stored.
+ * of frames. For each frame the forces (in x, y and z) are stored. The
+ * variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2365,7 +2362,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read
  * @param tng_data is the trajectory to read from.
  * @param box_shape will be set to point at a 1-dimensional array of floats,
  * which will contain the box shape. The data is stored sequentially in order
- * of frames. For each frame the box shape is stored as nine values.
+ * of frames. For each frame the box shape is stored as nine values. The
+ * variable may point at already allocated memory or be a NULL pointer.
  * If the box shape is not modified during the trajectory, but as general data,
  * that will be returned instead.
  * @param stride_length will be set to the writing interval of the stored data.
@@ -2387,6 +2385,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
  * @param positions will be set to point at a 1-dimensional array of floats,
  * which will contain the positions. The data is stored sequentially in order
  * of frames. For each frame the positions (x, y and z coordinates) are stored.
+ * The variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2408,7 +2407,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read_range
  * @param last_frame is the last frame to return position data from.
  * @param velocities will be set to point at a 1-dimensional array of floats,
  * which will contain the velocities. The data is stored sequentially in order
- * of frames. For each frame the velocities (in x, y and z) are stored.
+ * of frames. For each frame the velocities (in x, y and z) are stored. The
+ * variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2430,7 +2430,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read_range
  * @param last_frame is the last frame to return position data from.
  * @param forces will be set to point at a 1-dimensional array of floats,
  * which will contain the forces. The data is stored sequentially in order
- * of frames. For each frame the forces (in x, y and z) are stored.
+ * of frames. For each frame the forces (in x, y and z) are stored. The
+ * variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -2454,7 +2455,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
  * which will contain the box shape. The data is stored sequentially in order
  * of frames. For each frame the box shape is stored as nine values.
  * If the box shape is not modified during the trajectory, but as general data,
- * that will be returned instead.
+ * that will be returned instead. The
+ * variable may point at already allocated memory or be a NULL pointer.
+ * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
