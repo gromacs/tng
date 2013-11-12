@@ -642,14 +642,11 @@ static tng_function_status tng_md5_hash_match_verify(tng_gen_block_t block,
     md5_state_t md5_state;
     char hash[TNG_MD5_HASH_LEN];
 
-    if(block->block_contents_size == 0)
-    {
-        return(TNG_FAILURE);
-    }
+    TNG_ASSERT(block->block_contents_size > 0, "The block contents size must be > 0");
 
+    *results = TNG_TRUE;
     if(strncmp(block->md5_hash, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 16) == 0)
     {
-        *results = TNG_TRUE;
         return(TNG_FAILURE);
     }
     md5_init(&md5_state);
@@ -660,10 +657,6 @@ static tng_function_status tng_md5_hash_match_verify(tng_gen_block_t block,
     if(strncmp(block->md5_hash, hash, 16) != 0)
     {
         *results = TNG_FALSE;
-    }
-    else
-    {
-        *results = TNG_TRUE;
     }
 
     return(TNG_SUCCESS);
@@ -6996,7 +6989,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
 {
     tng_molecule_t new_molecules;
     int64_t *new_molecule_cnt_list, i;
-    tng_function_status stat;
+    tng_function_status stat = TNG_SUCCESS;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
@@ -7235,7 +7228,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
 {
     int64_t i;
     tng_chain_t new_chains;
-    tng_function_status stat;
+    tng_function_status stat = TNG_SUCCESS;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
@@ -7263,7 +7256,6 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
 
     (*chain)->molecule = molecule;
     (*chain)->n_residues = 0;
-
 
     for(i = molecule->n_chains; i--;)
     {
@@ -14343,12 +14335,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
                  double *time)
 {
     int64_t first_frame;
+    tng_trajectory_frame_set_t frame_set;
+    tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(time, "TNG library: time must not be a NULL pointer");
-
-    tng_trajectory_frame_set_t frame_set;
-    tng_function_status stat;
 
     stat = tng_frame_set_of_frame_find(tng_data, frame_nr);
     if(stat != TNG_SUCCESS)
@@ -14374,7 +14365,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
                 (tng_trajectory_t tng_data,
                  int64_t *n_mols,
-                 int64_t *molecule_cnt_list,
+                 int64_t **molecule_cnt_list,
                  tng_molecule_t *mols)
 {
     tng_trajectory_frame_set_t frame_set;
@@ -14387,11 +14378,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
     frame_set = &tng_data->current_trajectory_frame_set;
     if(tng_data->var_num_atoms_flag && frame_set && frame_set->molecule_cnt_list)
     {
-        molecule_cnt_list = frame_set->molecule_cnt_list;
+        *molecule_cnt_list = frame_set->molecule_cnt_list;
     }
     else
     {
-        molecule_cnt_list = tng_data->molecule_cnt_list;
+        *molecule_cnt_list = tng_data->molecule_cnt_list;
     }
 
     mols = &tng_data->molecules;
