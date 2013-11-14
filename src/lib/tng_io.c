@@ -9745,6 +9745,10 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
                 return(stat);
             }
             stat = tng_residue_atom_add(tng_data, res, "", "", &atom);
+            if(stat != TNG_SUCCESS)
+            {
+                return(stat);
+            }
         }
         else
         {
@@ -9761,8 +9765,8 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
                 }
                 diff /= mol->n_atoms;
             }
-            stat = tng_molecule_cnt_set(tng_data, mol, diff);
         }
+        stat = tng_molecule_cnt_set(tng_data, mol, diff);
     }
 
     return(stat);
