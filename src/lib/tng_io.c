@@ -9716,6 +9716,9 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
         printf("particle count.\n");
         printf("TNG library: Cannot set implicit particle count. %s: %d\n",
                 __FILE__, __LINE__);
+        /* FIXME: Should we set the count of all other molecules to 0 and add
+         * implicit molecules? */
+        return(TNG_FAILURE);
     }
 
     if(diff > 0)
@@ -9741,7 +9744,7 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
             {
                 return(stat);
             }
-            tng_residue_atom_add(tng_data, res, "", "", &atom);
+            stat = tng_residue_atom_add(tng_data, res, "", "", &atom);
         }
         else
         {
@@ -9758,11 +9761,11 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
                 }
                 diff /= mol->n_atoms;
             }
-            tng_molecule_cnt_set(tng_data, mol, diff);
+            stat = tng_molecule_cnt_set(tng_data, mol, diff);
         }
     }
 
-    return(TNG_SUCCESS);
+    return(stat);
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_num_particles_get
