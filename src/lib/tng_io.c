@@ -7283,8 +7283,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_bond_add
 {
     int64_t i;
     tng_bond_t new_bonds;
-
-    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    (void)tng_data;
 
     for(i = 0; i < molecule->n_bonds; i++)
     {
@@ -7709,7 +7708,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7749,7 +7748,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_id_of_particle_nr_get
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(id, "TNG library: id must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7788,7 +7787,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molsystem_bonds_get
     TNG_ASSERT(from_atoms, "TNG library: from_atoms must not be a NULL pointer.");
     TNG_ASSERT(to_atoms, "TNG library: to_atoms must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     *n_bonds = 0;
     /* First count the total number of bonds to allocate memory */
@@ -7851,7 +7850,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_of_particle_nr_get
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7898,7 +7897,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7944,7 +7943,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_id_of_particle_nr_get
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(id, "TNG library: id must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -7985,7 +7984,7 @@ tng_function_status DECLSPECDLLEXPORT tng_global_residue_id_of_particle_nr_get
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(id, "TNG library: id must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -8030,7 +8029,7 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_name_of_particle_nr_get
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -8073,7 +8072,7 @@ tng_function_status tng_atom_type_of_particle_nr_get
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(type, "TNG library: type must not be a NULL pointer.");
 
-    tng_molecule_cnt_list_get(tng_data, molecule_cnt_list);
+    tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -9696,7 +9695,72 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
                 (tng_trajectory_t tng_data,
                  const int64_t n)
 {
-    tng_data->n_particles = n;
+    tng_molecule_t mol;
+    tng_chain_t chain;
+    tng_residue_t res;
+    tng_atom_t atom;
+    tng_function_status stat;
+    int64_t diff, n_mod;
+
+    TNG_ASSERT(n >= 0, "TNG library: The number of molecules must be >= 0");
+
+    diff = n - tng_data->n_particles;
+
+    if(diff == 0)
+    {
+        return(TNG_SUCCESS);
+    }
+    if(diff < 0)
+    {
+        printf("TNG library: Already more particles than requested implicit ");
+        printf("particle count.\n");
+        printf("TNG library: Cannot set implicit particle count. %s: %d\n",
+                __FILE__, __LINE__);
+    }
+
+    if(diff > 0)
+    {
+        stat = tng_molecule_find(tng_data, "TNG_IMPLICIT_MOL", -1, &mol);
+        if(stat != TNG_SUCCESS)
+        {
+            stat = tng_util_trajectory_molecule_add(tng_data,
+                                                    "TNG_IMPLICIT_MOL",
+                                                    diff,
+                                                    &mol);
+            if(stat != TNG_SUCCESS)
+            {
+                return(stat);
+            }
+            stat = tng_molecule_chain_add(tng_data, mol, "", &chain);
+            if(stat != TNG_SUCCESS)
+            {
+                return(stat);
+            }
+            stat = tng_chain_residue_add(tng_data, chain, "", &res);
+            if(stat != TNG_SUCCESS)
+            {
+                return(stat);
+            }
+            tng_residue_atom_add(tng_data, res, "", "", &atom);
+        }
+        else
+        {
+            if(mol->n_atoms != 1)
+            {
+                n_mod = diff % mol->n_atoms;
+                if(n_mod != 0)
+                {
+                    printf("TNG library: Number of atoms in implicit molecule ");
+                    printf("not compatible with requested implicit particle cnt.\n");
+                    printf("TNG library: Cannot set implicit particle count. %s: %d\n",
+                           __FILE__, __LINE__);
+                    return(TNG_FAILURE);
+                }
+                diff /= mol->n_atoms;
+            }
+            tng_molecule_cnt_set(tng_data, mol, diff);
+        }
+    }
 
     return(TNG_SUCCESS);
 }
@@ -9729,7 +9793,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(n, "TNG library: n must not be a NULL pointer");
 
-    tng_molecule_cnt_list_get(tng_data, cnt_list);
+    tng_molecule_cnt_list_get(tng_data, &cnt_list);
 
     for(i = tng_data->n_molecules; i --;)
     {
@@ -9743,20 +9807,20 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_list_get
                 (const tng_trajectory_t tng_data,
-                 int64_t *mol_cnt_list)
+                 int64_t **mol_cnt_list)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
 
     if(tng_data->var_num_atoms_flag)
     {
-        mol_cnt_list = tng_data->current_trajectory_frame_set.
+        *mol_cnt_list = tng_data->current_trajectory_frame_set.
                        molecule_cnt_list;
     }
     else
     {
-        mol_cnt_list = tng_data->molecule_cnt_list;
+        *mol_cnt_list = tng_data->molecule_cnt_list;
     }
-    if(mol_cnt_list == 0)
+    if(*mol_cnt_list == 0)
     {
         return(TNG_FAILURE);
     }
@@ -14399,7 +14463,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
     tng_function_status stat;
 
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer");
-    TNG_ASSERT(cnt>=0, "TNG library: cnt must be a positive integer");
+    TNG_ASSERT(cnt>=0, "TNG library: cnt must be >= 0");
 
     stat = tng_molecule_add(tng_data, name, mol);
     if(stat != TNG_SUCCESS)

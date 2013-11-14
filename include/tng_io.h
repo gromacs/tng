@@ -1141,7 +1141,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
  */
 tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_list_get
                 (const tng_trajectory_t tng_data,
-                 int64_t *mol_cnt_list);
+                 int64_t **mol_cnt_list);
 
 /**
  * @brief Get the exponential used for distances in the trajectory.
@@ -2705,13 +2705,25 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
                  int64_t **molecule_cnt_list,
                  tng_molecule_t **mols);
 
+
+/**
+ * @brief High-level function for adding a molecule to the mol system.
+ * @param tng_data is the trajectory containing the mol system.
+ * @param name is the name of the molecule to add.
+ * @param cnt is the count of the molecule.
+ * @param mol is set to point to the newly created molecule.
+ * @pre \code name != 0 \endcode The pointer to the name must not be a
+ * NULL pointer.
+ * @pre \code cnt >= 0 \endcode The requested count must be >= 0.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
+                (tng_trajectory_t tng_data,
+                 const char *name,
+                 const int64_t cnt,
+                 tng_molecule_t *mol);
 /*
-// tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
-//                 (tng_trajectory_t tng_data,
-//                  const char *name,
-//                  const int64_t cnt,
-//                  tng_molecule_t *mol);
-//
 // tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_get
 //                 (tng_trajectory_t tng_data,
 //                  const tng_molecule_t mol,
