@@ -14823,7 +14823,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
     tng_trajectory_frame_set_t frame_set;
     tng_particle_data_t p_data;
     tng_non_particle_data_t np_data;
-    int64_t n_particles, n_frames = 100*i;
+    int64_t n_particles, n_frames;
     tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -14840,6 +14840,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
 
     if(!frame_set || tng_data->n_trajectory_frame_sets <= 0)
     {
+        n_frames = tng_data->frame_set_n_frames;
+
         stat = tng_frame_set_new(tng_data, 0, n_frames);
         if(stat != TNG_SUCCESS)
         {
@@ -14976,6 +14978,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
 
     if(!frame_set || tng_data->n_trajectory_frame_sets <= 0)
     {
+        n_frames = tng_data->frame_set_n_frames;
+
         stat = tng_frame_set_new(tng_data, 0, n_frames);
         if(stat != TNG_SUCCESS)
         {
@@ -15237,7 +15241,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
     tng_trajectory_frame_set_t frame_set;
     tng_particle_data_t p_data;
     tng_non_particle_data_t np_data;
-    int64_t n_particles, n_frames = 10000, stride_length = 100, frame_pos;
+    int64_t n_particles, n_frames, stride_length = 100, frame_pos;
     char block_type_flag;
     tng_function_status stat;
 
@@ -15266,6 +15270,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
     else
     {
         block_type_flag = TNG_TRAJECTORY_BLOCK;
+
+        n_frames = tng_data->frame_set_n_frames;
 
         if(!frame_set || tng_data->n_trajectory_frame_sets <= 0)
         {
@@ -15425,7 +15431,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
     tng_trajectory_frame_set_t frame_set;
     tng_particle_data_t p_data;
     tng_non_particle_data_t np_data;
-    int64_t n_particles, n_frames = 10000, stride_length = 100, frame_pos;
+    int64_t n_particles, n_frames, stride_length = 100, frame_pos;
     char block_type_flag;
     tng_function_status stat;
 
@@ -15454,6 +15460,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
     else
     {
         block_type_flag = TNG_TRAJECTORY_BLOCK;
+
+        n_frames = tng_data->frame_set_n_frames;
 
         if(!frame_set || tng_data->n_trajectory_frame_sets <= 0)
         {
