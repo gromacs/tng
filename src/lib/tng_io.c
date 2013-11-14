@@ -9726,10 +9726,9 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
         stat = tng_molecule_find(tng_data, "TNG_IMPLICIT_MOL", -1, &mol);
         if(stat != TNG_SUCCESS)
         {
-            stat = tng_util_trajectory_molecule_add(tng_data,
-                                                    "TNG_IMPLICIT_MOL",
-                                                    diff,
-                                                    &mol);
+            stat = tng_molecule_add(tng_data,
+                                    "TNG_IMPLICIT_MOL",
+                                    &mol);
             if(stat != TNG_SUCCESS)
             {
                 return(stat);
@@ -14461,6 +14460,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
     return(TNG_SUCCESS);
 }
 
+/*
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
                 (tng_trajectory_t tng_data,
                  const char *name,
@@ -14481,7 +14481,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
 
     return(stat);
 }
-
+*/
 tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_get
                 (tng_trajectory_t tng_data,
                  const tng_molecule_t mol,

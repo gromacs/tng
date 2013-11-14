@@ -2705,8 +2705,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
                  int64_t **molecule_cnt_list,
                  tng_molecule_t **mols);
 
-
-/**
+/*
  * @brief High-level function for adding a molecule to the mol system.
  * @param tng_data is the trajectory containing the mol system.
  * @param name is the name of the molecule to add.
@@ -2718,11 +2717,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured or TNG_CRITICAL (2) if a major error has occured.
  */
-tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
+/*tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
                 (tng_trajectory_t tng_data,
                  const char *name,
                  const int64_t cnt,
                  tng_molecule_t *mol);
+*/
 /*
 // tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_get
 //                 (tng_trajectory_t tng_data,
