@@ -1076,6 +1076,8 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_len_get
  * @param n is pointing to a value set to the number of frames.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
  * must be initialised before using it.
+ * @pre \code tng_data->input_file != 0 \endcode An input file must be open
+ * to find the next frame set.
  * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occurred (could not find last frame set).
@@ -2100,6 +2102,24 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_first_frame_time_set
                 (tng_trajectory_t tng_data,
                  const double first_frame_time);
+
+/**
+ * @brief Read the number of the first frame of the next frame set.
+ * @param tng_data is the trajectory containing the frame set.
+ * @param frame is set to the frame number of the first frame in the
+ * next frame set.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code tng_data->input_file != 0 \endcode An input file must be open
+ * to find the next frame set.
+ * @pre \code frame != 0 \endcode The pointer to the frame must not be a NULL
+ * pointer.
+ * @return TNG_SUCCESS(0) if successful, TNG_FAILURE(1) if there is no next
+ * frame set or TNG_CRITICAL(2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_first_frame_nr_of_next_frame_set_get
+                (tng_trajectory_t tng_data,
+                 int64_t *frame);
 
 /**
  * @brief Add a non-particle dependent data block.
