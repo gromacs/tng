@@ -1153,7 +1153,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_particles_get
  * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
-tng_function_status DECLSPECDLLEXPORT tng_num_molecules_types_get
+tng_function_status DECLSPECDLLEXPORT tng_num_molecule_types_get
                 (const tng_trajectory_t tng_data,
                  int64_t *n);
 
