@@ -11104,6 +11104,9 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
+    printf("WRITING FRAME SET: %"PRId64", %"PRId64"\n",
+           frame_set->first_frame, frame_set->n_frames);
+
     tng_data->current_trajectory_frame_set_output_file_pos =
     ftell(tng_data->output_file);
     tng_data->last_trajectory_frame_set_output_file_pos =
