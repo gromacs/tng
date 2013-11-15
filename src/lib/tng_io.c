@@ -3905,7 +3905,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
                 if(algo_find_n_frames < n_frames)
                 {
                     dest = tng_compress_pos(start_pos, (int)n_particles,
-                                            (int)n_frames, 
+                                            (int)n_frames,
                                             tng_data->compression_precision, 0,
                                             tng_data->compress_algo_pos,
                                             &new_len);
@@ -9708,9 +9708,9 @@ tng_function_status DECLSPECDLLEXPORT tng_compression_precision_get
                  double *precision)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
-    
+
     *precision = tng_data->compression_precision;
-    
+
     return(TNG_SUCCESS);
 }
 
@@ -9719,9 +9719,9 @@ tng_function_status DECLSPECDLLEXPORT tng_compression_precision_set
                  const double precision)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
-    
+
     tng_data->compression_precision = precision;
-    
+
     return(TNG_SUCCESS);
 }
 
@@ -15346,8 +15346,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
             {
                 last_frame = frame_nr - 1;
             }
-            stat = tng_frame_set_new(tng_data, frame_set->first_frame +
-                                     frame_set->n_frames, n_frames);
+            stat = tng_frame_set_new(tng_data, last_frame + 1, n_frames);
             if(stat != TNG_SUCCESS)
             {
                 printf("TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
@@ -15543,8 +15542,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
             {
                 last_frame = frame_nr - 1;
             }
-            stat = tng_frame_set_new(tng_data, frame_set->first_frame +
-                                     frame_set->n_frames, n_frames);
+            stat = tng_frame_set_new(tng_data, last_frame + 1, n_frames);
             if(stat != TNG_SUCCESS)
             {
                 printf("TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
