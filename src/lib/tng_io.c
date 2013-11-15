@@ -9624,21 +9624,21 @@ tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_set
                 (tng_trajectory_t tng_data,
                  const double time)
 {
-    tng_trajectory_frame_set_t frame_set;
+/*    tng_trajectory_frame_set_t frame_set;*/
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(time >= 0, "TNG library: The time per frame must be >= 0.");
 
-    frame_set = &tng_data->current_trajectory_frame_set;
+/*    frame_set = &tng_data->current_trajectory_frame_set;*/
 
     /* If the current frame set is not finished write it to disk before
        changing time per frame. */
-    if(frame_set->n_unwritten_frames > 0)
+/*    if(frame_set->n_unwritten_frames > 0)
     {
         frame_set->n_frames = frame_set->n_unwritten_frames;
         tng_frame_set_write(tng_data, TNG_USE_HASH);
     }
-
+*/
     tng_data->time_per_frame = time;
 
     return(TNG_SUCCESS);
@@ -11104,9 +11104,6 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
-    printf("WRITING FRAME SET: %"PRId64", %"PRId64"\n",
-           frame_set->first_frame, frame_set->n_frames);
-
     tng_data->current_trajectory_frame_set_output_file_pos =
     ftell(tng_data->output_file);
     tng_data->last_trajectory_frame_set_output_file_pos =
@@ -11201,8 +11198,6 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
     frame_set = &tng_data->current_trajectory_frame_set;
 
     curr_pos = ftell(tng_data->output_file);
-
-    printf("NEW FRAME SET: %"PRId64", %"PRId64"\n", first_frame, n_frames);
 
     if(curr_pos <= 10)
     {
@@ -11438,8 +11433,6 @@ tng_function_status DECLSPECDLLEXPORT tng_first_frame_nr_of_next_frame_set_get
     TNG_ASSERT(tng_data->input_file, "TNG library: An input file must be open to find the next frame set");
     TNG_ASSERT(frame, "TNG library: frame must not be a NULL pointer");
 
-    printf("Current frame set file pos: %ld\n", tng_data->current_trajectory_frame_set_input_file_pos);
-
     file_pos = ftell(tng_data->input_file);
 
     if(tng_data->current_trajectory_frame_set_input_file_pos <= 0)
@@ -11450,10 +11443,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_frame_nr_of_next_frame_set_get
     {
         frame_set = &tng_data->current_trajectory_frame_set;
         next_frame_set_file_pos = (long)frame_set->next_frame_set_file_pos;
-        printf("first frame %"PRId64",  frames %"PRId64" \n", frame_set->first_frame, frame_set->n_frames);
     }
-
-    printf("Next frame set file pos: %ld\n", next_frame_set_file_pos);
 
     if(next_frame_set_file_pos <= 0)
     {
