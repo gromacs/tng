@@ -3132,7 +3132,6 @@ static tng_function_status tng_frame_set_block_read
         }
     }
     offset += sizeof(frame_set->next_frame_set_file_pos);
-    printf("NEXT FRAME SET FILE POS: %"PRId64"\n", frame_set->next_frame_set_file_pos);
 
     memcpy(&frame_set->prev_frame_set_file_pos,
            block->block_contents + offset,
