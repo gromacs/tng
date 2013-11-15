@@ -10403,7 +10403,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
 {
     int64_t first_frame, last_frame, n_frames_per_frame_set;
     int64_t long_stride_length, medium_stride_length;
-    int64_t file_pos;
+    int64_t file_pos, temp_frame;
     tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
     tng_function_status stat;
@@ -10419,6 +10419,15 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
     long_stride_length = tng_data->long_stride_length;
     medium_stride_length = tng_data->medium_stride_length;
     tng_block_init(&block);
+
+    if(tng_first_frame_nr_of_next_frame_set_get(tng_data, &temp_frame) ==
+       TNG_SUCCESS)
+    {
+        if(temp_frame - first_frame > n_frames_per_frame_set)
+        {
+            n_frames_per_frame_set = temp_frame - first_frame;
+        }
+    }
 
     /* Is this the right frame set? */
     if(first_frame <= frame && frame <= last_frame)
