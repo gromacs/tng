@@ -14553,7 +14553,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
                 (tng_trajectory_t tng_data,
                  int64_t *n_mols,
                  int64_t **molecule_cnt_list,
-                 tng_molecule_t **mols)
+                 tng_molecule_t *mols)
 {
     tng_trajectory_frame_set_t frame_set;
 
@@ -14572,7 +14572,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
         *molecule_cnt_list = tng_data->molecule_cnt_list;
     }
 
-    *mols = &tng_data->molecules;
+    *mols = tng_data->molecules;
 
     return(TNG_SUCCESS);
 }

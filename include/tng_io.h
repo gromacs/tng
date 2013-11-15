@@ -2752,7 +2752,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
                 (tng_trajectory_t tng_data,
                  int64_t *n_mols,
                  int64_t **molecule_cnt_list,
-                 tng_molecule_t **mols);
+                 tng_molecule_t *mols);
 
 /*
  * @brief High-level function for adding a molecule to the mol system.
