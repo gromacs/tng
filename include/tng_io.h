@@ -1477,6 +1477,22 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_find
                  tng_molecule_t *molecule);
 
 /**
+ * @brief Retrieve the molecule with specified index in the list of molecules.
+ * @param tng_data is the trajectory data container containing the molecule.
+ * @param index is the index (in tng_data->molecules) of the molecule to return
+ * @param molecule is a pointer to the molecule if it was found - otherwise 0.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code molecule != 0 \endcode molecule must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if the molecule is found or TNG_FAILURE (1) if the
+ * molecule is not found.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_of_index_get
+                (tng_trajectory_t tng_data,
+                 int64_t index,
+                 tng_molecule_t *molecule);
+
+/**
  * @brief Find a chain in a molecule.
  * @param tng_data is the trajectory data container containing the molecule.
  * @param molecule is the molecule in which to search for the chain.

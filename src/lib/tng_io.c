@@ -7164,6 +7164,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_find
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
+    TNG_ASSERT(molecule, "TNG library: molecule must not be a NULL pointer.");
 
     n_molecules = tng_data->n_molecules;
 
@@ -7182,6 +7183,23 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_find
     *molecule = 0;
 
     return(TNG_FAILURE);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_molecule_of_index_get
+                (tng_trajectory_t tng_data,
+                 int64_t index,
+                 tng_molecule_t *molecule)
+{
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(molecule, "TNG library: molecule must not be a NULL pointer.");
+
+    if(index >= tng_data->n_molecules)
+    {
+        *molecule = 0;
+        return(TNG_FAILURE);
+    }
+    *molecule = &tng_data->molecules[index];
+    return(TNG_SUCCESS);
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
