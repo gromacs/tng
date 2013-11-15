@@ -9849,6 +9849,18 @@ tng_function_status DECLSPECDLLEXPORT tng_num_particles_get
     return(TNG_SUCCESS);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_num_molecule_types_get
+                    (const tng_trajectory_t tng_data,
+                     int64_t *n)
+{
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(n, "TNG library: n must not be a NULL pointer");
+
+    *n = tng_data->n_molecules;
+
+    return(TNG_SUCCESS);
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
                     (const tng_trajectory_t tng_data,
                      int64_t *n)

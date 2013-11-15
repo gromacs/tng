@@ -1145,6 +1145,19 @@ tng_function_status DECLSPECDLLEXPORT tng_num_particles_get
                  int64_t *n);
 
 /**
+ * @brief Get the number of molecule types (length of tng_data->molecules).
+ * @param tng_data is the trajectory from which to get the number of molecules.
+ * @param n is pointing to a value set to the number of molecule types.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_num_molecules_types_get
+                (const tng_trajectory_t tng_data,
+                 int64_t *n);
+
+/**
  * @brief Get the current total number of molecules.
  * @param tng_data is the trajectory from which to get the number of molecules.
  * @param n is pointing to a value set to the number of molecules.
