@@ -366,6 +366,8 @@ struct tng_trajectory {
     int *compress_algo_pos;
     /** TNG compression algorithm for compressing velocities */
     int *compress_algo_vel;
+    /** The precision used for lossy compression */
+    double compression_precision;
 };
 
 #ifndef USE_WINDOWS
@@ -3878,16 +3880,17 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_pos_float_find_algo(start_pos, (int)n_particles,
                                                         (int)algo_find_n_frames,
-                                                        (float)0.001, 0,
-                                                        tng_data->
+                                                        (float)tng_data->compression_precision,
+                                                        0, tng_data->
                                                         compress_algo_pos,
                                                         &new_len);
 
                 if(algo_find_n_frames < n_frames)
                 {
                     dest = tng_compress_pos_float(start_pos, (int)n_particles,
-                                                  (int)n_frames, (float)0.001, 0,
-                                                  tng_data->compress_algo_pos,
+                                                  (int)n_frames,
+                                                  (float)tng_data->compression_precision,
+                                                  0, tng_data->compress_algo_pos,
                                                   &new_len);
                 }
             }
@@ -3895,14 +3898,15 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_pos_find_algo(start_pos, (int)n_particles,
                                            (int)algo_find_n_frames,
-                                           0.001, 0,
-                                           tng_data->
+                                           tng_data->compression_precision,
+                                           0, tng_data->
                                            compress_algo_pos,
                                            &new_len);
                 if(algo_find_n_frames < n_frames)
                 {
                     dest = tng_compress_pos(start_pos, (int)n_particles,
-                                            (int)n_frames, 0.001, 0,
+                                            (int)n_frames, 
+                                            tng_data->compression_precision, 0,
                                             tng_data->compress_algo_pos,
                                             &new_len);
                 }
@@ -3913,14 +3917,17 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             if(type == TNG_FLOAT_DATA)
             {
                 dest = tng_compress_pos_float(start_pos, (int)n_particles,
-                                              (int)n_frames, (float)0.001, 0,
+                                              (int)n_frames,
+                                              (float)tng_data->compression_precision, 0,
                                               tng_data->compress_algo_pos, &new_len);
             }
             else
             {
                 dest = tng_compress_pos(start_pos, (int)n_particles,
-                                        (int)n_frames, 0.001, 0,
-                                        tng_data->compress_algo_pos, &new_len);
+                                        (int)n_frames,
+                                        tng_data->compression_precision, 0,
+                                        tng_data->compress_algo_pos,
+                                        &new_len);
             }
         }
     }
@@ -3945,15 +3952,16 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_vel_float_find_algo(start_pos, (int)n_particles,
                                                         (int)algo_find_n_frames,
-                                                        (float)0.001, 0,
-                                                        tng_data->
+                                                        (float)tng_data->compression_precision,
+                                                        0, tng_data->
                                                         compress_algo_vel,
                                                         &new_len);
                 if(algo_find_n_frames < n_frames)
                 {
                     dest = tng_compress_vel_float(start_pos, (int)n_particles,
-                                                  (int)n_frames, (float)0.001, 0,
-                                                  tng_data->compress_algo_vel,
+                                                  (int)n_frames,
+                                                  (float)tng_data->compression_precision,
+                                                  0, tng_data->compress_algo_vel,
                                                   &new_len);
                 }
             }
@@ -3961,15 +3969,16 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_vel_find_algo(start_pos, (int)n_particles,
                                                   (int)algo_find_n_frames,
-                                                  0.001, 0,
-                                                  tng_data->
+                                                  tng_data->compression_precision,
+                                                  0, tng_data->
                                                   compress_algo_vel,
                                                   &new_len);
                 if(algo_find_n_frames < n_frames)
                 {
                     dest = tng_compress_vel(start_pos, (int)n_particles,
-                                            (int)n_frames, 0.001, 0,
-                                            tng_data->compress_algo_vel,
+                                            (int)n_frames,
+                                            tng_data->compression_precision,
+                                            0, tng_data->compress_algo_vel,
                                             &new_len);
                 }
             }
@@ -3979,16 +3988,17 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             if(type == TNG_FLOAT_DATA)
             {
                 dest = tng_compress_vel_float(start_pos, (int)n_particles,
-                                              (int)n_frames, (float)0.001, 0,
-                                              tng_data->
+                                              (int)n_frames,
+                                              (float)tng_data->compression_precision,
+                                              0, tng_data->
                                               compress_algo_vel,
                                               &new_len);
             }
             else
             {
                 dest = tng_compress_vel(start_pos, (int)n_particles,
-                                        (int)n_frames, 0.001, 0,
-                                        tng_data->
+                                        (int)n_frames, tng_data->compression_precision,
+                                        0, tng_data->
                                         compress_algo_vel,
                                         &new_len);
             }
@@ -8254,6 +8264,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
 
     tng_data->compress_algo_pos = 0;
     tng_data->compress_algo_vel = 0;
+    tng_data->compression_precision = 0.001;
     tng_data->distance_unit_exponential = -9;
 
     frame_set->first_frame = -1;
@@ -8799,6 +8810,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
     dest->compress_algo_pos = 0;
     dest->compress_algo_vel = 0;
     dest->distance_unit_exponential = -9;
+    dest->compression_precision = 0.001;
 
     frame_set->n_mapping_blocks = 0;
     frame_set->mappings = 0;
@@ -9688,6 +9700,28 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_get
     *n = tng_data->current_trajectory_frame_set.first_frame +
          tng_data->current_trajectory_frame_set.n_frames;
 
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_compression_precision_get
+                (const tng_trajectory_t tng_data,
+                 double *precision)
+{
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    
+    *precision = tng_data->compression_precision;
+    
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_compression_precision_set
+                (tng_trajectory_t tng_data,
+                 const double precision)
+{
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    
+    tng_data->compression_precision = precision;
+    
     return(TNG_SUCCESS);
 }
 
@@ -11739,10 +11773,15 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
         /* If the wanted frame would be in the frame set after the last
             * frame set create a new frame set. */
         if(stat == TNG_FAILURE &&
-           (last_frame < frame_nr &&
+            last_frame < frame_nr)
+/*           (last_frame < frame_nr &&
             tng_data->current_trajectory_frame_set.first_frame +
-            tng_data->frame_set_n_frames >= frame_nr))
+            tng_data->frame_set_n_frames >= frame_nr))*/
         {
+            if(last_frame + tng_data->frame_set_n_frames < frame_nr)
+            {
+                last_frame = frame_nr - 1;
+            }
             tng_frame_set_new(tng_data,
                               last_frame+1,
                               tng_data->frame_set_n_frames);
@@ -12166,6 +12205,10 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
            (last_frame < frame_nr &&
             last_frame + tng_data->frame_set_n_frames >= frame_nr))
         {
+            if(last_frame + tng_data->frame_set_n_frames < frame_nr)
+            {
+                last_frame = frame_nr - 1;
+            }
             tng_frame_set_new(tng_data,
                               last_frame+1,
                               tng_data->frame_set_n_frames);
@@ -15242,6 +15285,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
     tng_particle_data_t p_data;
     tng_non_particle_data_t np_data;
     int64_t n_particles, n_frames, stride_length = 100, frame_pos;
+    int64_t last_frame;
     char block_type_flag;
     tng_function_status stat;
 
@@ -15287,7 +15331,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
         {
             n_frames = frame_set->n_frames;
         }
-        if(frame_nr >= frame_set->first_frame + n_frames)
+        last_frame = frame_set->first_frame +
+                     frame_set->n_frames - 1;
+        if(frame_nr > last_frame)
         {
             stat = tng_frame_set_write(tng_data, TNG_USE_HASH);
             if(stat != TNG_SUCCESS)
@@ -15295,6 +15341,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                 printf("TNG library: Cannot write frame set.  %s: %d\n", __FILE__,
                     __LINE__);
                 return(stat);
+            }
+            if(last_frame + tng_data->frame_set_n_frames < frame_nr)
+            {
+                last_frame = frame_nr - 1;
             }
             stat = tng_frame_set_new(tng_data, frame_set->first_frame +
                                      frame_set->n_frames, n_frames);
@@ -15432,6 +15482,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
     tng_particle_data_t p_data;
     tng_non_particle_data_t np_data;
     int64_t n_particles, n_frames, stride_length = 100, frame_pos;
+    int64_t last_frame;
     char block_type_flag;
     tng_function_status stat;
 
@@ -15477,7 +15528,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
         {
             n_frames = frame_set->n_frames;
         }
-        if(frame_nr >= frame_set->first_frame + n_frames)
+        last_frame = frame_set->first_frame +
+                     frame_set->n_frames - 1;
+        if(frame_nr > last_frame)
         {
             stat = tng_frame_set_write(tng_data, TNG_USE_HASH);
             if(stat != TNG_SUCCESS)
@@ -15485,6 +15538,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
                 printf("TNG library: Cannot write frame set.  %s: %d\n", __FILE__,
                     __LINE__);
                 return(stat);
+            }
+            if(last_frame + tng_data->frame_set_n_frames < frame_nr)
+            {
+                last_frame = frame_nr - 1;
             }
             stat = tng_frame_set_new(tng_data, frame_set->first_frame +
                                      frame_set->n_frames, n_frames);

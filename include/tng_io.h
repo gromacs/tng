@@ -1072,7 +1072,7 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_len_get
 
 /**
  * @brief Get the number of frames in the trajectory
- * @param tng_data the trajectory of which to get the number of frames.
+ * @param tng_data is the trajectory of which to get the number of frames.
  * @param n is pointing to a value set to the number of frames.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
  * must be initialised before using it.
@@ -1083,6 +1083,34 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_len_get
 tng_function_status DECLSPECDLLEXPORT tng_num_frames_get
                 (const tng_trajectory_t tng_data,
                  int64_t *n);
+
+/**
+ * @brief Get the precision of lossy compression
+ * @param tng_data is the trajectory of which to get the compression precision.
+ * @param precision will be pointing to the retrieved compression precision.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @details A compression precision of 0.001 (the default) means that the
+ * compressed values are accurate to the third decimal.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_compression_precision_get
+                (const tng_trajectory_t tng_data,
+                 double *precision);
+
+/**
+ * @brief Get the precision of lossy compression
+ * @param tng_data is the trajectory of which to set the compression precision.
+ * @param precision is the new compression precision.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @details A compression precision of 0.001 (the default) means that the
+ * compressed values are accurate to the third decimal.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_compression_precision_set
+                (tng_trajectory_t tng_data,
+                 const double precision);
 
 /**
  * @brief Set the number of particles, in the case no molecular system is used.
@@ -2645,8 +2673,9 @@ tng_function_status DECLSPECDLLEXPORT tng_time_get_str
  * @param filename is a string containing the name of the trajectory to open.
  * @param mode specifies the file mode of the trajectory. Can be set to 'r',
  * 'w' or 'a' for reading, writing or appending respectively.
- * @param tng_data_p is a pointer to the opened trajectory. This must be
- * closed by the user.
+ * @param tng_data_p is a pointer to the opened trajectory. This will be
+ * allocated by the TNG library. The trajectory must be
+ * closed by the user, whereby memory is freed.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
  * must be initialised before using it.
  * @pre \code filename != 0 \endcode The pointer to the filename must not be a
