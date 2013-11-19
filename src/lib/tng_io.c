@@ -15005,6 +15005,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
     if(particle_dependency == TNG_PARTICLE_BLOCK_DATA)
     {
         tng_num_particles_get(tng_data, &n_particles);
+        if(n_particles <= 0)
+        {
+            return(TNG_FAILURE);
+        }
 
         if(tng_particle_data_find(tng_data, block_id, &p_data)
         != TNG_SUCCESS)
@@ -15143,6 +15147,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
     if(particle_dependency == TNG_PARTICLE_BLOCK_DATA)
     {
         tng_num_particles_get(tng_data, &n_particles);
+
+        if(n_particles <= 0)
+        {
+            return(TNG_FAILURE);
+        }
 
         if(tng_particle_data_find(tng_data, block_id, &p_data)
         != TNG_SUCCESS)
