@@ -2040,7 +2040,7 @@ tng_function_status DECLSPECDLLEXPORT tng_block_read_next
                  const char hash_mode);
 
 /**
- * @brief Read one (the next) frame set, including mapping and related data blocks
+ * @brief Read one (the next) frame set, including particle mapping and related data blocks
  * from the input_file of tng_data.
  * @param tng_data is a trajectory data container.
  * @details  tng_data->input_file_path specifies
@@ -2057,6 +2057,27 @@ tng_function_status DECLSPECDLLEXPORT tng_block_read_next
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next
                 (tng_trajectory_t tng_data,
                  const char hash_mode);
+
+/**
+ * @brief Read one (the next) frame set, including particle mapping and data blocks with a
+ * specific block id from the input_file of tng_data.
+ * @param tng_data is a trajectory data container.
+ * @details  tng_data->input_file_path specifies
+ * which file to read from. If the file (input_file) is not open it will be
+ * opened.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * compared to the md5 hash of the read contents to ensure valid data.
+ * @param block_id is the ID number of the blocks that should be read from file.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next_only_data_from_block_id
+                (tng_trajectory_t tng_data,
+                 const char hash_mode,
+                 const int64_t block_id);
 
 /**
  * @brief Write one frame set, including mapping and related data blocks
@@ -2923,6 +2944,78 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
                 (tng_trajectory_t tng_data,
                  float **box_shape,
                  int64_t *stride_length);
+
+/**
+ * @brief High-level function for reading the next frame of particle-dependent
+ * data of a specific type.
+ * @param tng_data is the trajectory to read from.
+ * @param block_id is the ID number of the block containing the data of interest.
+ * @param values will be set to point at a 1-dimensional array containing the
+ * requested data. The variable may point at already allocated memory or be a
+ * NULL pointer. The memory must be freed afterwards.
+ * @param data_type will be pointing to a character indicating the size of the
+ * data of the returned values, e.g. TNG_INT_DATA, TNG_FLOAT_DATA or TNG_DOUBLE_DATA.
+ * @param retrieved_frame_number will be pointing at the frame number of the
+ * returned frame.
+ * @param retrieved_time will be pointing at the time stamp of the returned
+ * frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code values != 0 \endcode The pointer to the values array
+ * must not be a NULL pointer.
+ * @pre \code data_type != 0 \endcode The pointer to the data type of the
+ * returned data must not be a NULL pointer.
+ * @pre \code retrieved_frame_number != 0 \endcode The pointer to the frame
+ * number of the returned data must not be a NULL pointer.
+ * @pre \code retrieved_time != 0 \endcode The pointer to the time of the
+ * returned data must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
+                (tng_trajectory_t tng_data,
+                 const int64_t block_id,
+                 void **values,
+                 char *data_type,
+                 int64_t *retrieved_frame_number,
+                 double *retrieved_time);
+
+/**
+ * @brief High-level function for reading the next frame of non-particle-dependent
+ * data of a specific type.
+ * @param tng_data is the trajectory to read from.
+ * @param block_id is the ID number of the block containing the data of interest.
+ * @param values will be set to point at a 1-dimensional array containing the
+ * requested data. The variable may point at already allocated memory or be a
+ * NULL pointer. The memory must be freed afterwards.
+ * @param data_type will be pointing to a character indicating the size of the
+ * data of the returned values, e.g. TNG_INT_DATA, TNG_FLOAT_DATA or TNG_DOUBLE_DATA.
+ * @param retrieved_frame_number will be pointing at the frame number of the
+ * returned frame.
+ * @param retrieved_time will be pointing at the time stamp of the returned
+ * frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code values != 0 \endcode The pointer to the values array
+ * must not be a NULL pointer.
+ * @pre \code data_type != 0 \endcode The pointer to the data type of the
+ * returned data must not be a NULL pointer.
+ * @pre \code retrieved_frame_number != 0 \endcode The pointer to the frame
+ * number of the returned data must not be a NULL pointer.
+ * @pre \code retrieved_time != 0 \endcode The pointer to the time of the
+ * returned data must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
+                (tng_trajectory_t tng_data,
+                 const int64_t block_id,
+                 void **values,
+                 char *data_type,
+                 int64_t *retrieved_frame_number,
+                 double *retrieved_time);
 
 /**
  * @brief High-level function for reading the positions of all particles
