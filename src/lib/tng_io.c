@@ -11141,7 +11141,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_current_only_data_from_
         }
         else
         {
-            file_pos += block->block_contents_size + block->header_contents_size;
+            file_pos += (long)(block->block_contents_size + block->header_contents_size);
             fseek(tng_data->input_file, (long)block->block_contents_size, SEEK_CUR);
             if(file_pos < tng_data->input_file_len)
             {
@@ -11680,7 +11680,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_frame_nr_of_next_frame_set_get
 
     if(tng_data->current_trajectory_frame_set_input_file_pos <= 0)
     {
-        next_frame_set_file_pos = tng_data->first_trajectory_frame_set_input_file_pos;
+        next_frame_set_file_pos = (long)tng_data->first_trajectory_frame_set_input_file_pos;
     }
     else
     {
