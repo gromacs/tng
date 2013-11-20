@@ -2964,11 +2964,14 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read
  * @param tng_data is the trajectory to read from.
  * @param box_shape will be set to point at a 1-dimensional array of floats,
  * which will contain the box shape. The data is stored sequentially in order
- * of frames. For each frame the box shape is stored as nine values. The
- * variable may point at already allocated memory or be a NULL pointer.
+ * of frames. The variable may point at already allocated memory or be a NULL pointer.
  * If the box shape is not modified during the trajectory, but as general data,
  * that will be returned instead.
  * @param stride_length will be set to the writing interval of the stored data.
+ * @details This function should only be used if number of values used to specify 
+ * the box shape is known (by default TNG uses 9 values) since it does not
+ * return the number of values in the array. It is recommended to use
+ * tng_data_vector_interval_get() instead.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
  * must be initialised before using it.
  * @pre \code box_shape != 0 \endcode The pointer to the box_shape array
@@ -3157,12 +3160,16 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
  * @param last_frame is the last frame to return position data from.
  * @param box_shape will be set to point at a 1-dimensional array of floats,
  * which will contain the box shape. The data is stored sequentially in order
- * of frames. For each frame the box shape is stored as nine values.
+ * of frames.
  * If the box shape is not modified during the trajectory, but as general data,
  * that will be returned instead. The
  * variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
+ * @details This function should only be used if number of values used to specify 
+ * the box shape is known (by default TNG uses 9 values) since it does not
+ * return the number of values in the array. It is recommended to use
+ * tng_data_vector_interval_get() instead.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
  * must be initialised before using it.
  * @pre \code start_frame_nr <= end_frame_nr \endcode The first frame must be before
