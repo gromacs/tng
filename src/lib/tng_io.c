@@ -9765,7 +9765,7 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
     tng_chain_t chain;
     tng_residue_t res;
     tng_atom_t atom;
-    tng_function_status stat;
+    tng_function_status stat = TNG_SUCCESS;
     int64_t diff, n_mod;
 
     TNG_ASSERT(n >= 0, "TNG library: The number of molecules must be >= 0");
@@ -9774,9 +9774,9 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
     
     if(diff == 0)
     {
-        return(TNG_SUCCESS);
+        return(stat);
     }
-    if(diff < 0)
+    else if(diff < 0)
     {
         printf("TNG library: Already more particles than requested implicit ");
         printf("particle count.\n");
@@ -9786,8 +9786,7 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
          * implicit molecules? */
         return(TNG_FAILURE);
     }
-
-    if(diff > 0)
+    else if(diff > 0)
     {
         stat = tng_molecule_find(tng_data, "TNG_IMPLICIT_MOL", -1, &mol);
         if(stat != TNG_SUCCESS)
@@ -11101,7 +11100,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_current_only_data_from_
     /* If the current frame set had already been read skip its block contents */
     if(found_flag)
     {
-        fseek(tng_data->input_file, block->block_contents_size, SEEK_CUR);
+        fseek(tng_data->input_file, (long)block->block_contents_size, SEEK_CUR);
     }
     /* Otherwiese read the frame set block */
     else
@@ -11143,7 +11142,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_current_only_data_from_
         else
         {
             file_pos += block->block_contents_size + block->header_contents_size;
-            fseek(tng_data->input_file, block->block_contents_size, SEEK_CUR);
+            fseek(tng_data->input_file, (long)block->block_contents_size, SEEK_CUR);
             if(file_pos < tng_data->input_file_len)
             {
                 stat = tng_block_header_read(tng_data, block);
@@ -11694,7 +11693,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_frame_nr_of_next_frame_set_get
         return(TNG_FAILURE);
     }
 
-    fseek(tng_data->input_file, next_frame_set_file_pos, SEEK_SET);
+    fseek(tng_data->input_file, (long)next_frame_set_file_pos, SEEK_SET);
     /* Read block headers first to see that a frame set block is found. */
     tng_block_init(&block);
     stat = tng_block_header_read(tng_data, block);
@@ -13706,10 +13705,10 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
         if(stat != TNG_SUCCESS)
         {
             fseek(tng_data->input_file,
-                  tng_data->current_trajectory_frame_set_input_file_pos,
+                  (long)tng_data->current_trajectory_frame_set_input_file_pos,
                   SEEK_SET);
             stat = tng_block_header_read(tng_data, block);
-            fseek(tng_data->input_file, block->block_contents_size, SEEK_CUR);
+            fseek(tng_data->input_file, (long)block->block_contents_size, SEEK_CUR);
         }
         file_pos = ftell(tng_data->input_file);
         /* Read until next frame set block */
@@ -13734,7 +13733,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
             else
             {
                 file_pos += block->block_contents_size + block->header_contents_size;
-                fseek(tng_data->input_file, block->block_contents_size, SEEK_CUR);
+                fseek(tng_data->input_file, (long)block->block_contents_size, SEEK_CUR);
                 if(file_pos < tng_data->input_file_len)
                 {
                     stat = tng_block_header_read(tng_data, block);
@@ -14543,10 +14542,10 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
         if(stat != TNG_SUCCESS)
         {
             fseek(tng_data->input_file,
-                  tng_data->current_trajectory_frame_set_input_file_pos,
+                  (long)tng_data->current_trajectory_frame_set_input_file_pos,
                   SEEK_SET);
             stat = tng_block_header_read(tng_data, block);
-            fseek(tng_data->input_file, block->block_contents_size, SEEK_CUR);
+            fseek(tng_data->input_file, (long)block->block_contents_size, SEEK_CUR);
         }
         file_pos = ftell(tng_data->input_file);
         /* Read until next frame set block */
@@ -14571,7 +14570,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
             else
             {
                 file_pos += block->block_contents_size + block->header_contents_size;
-                fseek(tng_data->input_file, block->block_contents_size, SEEK_CUR);
+                fseek(tng_data->input_file, (long)block->block_contents_size, SEEK_CUR);
                 if(file_pos < tng_data->input_file_len)
                 {
                     stat = tng_block_header_read(tng_data, block);
@@ -14735,15 +14734,11 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get_stride_length
                  int64_t frame,
                  int64_t *stride_length)
 {
-    tng_trajectory_frame_set_t frame_set;
     tng_function_status stat;
     tng_non_particle_data_t np_data;
     tng_particle_data_t p_data;
     long file_pos;
     int is_particle_data;
-    int64_t data_first_frame;
-    
-    frame_set = &tng_data->current_trajectory_frame_set;
     
     if(tng_data->current_trajectory_frame_set_input_file_pos <= 0)
     {
@@ -15331,7 +15326,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
     
     *values = temp;
     
-    memcpy(*values, (char *)(data->values + i * data_size), data_size);
+    memcpy(*values, (char *)data->values + i * data_size, data_size);
     
     return(TNG_SUCCESS);
 }
@@ -15458,7 +15453,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
     
     *values = temp;
     
-    memcpy(*values, (char *)(data->values + i * data_size), data_size);
+    memcpy(*values, (char *)data->values + i * data_size, data_size);
     
     return(TNG_SUCCESS);
 }
