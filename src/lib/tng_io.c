@@ -14814,6 +14814,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get_stride_length
     {
         *stride_length = np_data->stride_length;
     }
+    return(TNG_SUCCESS);
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_time_get_str
