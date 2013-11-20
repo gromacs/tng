@@ -2736,6 +2736,25 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                  char *type);
 
 /**
+ * @brief Get the stride length of a specific data (particle dependency does not matter)
+ * block, either in the current frame set or of a specific frame.
+ * @param tng_data is the trajectory data container.
+ * @param block_id is the block ID of the data block, of which to retrieve the
+ * stride length of the data.
+ * @param frame is the frame from which to get the stride length. If frame is set to -1
+ * no specific frame will be used, but instead the first frame, starting from the last read
+ * frame set, containing the data block will be used.
+ * @param stride_length is set to the value of the stride length of the data block.
+ * @return  TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_data_get_stride_length
+                (tng_trajectory_t tng_data,
+                 const int64_t block_id,
+                 int64_t frame,
+                 int64_t *stride_length);
+
+/**
  * @brief Get the date and time of initial file creation in ISO format (string).
  * @param tng_data is a trajectory data container.
  * @param time is a pointer to the string in which the date will be stored. Memory

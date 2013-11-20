@@ -14729,6 +14729,92 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
     return(TNG_SUCCESS);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_data_get_stride_length
+                (tng_trajectory_t tng_data,
+                 const int64_t block_id,
+                 int64_t frame,
+                 int64_t *stride_length)
+{
+    tng_trajectory_frame_set_t frame_set;
+    tng_function_status stat;
+    tng_non_particle_data_t np_data;
+    tng_particle_data_t p_data;
+    long file_pos;
+    int is_particle_data;
+    int64_t data_first_frame;
+    
+    frame_set = &tng_data->current_trajectory_frame_set;
+    
+    if(tng_data->current_trajectory_frame_set_input_file_pos <= 0)
+    {
+        frame = 0;
+    }
+    
+    if(frame >= 0)
+    {
+        stat = tng_frame_set_of_frame_find(tng_data, frame);
+        if(stat != TNG_SUCCESS)
+        {
+            return(stat);
+        }
+    }
+    stat = tng_data_find(tng_data, block_id, &np_data);
+    if(stat != TNG_SUCCESS)
+    {
+        stat = tng_particle_data_find(tng_data, block_id, &p_data);
+        if(stat != TNG_SUCCESS)
+        {
+            stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
+            /* If no specific frame was required read until this data block is found */
+            if(frame < 0)
+            {
+                file_pos = ftell(tng_data->input_file);
+                while(stat != TNG_SUCCESS && file_pos < tng_data->input_file_len)
+                {
+                    stat = tng_frame_set_read_next_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
+                    file_pos = ftell(tng_data->input_file);
+                }
+            }
+            if(stat != TNG_SUCCESS)
+            {
+                return(stat);
+            }
+            stat = tng_data_find(tng_data, block_id, &np_data);
+            if(stat != TNG_SUCCESS)
+            {
+                stat = tng_particle_data_find(tng_data, block_id, &p_data);
+                if(stat != TNG_SUCCESS)
+                {
+                    return(stat);
+                }
+                else
+                {
+                    is_particle_data = 1;
+                }
+            }
+            else
+            {
+                is_particle_data = 0;
+            }
+        }
+        else
+        {
+            is_particle_data = 1;
+        }
+    }
+    else
+    {
+        is_particle_data = 0;
+    }
+    if(is_particle_data)
+    {
+        *stride_length = p_data->stride_length;
+    }
+    else
+    {
+        *stride_length = np_data->stride_length;
+    }
+}
 
 tng_function_status DECLSPECDLLEXPORT tng_time_get_str
                 (const tng_trajectory_t tng_data,
@@ -15283,6 +15369,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
             stat = tng_frame_set_read_next_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
             file_pos = ftell(tng_data->input_file);
         }
+        if(stat != TNG_SUCCESS)
+        {
+            return(stat);
+        }
+        stat = tng_data_find(tng_data, block_id, &data);
         if(stat != TNG_SUCCESS)
         {
             return(stat);
