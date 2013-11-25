@@ -1187,9 +1187,9 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_list_get
                  int64_t **mol_cnt_list);
 
 /**
- * @brief Get the exponential used for distances in the trajectory.
+ * @brief Get the exponent used for distances in the trajectory.
  * @param tng_data is the trajectory from which to get the information.
- * @param exp is pointing to a value set to the distance unit exponential.
+ * @param exp is pointing to a value set to the distance unit exponent.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
  * must be initialised before using it.
  * @pre \code exp != 0 \endcode The pointer to exp must not be a NULL pointer.
@@ -1202,16 +1202,16 @@ tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_get
                  int64_t *exp);
 
 /**
- * @brief Set the exponential used for distances in the trajectory.
- * @param tng_data is the trajectory of which to set the unit exponential.
- * @param exp is the distance unit exponential to use.
+ * @brief Set the exponent used for distances in the trajectory.
+ * @param tng_data is the trajectory of which to set the unit exponent.
+ * @param exp is the distance unit exponent to use.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
  * must be initialised before using it.
  * @details Example: If the distances are specified in nm (default) exp is -9.
  * If the distances are specified in Å exp is -10.
  * @return TNG_SUCCESS (0) if successful.
  */
-tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_set
+tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponent_set
                 (const tng_trajectory_t tng_data,
                  const int64_t exp);
 
@@ -2058,7 +2058,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_current_only_data_from_
                 (tng_trajectory_t tng_data,
                  const char hash_mode,
                  const int64_t block_id);
-                
+
 /**
  * @brief Read one (the next) frame set, including particle mapping and related data blocks
  * from the input_file of tng_data.
@@ -2968,7 +2968,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read
  * If the box shape is not modified during the trajectory, but as general data,
  * that will be returned instead.
  * @param stride_length will be set to the writing interval of the stored data.
- * @details This function should only be used if number of values used to specify 
+ * @details This function should only be used if number of values used to specify
  * the box shape is known (by default TNG uses 9 values) since it does not
  * return the number of values in the array. It is recommended to use
  * tng_data_vector_interval_get() instead.
@@ -3001,6 +3001,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
  * returned frame.
  * @param retrieved_time will be pointing at the time stamp of the returned
  * frame.
+ * @details If no frame has been read before the first frame of the trajectory
+ * is read.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
  * must be initialised before using it.
  * @pre \code values != 0 \endcode The pointer to the values array
@@ -3166,7 +3168,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
  * variable may point at already allocated memory or be a NULL pointer.
  * The memory must be freed afterwards.
  * @param stride_length will be set to the writing interval of the stored data.
- * @details This function should only be used if number of values used to specify 
+ * @details This function should only be used if number of values used to specify
  * the box shape is known (by default TNG uses 9 values) since it does not
  * return the number of values in the array. It is recommended to use
  * tng_data_vector_interval_get() instead.
