@@ -1442,7 +1442,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
 /**
  * @brief Add an existing molecule (from a molecule container) to the trajectory.
  * @param tng_data is the trajectory data container containing the block..
- * @param molecule is the molecule to add to the trajectory.
+ * @param molecule is a pointer to the molecule to add to the trajectory and will
+ * afterwards point to the molecule in the trajectory.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
  * must be initialised before using it.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major error
@@ -1450,7 +1451,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
  */
 tng_function_status DECLSPECDLLEXPORT tng_molecule_existing_add
                 (tng_trajectory_t tng_data,
-                 tng_molecule_t molecule);
+                 tng_molecule_t *molecule);
 
 /**
  * @brief Set the name of a molecule.

@@ -7069,10 +7069,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_existing_add
                 (tng_trajectory_t tng_data,
-                 tng_molecule_t molecule)
+                 tng_molecule_t *molecule_p)
 {
     tng_bool found_id = TNG_TRUE;
-    tng_molecule_t new_molecules;
+    tng_molecule_t new_molecules, molecule;
     int64_t *new_molecule_cnt_list, i, id;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -7125,12 +7125,20 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_existing_add
         return(TNG_CRITICAL);
     }
 
+    molecule = *molecule_p;
+
     tng_data->molecules = new_molecules;
     tng_data->molecule_cnt_list = new_molecule_cnt_list;
 
     new_molecules[tng_data->n_molecules] = *molecule;
 
     tng_data->molecule_cnt_list[tng_data->n_molecules] = 0;
+
+    free(*molecule_p);
+
+    molecule = &new_molecules[tng_data->n_molecules];
+
+    *molecule_p = molecule;
 
     molecule->id = id;
 
@@ -7221,6 +7229,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set
     }
     if(index == -1)
     {
+        printf("TNG library: Could not find molecule in TNG trajectory. %s: %d\n",
+               __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
     old_cnt = tng_data->molecule_cnt_list[index];
@@ -7736,7 +7746,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
         if(molecule->atoms[i].id == id)
         {
             stat = TNG_FAILURE;
-            printf("TNG library: Atom ID already in use. %s: %d\n", __FILE__, __LINE__);
+            printf("TNG library: Atom ID %"PRId64" already in use. %s: %d\n", id, __FILE__, __LINE__);
             break;
         }
     }
