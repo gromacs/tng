@@ -7055,7 +7055,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
         if(tng_data->molecules[i].id == id)
         {
             stat = TNG_FAILURE;
-            printf("TNG library: Molecule ID already in use. %s: %d\n", __FILE__, __LINE__);
+            printf("TNG library: Molecule ID %"PRId64" already in use. %s: %d\n", id,
+                   __FILE__, __LINE__);
             break;
         }
     }
@@ -9790,21 +9791,25 @@ tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_set
                 (tng_trajectory_t tng_data,
                  const double time)
 {
-/*    tng_trajectory_frame_set_t frame_set;*/
+    tng_trajectory_frame_set_t frame_set;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(time >= 0, "TNG library: The time per frame must be >= 0.");
 
-/*    frame_set = &tng_data->current_trajectory_frame_set;*/
+    if(time == tng_data->time_per_frame)
+    {
+        return(TNG_SUCCESS);
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     /* If the current frame set is not finished write it to disk before
        changing time per frame. */
-/*    if(frame_set->n_unwritten_frames > 0)
+    if(tng_data->time_per_frame > 0 && frame_set->n_unwritten_frames > 0)
     {
         frame_set->n_frames = frame_set->n_unwritten_frames;
         tng_frame_set_write(tng_data, TNG_USE_HASH);
     }
-*/
     tng_data->time_per_frame = time;
 
     return(TNG_SUCCESS);
