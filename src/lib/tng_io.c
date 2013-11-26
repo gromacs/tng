@@ -7291,6 +7291,131 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_of_index_get
     return(TNG_SUCCESS);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t tng_data_src,
+                                                               tng_trajectory_t tng_data_dest)
+{
+    tng_molecule_t molecule, molecule_temp;
+    tng_chain_t chain, chain_temp;
+    tng_residue_t residue, residue_temp;
+    tng_atom_t atom, atom_temp;
+    tng_bond_t bond_temp;
+    tng_function_status stat;
+    int64_t i, j, k, l, *list_temp;
+
+    TNG_ASSERT(tng_data_src, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(tng_data_dest, "TNG library: Trajectory container not properly setup.");
+
+    for(i = 0; i < tng_data_dest->n_molecules; i++)
+    {
+        molecule = &tng_data_dest->molecules[i];
+        tng_molecule_destroy(tng_data_dest, molecule);
+    }
+
+    tng_data_dest->n_molecules = tng_data_src->n_molecules;
+
+    molecule_temp = realloc(tng_data_dest->molecules,
+                    sizeof(struct tng_molecule) * tng_data_dest->n_molecules);
+    if(!molecule_temp)
+    {
+        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+               sizeof(struct tng_molecule) * tng_data_dest->n_molecules,
+               __FILE__, __LINE__);
+        free(tng_data_dest->molecules);
+        tng_data_dest->molecules = 0;
+        return(TNG_CRITICAL);
+    }
+    list_temp = realloc(tng_data_dest->molecule_cnt_list,
+                                     sizeof(int64_t) * tng_data_dest->n_molecules);
+    if(!list_temp)
+    {
+        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+               sizeof(int64_t) * tng_data_dest->n_molecules,
+               __FILE__, __LINE__);
+        free(tng_data_dest->molecule_cnt_list);
+        tng_data_dest->molecule_cnt_list = 0;
+        free(molecule_temp);
+        return(TNG_CRITICAL);
+    }
+
+    tng_data_dest->molecules = molecule_temp;
+    tng_data_dest->molecule_cnt_list = list_temp;
+
+    for(i = 0; i < tng_data_dest->n_molecules; i++)
+    {
+        molecule = &tng_data_src->molecules[i];
+        stat = tng_molecule_w_id_add(tng_data_dest, molecule->name, molecule->id,
+                                     &molecule_temp);
+        if(stat != TNG_SUCCESS)
+        {
+            printf("TNG library: Cannot create new molecule to make a copy.");
+            return(stat);
+        }
+        molecule_temp->quaternary_str = molecule->quaternary_str;
+        for(j = 0; j < molecule->n_chains; j++)
+        {
+            chain = &molecule->chains[j];
+            stat = tng_molecule_chain_w_id_add(tng_data_dest, molecule_temp,
+                                               chain->name, chain->id,
+                                               &chain_temp);
+            if(stat != TNG_SUCCESS)
+            {
+                printf("TNG library: Cannot create new chain to make a copy.");
+                return(stat);
+            }
+            for(k = 0; k < chain->n_residues; k++)
+            {
+                residue = &chain->residues[k];
+                stat = tng_chain_residue_w_id_add(tng_data_dest, chain_temp,
+                                                  residue->name, residue->id,
+                                                  &residue_temp);
+                if(stat != TNG_SUCCESS)
+                {
+                    printf("TNG library: Cannot create new residue to make a copy.");
+                    return(stat);
+                }
+                for(l = 0; l < residue->n_atoms; l++)
+                {
+                    atom = &molecule->atoms[residue->atoms_offset + l];
+                    stat = tng_residue_atom_w_id_add(tng_data_dest, residue_temp,
+                                                     atom->name, atom->atom_type,
+                                                     atom->id, &atom_temp);
+                    if(stat != TNG_SUCCESS)
+                    {
+                        printf("TNG library: Cannot create new atom to make a copy.");
+                        return(stat);
+                    }
+                }
+            }
+        }
+        molecule_temp->n_bonds = molecule->n_bonds;
+        bond_temp = realloc(molecule_temp->bonds, sizeof(struct tng_bond) *
+                            molecule->n_bonds);
+        if(!bond_temp)
+        {
+            printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                   sizeof(struct tng_bond) * molecule->n_bonds,
+                   __FILE__, __LINE__);
+            free(molecule_temp->bonds);
+            molecule_temp->n_bonds = 0;
+            return(TNG_CRITICAL);
+        }
+        molecule_temp->bonds = bond_temp;
+        for(j = 0; j < molecule->n_bonds; j++)
+        {
+            molecule_temp->bonds[j] = molecule->bonds[j];
+        }
+        stat = tng_molecule_cnt_set(tng_data_dest, molecule_temp,
+                                    tng_data_src->molecule_cnt_list[i]);
+        if(stat != TNG_SUCCESS)
+        {
+            printf("TNG library: Cannot set molecule count. %s: %d.\n",
+                   __FILE__, __LINE__);
+            return(stat);
+        }
+    }
+    return(TNG_SUCCESS);
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
                 (tng_trajectory_t tng_data,
                  tng_molecule_t molecule,

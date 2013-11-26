@@ -473,7 +473,10 @@ typedef enum {TNG_FALSE, TNG_TRUE} tng_bool;
 typedef enum {TNG_CONSTANT_N_ATOMS, TNG_VARIABLE_N_ATOMS}
              tng_variable_n_atoms_flag;
 
-/** Return values of API functions */
+/** Return values of API functions. TNG_SUCCESS means that the operation
+ *  was successful. TNG_FAILURE means that the operation failed for some
+ *  reason, but it is possible to try to continue anyhow. TNG_CRITICAL
+ *  means that the error is irrecoverable. */
 typedef enum {TNG_SUCCESS, TNG_FAILURE, TNG_CRITICAL} tng_function_status;
 
 /** If tng_hash_mode == TNG_USE_HASH md5 hashes will be written to output files
@@ -1540,6 +1543,23 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_of_index_get
                 (tng_trajectory_t tng_data,
                  int64_t index,
                  tng_molecule_t *molecule);
+
+/**
+ * @brief Copy all molecules and the molecule counts from one TNG trajectory
+ * to another.
+ * @param tng_data_src is the source trajectory containing the molecular
+ * system to copy.
+ * @param tng_data_dest is the destination trajectory.
+ * @pre \code tng_data_src != 0 \endcode The trajectory container (tng_data_src)
+ * must be initialised before using it.
+ * @pre \code tng_data_dest != 0 \endcode The trajectory container (tng_data_dest)
+ * must be initialised before using it.
+ * @details The molecular system in tng_data_dest will be overwritten.
+ * @return TNG_SUCCESS(0) if the copying is successful, TNG_FAILURE if a minor
+ * error has occured or TNG_CRITICAL(2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t tng_data_src,
+                                                               tng_trajectory_t tng_data_dest);
 
 /**
  * @brief Find a chain in a molecule.
