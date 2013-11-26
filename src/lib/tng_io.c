@@ -7720,6 +7720,38 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
     return(stat);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_molecule_alloc(const tng_trajectory_t tng_data,
+                                                         tng_molecule_t *molecule_p)
+{
+    *molecule_p = malloc(sizeof(struct tng_molecule));
+    if(!*molecule_p)
+    {
+        printf("TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
+               sizeof(struct tng_molecule), __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+
+    tng_molecule_init(tng_data, *molecule_p);
+    
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_molecule_free(const tng_trajectory_t tng_data,
+                                                        tng_molecule_t *molecule_p)
+{
+    if(!*molecule_p)
+    {
+        return(TNG_SUCCESS);
+    }
+
+    tng_molecule_destroy(tng_data, *molecule_p);
+
+    free(*molecule_p);
+    *molecule_p = 0;
+
+    return(TNG_SUCCESS);
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_molecule_init(const tng_trajectory_t tng_data,
                                                         tng_molecule_t molecule)
 {

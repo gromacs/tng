@@ -1358,6 +1358,28 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_frame_range_get
                  int64_t *last_frame);
 
 /**
+ * @brief Allocate memory for and setup a molecule container.
+ * @param tng_data is a trajectory data container.
+ * @param molecule_p is a pointer to molecule to allocate and initialise.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_alloc(const tng_trajectory_t tng_data,
+                                                         tng_molecule_t *molecule_p);
+
+/**
+ * @brief Clean up a molecule container and free its allocated memory.
+ * @param tng_data is a trajectory data container.
+ * @param molecule_p is the molecule to destroy.
+ * @details All allocated memory in the data structure is freed and also the memory
+ * of the molecule itself.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_free(const tng_trajectory_t tng_data,
+                                                        tng_molecule_t *molecule_p);
+
+/**
  * @brief Setup a molecule container.
  * @param tng_data is a trajectory data container.
  * @param molecule is the molecule to initialise. Memory must be preallocated.
