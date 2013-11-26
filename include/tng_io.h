@@ -1515,8 +1515,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set
  * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if the molecule is found or TNG_FAILURE (1) if the
  * molecule is not found.
- * @details If name is an empty string and id is -1 the first molecule will be
- * found.
+ * @details If name is an empty string and id == -1 the first residue will
+ * be found.
  */
 tng_function_status DECLSPECDLLEXPORT tng_molecule_find
                 (tng_trajectory_t tng_data,
@@ -1555,8 +1555,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_of_index_get
  * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if the chain is found or TNG_FAILURE (1) if the
  * chain is not found.
- * @details If name is an empty string and id is -1 the first chain will be
- * found.
+ * @details If name is an empty string and id == -1 the first residue will
+ * be found.
  */
 tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
                 (tng_trajectory_t tng_data,
@@ -1625,12 +1625,33 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_bond_add
                  tng_bond_t *bond);
 
 /**
+ * @brief Find an atom in a molecule.
+ * @param tng_data is the trajectory data container containing the molecule.
+ * @param molecule is the molecule in which to search for the atom.
+ * @param name is a string containing the name of the atom. If name is an
+ * empty string only id will be used for searching.
+ * @param id is the id of the atom to find. If id == -1 the first atom
+ * that matches the specified name will be found.
+ * @param atom is a pointer to the atom if it was found - otherwise 0.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if the atom is found or TNG_FAILURE (1) if the
+ * atom is not found.
+ * @details If name is an empty string and id == -1 the first residue will
+ * be found.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_atom_find
+                (tng_trajectory_t tng_data,
+                 tng_molecule_t molecule,
+                 const char *name,
+                 int64_t id,
+                 tng_atom_t *atom);
+
+/**
  * @brief Set the name of a chain.
  * @param tng_data is the trajectory data container containing the atom..
  * @param chain is the chain to rename.
  * @param new_name is a string containing the wanted name.
- * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
- * must be initialised before using it.
  * @pre \code new_name != 0 \endcode The pointer to the name string
  * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
@@ -1645,17 +1666,17 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
  * @brief Find a residue in a chain.
  * @param tng_data is the trajectory data container containing the chain.
  * @param chain is the chain in which to search for the residue.
- * @param name is a string containing the name of the residue.
+ * @param name is a string containing the name of the residue.  If name is an
+ * empty string only id will be used for searching.
  * @param id is the id of the residue to find. If id == -1 the first residue
  * that matches the specified name will be found.
  * @param residue is a pointer to the residue if it was found - otherwise 0.
- * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
- * must be initialised before using it.
  * @pre \code name != 0 \endcode The pointer to the name string
  * must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if the residue is found or TNG_FAILURE (1) if the
  * residue is not found.
- * @details If name is an empty string the first residue will be found.
+ * @details If name is an empty string and id == -1 the first residue will
+ * be found.
  */
 tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find
                 (tng_trajectory_t tng_data,

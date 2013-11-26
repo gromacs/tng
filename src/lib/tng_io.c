@@ -7429,6 +7429,37 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_bond_add
     return(TNG_SUCCESS);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_molecule_atom_find
+                (tng_trajectory_t tng_data,
+                 tng_molecule_t molecule,
+                 const char *name,
+                 int64_t id,
+                 tng_atom_t *atom)
+{
+    int64_t i, n_atoms;
+    (void)tng_data;
+
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
+
+    n_atoms = molecule->n_atoms;
+
+    for(i = 0; i < n_atoms; i++)
+    {
+        *atom = &molecule->atoms[i];
+        if(name[0] != 0 || strcmp(name, (*atom)->name) == 0)
+        {
+            if(id == -1 || id == (*atom)->id)
+            {
+                return(TNG_SUCCESS);
+            }
+        }
+    }
+
+    *atom = 0;
+
+    return(TNG_FAILURE);
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
                 (tng_trajectory_t tng_data,
                  tng_chain_t chain,
@@ -7437,7 +7468,6 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
     unsigned int len;
     (void)tng_data;
 
-    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(new_name, "TNG library: new_name must not be a NULL pointer.");
 
     len = tng_min_i((int)strlen(new_name) + 1, TNG_MAX_STR_LEN);
@@ -7475,7 +7505,6 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find
     int64_t i, n_residues;
     (void)tng_data;
 
-    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
     n_residues = chain->n_residues;
@@ -7732,7 +7761,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_alloc(const tng_trajectory_t 
     }
 
     tng_molecule_init(tng_data, *molecule_p);
-    
+
     return(TNG_SUCCESS);
 }
 
