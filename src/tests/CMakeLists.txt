@@ -4,12 +4,7 @@ endif()
 
 link_directories(${TNG_IO_BINARY_DIR}/src/lib)
 
-set(EXAMPLE_FILES_DIR ${CMAKE_BINARY_DIR}/example_files/ CACHE STRING "Directory where to find input test files and save output files.")
-
-# Generate these two header files - even if the testing suites are not built. Avoids cppcheck errors.
-configure_file(${TNG_IO_SOURCE_DIR}/include/tng_io_testing.h.in ${CMAKE_BINARY_DIR}/include/tng_io_testing.h)
-configure_file(${TNG_IO_SOURCE_DIR}/include/compression/tng_compress_testing.h.in ${CMAKE_BINARY_DIR}/include/tng_compress_testing.h)
-include_directories(${CMAKE_BINARY_DIR}/include/)
+add_definitions(-DTNG_EXAMPLE_FILES_DIR="${CMAKE_BINARY_DIR}/example_files/") # Directory where to find input test files and save output files.
 
 if(TNG_BUILD_TEST)
     add_executable(tng_testing tng_io_testing.c)
@@ -19,7 +14,7 @@ if(TNG_BUILD_TEST)
     endif()
 
     if(HAVE_INTTYPES_H)
-      set_target_properties(tng_testing PROPERTIES COMPILE_DEFINITIONS USE_STD_INTTYPES_H=1)
+      set_property(TARGET tng_testing APPEND PROPERTY COMPILE_DEFINITIONS USE_STD_INTTYPES_H=1)
     endif()
 
     set_property(TARGET tng_testing PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests)

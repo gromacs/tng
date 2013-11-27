@@ -18,7 +18,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "tng_io.h"
-#include "tng_io_testing.h"
 
 static tng_function_status tng_test_setup_molecules(tng_trajectory_t traj)
 {
@@ -471,8 +470,8 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t traj)
     free(molpos);
     free(data);
 
-#ifdef EXAMPLE_FILES_DIR
-    tng_input_file_set(traj, EXAMPLE_FILES_DIR "tng_test.tng");
+#ifdef TNG_EXAMPLE_FILES_DIR
+    tng_input_file_set(traj, TNG_EXAMPLE_FILES_DIR "tng_test.tng");
 #else
     tng_input_file_set(traj, "/tmp/tng_test.tng");
 #endif
@@ -593,9 +592,9 @@ int main()
 
     printf("Creation time: %s\n", time_str);
 
-#ifdef EXAMPLE_FILES_DIR
-    tng_input_file_set(traj, EXAMPLE_FILES_DIR "tng_example.tng");
-    tng_output_file_set(traj, EXAMPLE_FILES_DIR "tng_example_out.tng");
+#ifdef TNG_EXAMPLE_FILES_DIR
+    tng_input_file_set(traj, TNG_EXAMPLE_FILES_DIR "tng_example.tng");
+    tng_output_file_set(traj, TNG_EXAMPLE_FILES_DIR "tng_example_out.tng");
 #else
     tng_input_file_set(traj, "tng_example.tng");
     tng_output_file_set(traj, "/tmp/tng_example_out.tng");
@@ -634,8 +633,8 @@ int main()
     }
 
 
-#ifdef EXAMPLE_FILES_DIR
-    tng_output_file_set(traj, EXAMPLE_FILES_DIR "tng_test.tng");
+#ifdef TNG_EXAMPLE_FILES_DIR
+    tng_output_file_set(traj, TNG_EXAMPLE_FILES_DIR "tng_test.tng");
 #else
     tng_output_file_set(traj, "/tmp/tng_test.tng");
 #endif
@@ -672,8 +671,8 @@ int main()
     }
 
 
-#ifdef EXAMPLE_FILES_DIR
-    stat = tng_util_trajectory_open(EXAMPLE_FILES_DIR "tng_test.tng", 'r', &traj);
+#ifdef TNG_EXAMPLE_FILES_DIR
+    stat = tng_util_trajectory_open(TNG_EXAMPLE_FILES_DIR "tng_test.tng", 'r', &traj);
 #else
     stat = tng_util_trajectory_open("/tmp/tng_test.tng", 'r', &traj);
 #endif

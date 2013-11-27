@@ -6,7 +6,6 @@
 # include <math.h>
 # include <omp.h>
 # include "tng_io.h"
-#include "tng_io_testing.h"
 
 int main ();
 void compute ( int np, int nd, float pos[], float vel[],
@@ -121,8 +120,8 @@ int main ()
     printf("\n");
     printf("  Initializing trajectory storage.\n");
     /* Initialize the TNG trajectory */
-#ifdef EXAMPLE_FILES_DIR
-    tng_util_trajectory_open(EXAMPLE_FILES_DIR "tng_md_out.tng", 'w', &traj);
+#ifdef TNG_EXAMPLE_FILES_DIR
+    tng_util_trajectory_open(TNG_EXAMPLE_FILES_DIR "tng_md_out.tng", 'w', &traj);
 #else
     tng_util_trajectory_open("/tmp/tng_md_out.tng", 'w', &traj);
 #endif

@@ -1,6 +1,6 @@
 link_directories(${TNG_IO_BINARY_DIR}/src/lib)
 
-set(TNG_COMPRESS_FILES_DIR ${CMAKE_BINARY_DIR}/test_tng_compress_files/ CACHE STRING "Directory where to write tng_compress test files.")
+add_definitions(-DTNG_COMPRESS_FILES_DIR="${CMAKE_BINARY_DIR}/test_tng_compress_files/") # Directory where to write tng_compress test files.
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/test_tng_compress_files)
 
