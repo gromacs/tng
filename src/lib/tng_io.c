@@ -11664,6 +11664,11 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
 
     frame_set = &tng_data->current_trajectory_frame_set;
+    
+    if(frame_set->n_written_frames == frame_set->n_frames)
+    {
+        return(TNG_SUCCESS);
+    }
 
     tng_data->current_trajectory_frame_set_output_file_pos =
     ftell(tng_data->output_file);
@@ -16427,21 +16432,15 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
     {
         block_type_flag = TNG_TRAJECTORY_BLOCK;
 
-        n_frames = tng_data->frame_set_n_frames;
-
         if(!frame_set || tng_data->n_trajectory_frame_sets <= 0)
         {
-            stat = tng_frame_set_new(tng_data, 0, n_frames);
+            stat = tng_frame_set_new(tng_data, 0, tng_data->frame_set_n_frames);
             if(stat != TNG_SUCCESS)
             {
                 printf("TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
                     __LINE__);
                 return(stat);
             }
-        }
-        else
-        {
-            n_frames = frame_set->n_frames;
         }
         last_frame = frame_set->first_frame +
                      frame_set->n_frames - 1;
@@ -16458,7 +16457,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
             {
                 last_frame = frame_nr - 1;
             }
-            stat = tng_frame_set_new(tng_data, last_frame + 1, n_frames);
+            stat = tng_frame_set_new(tng_data, last_frame + 1,
+                                     tng_data->frame_set_n_frames);
             if(stat != TNG_SUCCESS)
             {
                 printf("TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
@@ -16468,6 +16468,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
         }
         frame_set->n_unwritten_frames = frame_nr -
                                         frame_set->first_frame + 1;
+                                        
+        n_frames = frame_set->n_frames;
     }
 
     if(particle_dependency == TNG_PARTICLE_BLOCK_DATA)
