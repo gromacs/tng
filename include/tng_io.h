@@ -1106,13 +1106,15 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_get
                  int64_t *n);
 
 /**
- * @brief Get the precision of lossy compression
+ * @brief Get the precision of lossy compression.
  * @param tng_data is the trajectory of which to get the compression precision.
  * @param precision will be pointing to the retrieved compression precision.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
  * must be initialised before using it.
  * @details A compression precision of 0.001 (the default) means that the
- * compressed values are accurate to the third decimal.
+ * compressed values are accurate to the third decimal. This function does
+ * not check actual precision of compressed data, but just returns what has
+ * previously been set using tng_compression_precision_set().
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_compression_precision_get
@@ -1120,7 +1122,7 @@ tng_function_status DECLSPECDLLEXPORT tng_compression_precision_get
                  double *precision);
 
 /**
- * @brief Get the precision of lossy compression
+ * @brief Set the precision of lossy compression.
  * @param tng_data is the trajectory of which to set the compression precision.
  * @param precision is the new compression precision.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
