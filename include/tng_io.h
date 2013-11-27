@@ -654,6 +654,22 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_set
                  const char *file_name);
 
 /**
+ * @brief Set the name of the output file for appending. The output file
+ * will not be overwritten.
+ * @param tng_data the trajectory of which to set the output file name.
+ * @param file_name the name of the output file to append to.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code file_name != 0 \endcode The pointer to the file name string
+ * must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_output_append_file_set
+                (tng_trajectory_t tng_data,
+                 const char *file_name);
+
+/**
  * @brief Get the endianness of the output file.
  * @param tng_data the trajectory of which to get the endianness of the current
  * output file.
@@ -2191,6 +2207,27 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next_only_data_from_blo
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_write
+                (tng_trajectory_t tng_data,
+                 const char hash_mode);
+
+/**
+ * @brief Write one frame set even if it does not have as many frames as
+ * expected. The function also writes mapping and related data blocks
+ * to the output_file of tng_data.
+ * @param tng_data is a trajectory data container.
+ * @details  tng_data->output_file_path specifies
+ * which file to write to. If the file (output_file) is not open it will be
+ * opened.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH an md5 hash for each header block will be generated.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @details The number of frames in the frame set is set to the number of
+ * frames of the data blocks before writing it to disk.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_premature_write
                 (tng_trajectory_t tng_data,
                  const char hash_mode);
 

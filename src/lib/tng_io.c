@@ -9249,6 +9249,52 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_set(tng_trajectory_t tng_d
     return(tng_output_file_init(tng_data));
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_output_append_file_set
+                (tng_trajectory_t tng_data,
+                 const char *file_name)
+{
+    int len;
+    char *temp;
+
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(file_name, "TNG library: file_name must not be a NULL pointer");
+
+    if(tng_data->output_file_path &&
+       strcmp(tng_data->output_file_path, file_name) == 0)
+    {
+        return(TNG_SUCCESS);
+    }
+
+    if(tng_data->output_file)
+    {
+        fclose(tng_data->output_file);
+    }
+
+    len = tng_min_i((int)strlen(file_name) + 1, TNG_MAX_STR_LEN);
+    temp = realloc(tng_data->output_file_path, len);
+    if(!temp)
+    {
+        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+               __FILE__, __LINE__);
+        free(tng_data->output_file_path);
+        tng_data->output_file_path = 0;
+        return(TNG_CRITICAL);
+    }
+    tng_data->output_file_path = temp;
+
+    strncpy(tng_data->output_file_path, file_name, len);
+    
+    tng_data->output_file = fopen(tng_data->output_file_path, "r+");
+    if(!tng_data->output_file)
+    {
+        printf("TNG library: Cannot open file %s. %s: %d\n",
+                tng_data->output_file_path, __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+
+    return(TNG_SUCCESS);
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_output_file_endianness_get
                 (tng_trajectory_t tng_data, tng_file_endianness *endianness)
 {
@@ -11691,7 +11737,28 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
 
     frame_set->n_unwritten_frames = 0;
 
+    fflush(tng_data->output_file);
+
     return(stat);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_premature_write
+                (tng_trajectory_t tng_data,
+                 const char hash_mode)
+{
+    tng_trajectory_frame_set_t frame_set;
+
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    
+    frame_set = &tng_data->current_trajectory_frame_set;
+    
+    if(frame_set->n_unwritten_frames == 0)
+    {
+        return(TNG_SUCCESS);
+    }
+    frame_set->n_frames = frame_set->n_unwritten_frames;
+    
+    return(tng_frame_set_write(tng_data, hash_mode));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
@@ -15111,6 +15178,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
                  const char mode,
                  tng_trajectory_t *tng_data_p)
 {
+    tng_function_status stat;
+    tng_gen_block_t block;
+    
     TNG_ASSERT(filename, "TNG library: filename must not be a NULL pointer.");
 
     if(mode != 'r' && mode != 'w' && mode != 'a')
@@ -15132,9 +15202,55 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
         tng_file_headers_read(*tng_data_p, TNG_USE_HASH);
     }
 
-    if(mode == 'w' || mode == 'a')
+    if(mode == 'w')
     {
         tng_output_file_set(*tng_data_p, filename);
+    }
+    else if(mode == 'a')
+    {
+        fseek((*tng_data_p)->input_file,
+                (long)(*tng_data_p)->last_trajectory_frame_set_input_file_pos,
+                SEEK_SET);
+        
+        tng_block_init(&block);
+
+        stat = tng_block_header_read(*tng_data_p, block);
+        if(stat != TNG_SUCCESS || block->id != TNG_TRAJECTORY_FRAME_SET)
+        {
+            printf("TNG library: Cannot read trajectory frame set block header at pos %"PRId64". %s: %d\n",
+                    (*tng_data_p)->last_trajectory_frame_set_input_file_pos, __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            return(stat);
+        }
+        stat = tng_block_read_next(*tng_data_p, block, TNG_USE_HASH);
+        tng_block_destroy(&block);
+        if(stat != TNG_SUCCESS)
+        {
+            printf("TNG library: Error reading trajectory frame set block. %s: %d\n",
+                    __FILE__, __LINE__);
+            return(stat);
+        }
+        
+        (*tng_data_p)->first_trajectory_frame_set_output_file_pos =
+        (*tng_data_p)->first_trajectory_frame_set_input_file_pos;
+        (*tng_data_p)->last_trajectory_frame_set_output_file_pos =
+        (*tng_data_p)->last_trajectory_frame_set_input_file_pos;
+        (*tng_data_p)->current_trajectory_frame_set_output_file_pos =
+        (*tng_data_p)->current_trajectory_frame_set_input_file_pos;
+        (*tng_data_p)->first_trajectory_frame_set_input_file_pos = -1;
+        (*tng_data_p)->last_trajectory_frame_set_input_file_pos = -1;
+        (*tng_data_p)->current_trajectory_frame_set_input_file_pos = -1;
+        if((*tng_data_p)->input_file)
+        {
+            fclose((*tng_data_p)->input_file);
+            (*tng_data_p)->input_file = 0;
+        }
+        if((*tng_data_p)->input_file_path)
+        {
+            free((*tng_data_p)->input_file_path);
+            (*tng_data_p)->input_file_path = 0;
+        }
+        tng_output_append_file_set(*tng_data_p, filename);        
     }
 
     return(TNG_SUCCESS);
