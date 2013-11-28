@@ -7337,15 +7337,14 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
 
     tng_data_dest->n_molecules = tng_data_src->n_molecules;
 
-    molecule_temp = realloc(tng_data_dest->molecules,
-                    sizeof(struct tng_molecule) * tng_data_dest->n_molecules);
-    if(!molecule_temp)
+    free(tng_data_dest->molecules);
+
+    tng_data_dest->molecules = malloc(sizeof(struct tng_molecule) * tng_data_dest->n_molecules);
+    if(!tng_data_dest->molecules)
     {
         printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(struct tng_molecule) * tng_data_dest->n_molecules,
                __FILE__, __LINE__);
-        free(tng_data_dest->molecules);
-        tng_data_dest->molecules = 0;
         return(TNG_CRITICAL);
     }
     list_temp = realloc(tng_data_dest->molecule_cnt_list,
