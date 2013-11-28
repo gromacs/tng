@@ -7336,6 +7336,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
     }
 
     tng_data_dest->n_molecules = 0;
+    tng_data_dest->n_particles = 0;
 
     molecule_temp = realloc(tng_data_dest->molecules,
                     sizeof(struct tng_molecule) * tng_data_src->n_molecules);
