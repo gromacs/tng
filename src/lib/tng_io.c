@@ -7360,7 +7360,6 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
         return(TNG_CRITICAL);
     }
 
-    tng_data_dest->molecules = molecule_temp;
     tng_data_dest->molecule_cnt_list = list_temp;
 
     for(i = 0; i < tng_data_dest->n_molecules; i++)
