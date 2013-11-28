@@ -7335,24 +7335,25 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
         tng_molecule_destroy(tng_data_dest, molecule);
     }
 
-    tng_data_dest->n_molecules = tng_data_src->n_molecules;
+    tng_data_dest->n_molecules = 0;
 
-    free(tng_data_dest->molecules);
-
-    tng_data_dest->molecules = malloc(sizeof(struct tng_molecule) * tng_data_dest->n_molecules);
-    if(!tng_data_dest->molecules)
+    molecule_temp = realloc(tng_data_dest->molecules,
+                    sizeof(struct tng_molecule) * tng_data_src->n_molecules);
+    if(!molecule_temp)
     {
         printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-               sizeof(struct tng_molecule) * tng_data_dest->n_molecules,
+               sizeof(struct tng_molecule) * tng_data_src->n_molecules,
                __FILE__, __LINE__);
+        free(tng_data_dest->molecules);
+        tng_data_dest->molecules = 0;
         return(TNG_CRITICAL);
     }
     list_temp = realloc(tng_data_dest->molecule_cnt_list,
-                                     sizeof(int64_t) * tng_data_dest->n_molecules);
+                                     sizeof(int64_t) * tng_data_src->n_molecules);
     if(!list_temp)
     {
         printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-               sizeof(int64_t) * tng_data_dest->n_molecules,
+               sizeof(int64_t) * tng_data_src->n_molecules,
                __FILE__, __LINE__);
         free(tng_data_dest->molecule_cnt_list);
         tng_data_dest->molecule_cnt_list = 0;
@@ -7360,9 +7361,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
         return(TNG_CRITICAL);
     }
 
+    tng_data_dest->molecules = molecule_temp;
     tng_data_dest->molecule_cnt_list = list_temp;
 
-    for(i = 0; i < tng_data_dest->n_molecules; i++)
+    for(i = 0; i < tng_data_src->n_molecules; i++)
     {
         molecule = &tng_data_src->molecules[i];
         stat = tng_molecule_w_id_add(tng_data_dest, molecule->name, molecule->id,
