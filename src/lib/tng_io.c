@@ -4864,6 +4864,20 @@ static tng_function_status tng_particle_data_block_write
     frame_step = (n_frames % stride_length) ? n_frames / stride_length + 1:
                  n_frames / stride_length;
 
+    /* TNG compression will use compression precision to get integers from
+     * floating point data. The compression multiplier stores that information
+     * to be able to return the precision of the compressed data. */
+    if(data->codec_id == TNG_TNG_COMPRESSION)
+    {
+        data->compression_multiplier = 1/tng_data->compression_precision;
+    }
+    /* Uncompressed data blocks do not use compression multipliers at all.
+     * GZip compression does not need it either. */
+    else if(data->codec_id == TNG_UNCOMPRESSED || data->codec_id == TNG_GZIP_COMPRESSION)
+    {
+        data->compression_multiplier = 1.0;
+    }
+
     if(mapping && mapping->n_particles != 0)
     {
         n_particles = mapping->n_particles;
@@ -5107,7 +5121,8 @@ static tng_function_status tng_particle_data_block_write
         switch(data->datatype)
         {
         case TNG_FLOAT_DATA:
-            if(data->codec_id == TNG_UNCOMPRESSED)
+            if(data->codec_id == TNG_UNCOMPRESSED || data-> codec_id == TNG_GZIP_COMPRESSION ||
+               data->codec_id == TNG_TNG_COMPRESSION)
             {
                 if(tng_data->input_endianness_swap_func_32)
                 {
@@ -5160,7 +5175,8 @@ static tng_function_status tng_particle_data_block_write
             }
             break;
         case TNG_DOUBLE_DATA:
-            if(data->codec_id == TNG_UNCOMPRESSED)
+            if(data->codec_id == TNG_UNCOMPRESSED || data-> codec_id == TNG_GZIP_COMPRESSION ||
+               data->codec_id == TNG_TNG_COMPRESSION)
             {
                 if(tng_data->input_endianness_swap_func_64)
                 {
@@ -5762,6 +5778,20 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     frame_step = (n_frames % stride_length) ? n_frames / stride_length + 1:
                  n_frames / stride_length;
 
+    /* TNG compression will use compression precision to get integers from
+     * floating point data. The compression multiplier stores that information
+     * to be able to return the precision of the compressed data. */
+    if(data->codec_id == TNG_TNG_COMPRESSION)
+    {
+        data->compression_multiplier = 1/tng_data->compression_precision;
+    }
+    /* Uncompressed data blocks do not use compression multipliers at all.
+     * GZip compression does not need it either. */
+    else if(data->codec_id == TNG_UNCOMPRESSED || data->codec_id == TNG_GZIP_COMPRESSION)
+    {
+        data->compression_multiplier = 1.0;
+    }
+
     block->block_contents_size = sizeof(char) * 2 +
                                  sizeof(data->n_values_per_frame) +
                                  sizeof(data->codec_id);
@@ -5945,7 +5975,8 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         switch(data->datatype)
         {
         case TNG_FLOAT_DATA:
-            if(data->codec_id == TNG_UNCOMPRESSED)
+            if(data->codec_id == TNG_UNCOMPRESSED || data-> codec_id == TNG_GZIP_COMPRESSION ||
+               data->codec_id == TNG_TNG_COMPRESSION)
             {
                 if(tng_data->input_endianness_swap_func_32)
                 {
@@ -5998,7 +6029,8 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
             }
             break;
         case TNG_DOUBLE_DATA:
-            if(data->codec_id == TNG_UNCOMPRESSED)
+            if(data->codec_id == TNG_UNCOMPRESSED || data-> codec_id == TNG_GZIP_COMPRESSION ||
+               data->codec_id == TNG_TNG_COMPRESSION)
             {
                 if(tng_data->input_endianness_swap_func_64)
                 {
@@ -6066,14 +6098,6 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                     return(TNG_CRITICAL);
                 }
                 data->codec_id = TNG_UNCOMPRESSED;
-                if(fabs(data->compression_multiplier - 1.0) > 0.00001)
-                {
-                    printf("TNG library: Multiplier applied, but block was not compressed. Data will be wrong.\n");
-                    printf("TNG library: The block might be completely corrupted.\n");
-                    /* FIXME: The data should be divided by the multiplier and the data that is only
-                     * present in blocks containing compressed data (e.g. multiplier) must be
-                     * removed */
-                }
             }
     /*         printf("TNG library: After compression: %"PRId64"\n", block->block_contents_size); */
             break;
@@ -7347,7 +7371,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
                                      &molecule_temp);
         if(stat != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot create new molecule to make a copy.");
+            printf("TNG library: Cannot create new molecule to make a copy. %s: %d\n",
+                   __FILE__, __LINE__);
             return(stat);
         }
         molecule_temp->quaternary_str = molecule->quaternary_str;
@@ -7359,7 +7384,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
                                                &chain_temp);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot create new chain to make a copy.");
+                printf("TNG library: Cannot create new chain to make a copy. %s: %d\n",
+                       __FILE__, __LINE__);
                 return(stat);
             }
             for(k = 0; k < chain->n_residues; k++)
@@ -7370,7 +7396,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
                                                   &residue_temp);
                 if(stat != TNG_SUCCESS)
                 {
-                    printf("TNG library: Cannot create new residue to make a copy.");
+                    printf("TNG library: Cannot create new residue to make a copy. %s: %d\n",
+                           __FILE__, __LINE__);
                     return(stat);
                 }
                 for(l = 0; l < residue->n_atoms; l++)
@@ -7381,7 +7408,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
                                                      atom->id, &atom_temp);
                     if(stat != TNG_SUCCESS)
                     {
-                        printf("TNG library: Cannot create new atom to make a copy.");
+                    printf("TNG library: Cannot create new atom to make a copy. %s: %d\n",
+                           __FILE__, __LINE__);
                         return(stat);
                     }
                 }
@@ -9283,7 +9311,7 @@ tng_function_status DECLSPECDLLEXPORT tng_output_append_file_set
     tng_data->output_file_path = temp;
 
     strncpy(tng_data->output_file_path, file_name, len);
-    
+
     tng_data->output_file = fopen(tng_data->output_file_path, "r+");
     if(!tng_data->output_file)
     {
@@ -11664,7 +11692,7 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
 
     frame_set = &tng_data->current_trajectory_frame_set;
-    
+
     if(frame_set->n_written_frames == frame_set->n_frames)
     {
         return(TNG_SUCCESS);
@@ -11754,15 +11782,15 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_premature_write
     tng_trajectory_frame_set_t frame_set;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
-    
+
     frame_set = &tng_data->current_trajectory_frame_set;
-    
+
     if(frame_set->n_unwritten_frames == 0)
     {
         return(TNG_SUCCESS);
     }
     frame_set->n_frames = frame_set->n_unwritten_frames;
-    
+
     return(tng_frame_set_write(tng_data, hash_mode));
 }
 
@@ -11846,7 +11874,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
 
             if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot read frame header. %s: %d\n",
+                printf("TNG library: Cannot read frame set header. %s: %d\n",
                     __FILE__, __LINE__);
                 tng_data->input_file = temp;
                 tng_block_destroy(&block);
@@ -11902,7 +11930,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
 
                     if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
                     {
-                        printf("TNG library: Cannot read frame header. %s: %d\n",
+                        printf("TNG library: Cannot read frame set header. %s: %d\n",
                             __FILE__, __LINE__);
                         tng_data->input_file = temp;
                         tng_block_destroy(&block);
@@ -12162,9 +12190,9 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
             return(TNG_CRITICAL);
         }
 
-        if(n_frames > frame_set->n_written_frames)
+        if(n_frames > frame_set->n_unwritten_frames)
         {
-            frame_set->n_written_frames = n_frames;
+            frame_set->n_unwritten_frames = n_frames;
         }
 
         n_frames_div = (n_frames % stride_length) ?
@@ -12311,9 +12339,9 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
             return(TNG_CRITICAL);
         }
 
-        if(n_frames > frame_set->n_written_frames)
+        if(n_frames > frame_set->n_unwritten_frames)
         {
-            frame_set->n_written_frames = n_frames;
+            frame_set->n_unwritten_frames = n_frames;
         }
 
         n_frames_div = (n_frames % stride_length) ?
@@ -15185,7 +15213,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
 {
     tng_function_status stat;
     tng_gen_block_t block;
-    
+
     TNG_ASSERT(filename, "TNG library: filename must not be a NULL pointer.");
 
     if(mode != 'r' && mode != 'w' && mode != 'a')
@@ -15216,7 +15244,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
         fseek((*tng_data_p)->input_file,
                 (long)(*tng_data_p)->last_trajectory_frame_set_input_file_pos,
                 SEEK_SET);
-        
+
         tng_block_init(&block);
 
         stat = tng_block_header_read(*tng_data_p, block);
@@ -15235,7 +15263,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
                     __FILE__, __LINE__);
             return(stat);
         }
-        
+
         (*tng_data_p)->first_trajectory_frame_set_output_file_pos =
         (*tng_data_p)->first_trajectory_frame_set_input_file_pos;
         (*tng_data_p)->last_trajectory_frame_set_output_file_pos =
@@ -15255,7 +15283,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
             free((*tng_data_p)->input_file_path);
             (*tng_data_p)->input_file_path = 0;
         }
-        tng_output_append_file_set(*tng_data_p, filename);        
+        tng_output_append_file_set(*tng_data_p, filename);
     }
 
     return(TNG_SUCCESS);
@@ -16468,7 +16496,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
         }
         frame_set->n_unwritten_frames = frame_nr -
                                         frame_set->first_frame + 1;
-                                        
+
         n_frames = frame_set->n_frames;
     }
 
