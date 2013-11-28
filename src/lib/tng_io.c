@@ -5031,9 +5031,11 @@ static tng_function_status tng_particle_data_block_write
 
     if(data->n_frames > 0 && stride_length > 1)
     {
-        /* FIXME: Currently only supporting
-         * frame_set->n_frames / data->stride_length == 0 */
-        data->first_frame_with_data = frame_set->first_frame;
+        /* FIXME: first_frame_with_data is not reliably set */
+        if(data->first_frame_with_data == 0)
+        {
+            data->first_frame_with_data = frame_set->first_frame;
+        }
         memcpy(block->block_contents+offset, &data->first_frame_with_data,
                sizeof(data->first_frame_with_data));
         if(tng_data->output_endianness_swap_func_64)
@@ -5920,9 +5922,11 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
 
     if(data->n_frames > 0 && stride_length > 1)
     {
-        /* FIXME: Currently only supporting
-         * frame_set->n_frames / data->stride_length == 0 */
-        data->first_frame_with_data = frame_set->first_frame;
+        /* FIXME: first_frame_with_data is not reliably set */
+        if(data->first_frame_with_data == 0)
+        {
+            data->first_frame_with_data = frame_set->first_frame;
+        }
         memcpy(block->block_contents+offset, &data->first_frame_with_data,
                sizeof(data->first_frame_with_data));
         if(tng_data->output_endianness_swap_func_64)
@@ -16432,6 +16436,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
     tng_non_particle_data_t np_data;
     int64_t n_particles, n_frames, stride_length = 100, frame_pos;
     int64_t last_frame;
+    int is_first_frame_flag = 0;
     char block_type_flag;
     tng_function_status stat;
 
@@ -16495,6 +16500,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                 return(stat);
             }
         }
+        if(frame_set->n_unwritten_frames == 0)
+        {
+            is_first_frame_flag = 1;
+        }
         frame_set->n_unwritten_frames = frame_nr -
                                         frame_set->first_frame + 1;
 
@@ -16547,6 +16556,15 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
 
             frame_pos = (frame_nr - frame_set->first_frame) / stride_length;
 
+            if(is_first_frame_flag)
+            {
+                p_data->first_frame_with_data = frame_nr;
+            }
+            else
+            {
+                p_data->first_frame_with_data = frame_set->first_frame
+            }
+
             memcpy((char *)p_data->values + sizeof(float) * frame_pos * n_particles *
                    n_values_per_frame, values, sizeof(float) *
                    n_particles * n_values_per_frame);
@@ -16597,6 +16615,15 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
 
             frame_pos = (frame_nr - frame_set->first_frame) / stride_length;
 
+            if(is_first_frame_flag)
+            {
+                np_data->first_frame_with_data = frame_nr;
+            }
+            else
+            {
+                np_data->first_frame_with_data = frame_set->first_frame
+            }
+
             memcpy((char *)np_data->values + sizeof(float) * frame_pos *
                    n_values_per_frame, values, sizeof(float) *
                    n_values_per_frame);
@@ -16625,6 +16652,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
     tng_non_particle_data_t np_data;
     int64_t n_particles, n_frames, stride_length = 100, frame_pos;
     int64_t last_frame;
+    int is_first_frame_flag = 0;
     char block_type_flag;
     tng_function_status stat;
 
@@ -16693,6 +16721,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
                 return(stat);
             }
         }
+        if(frame_set->n_unwritten_frames == 0)
+        {
+            is_first_frame_flag = 1;
+        }
         frame_set->n_unwritten_frames = frame_nr -
                                         frame_set->first_frame + 1;
     }
@@ -16743,6 +16775,15 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
 
             frame_pos = (frame_nr - frame_set->first_frame) / stride_length;
 
+            if(is_first_frame_flag)
+            {
+                p_data->first_frame_with_data = frame_nr;
+            }
+            else
+            {
+                p_data->first_frame_with_data = frame_set->first_frame
+            }
+
             memcpy((char *)p_data->values + sizeof(float) * frame_pos * n_particles *
                    n_values_per_frame, values, sizeof(float) *
                    n_particles * n_values_per_frame);
@@ -16792,6 +16833,15 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
             stride_length = np_data->stride_length;
 
             frame_pos = (frame_nr - frame_set->first_frame) / stride_length;
+
+            if(is_first_frame_flag)
+            {
+                p_data->first_frame_with_data = frame_nr;
+            }
+            else
+            {
+                p_data->first_frame_with_data = frame_set->first_frame
+            }
 
             memcpy((char *)np_data->values + sizeof(float) * frame_pos *
                    n_values_per_frame, values, sizeof(float) *
