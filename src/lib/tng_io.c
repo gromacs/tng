@@ -16562,7 +16562,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
             }
             else
             {
-                p_data->first_frame_with_data = frame_set->first_frame
+                p_data->first_frame_with_data = frame_set->first_frame;
             }
 
             memcpy((char *)p_data->values + sizeof(float) * frame_pos * n_particles *
@@ -16621,7 +16621,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
             }
             else
             {
-                np_data->first_frame_with_data = frame_set->first_frame
+                np_data->first_frame_with_data = frame_set->first_frame;
             }
 
             memcpy((char *)np_data->values + sizeof(float) * frame_pos *
@@ -16781,7 +16781,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
             }
             else
             {
-                p_data->first_frame_with_data = frame_set->first_frame
+                p_data->first_frame_with_data = frame_set->first_frame;
             }
 
             memcpy((char *)p_data->values + sizeof(float) * frame_pos * n_particles *
@@ -16840,7 +16840,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
             }
             else
             {
-                p_data->first_frame_with_data = frame_set->first_frame
+                p_data->first_frame_with_data = frame_set->first_frame;
             }
 
             memcpy((char *)np_data->values + sizeof(float) * frame_pos *
