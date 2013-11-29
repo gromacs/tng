@@ -16891,11 +16891,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
 
             if(is_first_frame_flag)
             {
-                p_data->first_frame_with_data = frame_nr;
+                np_data->first_frame_with_data = frame_nr;
             }
             else
             {
-                p_data->first_frame_with_data = frame_set->first_frame;
+                np_data->first_frame_with_data = frame_set->first_frame;
             }
 
             memcpy((char *)np_data->values + sizeof(float) * frame_pos *
