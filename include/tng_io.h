@@ -4295,7 +4295,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_double_write
 
 /**
  * @brief High-level function for getting the compression method and
- * multiplication factor of the next frame of a specific data block.
+ * multiplication factor of the last read frame of a specific data block.
  * @param tng_data is the trajectory to use.
  * @param block_id is the ID number of the block containing the data of
  * interest.
@@ -4310,18 +4310,54 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_double_write
  * must not be a NULL pointer.
  * @pre \code factor != 0 \endcode The pointer to the returned multiplication
  * factor must not be a NULL pointer.
- * @details This function reads ahead until a data block of the requested ID
- * is found.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
- */ 
-tng_function_status DECLSPECDLLEXPORT tng_util_compression_next_frame_get
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_compression_current_frame_get
                 (tng_trajectory_t tng_data,
                  const int64_t block_id,
                  char *codec_id,
                  float *factor);
-                
+
+/** @brief High-level function for determining the next frame with data and what
+ * data blocks have data for that frame. The search can be limited to certain
+ * data blocks.
+ * @param tng_data is the trajectory to use.
+ * @param current_frame is the frame that was last read, from where to start
+ * looking for data.
+ * @param n_requested_data_block_ids is the number of data blocks listed in
+ * requested_data_block_ids. If this is 0 all data blocks will be taken into
+ * account.
+ * @param requested_data_block_ids is an array of data blocks to look for.
+ * @param next_frame will be set to the next frame with data.
+ * @param n_data_blocks_in_next_frame is set to the number of data blocks with
+ * data for next_frame.
+ * @param data_block_ids_in_next_frame is an array (of length
+ * n_data_blocks_in_next_frame) that lists the data block IDs with data for
+ * next_frame.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code next_frame != 0 \endcode The pointer to the next frame must not
+ * be NULL.
+ * @pre \code data_block_ids_in_next_frame != 0 \endcode The pointer to the
+ * list of data block IDs must not be NULL.
+ * @pre \code n_requested_data_block_ids == 0 || requested_data_block_ids != 0 \endcode
+ * If the number of requested data blocks != 0 then the array of data block IDs must not be NULL.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_next_frame_present_data_blocks_find
+                (tng_trajectory_t tng_data,
+                 int64_t current_frame,
+                 const int64_t n_requested_data_block_ids,
+                 const int64_t *requested_data_block_ids,
+                 int64_t *next_frame,
+                 int64_t *n_data_blocks_in_next_frame,
+                 int64_t **data_block_ids_in_next_frame);
+
+
 /** @} */ /* end of group2 */
 
 
