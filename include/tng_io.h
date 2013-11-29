@@ -2393,6 +2393,26 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
                  const int64_t codec_id,
                  void *new_data);
 
+/** @brief Get the name of a data block of a specific ID.
+ * @param tng_data is the trajectory data container.
+ * @param block_id is the ID of the data block of which to get the name.
+ * @param name is a string, which is set to the name of the data block.
+ * Memory must be reserved beforehand.
+ * @param max_len is the maximum length of name.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if the data block is found, TNG_FAILURE (1)
+ * if a minor error has occured or the data block is not found or
+ * TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_data_block_name_get
+                (tng_trajectory_t tng_data,
+                 int64_t block_id,
+                 char *name,
+                 int max_len);
+
 /**
  * @brief Write data of one trajectory frame to the output_file of tng_data.
  * @param tng_data is a trajectory data container. tng_data->output_file_path

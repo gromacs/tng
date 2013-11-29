@@ -3865,6 +3865,8 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
     char *dest, *temp;
     int64_t algo_find_n_frames;
     unsigned long offset;
+    float f_precision;
+    double d_precision;
 
     if(block->id != TNG_TRAJ_POSITIONS &&
        block->id != TNG_TRAJ_VELOCITIES)
@@ -3877,6 +3879,15 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
     {
         printf("TNG library: Data type not supported.\n");
         return(TNG_FAILURE);
+    }
+
+    if(type == TNG_FLOAT_DATA)
+    {
+        f_precision = 1/tng_data->compression_precision;
+    }
+    else
+    {
+        d_precision = 1/tng_data->compression_precision;
     }
 
     if(block->id == TNG_TRAJ_POSITIONS)
@@ -3892,7 +3903,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_pos_float_find_algo(start_pos, (int)n_particles,
                                                         (int)n_frames,
-                                                        (float)tng_data->compression_precision,
+                                                        f_precision,
                                                         0, alt_algo,
                                                         &new_len);
 
@@ -3901,7 +3912,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_pos_find_algo(start_pos, (int)n_particles,
                                            (int)n_frames,
-                                           tng_data->compression_precision,
+                                           d_precision,
                                            0, alt_algo,
                                            &new_len);
             }
@@ -3924,7 +3935,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_pos_float_find_algo(start_pos, (int)n_particles,
                                                         (int)algo_find_n_frames,
-                                                        (float)tng_data->compression_precision,
+                                                        f_precision,
                                                         0, tng_data->
                                                         compress_algo_pos,
                                                         &new_len);
@@ -3933,7 +3944,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
                 {
                     dest = tng_compress_pos_float(start_pos, (int)n_particles,
                                                   (int)n_frames,
-                                                  (float)tng_data->compression_precision,
+                                                  f_precision,
                                                   0, tng_data->compress_algo_pos,
                                                   &new_len);
                 }
@@ -3942,7 +3953,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_pos_find_algo(start_pos, (int)n_particles,
                                            (int)algo_find_n_frames,
-                                           tng_data->compression_precision,
+                                           d_precision,
                                            0, tng_data->
                                            compress_algo_pos,
                                            &new_len);
@@ -3951,7 +3962,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
                 {
                     dest = tng_compress_pos(start_pos, (int)n_particles,
                                             (int)n_frames,
-                                            tng_data->compression_precision, 0,
+                                            d_precision, 0,
                                             tng_data->compress_algo_pos,
                                             &new_len);
                 }
@@ -3963,14 +3974,14 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_pos_float(start_pos, (int)n_particles,
                                               (int)n_frames,
-                                              (float)tng_data->compression_precision, 0,
+                                              f_precision, 0,
                                               tng_data->compress_algo_pos, &new_len);
             }
             else
             {
                 dest = tng_compress_pos(start_pos, (int)n_particles,
                                         (int)n_frames,
-                                        tng_data->compression_precision, 0,
+                                        d_precision, 0,
                                         tng_data->compress_algo_pos,
                                         &new_len);
             }
@@ -3989,7 +4000,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_vel_float_find_algo(start_pos, (int)n_particles,
                                                         (int)n_frames,
-                                                        (float)tng_data->compression_precision,
+                                                        f_precision,
                                                         0, alt_algo,
                                                         &new_len);
 
@@ -3998,7 +4009,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_vel_find_algo(start_pos, (int)n_particles,
                                                   (int)n_frames,
-                                                  tng_data->compression_precision,
+                                                  d_precision,
                                                   0, alt_algo,
                                                   &new_len);
             }
@@ -4022,7 +4033,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_vel_float_find_algo(start_pos, (int)n_particles,
                                                         (int)algo_find_n_frames,
-                                                        (float)tng_data->compression_precision,
+                                                        f_precision,
                                                         0, tng_data->
                                                         compress_algo_vel,
                                                         &new_len);
@@ -4030,7 +4041,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
                 {
                     dest = tng_compress_vel_float(start_pos, (int)n_particles,
                                                   (int)n_frames,
-                                                  (float)tng_data->compression_precision,
+                                                  f_precision,
                                                   0, tng_data->compress_algo_vel,
                                                   &new_len);
                 }
@@ -4039,7 +4050,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_vel_find_algo(start_pos, (int)n_particles,
                                                   (int)algo_find_n_frames,
-                                                  tng_data->compression_precision,
+                                                  d_precision,
                                                   0, tng_data->
                                                   compress_algo_vel,
                                                   &new_len);
@@ -4047,7 +4058,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
                 {
                     dest = tng_compress_vel(start_pos, (int)n_particles,
                                             (int)n_frames,
-                                            tng_data->compression_precision,
+                                            d_precision,
                                             0, tng_data->compress_algo_vel,
                                             &new_len);
                 }
@@ -4059,7 +4070,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 dest = tng_compress_vel_float(start_pos, (int)n_particles,
                                               (int)n_frames,
-                                              (float)tng_data->compression_precision,
+                                              f_precision,
                                               0, tng_data->
                                               compress_algo_vel,
                                               &new_len);
@@ -4067,7 +4078,8 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             else
             {
                 dest = tng_compress_vel(start_pos, (int)n_particles,
-                                        (int)n_frames, tng_data->compression_precision,
+                                        (int)n_frames,
+                                        d_precision,
                                         0, tng_data->
                                         compress_algo_vel,
                                         &new_len);
@@ -4941,7 +4953,7 @@ static tng_function_status tng_particle_data_block_write
      * to be able to return the precision of the compressed data. */
     if(data->codec_id == TNG_TNG_COMPRESSION)
     {
-        data->compression_multiplier = 1/tng_data->compression_precision;
+        data->compression_multiplier = tng_data->compression_precision;
     }
     /* Uncompressed data blocks do not use compression multipliers at all.
      * GZip compression does not need it either. */
@@ -5859,7 +5871,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
      * to be able to return the precision of the compressed data. */
     if(data->codec_id == TNG_TNG_COMPRESSION)
     {
-        data->compression_multiplier = 1/tng_data->compression_precision;
+        data->compression_multiplier = tng_data->compression_precision;
     }
     /* Uncompressed data blocks do not use compression multipliers at all.
      * GZip compression does not need it either. */
@@ -8667,7 +8679,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
 
     tng_data->compress_algo_pos = 0;
     tng_data->compress_algo_vel = 0;
-    tng_data->compression_precision = 0.001;
+    tng_data->compression_precision = 1000;
     tng_data->distance_unit_exponential = -9;
 
     frame_set->first_frame = -1;
@@ -9197,7 +9209,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
     dest->compress_algo_pos = 0;
     dest->compress_algo_vel = 0;
     dest->distance_unit_exponential = -9;
-    dest->compression_precision = 0.001;
+    dest->compression_precision = 1000;
 
     frame_set->n_mapping_blocks = 0;
     frame_set->mappings = 0;
@@ -12456,6 +12468,109 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
     return(TNG_SUCCESS);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_data_block_name_get
+                (tng_trajectory_t tng_data,
+                 int64_t block_id,
+                 char *name,
+                 int max_len)
+{
+    int64_t i;
+    tng_trajectory_frame_set_t frame_set;
+    tng_function_status stat;
+    tng_particle_data_t p_data;
+    tng_non_particle_data_t np_data;
+    int block_type = -1;
+
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
+
+    for(i = 0; i < tng_data->n_particle_data_blocks; i++)
+    {
+        p_data = &tng_data->non_tr_particle_data[i];
+        if(p_data->block_id == block_id)
+        {
+            strncpy(name, p_data->block_name, max_len);
+            name[max_len - 1] = '\0';
+            return(TNG_SUCCESS);
+        }
+    }
+    for(i = 0; i < tng_data->n_data_blocks; i++)
+    {
+        np_data = &tng_data->non_tr_data[i];
+        if(np_data->block_id == block_id)
+        {
+            strncpy(name, np_data->block_name, max_len);
+            name[max_len - 1] = '\0';
+            return(TNG_SUCCESS);
+        }
+    }
+
+    frame_set = &tng_data->current_trajectory_frame_set;
+
+    stat = tng_particle_data_find(tng_data, block_id, &p_data);
+    if(stat == TNG_SUCCESS)
+    {
+        block_type = TNG_PARTICLE_BLOCK_DATA;
+    }
+    else
+    {
+        stat = tng_data_find(tng_data, block_id, &np_data);
+        if(stat == TNG_SUCCESS)
+        {
+            block_type = TNG_NON_PARTICLE_BLOCK_DATA;
+        }
+        else
+        {
+            stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
+            if(stat != TNG_SUCCESS)
+            {
+                return(stat);
+            }
+            stat = tng_particle_data_find(tng_data, block_id, &p_data);
+            if(stat == TNG_SUCCESS)
+            {
+                block_type = TNG_PARTICLE_BLOCK_DATA;
+            }
+            else
+            {
+                stat = tng_data_find(tng_data, block_id, &np_data);
+                if(stat == TNG_SUCCESS)
+                {
+                    block_type = TNG_NON_PARTICLE_BLOCK_DATA;
+                }
+            }
+        }
+    }
+    if(block_type == TNG_PARTICLE_BLOCK_DATA)
+    {
+        for(i = 0; i < frame_set->n_particle_data_blocks; i++)
+        {
+            p_data = &tng_data->non_tr_particle_data[i];
+            if(p_data->block_id == block_id)
+            {
+                strncpy(name, p_data->block_name, max_len);
+                name[max_len - 1] = '\0';
+                return(TNG_SUCCESS);
+            }
+        }
+    }
+    else if(block_type == TNG_NON_PARTICLE_BLOCK_DATA)
+    {
+        for(i = 0; i < frame_set->n_data_blocks; i++)
+        {
+            np_data = &tng_data->non_tr_data[i];
+            if(np_data->block_id == block_id)
+            {
+                strncpy(name, np_data->block_name, max_len);
+                name[max_len - 1] = '\0';
+                return(TNG_SUCCESS);
+            }
+        }
+    }
+
+    return(TNG_FAILURE);
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
@@ -15684,7 +15799,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
     tng_particle_data_t data;
     tng_function_status stat;
     int size;
-    int64_t i, data_size, n_particles;
+    int64_t i, data_size, n_particles, n_frames;
     void *temp;
     long file_pos;
 
@@ -15728,8 +15843,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
             stat = tng_frame_set_of_frame_find(tng_data, i);
             if(stat != TNG_SUCCESS)
             {
-                printf("Cannot find frame set of frame %"PRId64". %s: %d\n",
-                    frame_set->first_frame + i, __FILE__, __LINE__);
+                tng_num_frames_get(tng_data, &n_frames);
+                if(i < n_frames)
+                {
+                    printf("Cannot find frame set of frame %"PRId64". %s: %d\n",
+                           frame_set->first_frame + i, __FILE__, __LINE__);
+                }
                 return(stat);
             }
         }
@@ -15821,7 +15940,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
     tng_non_particle_data_t data;
     tng_function_status stat;
     int size;
-    int64_t i, data_size;
+    int64_t i, data_size, n_frames;
     void *temp;
     long file_pos;
 
@@ -15865,8 +15984,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
             stat = tng_frame_set_of_frame_find(tng_data, i);
             if(stat != TNG_SUCCESS)
             {
-                printf("Cannot find frame set of frame %"PRId64". %s: %d\n",
-                    frame_set->first_frame + i, __FILE__, __LINE__);
+                tng_num_frames_get(tng_data, &n_frames);
+                if(i < n_frames)
+                {
+                    printf("Cannot find frame set of frame %"PRId64". %s: %d\n",
+                        frame_set->first_frame + i, __FILE__, __LINE__);
+                }
                 return(stat);
             }
         }
@@ -17278,6 +17401,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_compression_current_frame_get
         else
         {
             stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
+            if(stat != TNG_SUCCESS)
+            {
+                return(stat);
+            }
             stat = tng_particle_data_find(tng_data, block_id, &p_data);
             if(stat == TNG_SUCCESS)
             {
