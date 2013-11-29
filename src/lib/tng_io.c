@@ -15728,8 +15728,13 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
             stat = tng_frame_set_of_frame_find(tng_data, i);
             if(stat != TNG_SUCCESS)
             {
+                printf("Cannot find frame set of frame %"PRId64". %s: %d\n",
+                    frame_set->first_frame + i, __FILE__, __LINE__);
                 return(stat);
             }
+        }
+        if(data->last_retrieved_frame < frame_set->first_frame)
+        {
             stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
             if(stat != TNG_SUCCESS)
             {
@@ -15864,6 +15869,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
                     frame_set->first_frame + i, __FILE__, __LINE__);
                 return(stat);
             }
+        }
+        if(data->last_retrieved_frame < frame_set->first_frame)
+        {
             stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
             if(stat != TNG_SUCCESS)
             {
