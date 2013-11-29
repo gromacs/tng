@@ -4293,6 +4293,35 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_double_write
                  const double time,
                  const double *box_shape);
 
+/**
+ * @brief High-level function for getting the compression method and
+ * multiplication factor of the next frame of a specific data block.
+ * @param tng_data is the trajectory to use.
+ * @param block_id is the ID number of the block containing the data of
+ * interest.
+ * @param codec_id will be set to the value of the codec_id of the
+ * compression of the data block. See tng_compression for more details.
+ * @param factor will be set to the multiplication factor applied to
+ * the values before compression, in order to get integers from them.
+ * factor is 1/precision.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code codec_id != 0 \endcode  The pointer to the returned codec id
+ * must not be a NULL pointer.
+ * @pre \code factor != 0 \endcode The pointer to the returned multiplication
+ * factor must not be a NULL pointer.
+ * @details This function reads ahead until a data block of the requested ID
+ * is found.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */ 
+tng_function_status DECLSPECDLLEXPORT tng_util_compression_next_frame_get
+                (tng_trajectory_t tng_data,
+                 const int64_t block_id,
+                 char *codec_id,
+                 float *factor);
+                
 /** @} */ /* end of group2 */
 
 
