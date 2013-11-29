@@ -10061,7 +10061,7 @@ tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_set
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(time >= 0, "TNG library: The time per frame must be >= 0.");
 
-    if(time == tng_data->time_per_frame)
+    if(fabs(time - tng_data->time_per_frame) < 0.00001)
     {
         return(TNG_SUCCESS);
     }
