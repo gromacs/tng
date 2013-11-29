@@ -6359,8 +6359,9 @@ static tng_function_status tng_data_block_contents_read
                 }
             }
             offset += sizeof(stride_length);
-            n_frames = first_frame_with_data -
-                       tng_data->current_trajectory_frame_set.n_frames;
+            n_frames = tng_data->current_trajectory_frame_set.n_frames -
+                       (first_frame_with_data -
+                        tng_data->current_trajectory_frame_set.first_frame);
         }
         else
         {
