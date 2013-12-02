@@ -3881,14 +3881,8 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
         return(TNG_FAILURE);
     }
 
-    if(type == TNG_FLOAT_DATA)
-    {
-        f_precision = 1/tng_data->compression_precision;
-    }
-    else
-    {
-        d_precision = 1/tng_data->compression_precision;
-    }
+    f_precision = 1/tng_data->compression_precision;
+    d_precision = 1/tng_data->compression_precision;
 
     if(block->id == TNG_TRAJ_POSITIONS)
     {
