@@ -1632,7 +1632,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_chains_get
                 (tng_trajectory_t tng_data,
                  tng_molecule_t molecule,
-                 tng_chain_t **chains,
+                 tng_chain_t *chains,
                  int64_t *n);
 
 /**
@@ -1652,7 +1652,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chains_get
 tng_function_status DECLSPECDLLEXPORT tng_molecule_residues_get
                 (tng_trajectory_t tng_data,
                  tng_molecule_t molecule,
-                 tng_residue_t **residues,
+                 tng_residue_t *residues,
                  int64_t *n);
 
 /**
@@ -1672,7 +1672,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_residues_get
 tng_function_status DECLSPECDLLEXPORT tng_molecule_atoms_get
                 (tng_trajectory_t tng_data,
                  tng_molecule_t molecule,
-                 tng_atom_t **atoms,
+                 tng_atom_t *atoms,
                  int64_t *n);
 
 /**
@@ -1834,7 +1834,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
 tng_function_status DECLSPECDLLEXPORT tng_chain_residues_get
                 (const tng_trajectory_t tng_data,
                  const tng_chain_t chain,
-                 tng_residue_t **residues,
+                 tng_residue_t *residues,
                  int64_t *n);
 
 /**
@@ -1956,7 +1956,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atoms_get
                 (const tng_trajectory_t tng_data,
                  const tng_molecule_t molecule,
                  const tng_residue_t residue,
-                 tng_atom_t **atoms,
+                 tng_atom_t *atoms,
                  int64_t *n);
 
 /**
