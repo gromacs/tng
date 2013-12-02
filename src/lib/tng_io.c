@@ -7590,54 +7590,102 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_molecule_chains_get
+tng_function_status DECLSPECDLLEXPORT tng_molecule_num_chains_get
                 (const tng_trajectory_t tng_data,
                  const tng_molecule_t molecule,
-                 tng_chain_t *chains,
                  int64_t *n)
 {
     (void) tng_data;
     TNG_ASSERT(molecule, "TNG library: molecule must not be NULL");
-    TNG_ASSERT(chains, "TNG library: chains must not be a NULL pointer");
     TNG_ASSERT(n, "TNG library: n must not be a NULL pointer");
 
-    *chains = molecule->chains;
     *n = molecule->n_chains;
 
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_molecule_residues_get
+tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_of_index_get
+                (tng_trajectory_t tng_data,
+                 tng_molecule_t molecule,
+                 int64_t index,
+                 tng_chain_t *chain)
+{
+    (void) tng_data;
+    TNG_ASSERT(molecule, "TNG library: molecule must not be a NULL pointer.");
+    TNG_ASSERT(chain, "TNG library: chain must not be a NULL pointer.");
+
+    if(index >= molecule->n_chains)
+    {
+        *chain = 0;
+        return(TNG_FAILURE);
+    }
+    *chain = &molecule->chains[index];
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_molecule_num_residues_get
                 (const tng_trajectory_t tng_data,
                  const tng_molecule_t molecule,
-                 tng_residue_t *residues,
                  int64_t *n)
 {
     (void) tng_data;
     TNG_ASSERT(molecule, "TNG library: molecule must not be NULL");
-    TNG_ASSERT(residues, "TNG library: residues must not be a NULL pointer");
     TNG_ASSERT(n, "TNG library: n must not be a NULL pointer");
 
-    *residues = molecule->residues;
     *n = molecule->n_residues;
 
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_molecule_atoms_get
+tng_function_status DECLSPECDLLEXPORT tng_molecule_residue_of_index_get
+                (tng_trajectory_t tng_data,
+                 tng_molecule_t molecule,
+                 int64_t index,
+                 tng_residue_t *residue)
+{
+    (void) tng_data;
+    TNG_ASSERT(molecule, "TNG library: molecule must not be a NULL pointer.");
+    TNG_ASSERT(residue, "TNG library: residue must not be a NULL pointer.");
+
+    if(index >= molecule->n_residues)
+    {
+        *residue = 0;
+        return(TNG_FAILURE);
+    }
+    *residue = &molecule->residues[index];
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_molecule_num_atoms_get
                 (const tng_trajectory_t tng_data,
                  const tng_molecule_t molecule,
-                 tng_atom_t *atoms,
                  int64_t *n)
 {
     (void) tng_data;
     TNG_ASSERT(molecule, "TNG library: molecule must not be NULL");
-    TNG_ASSERT(atoms, "TNG library: atoms must not be a NULL pointer");
     TNG_ASSERT(n, "TNG library: n must not be a NULL pointer");
 
-    *atoms = molecule->atoms;
     *n = molecule->n_atoms;
 
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_molecule_atom_of_index_get
+                (tng_trajectory_t tng_data,
+                 tng_molecule_t molecule,
+                 int64_t index,
+                 tng_atom_t *atom)
+{
+    (void) tng_data;
+    TNG_ASSERT(molecule, "TNG library: molecule must not be a NULL pointer.");
+    TNG_ASSERT(atom, "TNG library: atom must not be a NULL pointer.");
+
+    if(index >= molecule->n_atoms)
+    {
+        *atom = 0;
+        return(TNG_FAILURE);
+    }
+    *atom = &molecule->atoms[index];
     return(TNG_SUCCESS);
 }
 
@@ -7875,20 +7923,36 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_chain_residues_get
+tng_function_status DECLSPECDLLEXPORT tng_chain_num_residues_get
                 (const tng_trajectory_t tng_data,
                  const tng_chain_t chain,
-                 tng_residue_t *residues,
                  int64_t *n)
 {
     (void) tng_data;
     TNG_ASSERT(chain, "TNG library: chain must not be NULL");
-    TNG_ASSERT(residues, "TNG library: residues must not be a NULL pointer");
     TNG_ASSERT(n, "TNG library: n must not be a NULL pointer");
 
-    *residues = chain->residues;
     *n = chain->n_residues;
 
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_chain_residue_of_index_get
+                (tng_trajectory_t tng_data,
+                 tng_chain_t chain,
+                 int64_t index,
+                 tng_residue_t *residue)
+{
+    (void) tng_data;
+    TNG_ASSERT(chain, "TNG library: chain must not be a NULL pointer.");
+    TNG_ASSERT(residue, "TNG library: residue must not be a NULL pointer.");
+
+    if(index >= chain->n_residues)
+    {
+        *residue = 0;
+        return(TNG_FAILURE);
+    }
+    *residue = &chain->residues[index];
     return(TNG_SUCCESS);
 }
 
@@ -8085,22 +8149,48 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_set(tng_trajectory_t tng_
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_residue_atoms_get
+tng_function_status DECLSPECDLLEXPORT tng_residue_num_atoms_get
                 (const tng_trajectory_t tng_data,
-                 const tng_molecule_t molecule,
                  const tng_residue_t residue,
-                 tng_atom_t *atoms,
                  int64_t *n)
 {
     (void) tng_data;
     TNG_ASSERT(residue, "TNG library: residue must not be NULL");
-    TNG_ASSERT(atoms, "TNG library: atoms must not be a NULL pointer");
     TNG_ASSERT(n, "TNG library: n must not be a NULL pointer");
 
-    *atoms = molecule->atoms;
-    *atoms += residue->atoms_offset;
     *n = residue->n_atoms;
 
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_residue_atom_of_index_get
+                (tng_trajectory_t tng_data,
+                 tng_residue_t residue,
+                 int64_t index,
+                 tng_atom_t *atom)
+{
+    tng_chain_t chain;
+    tng_molecule_t molecule;
+    
+    (void) tng_data;
+    TNG_ASSERT(residue, "TNG library: residue must not be a NULL pointer.");
+    TNG_ASSERT(atom, "TNG library: atom must not be a NULL pointer.");
+
+    if(index >= residue->n_atoms)
+    {
+        *atom = 0;
+        return(TNG_FAILURE);
+    }
+    chain = residue->chain;
+    molecule = chain->molecule;
+    
+    if(index + residue->atoms_offset >= molecule->n_atoms)
+    {
+        *atom = 0;
+        return(TNG_FAILURE);
+    }
+    
+    *atom = &molecule->atoms[residue->atoms_offset + index];
     return(TNG_SUCCESS);
 }
 
@@ -15708,6 +15798,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
     return(TNG_SUCCESS);
 }
 
+/*
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
                 (tng_trajectory_t tng_data,
                  int64_t *n_mols,
@@ -15735,7 +15826,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
 
     return(TNG_SUCCESS);
 }
-
+*/
 /*
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
                 (tng_trajectory_t tng_data,

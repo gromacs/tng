@@ -1616,64 +1616,100 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
                                                                tng_trajectory_t tng_data_dest);
 
 /**
- * @brief Get the chains of a molecule.
+ * @brief Get the number of chains in a molecule.
  * @param tng_data is the trajectory containing the molecule.
- * @param molecule is the molecule of which to get the chains.
- * @param chains is pointing to the list of chains. This is a pointer
- * to the list of the molecule, which means that it should be handled
- * carefully, e.g. not freed.
+ * @param molecule is the molecule of which to get the number of chains.
  * @param n is pointing to a value set to the number of chains.
  * @pre \code molecule != 0 \endcode The molecule must not be NULL.
- * @pre \code chains != 0 \endcode The pointer to the list of chains must not
- * be a NULL pointer.
  * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
-tng_function_status DECLSPECDLLEXPORT tng_molecule_chains_get
+tng_function_status DECLSPECDLLEXPORT tng_molecule_num_chains_get
                 (tng_trajectory_t tng_data,
                  tng_molecule_t molecule,
-                 tng_chain_t *chains,
                  int64_t *n);
 
 /**
- * @brief Get the residues of a molecule.
+ * @brief Retrieve the chain of a molecule with specified index in the list
+ * of chains.
+ * @param tng_data is the trajectory data container containing the molecule.
+ * @param index is the index (in molecule->chains) of the chain to return
+ * @param molecule is the molecule from which to get the chain.
+ * @param chain is a pointer to the chain if it was found - otherwise 0.
+ * @pre \code molecule != 0 \endcode molecule must not be a NULL pointer.
+ * @pre \code chain != 0 \endcode chain must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if the chain is found or TNG_FAILURE (1) if the
+ * chain is not found.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_of_index_get
+                (tng_trajectory_t tng_data,
+                 tng_molecule_t molecule,
+                 int64_t index,
+                 tng_chain_t *chain);
+
+/**
+ * @brief Get the number of residues in a molecule.
  * @param tng_data is the trajectory containing the molecule.
- * @param molecule is the molecule of which to get the residues.
- * @param residues is pointing to the list of residues. This is a pointer
- * to the list of the molecule, which means that it should be handled
- * carefully, e.g. not freed.
+ * @param molecule is the molecule of which to get the number residues.
  * @param n is pointing to a value set to the number of residues.
  * @pre \code molecule != 0 \endcode The molecule must not be NULL.
- * @pre \code residues != 0 \endcode The pointer to the list of residues must not
- * be a NULL pointer.
  * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
-tng_function_status DECLSPECDLLEXPORT tng_molecule_residues_get
+tng_function_status DECLSPECDLLEXPORT tng_molecule_num_residues_get
                 (tng_trajectory_t tng_data,
                  tng_molecule_t molecule,
-                 tng_residue_t *residues,
                  int64_t *n);
 
 /**
- * @brief Get the atoms of a molecule.
+ * @brief Retrieve the residue of a molecule with specified index in the list
+ * of chains.
+ * @param tng_data is the trajectory data container containing the molecule.
+ * @param index is the index (in molecule->residues) of the residue to return
+ * @param molecule is the molecule from which to get the residue.
+ * @param residue is a pointer to the residue if it was found - otherwise 0.
+ * @pre \code molecule != 0 \endcode molecule must not be a NULL pointer.
+ * @pre \code residue != 0 \endcode residue must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if the residue is found or TNG_FAILURE (1) if the
+ * residue is not found.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_residue_of_index_get
+                (tng_trajectory_t tng_data,
+                 tng_molecule_t molecule,
+                 int64_t index,
+                 tng_residue_t *residue);
+
+/**
+ * @brief Get the number of atoms in a molecule.
  * @param tng_data is the trajectory containing the molecule.
- * @param molecule is the molecule of which to get the atoms.
- * @param atoms is pointing to the list of atoms. This is a pointer
- * to the list of the molecule, which means that it should be handled
- * carefully, e.g. not freed.
+ * @param molecule is the molecule of which to get the number of atoms.
  * @param n is pointing to a value set to the number of atoms.
  * @pre \code molecule != 0 \endcode The molecule must not be NULL.
- * @pre \code atoms != 0 \endcode The pointer to the list of atoms must not
- * be a NULL pointer.
  * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
-tng_function_status DECLSPECDLLEXPORT tng_molecule_atoms_get
+tng_function_status DECLSPECDLLEXPORT tng_molecule_num_atoms_get
                 (tng_trajectory_t tng_data,
                  tng_molecule_t molecule,
-                 tng_atom_t *atoms,
                  int64_t *n);
+
+/**
+ * @brief Retrieve the atom of a molecule with specified index in the list
+ * of atoms.
+ * @param tng_data is the trajectory data container containing the molecule.
+ * @param index is the index (in molecule->atoms) of the atom to return
+ * @param molecule is the molecule from which to get the atom.
+ * @param atom is a pointer to the atom if it was found - otherwise 0.
+ * @pre \code molecule != 0 \endcode molecule must not be a NULL pointer.
+ * @pre \code atom != 0 \endcode atom must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if the atom is found or TNG_FAILURE (1) if the
+ * atom is not found.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_atom_of_index_get
+                (tng_trajectory_t tng_data,
+                 tng_molecule_t molecule,
+                 int64_t index,
+                 tng_atom_t *atom);
 
 /**
  * @brief Find a chain in a molecule.
@@ -1818,24 +1854,36 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
                  const char *new_name);
 
 /**
- * @brief Get the residues of a chain.
+ * @brief Get the number of residues in a molecule chain.
  * @param tng_data is the trajectory containing the chain.
- * @param chain is the chain of which to get the residues.
- * @param residues is pointing to the list of residues. This is a pointer
- * to the list of the molecule, which means that it should be handled
- * carefully, e.g. not freed.
+ * @param chain is the chain of which to get the number of residues.
  * @param n is pointing to a value set to the number of residues.
  * @pre \code chain != 0 \endcode The chain must not be NULL.
- * @pre \code residues != 0 \endcode The pointer to the list of residues must not
- * be a NULL pointer.
  * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
-tng_function_status DECLSPECDLLEXPORT tng_chain_residues_get
+tng_function_status DECLSPECDLLEXPORT tng_chain_num_residues_get
                 (const tng_trajectory_t tng_data,
                  const tng_chain_t chain,
-                 tng_residue_t *residues,
                  int64_t *n);
+
+/**
+ * @brief Retrieve the residue of a chain with specified index in the list
+ * of residues.
+ * @param tng_data is the trajectory data container containing the chain.
+ * @param index is the index (in chain->residues) of the residue to return
+ * @param chain is the chain from which to get the residue.
+ * @param residue is a pointer to the residue if it was found - otherwise 0.
+ * @pre \code chain != 0 \endcode chain must not be a NULL pointer.
+ * @pre \code residue != 0 \endcode residue must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if the residue is found or TNG_FAILURE (1) if the
+ * residue is not found.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_chain_residue_of_index_get
+                (tng_trajectory_t tng_data,
+                 tng_chain_t chain,
+                 int64_t index,
+                 tng_residue_t *residue);
 
 /**
  * @brief Find a residue in a chain.
@@ -1938,26 +1986,36 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_set
                  const char *new_name);
 
 /**
- * @brief Get the atoms of a residue.
+ * @brief Get the number of atoms in a residue.
  * @param tng_data is the trajectory containing the residue.
- * @param molecule is the molecule containing the residue.
- * @param residue is the residue of which to get the atoms.
- * @param atoms is pointing to the list of atoms. This is a pointer
- * to the list of the molecule, which means that it should be handled
- * carefully, e.g. not freed.
+ * @param residue is the residue of which to get the number atoms.
  * @param n is pointing to a value set to the number of atoms.
  * @pre \code residue != 0 \endcode The residue must not be NULL.
- * @pre \code atoms != 0 \endcode The pointer to the list of atoms must not
- * be a NULL pointer.
  * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
-tng_function_status DECLSPECDLLEXPORT tng_residue_atoms_get
+tng_function_status DECLSPECDLLEXPORT tng_residue_num_atoms_get
                 (const tng_trajectory_t tng_data,
-                 const tng_molecule_t molecule,
                  const tng_residue_t residue,
-                 tng_atom_t *atoms,
                  int64_t *n);
+
+/**
+ * @brief Retrieve the atom of a residue with specified index in the list
+ * of atoms.
+ * @param tng_data is the trajectory data container containing the residue.
+ * @param index is the index (in residue->atoms) of the atom to return
+ * @param residue is the residue from which to get the atom.
+ * @param atom is a pointer to the atom if it was found - otherwise 0.
+ * @pre \code residue != 0 \endcode residue must not be a NULL pointer.
+ * @pre \code atom != 0 \endcode atom must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if the atom is found or TNG_FAILURE (1) if the
+ * atom is not found.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_residue_atom_of_index_get
+                (tng_trajectory_t tng_data,
+                 tng_residue_t residue,
+                 int64_t index,
+                 tng_atom_t *atom);
 
 /**
  * @brief Add an atom to a residue.
@@ -3191,12 +3249,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
  * not be a NULL pointer.
  * @return TNG_SUCCESS (0) if successful.
  */
-tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
+/*tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
                 (tng_trajectory_t tng_data,
                  int64_t *n_mols,
                  int64_t **molecule_cnt_list,
                  tng_molecule_t *mols);
-
+*/
 /*
  * @brief High-level function for adding a molecule to the mol system.
  * @param tng_data is the trajectory containing the mol system.
