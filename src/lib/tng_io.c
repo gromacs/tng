@@ -8097,7 +8097,8 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atoms_get
     TNG_ASSERT(atoms, "TNG library: atoms must not be a NULL pointer");
     TNG_ASSERT(n, "TNG library: n must not be a NULL pointer");
 
-    **atoms = &molecule->atoms[residue->atoms_offset];
+    *atoms = &molecule->atoms;
+    *atoms += residue->atoms_offset;
     *n = residue->n_atoms;
 
     return(TNG_SUCCESS);
