@@ -1166,6 +1166,22 @@ tng_function_status DECLSPECDLLEXPORT tng_num_particles_get
                  int64_t *n);
 
 /**
+ * @brief Get if the number of particle can be varied during the simulation.
+ * @param tng_data is the trajectory from which to get the number of particles.
+ * @param variable is pointing to a value set to TNG_CONSTANT_N_ATOMS if the
+ * number of particles cannot change or TNG_VARIABLE_N_ATOMS if the number of
+ * particles can change.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code variable != 0 \endcode The pointer to variable must not be
+ * a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_num_particles_variable_get
+                (const tng_trajectory_t tng_data,
+                 tng_variable_n_atoms_flag *variable);
+
+/**
  * @brief Get the number of molecule types (length of tng_data->molecules).
  * @param tng_data is the trajectory from which to get the number of molecules.
  * @param n is pointing to a value set to the number of molecule types.
@@ -1197,7 +1213,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
  * @param tng_data is the trajectory from which to get the molecule count list.
  * @param mol_cnt_list is a list of the count of each molecule in the
  * mol system. This is a pointer to the list in the TNG container, which
- * means that it should be handled carefully.
+ * means that it should be handled carefully, e.g. not freed.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
  * must be initialised before using it.
  * @return TNG_SUCCESS (0) if successful or TNG_FAILURE(1) if the list of
@@ -1475,6 +1491,26 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_existing_add
                  tng_molecule_t *molecule);
 
 /**
+ * @brief Get the name of a molecule.
+ * @param tng_data the trajectory containing the molecule.
+ * @param molecule the molecule of which to get the name.
+ * @param name the string to fill with the name of the molecule,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for name. This includes \0 terminating character.
+ * @pre \code molecule != 0 \endcode The molecule must not be NULL.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_name_get
+                (const tng_trajectory_t tng_data,
+                 const tng_molecule_t molecule,
+                 char *name,
+                 const int max_len);
+
+/**
  * @brief Set the name of a molecule.
  * @param tng_data is the trajectory data container containing the molecule..
  * @param molecule is the molecule to rename.
@@ -1578,6 +1614,66 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_of_index_get
  */
 tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t tng_data_src,
                                                                tng_trajectory_t tng_data_dest);
+
+/**
+ * @brief Get the chains of a molecule.
+ * @param tng_data is the trajectory containing the molecule.
+ * @param molecule is the molecule of which to get the chains.
+ * @param chains is pointing to the list of chains. This is a pointer
+ * to the list of the molecule, which means that it should be handled
+ * carefully, e.g. not freed.
+ * @param n is pointing to a value set to the number of chains.
+ * @pre \code molecule != 0 \endcode The molecule must not be NULL.
+ * @pre \code chains != 0 \endcode The pointer to the list of chains must not
+ * be a NULL pointer.
+ * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_chains_get
+                (tng_trajectory_t tng_data,
+                 tng_molecule_t molecule,
+                 tng_chain_t **chains,
+                 int64_t *n);
+
+/**
+ * @brief Get the residues of a molecule.
+ * @param tng_data is the trajectory containing the molecule.
+ * @param molecule is the molecule of which to get the residues.
+ * @param residues is pointing to the list of residues. This is a pointer
+ * to the list of the molecule, which means that it should be handled
+ * carefully, e.g. not freed.
+ * @param n is pointing to a value set to the number of residues.
+ * @pre \code molecule != 0 \endcode The molecule must not be NULL.
+ * @pre \code residues != 0 \endcode The pointer to the list of residues must not
+ * be a NULL pointer.
+ * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_residues_get
+                (tng_trajectory_t tng_data,
+                 tng_molecule_t molecule,
+                 tng_residue_t **residues,
+                 int64_t *n);
+
+/**
+ * @brief Get the atoms of a molecule.
+ * @param tng_data is the trajectory containing the molecule.
+ * @param molecule is the molecule of which to get the atoms.
+ * @param atoms is pointing to the list of atoms. This is a pointer
+ * to the list of the molecule, which means that it should be handled
+ * carefully, e.g. not freed.
+ * @param n is pointing to a value set to the number of atoms.
+ * @pre \code molecule != 0 \endcode The molecule must not be NULL.
+ * @pre \code atoms != 0 \endcode The pointer to the list of atoms must not
+ * be a NULL pointer.
+ * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_molecule_atoms_get
+                (tng_trajectory_t tng_data,
+                 tng_molecule_t molecule,
+                 tng_atom_t **atoms,
+                 int64_t *n);
 
 /**
  * @brief Find a chain in a molecule.
@@ -1687,6 +1783,26 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_atom_find
                  tng_atom_t *atom);
 
 /**
+ * @brief Get the name of a chain.
+ * @param tng_data the trajectory containing the chain.
+ * @param chain the chain of which to get the name.
+ * @param name the string to fill with the name of the chain,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for name. This includes \0 terminating character.
+ * @pre \code chain != 0 \endcode The chain must not be NULL.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status DECLSPECDLLEXPORT tng_chain_name_get
+                (const tng_trajectory_t tng_data,
+                 const tng_chain_t chain,
+                 char *name,
+                 const int max_len);
+
+/**
  * @brief Set the name of a chain.
  * @param tng_data is the trajectory data container containing the atom..
  * @param chain is the chain to rename.
@@ -1700,6 +1816,26 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
                 (tng_trajectory_t tng_data,
                  tng_chain_t chain,
                  const char *new_name);
+
+/**
+ * @brief Get the residues of a chain.
+ * @param tng_data is the trajectory containing the chain.
+ * @param chain is the chain of which to get the residues.
+ * @param residues is pointing to the list of residues. This is a pointer
+ * to the list of the molecule, which means that it should be handled
+ * carefully, e.g. not freed.
+ * @param n is pointing to a value set to the number of residues.
+ * @pre \code chain != 0 \endcode The chain must not be NULL.
+ * @pre \code residues != 0 \endcode The pointer to the list of residues must not
+ * be a NULL pointer.
+ * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_chain_residues_get
+                (const tng_trajectory_t tng_data,
+                 const tng_chain_t chain,
+                 tng_residue_t **residues,
+                 int64_t *n);
 
 /**
  * @brief Find a residue in a chain.
@@ -1765,6 +1901,26 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
                  tng_residue_t *residue);
 
 /**
+ * @brief Get the name of a residue.
+ * @param tng_data the trajectory containing the residue.
+ * @param residue the residue of which to get the name.
+ * @param name the string to fill with the name of the residue,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for name. This includes \0 terminating character.
+ * @pre \code residue != 0 \endcode The residue must not be NULL.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status DECLSPECDLLEXPORT tng_residue_name_get
+                (const tng_trajectory_t tng_data,
+                 const tng_residue_t residue,
+                 char *name,
+                 const int max_len);
+
+/**
  * @brief Set the name of a residue.
  * @param tng_data is the trajectory data container containing the residue.
  * @param residue is the residue to rename.
@@ -1780,6 +1936,28 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_set
                 (tng_trajectory_t tng_data,
                  tng_residue_t residue,
                  const char *new_name);
+
+/**
+ * @brief Get the atoms of a residue.
+ * @param tng_data is the trajectory containing the residue.
+ * @param molecule is the molecule containing the residue.
+ * @param residue is the residue of which to get the atoms.
+ * @param atoms is pointing to the list of atoms. This is a pointer
+ * to the list of the molecule, which means that it should be handled
+ * carefully, e.g. not freed.
+ * @param n is pointing to a value set to the number of atoms.
+ * @pre \code residue != 0 \endcode The residue must not be NULL.
+ * @pre \code atoms != 0 \endcode The pointer to the list of atoms must not
+ * be a NULL pointer.
+ * @pre \code n != 0 \endcode The pointer to n must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_residue_atoms_get
+                (const tng_trajectory_t tng_data,
+                 const tng_molecule_t molecule,
+                 const tng_residue_t residue,
+                 tng_atom_t **atoms,
+                 int64_t *n);
 
 /**
  * @brief Add an atom to a residue.
@@ -1830,6 +2008,26 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
                  tng_atom_t *atom);
 
 /**
+ * @brief Get the name of an atom.
+ * @param tng_data the trajectory containing the atom.
+ * @param atom the atom of which to get the name.
+ * @param name the string to fill with the name of the atom,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for name. This includes \0 terminating character.
+ * @pre \code atom != 0 \endcode The atom must not be NULL.
+ * @pre \code name != 0 \endcode The pointer to the name string
+ * must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status DECLSPECDLLEXPORT tng_atom_name_get
+                (const tng_trajectory_t tng_data,
+                 const tng_atom_t atom,
+                 char *name,
+                 const int max_len);
+
+/**
  * @brief Set the name of an atom.
  * @param tng_data is the trajectory data container containing the atom.
  * @param atom is the atom to rename.
@@ -1845,6 +2043,26 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_name_set
                 (tng_trajectory_t tng_data,
                  tng_atom_t atom,
                  const char *new_name);
+
+/**
+ * @brief Get the type of an atom.
+ * @param tng_data the trajectory containing the atom.
+ * @param atom the atom of which to get the type.
+ * @param type the string to fill with the type of the atom,
+ * memory must be allocated before.
+ * @param max_len maximum char length of the string, i.e. how much memory has
+ * been reserved for type. This includes \0 terminating character.
+ * @pre \code atom != 0 \endcode The atom must not be NULL.
+ * @pre \code type != 0 \endcode The pointer to the type string
+ * must not be a NULL pointer.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred (source string longer than destination string).
+ */
+tng_function_status DECLSPECDLLEXPORT tng_atom_type_get
+                (const tng_trajectory_t tng_data,
+                 const tng_atom_t atom,
+                 char *type,
+                 const int max_len);
 
 /**
  * @brief Set the atom type of an atom.
