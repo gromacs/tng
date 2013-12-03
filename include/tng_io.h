@@ -2724,7 +2724,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_dependency_get
 tng_function_status DECLSPECDLLEXPORT tng_data_block_num_values_per_frame_get
                 (tng_trajectory_t tng_data,
                  int64_t block_id,
-                 int *n_values_per_frame);
+                 int64_t *n_values_per_frame);
 
 /**
  * @brief Write data of one trajectory frame to the output_file of tng_data.
