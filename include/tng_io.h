@@ -3236,7 +3236,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
                  const int64_t frame_nr,
                  double *time);
 
-/**
+/*
  * @brief High-level function for getting the molecules in the mol system.
  * @param tng_data is the trajectory containing the mol system.
  * @param n_mols is set to the number of molecules in the system.
@@ -4629,9 +4629,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_compression_current_frame_get
  * @param next_frame will be set to the next frame with data.
  * @param n_data_blocks_in_next_frame is set to the number of data blocks with
  * data for next_frame.
- * @param data_block_ids_in_next_frame is an array (of length
+ * @param data_block_ids_in_next_frame is set to an array (of length
  * n_data_blocks_in_next_frame) that lists the data block IDs with data for
- * next_frame.
+ * next_frame. The array is created by this function allocated.
+ * The memory must be freed by the client afterwards or
+ * there will be a memory leak.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
  * must be initialised before using it.
  * @pre \code next_frame != 0 \endcode The pointer to the next frame must not

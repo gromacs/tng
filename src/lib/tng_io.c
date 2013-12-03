@@ -8171,7 +8171,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_of_index_get
 {
     tng_chain_t chain;
     tng_molecule_t molecule;
-    
+
     (void) tng_data;
     TNG_ASSERT(residue, "TNG library: residue must not be a NULL pointer.");
     TNG_ASSERT(atom, "TNG library: atom must not be a NULL pointer.");
@@ -8183,13 +8183,13 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_of_index_get
     }
     chain = residue->chain;
     molecule = chain->molecule;
-    
+
     if(index + residue->atoms_offset >= molecule->n_atoms)
     {
         *atom = 0;
         return(TNG_FAILURE);
     }
-    
+
     *atom = &molecule->atoms[residue->atoms_offset + index];
     return(TNG_SUCCESS);
 }
@@ -17777,10 +17777,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_next_frame_present_data_blocks_fi
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(next_frame, "TNG library: The pointer to the next frame must not be NULL.");
-    TNG_ASSERT(data_block_ids_in_next_frame, "TNG library: The pointer to the list of data block IDs must not be NULL.");
+    TNG_ASSERT(data_block_ids_in_next_frame == 0, "TNG library: The pointer to the list of data block IDs must be NULL.");
+    
     if(n_requested_data_block_ids)
     {
         TNG_ASSERT(requested_data_block_ids, "TNG library: If the number of requested data blocks is > 0 then the array of data block IDs must not be NULL.");
+        *data_block_ids_in_next_frame = malloc(sizeof(int64_t) * n_requested_data_block_ids);
     }
 
     frame_set = &tng_data->current_trajectory_frame_set;
@@ -17854,18 +17856,25 @@ tng_function_status DECLSPECDLLEXPORT tng_util_next_frame_present_data_blocks_fi
             {
                 *n_data_blocks_in_next_frame += 1;
             }
-            temp = realloc(*data_block_ids_in_next_frame, sizeof(int64_t) *
-                           (*n_data_blocks_in_next_frame));
-            if(!temp)
+            if(n_requested_data_block_ids > 0)
             {
-                printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                       sizeof(int64_t) * (*n_data_blocks_in_next_frame),
-                       __FILE__, __LINE__);
-                free(*data_block_ids_in_next_frame);
-                *data_block_ids_in_next_frame = 0;
-                return(TNG_CRITICAL);
+                temp = realloc(*data_block_ids_in_next_frame, sizeof(int64_t) *
+                               (*n_data_blocks_in_next_frame));
+                if(!temp)
+                {
+                    printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                           sizeof(int64_t) * (*n_data_blocks_in_next_frame),
+                           __FILE__, __LINE__);
+                    free(*data_block_ids_in_next_frame);
+                    *data_block_ids_in_next_frame = 0;
+                    return(TNG_CRITICAL);
+                }
+                *data_block_ids_in_next_frame = temp;
             }
-            *data_block_ids_in_next_frame = temp;
+            else
+            {
+                TNG_ASSERT(*n_data_blocks_in_next_frame <= n_requested_data_block_ids, "TNG library: Array of data block IDs out of bounds");
+            }
 
             *data_block_ids_in_next_frame[*n_data_blocks_in_next_frame-1] = block_id;
 
@@ -17925,19 +17934,25 @@ tng_function_status DECLSPECDLLEXPORT tng_util_next_frame_present_data_blocks_fi
             {
                 *n_data_blocks_in_next_frame += 1;
             }
-            temp = realloc(*data_block_ids_in_next_frame, sizeof(int64_t) *
-                           (*n_data_blocks_in_next_frame));
-            if(!temp)
+            if(n_requested_data_block_ids > 0)
             {
-                printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                       sizeof(int64_t) * (*n_data_blocks_in_next_frame),
-                       __FILE__, __LINE__);
-                free(*data_block_ids_in_next_frame);
-                *data_block_ids_in_next_frame = 0;
-                return(TNG_CRITICAL);
+                temp = realloc(*data_block_ids_in_next_frame, sizeof(int64_t) *
+                               (*n_data_blocks_in_next_frame));
+                if(!temp)
+                {
+                    printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                           sizeof(int64_t) * (*n_data_blocks_in_next_frame),
+                           __FILE__, __LINE__);
+                    free(*data_block_ids_in_next_frame);
+                    *data_block_ids_in_next_frame = 0;
+                    return(TNG_CRITICAL);
+                }
+                *data_block_ids_in_next_frame = temp;
             }
-            *data_block_ids_in_next_frame = temp;
-
+            else
+            {
+                TNG_ASSERT(*n_data_blocks_in_next_frame <= n_requested_data_block_ids, "TNG library: Array of data block IDs out of bounds");
+            }
             *data_block_ids_in_next_frame[*n_data_blocks_in_next_frame-1] = block_id;
 
             min_diff = frame_diff;
