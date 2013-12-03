@@ -18038,7 +18038,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
             {
                 *n_data_blocks_in_next_frame += 1;
             }
-            if(n_requested_data_block_ids > 0)
+            if(n_requested_data_block_ids <= 0)
             {
                 temp = realloc(*data_block_ids_in_next_frame, sizeof(int64_t) *
                                (*n_data_blocks_in_next_frame));
@@ -18116,7 +18116,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
             {
                 *n_data_blocks_in_next_frame += 1;
             }
-            if(n_requested_data_block_ids > 0)
+            if(n_requested_data_block_ids <= 0)
             {
                 temp = realloc(*data_block_ids_in_next_frame, sizeof(int64_t) *
                                (*n_data_blocks_in_next_frame));
