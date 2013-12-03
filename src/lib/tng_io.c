@@ -14463,7 +14463,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
 
     /* Do not re-read the frame set. */
     if(first_frame != frame_set->first_frame ||
-       frame_set->n_particle_data_blocks <= 0)
+       frame_set->n_data_blocks <= 0)
     {
         tng_block_init(&block);
         file_pos = ftell(tng_data->input_file);
@@ -14664,7 +14664,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
     }
 
     /* Do not re-read the frame set and only need the requested block. */
-    /* TODO: Test that blocks are read correctly now that now all of them are read at the same time. */
+    /* TODO: Test that blocks are read correctly now that not all of them are read at the same time. */
     stat = tng_data_find(tng_data, block_id, &np_data);
     if(first_frame != frame_set->first_frame ||
        stat != TNG_SUCCESS)
@@ -17919,9 +17919,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
     tng_function_status stat;
     tng_particle_data_t p_data;
     tng_non_particle_data_t np_data;
+    tng_gen_block_t block;
     int64_t i, j, block_id, *temp;
     int64_t data_first_frame, frame_diff, min_diff;
     int found;
+    long file_pos;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(next_frame, "TNG library: The pointer to the next frame must not be NULL.");
@@ -17948,9 +17950,39 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
         }
     }
 
+    if(frame_set->n_particle_data_blocks <= 0 || frame_set->n_data_blocks <= 0)
+    {
+        tng_block_init(&block);
+        file_pos = ftell(tng_data->input_file);
+        /* Read all blocks until next frame set block */
+        stat = tng_block_header_read(tng_data, block);
+        while(file_pos < tng_data->input_file_len &&
+            stat != TNG_CRITICAL &&
+            block->id != TNG_TRAJECTORY_FRAME_SET)
+        {
+            stat = tng_block_read_next(tng_data, block,
+                                       TNG_USE_HASH);
+            if(stat != TNG_CRITICAL)
+            {
+                file_pos = ftell(tng_data->input_file);
+                if(file_pos < tng_data->input_file_len)
+                {
+                    stat = tng_block_header_read(tng_data, block);
+                }
+            }
+        }
+        tng_block_destroy(&block);
+        if(stat == TNG_CRITICAL)
+        {
+            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                    file_pos, __FILE__, __LINE__);
+            return(stat);
+        }
+    }
+
     min_diff = -1;
 
-    n_data_blocks_in_next_frame = 0;
+    *n_data_blocks_in_next_frame = 0;
 
     for(i = 0; i < frame_set->n_particle_data_blocks; i++)
     {
