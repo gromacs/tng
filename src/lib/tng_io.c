@@ -17647,7 +17647,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_double_write
                                                    TNG_GZIP_COMPRESSION));
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_util_compression_current_frame_get
+tng_function_status DECLSPECDLLEXPORT tng_frame_current_compression_get
                 (tng_trajectory_t tng_data,
                  const int64_t block_id,
                  char *codec_id,
@@ -17758,7 +17758,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_compression_current_frame_get
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_util_next_frame_present_data_blocks_find
+tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_data_blocks_find
                 (tng_trajectory_t tng_data,
                  int64_t current_frame,
                  const int64_t n_requested_data_block_ids,
@@ -17778,7 +17778,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_next_frame_present_data_blocks_fi
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(next_frame, "TNG library: The pointer to the next frame must not be NULL.");
     TNG_ASSERT(data_block_ids_in_next_frame == 0, "TNG library: The pointer to the list of data block IDs must be NULL.");
-    
+
     if(n_requested_data_block_ids)
     {
         TNG_ASSERT(requested_data_block_ids, "TNG library: If the number of requested data blocks is > 0 then the array of data block IDs must not be NULL.");

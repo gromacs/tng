@@ -4610,7 +4610,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_double_write
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
  */
-tng_function_status DECLSPECDLLEXPORT tng_util_compression_current_frame_get
+tng_function_status DECLSPECDLLEXPORT tng_util_frame_current_compression_get
                 (tng_trajectory_t tng_data,
                  const int64_t block_id,
                  char *codec_id,
@@ -4646,7 +4646,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_compression_current_frame_get
  * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
  * has occured.
  */
-tng_function_status DECLSPECDLLEXPORT tng_util_next_frame_present_data_blocks_find
+tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_data_blocks_find
                 (tng_trajectory_t tng_data,
                  int64_t current_frame,
                  const int64_t n_requested_data_block_ids,
