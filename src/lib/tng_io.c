@@ -17922,7 +17922,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
     tng_gen_block_t block;
     int64_t i, j, block_id, *temp;
     int64_t data_first_frame, frame_diff, min_diff;
-    int found;
+    int found, read_all = 0;
     long file_pos;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -17978,6 +17978,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                     file_pos, __FILE__, __LINE__);
             return(stat);
         }
+        read_all = 1;
     }
 
     min_diff = -1;
@@ -18006,9 +18007,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
             }
         }
 
-        if(p_data->last_retrieved_frame < frame_set->first_frame ||
+        if(!read_all && (p_data->last_retrieved_frame < frame_set->first_frame ||
            p_data->last_retrieved_frame >=
-           frame_set->first_frame + frame_set->n_frames)
+           frame_set->first_frame + frame_set->n_frames))
         {
             stat = tng_frame_set_read_current_only_data_from_block_id(tng_data,
                                                                       TNG_USE_HASH, block_id);
@@ -18084,9 +18085,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
             }
         }
 
-        if(np_data->last_retrieved_frame < frame_set->first_frame ||
+        if(!read_all && (np_data->last_retrieved_frame < frame_set->first_frame ||
            np_data->last_retrieved_frame >=
-           frame_set->first_frame + frame_set->n_frames)
+           frame_set->first_frame + frame_set->n_frames))
         {
             stat = tng_frame_set_read_current_only_data_from_block_id(tng_data,
                                                                       TNG_USE_HASH, block_id);
