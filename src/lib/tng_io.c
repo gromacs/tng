@@ -17925,7 +17925,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(next_frame, "TNG library: The pointer to the next frame must not be NULL.");
-    TNG_ASSERT(data_block_ids_in_next_frame == 0, "TNG library: The pointer to the list of data block IDs must be NULL.");
+    TNG_ASSERT(n_data_blocks_in_next_frame, "TNG library: The pointer to n_data_blocks_in_next_frame must not be NULL.");
+    TNG_ASSERT(*data_block_ids_in_next_frame == 0, "TNG library: The pointer to the list of data block IDs must be NULL.");
 
     if(n_requested_data_block_ids)
     {

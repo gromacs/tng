@@ -4675,7 +4675,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_frame_current_compression_get
  * must be initialised before using it.
  * @pre \code next_frame != 0 \endcode The pointer to the next frame must not
  * be NULL.
- * @pre \code data_block_ids_in_next_frame != 0 \endcode The pointer to the
+ * @pre \code n_data_blocks_in_next_frame != 0 \endcode The pointer to
+ * n_data_blocks_in_next_frame must not be NULL.
+ * @pre \code *data_block_ids_in_next_frame == 0 \endcode The pointer to the
  * list of data block IDs must not be NULL.
  * @pre \code n_requested_data_block_ids == 0 || requested_data_block_ids != 0 \endcode
  * If the number of requested data blocks != 0 then the array of data block IDs must not be NULL.
