@@ -12924,6 +12924,80 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_dependency_get
     return(TNG_FAILURE);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_data_block_num_values_per_frame_get
+                (tng_trajectory_t tng_data,
+                 int64_t block_id,
+                 int *n_values_per_frame)
+{
+    int64_t i;
+    tng_function_status stat;
+    tng_particle_data_t p_data;
+    tng_non_particle_data_t np_data;
+
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(n_values_per_frame, "TNG library: n_values_per_frame must not be a NULL pointer.");
+
+    for(i = 0; i < tng_data->n_particle_data_blocks; i++)
+    {
+        p_data = &tng_data->non_tr_particle_data[i];
+        if(p_data->block_id == block_id)
+        {
+            *n_values_per_frame = p_data->n_values_per_frame;
+            return(TNG_SUCCESS);
+        }
+    }
+    for(i = 0; i < tng_data->n_data_blocks; i++)
+    {
+        np_data = &tng_data->non_tr_data[i];
+        if(np_data->block_id == block_id)
+        {
+            *n_values_per_frame = np_data->n_values_per_frame;
+            return(TNG_SUCCESS);
+        }
+    }
+
+    stat = tng_particle_data_find(tng_data, block_id, &p_data);
+    if(stat == TNG_SUCCESS)
+    {
+        *n_values_per_frame = p_data->n_values_per_frame;
+        return(TNG_SUCCESS);
+    }
+    else
+    {
+        stat = tng_data_find(tng_data, block_id, &np_data);
+        if(stat == TNG_SUCCESS)
+        {
+            *n_values_per_frame = np_data->n_values_per_frame;
+            return(TNG_SUCCESS);
+        }
+        else
+        {
+            stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
+            if(stat != TNG_SUCCESS)
+            {
+                return(stat);
+            }
+            stat = tng_particle_data_find(tng_data, block_id, &p_data);
+            if(stat == TNG_SUCCESS)
+            {
+                *n_values_per_frame = p_data->n_values_per_frame;
+                return(TNG_SUCCESS);
+            }
+            else
+            {
+                stat = tng_data_find(tng_data, block_id, &np_data);
+                if(stat == TNG_SUCCESS)
+                {
+                    *n_values_per_frame = np_data->n_values_per_frame;
+                    return(TNG_SUCCESS);
+                }
+            }
+        }
+    }
+
+    return(TNG_FAILURE);
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
