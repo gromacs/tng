@@ -17833,7 +17833,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_double_write
                                                    TNG_GZIP_COMPRESSION));
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_frame_current_compression_get
+tng_function_status DECLSPECDLLEXPORT tng_util_frame_current_compression_get
                 (tng_trajectory_t tng_data,
                  const int64_t block_id,
                  char *codec_id,
