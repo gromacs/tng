@@ -18085,7 +18085,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                 TNG_ASSERT(*n_data_blocks_in_next_frame <= n_requested_data_block_ids, "TNG library: Array of data block IDs out of bounds");
             }
             index = (*n_data_blocks_in_next_frame) - 1;
-            *data_block_ids_in_next_frame[index] = block_id;
+            (*data_block_ids_in_next_frame)[index] = block_id;
 
             min_diff = frame_diff;
         }
@@ -18163,7 +18163,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                 TNG_ASSERT(*n_data_blocks_in_next_frame <= n_requested_data_block_ids, "TNG library: Array of data block IDs out of bounds");
             }
             index = (*n_data_blocks_in_next_frame) - 1;
-            *data_block_ids_in_next_frame[index] = block_id;
+            (*data_block_ids_in_next_frame)[index] = block_id;
 
             min_diff = frame_diff;
         }
