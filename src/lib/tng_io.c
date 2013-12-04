@@ -18001,7 +18001,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
         tng_block_destroy(&block);
         if(stat == TNG_CRITICAL)
         {
-            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+            printf("TNG library: Cannot read block header at pos %ld. %s: %d\n",
                     file_pos, __FILE__, __LINE__);
             return(stat);
         }
