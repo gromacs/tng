@@ -17657,7 +17657,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_write
         if(frame_nr > frame_set->first_frame)
         {
             stat = tng_frame_set_first_frame_time_set(tng_data,
-                                                      time + 
+                                                      time - 
                                                       (frame_nr -
                                                        frame_set->first_frame) *
                                                       tng_data->time_per_frame);
