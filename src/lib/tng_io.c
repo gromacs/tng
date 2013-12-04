@@ -17647,7 +17647,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_write
     {
         return(stat);
     }
-    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
+    /* first_frame_time is -1 when it is not yet set. */
+    if(tng_data->current_trajectory_frame_set.first_frame_time < -0.1)
     {
         stat = tng_frame_set_first_frame_time_set(tng_data, time);
     }
