@@ -12911,7 +12911,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_dependency_get
     stat = tng_particle_data_find(tng_data, block_id, &p_data);
     if(stat == TNG_SUCCESS)
     {
-        *block_dependency = TNG_PARTICLE_DEPENDENT & TNG_FRAME_DEPENDENT;
+        *block_dependency = TNG_PARTICLE_DEPENDENT + TNG_FRAME_DEPENDENT;
         return(TNG_SUCCESS);
     }
     else
@@ -12932,7 +12932,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_dependency_get
             stat = tng_particle_data_find(tng_data, block_id, &p_data);
             if(stat == TNG_SUCCESS)
             {
-                *block_dependency = TNG_PARTICLE_DEPENDENT & TNG_FRAME_DEPENDENT;
+                *block_dependency = TNG_PARTICLE_DEPENDENT + TNG_FRAME_DEPENDENT;
                 return(TNG_SUCCESS);
             }
             else
@@ -17947,7 +17947,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
     tng_non_particle_data_t np_data;
     tng_gen_block_t block;
     int64_t i, j, block_id, *temp;
-    int64_t data_first_frame, frame_diff, min_diff;
+    int64_t data_frame, frame_diff, min_diff;
     int64_t size;
     int found, read_all = 0;
     long file_pos;
@@ -18058,9 +18058,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                 return(stat);
             }
         }
-        data_first_frame = tng_max_i64(p_data->last_retrieved_frame,
-                                       p_data->first_frame_with_data);
-        frame_diff = current_frame - data_first_frame;
+        data_frame = tng_max_i64(p_data->last_retrieved_frame,
+                                 p_data->first_frame_with_data);
+        frame_diff = current_frame - data_frame;
         if(frame_diff < 0)
         {
             continue;
@@ -18135,9 +18135,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                 return(stat);
             }
         }
-        data_first_frame = tng_max_i64(np_data->last_retrieved_frame,
-                                       np_data->first_frame_with_data);
-        frame_diff = current_frame - data_first_frame;
+        data_frame = tng_max_i64(np_data->last_retrieved_frame,
+                                 np_data->first_frame_with_data);
+        frame_diff = current_frame - data_frame;
         if(frame_diff < 0)
         {
             continue;
