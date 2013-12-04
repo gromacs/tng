@@ -12850,7 +12850,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_name_get
     {
         for(i = 0; i < frame_set->n_particle_data_blocks; i++)
         {
-            p_data = &tng_data->non_tr_particle_data[i];
+            p_data = &frame_set->tr_particle_data[i];
             if(p_data->block_id == block_id)
             {
                 strncpy(name, p_data->block_name, max_len);
@@ -12863,7 +12863,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_name_get
     {
         for(i = 0; i < frame_set->n_data_blocks; i++)
         {
-            np_data = &tng_data->non_tr_data[i];
+            np_data = &frame_set->tr_data[i];
             if(np_data->block_id == block_id)
             {
                 strncpy(name, np_data->block_name, max_len);
@@ -17948,7 +17948,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
     tng_gen_block_t block;
     int64_t i, j, block_id, *temp;
     int64_t data_first_frame, frame_diff, min_diff;
-    int64_t size, index;
+    int64_t size;
     int found, read_all = 0;
     long file_pos;
 
@@ -18084,8 +18084,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
             {
                 TNG_ASSERT(*n_data_blocks_in_next_frame <= n_requested_data_block_ids, "TNG library: Array of data block IDs out of bounds");
             }
-            index = (*n_data_blocks_in_next_frame) - 1;
-            (*data_block_ids_in_next_frame)[index] = block_id;
+            (*data_block_ids_in_next_frame)[(*n_data_blocks_in_next_frame) - 1] = block_id;
 
             min_diff = frame_diff;
         }
@@ -18162,8 +18161,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
             {
                 TNG_ASSERT(*n_data_blocks_in_next_frame <= n_requested_data_block_ids, "TNG library: Array of data block IDs out of bounds");
             }
-            index = (*n_data_blocks_in_next_frame) - 1;
-            (*data_block_ids_in_next_frame)[index] = block_id;
+            (*data_block_ids_in_next_frame)[(*n_data_blocks_in_next_frame) - 1] = block_id;
 
             min_diff = frame_diff;
         }
