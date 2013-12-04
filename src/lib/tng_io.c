@@ -4884,7 +4884,6 @@ static tng_function_status tng_particle_data_block_write
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         data = &frame_set->tr_particle_data[block_index];
-        stride_length = tng_max_i64(1, data->stride_length);
         
         /* If this data block has not had any data added in this frame set
          * do not write it. */
@@ -4892,6 +4891,8 @@ static tng_function_status tng_particle_data_block_write
         {
             return(TNG_SUCCESS);
         }
+        
+        stride_length = tng_max_i64(1, data->stride_length);
     }
     else
     {
@@ -5809,6 +5810,14 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         data = &frame_set->tr_data[block_index];
+        
+        /* If this data block has not had any data added in this frame set
+         * do not write it. */
+        if(data->first_frame_with_data < frame_set->first_frame)
+        {
+            return(TNG_SUCCESS);
+        }
+        
         stride_length = tng_max_i64(1, data->stride_length);
     }
     else
