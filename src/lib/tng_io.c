@@ -4857,12 +4857,13 @@ static tng_function_status tng_particle_data_block_write
     char dependency, temp, *temp_name;
     double multiplier;
     char ***first_dim_values, **second_dim_values;
-    tng_trajectory_frame_set_t frame_set =
-    &tng_data->current_trajectory_frame_set;
+    tng_trajectory_frame_set_t frame_set;
     tng_function_status stat;
 
     tng_particle_data_t data;
     char block_type_flag;
+    
+    frame_set = &tng_data->current_trajectory_frame_set;
 
     /* If we have already started writing frame sets it is too late to write
      * non-trajectory data blocks */
@@ -4884,6 +4885,13 @@ static tng_function_status tng_particle_data_block_write
     {
         data = &frame_set->tr_particle_data[block_index];
         stride_length = tng_max_i64(1, data->stride_length);
+        
+        /* If this data block has not had any data added in this frame set
+         * do not write it. */
+        if(data->first_frame_with_data < frame_set->first_frame)
+        {
+            return(TNG_SUCCESS);
+        }
     }
     else
     {
