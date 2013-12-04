@@ -17955,12 +17955,23 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(next_frame, "TNG library: The pointer to the next frame must not be NULL.");
     TNG_ASSERT(n_data_blocks_in_next_frame, "TNG library: The pointer to n_data_blocks_in_next_frame must not be NULL.");
-    TNG_ASSERT(*data_block_ids_in_next_frame == 0, "TNG library: The pointer to the list of data block IDs must be NULL.");
+    TNG_ASSERT(data_block_ids_in_next_frame, "TNG library: The pointer to the list of data block IDs must not be NULL.");
 
     if(n_requested_data_block_ids)
     {
         TNG_ASSERT(requested_data_block_ids, "TNG library: If the number of requested data blocks is > 0 then the array of data block IDs must not be NULL.");
-        *data_block_ids_in_next_frame = malloc(sizeof(int64_t) * n_requested_data_block_ids);
+        size = sizeof(int64_t) * n_requested_data_block_ids;
+        temp = realloc(*data_block_ids_in_next_frame, size);
+        if(!temp)
+        {
+            printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                    sizeof(int64_t) * (*n_data_blocks_in_next_frame),
+                    __FILE__, __LINE__);
+            free(*data_block_ids_in_next_frame);
+            *data_block_ids_in_next_frame = 0;
+            return(TNG_CRITICAL);
+        }
+        *data_block_ids_in_next_frame = temp;
     }
 
     frame_set = &tng_data->current_trajectory_frame_set;

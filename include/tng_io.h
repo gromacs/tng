@@ -4668,7 +4668,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_frame_current_compression_get
  * data for next_frame.
  * @param data_block_ids_in_next_frame is set to an array (of length
  * n_data_blocks_in_next_frame) that lists the data block IDs with data for
- * next_frame. The array is created by this function allocated.
+ * next_frame. It must be pointing at NULL or previously allocated memory.
+ * Memory for the array is allocated by this function.
  * The memory must be freed by the client afterwards or
  * there will be a memory leak.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
@@ -4677,7 +4678,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_frame_current_compression_get
  * be NULL.
  * @pre \code n_data_blocks_in_next_frame != 0 \endcode The pointer to
  * n_data_blocks_in_next_frame must not be NULL.
- * @pre \code *data_block_ids_in_next_frame == 0 \endcode The pointer to the
+ * @pre \code *data_block_ids_in_next_frame != 0 \endcode The pointer to the
  * list of data block IDs must not be NULL.
  * @pre \code n_requested_data_block_ids == 0 || requested_data_block_ids != 0 \endcode
  * If the number of requested data blocks != 0 then the array of data block IDs must not be NULL.
