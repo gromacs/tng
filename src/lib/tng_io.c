@@ -17192,11 +17192,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
             {
                 p_data->first_frame_with_data = frame_nr;
             }
-            else
-            {
-                p_data->first_frame_with_data = frame_set->first_frame;
-            }
-
             memcpy((char *)p_data->values + sizeof(float) * frame_pos * n_particles *
                    n_values_per_frame, values, sizeof(float) *
                    n_particles * n_values_per_frame);
