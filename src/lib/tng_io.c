@@ -18058,14 +18058,19 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                 return(stat);
             }
         }
-        data_frame = tng_max_i64(p_data->last_retrieved_frame,
-                                 p_data->first_frame_with_data);
-        frame_diff = current_frame - data_frame;
+        if(p_data->last_retrieved_frame >= 0)
+        {
+            data_frame = p_data->last_retrieved_frame + p_data->stride_length;
+        }
+        else
+        {
+            data_frame = p_data->first_frame_with_data;
+        }
+        frame_diff = data_frame - current_frame;
         if(frame_diff < 0)
         {
             continue;
         }
-        frame_diff = frame_diff % p_data->stride_length;
         if(min_diff == -1 || frame_diff <= min_diff)
         {
             if(frame_diff < min_diff)
@@ -18135,9 +18140,15 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                 return(stat);
             }
         }
-        data_frame = tng_max_i64(np_data->last_retrieved_frame,
-                                 np_data->first_frame_with_data);
-        frame_diff = current_frame - data_frame;
+        if(p_data->last_retrieved_frame >= 0)
+        {
+            data_frame = p_data->last_retrieved_frame + p_data->stride_length;
+        }
+        else
+        {
+            data_frame = p_data->first_frame_with_data;
+        }
+        frame_diff = data_frame - current_frame;
         if(frame_diff < 0)
         {
             continue;
