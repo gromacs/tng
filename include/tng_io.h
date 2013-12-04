@@ -1179,7 +1179,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_particles_get
  */
 tng_function_status DECLSPECDLLEXPORT tng_num_particles_variable_get
                 (const tng_trajectory_t tng_data,
-                 tng_variable_n_atoms_flag *variable);
+                 char *variable);
 
 /**
  * @brief Get the number of molecule types (length of tng_data->molecules).

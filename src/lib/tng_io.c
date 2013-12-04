@@ -10565,7 +10565,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_particles_get
 
 tng_function_status DECLSPECDLLEXPORT tng_num_particles_variable_get
                 (const tng_trajectory_t tng_data,
-                 tng_variable_n_atoms_flag *variable)
+                 char *variable)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(variable, "TNG library: variable must not be a NULL pointer");
