@@ -11152,6 +11152,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
+    tng_block_init(&block);
+    
     if(tng_data->current_trajectory_frame_set_input_file_pos < 0)
     {
         file_pos = tng_data->first_trajectory_frame_set_input_file_pos;
@@ -11182,7 +11184,6 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
     n_frames_per_frame_set = tng_data->frame_set_n_frames;
     long_stride_length = tng_data->long_stride_length;
     medium_stride_length = tng_data->medium_stride_length;
-    tng_block_init(&block);
 
     if(tng_first_frame_nr_of_next_frame_set_get(tng_data, &temp_frame) ==
        TNG_SUCCESS)
