@@ -18149,11 +18149,15 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
         {
             stat = tng_frame_set_read_current_only_data_from_block_id(tng_data,
                                                                       TNG_USE_HASH, block_id);
-            if(stat != TNG_SUCCESS)
+            if(stat == TNG_CRITICAL)
             {
                 printf("Cannot read data block of frame set. %s: %d\n",
                     __FILE__, __LINE__);
                 return(stat);
+            }
+            if(stat == TNG_FAILURE)
+            {
+                continue;
             }
         }
         if(np_data->last_retrieved_frame >= 0)
