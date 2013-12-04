@@ -11152,6 +11152,31 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
+    if(tng_data->current_trajectory_frame_set_input_file_pos < 0)
+    {
+        file_pos = tng_data->first_trajectory_frame_set_input_file_pos;
+        fseek(tng_data->input_file,
+                (long)file_pos,
+                SEEK_SET);
+        tng_data->current_trajectory_frame_set_input_file_pos = (long)file_pos;
+        /* Read block headers first to see what block is found. */
+        stat = tng_block_header_read(tng_data, block);
+        if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
+        {
+            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                    file_pos, __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
+
+        if(tng_block_read_next(tng_data, block,
+                            TNG_SKIP_HASH) != TNG_SUCCESS)
+        {
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
+    }
+
     first_frame = tng_max_i64(frame_set->first_frame, 0);
     last_frame = first_frame + frame_set->n_frames - 1;
     n_frames_per_frame_set = tng_data->frame_set_n_frames;
