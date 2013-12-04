@@ -17631,6 +17631,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_write
                  const char particle_dependency,
                  const char compression)
 {
+    tng_trajectory_frame_set_t frame_set;
     tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -17647,10 +17648,23 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_write
     {
         return(stat);
     }
+    
+    frame_set = &tng_data->current_trajectory_frame_set;
+    
     /* first_frame_time is -1 when it is not yet set. */
-    if(tng_data->current_trajectory_frame_set.first_frame_time < -0.1)
+    if(frame_set->first_frame_time < -0.1)
     {
-        stat = tng_frame_set_first_frame_time_set(tng_data, time);
+        if(frame_nr > frame_set->first_frame)
+        {
+            stat = tng_frame_set_first_frame_time_set(tng_data,
+                                                      (frame_nr -
+                                                       frame_set->first_frame) *
+                                                      tng_data->time_per_frame);
+        }
+        else
+        {
+            stat = tng_frame_set_first_frame_time_set(tng_data, time);
+        }
     }
     return(stat);
 }
