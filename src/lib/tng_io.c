@@ -3871,13 +3871,20 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
     if(block->id != TNG_TRAJ_POSITIONS &&
        block->id != TNG_TRAJ_VELOCITIES)
     {
-        printf("TNG library: Can only compress positions and velocities with the"
-               "TNG method.\n");
+        printf("TNG library: Can only compress positions and velocities with the "
+               "TNG method. %s: %d\n", __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
     if(type != TNG_FLOAT_DATA && type != TNG_DOUBLE_DATA)
     {
-        printf("TNG library: Data type not supported.\n");
+        printf("TNG library: Data type not supported. %s: %d\n", __FILE__, __LINE__);
+        return(TNG_FAILURE);
+    }
+
+    if(n_frames <= 0 || n_particles <= 0)
+    {
+        printf("TNG library: Missing frames or particles. Cannot compress data "
+               "with the TNG method. %s: %d\n", __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
 
@@ -4862,7 +4869,7 @@ static tng_function_status tng_particle_data_block_write
 
     tng_particle_data_t data;
     char block_type_flag;
-    
+
     frame_set = &tng_data->current_trajectory_frame_set;
 
     /* If we have already started writing frame sets it is too late to write
@@ -4884,14 +4891,14 @@ static tng_function_status tng_particle_data_block_write
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         data = &frame_set->tr_particle_data[block_index];
-        
+
         /* If this data block has not had any data added in this frame set
          * do not write it. */
         if(data->first_frame_with_data < frame_set->first_frame)
         {
             return(TNG_SUCCESS);
         }
-        
+
         stride_length = tng_max_i64(1, data->stride_length);
     }
     else
@@ -5810,14 +5817,14 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
         data = &frame_set->tr_data[block_index];
-        
+
         /* If this data block has not had any data added in this frame set
          * do not write it. */
         if(data->first_frame_with_data < frame_set->first_frame)
         {
             return(TNG_SUCCESS);
         }
-        
+
         stride_length = tng_max_i64(1, data->stride_length);
     }
     else
@@ -11170,7 +11177,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
     frame_set = &tng_data->current_trajectory_frame_set;
 
     tng_block_init(&block);
-    
+
     if(tng_data->current_trajectory_frame_set_input_file_pos < 0)
     {
         file_pos = tng_data->first_trajectory_frame_set_input_file_pos;
@@ -17648,16 +17655,16 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_write
     {
         return(stat);
     }
-    
+
     frame_set = &tng_data->current_trajectory_frame_set;
-    
+
     /* first_frame_time is -1 when it is not yet set. */
     if(frame_set->first_frame_time < -0.1)
     {
         if(frame_nr > frame_set->first_frame)
         {
             stat = tng_frame_set_first_frame_time_set(tng_data,
-                                                      time - 
+                                                      time -
                                                       (frame_nr -
                                                        frame_set->first_frame) *
                                                       tng_data->time_per_frame);
