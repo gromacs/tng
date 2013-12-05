@@ -1516,6 +1516,8 @@ static tng_function_status tng_general_info_block_write
         return(TNG_CRITICAL);
     }
 
+    fseek(tng_data->output_file, 0, SEEK_SET);
+
     /* If the strings are unallocated allocate memory for just string
      * termination */
     if(!tng_data->first_program_name)
@@ -15947,6 +15949,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
             (*tng_data_p)->input_file_path = 0;
         }
         tng_output_append_file_set(*tng_data_p, filename);
+
+        fseek((*tng_data_p)->output_file, 0, SEEK_END);
     }
 
     return(TNG_SUCCESS);
