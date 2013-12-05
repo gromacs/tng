@@ -16343,7 +16343,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
                 {
                     return(stat);
                 }
-                if(frame_set->prev_frame_set_file_pos != frame_set_file_pos)
+                if(frame_set->prev_frame_set_file_pos != frame_set_file_pos &&
+                   tng_data->current_trajectory_frame_set_input_file_pos != frame_set_file_pos)
                 {
                     tng_num_frames_get(tng_data, &n_frames);
                     if(i < n_frames)
@@ -16497,7 +16498,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
                 {
                     return(stat);
                 }
-                if(frame_set->prev_frame_set_file_pos != frame_set_file_pos)
+                if(frame_set->prev_frame_set_file_pos != frame_set_file_pos &&
+                   tng_data->current_trajectory_frame_set_input_file_pos != frame_set_file_pos)
                 {
                     tng_num_frames_get(tng_data, &n_frames);
                     if(i < n_frames)
