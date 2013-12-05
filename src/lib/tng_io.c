@@ -11205,6 +11205,13 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
 
     first_frame = tng_max_i64(frame_set->first_frame, 0);
     last_frame = first_frame + frame_set->n_frames - 1;
+    /* Is this the right frame set? */
+    if(first_frame <= frame && frame <= last_frame)
+    {
+        tng_block_destroy(&block);
+        return(TNG_SUCCESS);
+    }
+
     n_frames_per_frame_set = tng_data->frame_set_n_frames;
     long_stride_length = tng_data->long_stride_length;
     medium_stride_length = tng_data->medium_stride_length;
@@ -11216,13 +11223,6 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
         {
             n_frames_per_frame_set = temp_frame - first_frame;
         }
-    }
-
-    /* Is this the right frame set? */
-    if(first_frame <= frame && frame <= last_frame)
-    {
-        tng_block_destroy(&block);
-        return(TNG_SUCCESS);
     }
 
     tng_num_frames_get(tng_data, &n_frames);
@@ -11249,7 +11249,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
             }
         }
         /* Start from the end */
-        else if(frame - first_frame < (n_frames - 1) - frame)
+        else if(frame - first_frame > (n_frames - 1) - frame)
         {
             file_pos = tng_data->last_trajectory_frame_set_input_file_pos;
 
