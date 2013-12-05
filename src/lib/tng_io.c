@@ -18120,7 +18120,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                 continue;
             }
         }
-        if(p_data->last_retrieved_frame >= 0)
+        if(frame_set->first_frame != current_frame &&
+           p_data->last_retrieved_frame >= 0)
         {
             data_frame = p_data->last_retrieved_frame + p_data->stride_length;
         }
@@ -18206,7 +18207,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                 continue;
             }
         }
-        if(np_data->last_retrieved_frame >= 0)
+        if(frame_set->first_frame != current_frame &&
+           np_data->last_retrieved_frame >= 0)
         {
             data_frame = np_data->last_retrieved_frame + np_data->stride_length;
         }
