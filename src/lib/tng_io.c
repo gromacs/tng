@@ -18306,3 +18306,29 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
 
     return(TNG_SUCCESS);
 }
+
+tng_function_status DECLSPECDLLEXPORT tng_util_prepare_append_after_frame
+                (tng_trajectory_t tng_data,
+                 const int64_t prev_frame)
+{
+    tng_function_status stat;
+    FILE *temp = tng_data->input_file;
+
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(prev_frame >= 0, "TNG library: The previous frame must not be negative.");
+
+    tng_data->input_file = tng_data->output_file;
+
+    stat = tng_frame_set_of_frame_find(tng_data, prev_frame);
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+
+    tng_data->current_trajectory_frame_set_output_file_pos =
+    tng_data->current_trajectory_frame_set_input_file_pos;
+
+    tng_data->input_file = temp;
+
+    return(TNG_SUCCESS);
+}

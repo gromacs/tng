@@ -4712,6 +4712,20 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                  int64_t *n_data_blocks_in_next_frame,
                  int64_t **data_block_ids_in_next_frame);
 
+/** @brief Finds the frame set of the specified frame in order to prepare for writing
+ * after it.
+ * @param tng_data is the trajectory to use.
+ * @param prev_frame is the frame after which to start appending.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code prev_frame >= 0 \endcode The previous frame must not be negative.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured (such as not finding the requested frame) or TNG_CRITICAL (2)
+ * if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_prepare_append_after_frame
+                (tng_trajectory_t tng_data,
+                 const int64_t prev_frame);
 
 /** @} */ /* end of group2 */
 
