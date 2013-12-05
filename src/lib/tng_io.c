@@ -10729,7 +10729,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
     medium_stride_length = tng_data->medium_stride_length;
 
     /* Take long steps forward until a long step forward would be too long or
-     * the right frame set is found */
+     * the last frame set is found */
     file_pos = frame_set->long_stride_next_frame_set_file_pos;
     while(file_pos > 0)
     {
@@ -10758,7 +10758,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
     }
 
     /* Take medium steps forward until a medium step forward would be too long
-     * or the right frame set is found */
+     * or the last frame set is found */
     file_pos = frame_set->medium_stride_next_frame_set_file_pos;
     while(file_pos > 0)
     {
@@ -10788,7 +10788,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
         file_pos = frame_set->medium_stride_next_frame_set_file_pos;
     }
 
-    /* Take one step forward until the right frame set is found */
+    /* Take one step forward until the last frame set is found */
     file_pos = frame_set->next_frame_set_file_pos;
     while(file_pos > 0)
     {
@@ -15892,6 +15892,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
 
         /* Read the file headers */
         tng_file_headers_read(*tng_data_p, TNG_USE_HASH);
+
+        tng_num_frame_sets_get(*tng_data_p, &(*tng_data_p)->n_trajectory_frame_sets);
     }
 
     if(mode == 'w')
