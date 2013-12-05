@@ -16290,7 +16290,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
     tng_particle_data_t data;
     tng_function_status stat;
     int size;
-    int64_t i, data_size, n_particles, n_frames;
+    int64_t i, data_size, n_particles, n_frames, frame_set_file_pos;
     void *temp;
     long file_pos;
 
@@ -16331,16 +16331,29 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
         i = data->last_retrieved_frame + data->stride_length;
         if(i < frame_set->first_frame || i >= frame_set->first_frame + frame_set->n_frames)
         {
+            frame_set_file_pos = tng_data->current_trajectory_frame_set_input_file_pos;
             stat = tng_frame_set_of_frame_find(tng_data, i);
             if(stat != TNG_SUCCESS)
             {
-                tng_num_frames_get(tng_data, &n_frames);
-                if(i < n_frames)
+                /* If the frame set search found the frame set after the starting
+                 * frame set there is a gap in the frame sets. So, even if the frame
+                 * was not found the next frame with data is still in the found
+                 * frame set. */
+                if(stat == TNG_CRITICAL)
                 {
-                    printf("Cannot find frame set of frame %"PRId64". %s: %d\n",
-                           frame_set->first_frame + i, __FILE__, __LINE__);
+                    return(stat);
                 }
-                return(stat);
+                if(frame_set->prev_frame_set_file_pos != frame_set_file_pos)
+                {
+                    tng_num_frames_get(tng_data, &n_frames);
+                    if(i < n_frames)
+                    {
+                        printf("Cannot find frame set of frame %"PRId64". %s: %d\n",
+                               frame_set->first_frame + i, __FILE__, __LINE__);
+                    }
+                    return(stat);
+                }
+                i = frame_set->first_frame;
             }
         }
         if(data->last_retrieved_frame < frame_set->first_frame)
@@ -16431,7 +16444,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
     tng_non_particle_data_t data;
     tng_function_status stat;
     int size;
-    int64_t i, data_size, n_frames;
+    int64_t i, data_size, n_frames, frame_set_file_pos;
     void *temp;
     long file_pos;
 
@@ -16472,16 +16485,29 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
         i = data->last_retrieved_frame + data->stride_length;
         if(i < frame_set->first_frame || i >= frame_set->first_frame + frame_set->n_frames)
         {
+            frame_set_file_pos = tng_data->current_trajectory_frame_set_input_file_pos;
             stat = tng_frame_set_of_frame_find(tng_data, i);
             if(stat != TNG_SUCCESS)
             {
-                tng_num_frames_get(tng_data, &n_frames);
-                if(i < n_frames)
+                /* If the frame set search found the frame set after the starting
+                 * frame set there is a gap in the frame sets. So, even if the frame
+                 * was not found the next frame with data is still in the found
+                 * frame set. */
+                if(stat == TNG_CRITICAL)
                 {
-                    printf("Cannot find frame set of frame %"PRId64". %s: %d\n",
-                        frame_set->first_frame + i, __FILE__, __LINE__);
+                    return(stat);
                 }
-                return(stat);
+                if(frame_set->prev_frame_set_file_pos != frame_set_file_pos)
+                {
+                    tng_num_frames_get(tng_data, &n_frames);
+                    if(i < n_frames)
+                    {
+                        printf("Cannot find frame set of frame %"PRId64". %s: %d\n",
+                               frame_set->first_frame + i, __FILE__, __LINE__);
+                    }
+                    return(stat);
+                }
+                i = frame_set->first_frame;
             }
         }
         if(data->last_retrieved_frame < frame_set->first_frame)
