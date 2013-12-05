@@ -3263,6 +3263,8 @@ static tng_function_status tng_frame_set_block_read
         tng_data->time_per_frame = -1;
     }
 
+    frame_set->n_written_frames = frame_set->n_frames;
+
     return(TNG_SUCCESS);
 }
 
