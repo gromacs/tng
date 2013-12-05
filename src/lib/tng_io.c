@@ -1278,7 +1278,7 @@ static tng_function_status tng_general_info_block_read
         return(TNG_CRITICAL);
     }
     tng_data->last_program_name = temp;
-    strncpy(tng_data->last_program_name, block->block_contents, len);
+    strncpy(tng_data->last_program_name, block->block_contents + offset, len);
     offset += len;
 
     len = tng_min_i((int)strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
