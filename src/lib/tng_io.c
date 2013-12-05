@@ -17996,7 +17996,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
     tng_gen_block_t block;
     int64_t i, j, block_id, *temp;
     int64_t data_frame, frame_diff, min_diff;
-    int64_t size;
+    int64_t size, frame_set_file_pos;
     int found, read_all = 0;
     long file_pos;
 
@@ -18029,10 +18029,20 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
     if(current_frame < frame_set->first_frame ||
        current_frame >= frame_set->first_frame + frame_set->n_frames)
     {
+        frame_set_file_pos = tng_data->current_trajectory_frame_set_input_file_pos;
         stat = tng_frame_set_of_frame_find(tng_data, current_frame);
         if(stat != TNG_SUCCESS)
         {
-            return(stat);
+            /* If the frame set search found the frame set after the starting
+             * frame set there is a gap in the frame sets. So, even if the frame
+             * was not found the next frame with data is still in the found
+             * frame set. */
+            if(stat == TNG_CRITICAL || frame_set->prev_frame_set_file_pos !=
+               frame_set_file_pos)
+            {
+                return(stat);
+            }
+            current_frame = frame_set->first_frame;
         }
     }
 
