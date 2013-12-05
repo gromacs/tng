@@ -11166,7 +11166,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
 {
     int64_t first_frame, last_frame, n_frames_per_frame_set;
     int64_t long_stride_length, medium_stride_length;
-    int64_t file_pos, temp_frame;
+    int64_t file_pos, temp_frame, n_frames;
     tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
     tng_function_status stat;
@@ -11225,6 +11225,14 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
         return(TNG_SUCCESS);
     }
 
+    tng_num_frames_get(tng_data, &n_frames);
+
+    if(frame >= n_frames)
+    {
+        tng_block_destroy(&block);
+        return(TNG_FAILURE);
+    }
+
     if(first_frame - frame >= frame ||
        frame - last_frame >
        tng_data->n_trajectory_frame_sets * n_frames_per_frame_set - frame)
@@ -11241,12 +11249,17 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
             }
         }
         /* Start from the end */
-        else
+        else if(frame - first_frame < (n_frames - 1) - frame)
         {
             file_pos = tng_data->last_trajectory_frame_set_input_file_pos;
 
             /* If the last frame set position is not set start from the current
              * frame set, since it will be closer than the first frame set. */
+        }
+        /* Start from current */
+        else
+        {
+            file_pos = tng_data->current_trajectory_frame_set_input_file_pos;
         }
 
         if(file_pos > 0)
