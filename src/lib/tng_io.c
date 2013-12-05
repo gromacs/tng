@@ -11811,6 +11811,86 @@ tng_function_status DECLSPECDLLEXPORT tng_block_read_next(tng_trajectory_t tng_d
     }
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_read
+                (tng_trajectory_t tng_data,
+                 const char hash_mode)
+{
+    long file_pos;
+    tng_gen_block_t block;
+    tng_function_status stat;
+
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+
+    if(tng_input_file_init(tng_data) != TNG_SUCCESS)
+    {
+        return(TNG_CRITICAL);
+    }
+
+    file_pos = ftell(tng_data->input_file);
+
+    tng_block_init(&block);
+
+    if(!tng_data->input_file_len)
+    {
+        fseek(tng_data->input_file, 0, SEEK_END);
+        tng_data->input_file_len = ftell(tng_data->input_file);
+        fseek(tng_data->input_file, file_pos, SEEK_SET);
+    }
+
+    /* Read block headers first to see what block is found. */
+    stat = tng_block_header_read(tng_data, block);
+    if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
+    {
+        printf("TNG library: Cannot read block header at pos %ld. %s: %d\n",
+               file_pos, __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }
+
+    tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
+
+    if(tng_block_read_next(tng_data, block,
+                           hash_mode) == TNG_SUCCESS)
+    {
+        tng_data->n_trajectory_frame_sets++;
+        file_pos = ftell(tng_data->input_file);
+        /* Read all blocks until next frame set block */
+        stat = tng_block_header_read(tng_data, block);
+        while(file_pos < tng_data->input_file_len &&
+              stat != TNG_CRITICAL &&
+              block->id != TNG_TRAJECTORY_FRAME_SET)
+        {
+            stat = tng_block_read_next(tng_data, block,
+                                       hash_mode);
+            if(stat != TNG_CRITICAL)
+            {
+                file_pos = ftell(tng_data->input_file);
+                if(file_pos < tng_data->input_file_len)
+                {
+                    stat = tng_block_header_read(tng_data, block);
+                }
+            }
+        }
+        if(stat == TNG_CRITICAL)
+        {
+            printf("TNG library: Cannot read block header at pos %ld. %s: %d\n",
+                   file_pos, __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            return(stat);
+        }
+
+        if(block->id == TNG_TRAJECTORY_FRAME_SET)
+        {
+            fseek(tng_data->input_file, file_pos, SEEK_SET);
+        }
+    }
+
+    tng_block_destroy(&block);
+
+    return(TNG_SUCCESS);
+}
+
+
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_current_only_data_from_block_id
                 (tng_trajectory_t tng_data,
                  const char hash_mode,
@@ -11949,8 +12029,6 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next
                  const char hash_mode)
 {
     long file_pos;
-    tng_gen_block_t block;
-    tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
 
@@ -11977,66 +12055,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next
         return(TNG_FAILURE);
     }
 
-    tng_block_init(&block);
-
-    if(!tng_data->input_file_len)
-    {
-        fseek(tng_data->input_file, 0, SEEK_END);
-        tng_data->input_file_len = ftell(tng_data->input_file);
-        fseek(tng_data->input_file, file_pos, SEEK_SET);
-    }
-
-    /* Read block headers first to see what block is found. */
-    stat = tng_block_header_read(tng_data, block);
-    if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
-    {
-        printf("TNG library: Cannot read block header at pos %ld. %s: %d\n",
-               file_pos, __FILE__, __LINE__);
-        tng_block_destroy(&block);
-        return(TNG_CRITICAL);
-    }
-
-    tng_data->current_trajectory_frame_set_input_file_pos = file_pos;
-
-    if(tng_block_read_next(tng_data, block,
-                           hash_mode) == TNG_SUCCESS)
-    {
-        tng_data->n_trajectory_frame_sets++;
-        file_pos = ftell(tng_data->input_file);
-        /* Read all blocks until next frame set block */
-        stat = tng_block_header_read(tng_data, block);
-        while(file_pos < tng_data->input_file_len &&
-              stat != TNG_CRITICAL &&
-              block->id != TNG_TRAJECTORY_FRAME_SET)
-        {
-            stat = tng_block_read_next(tng_data, block,
-                                       hash_mode);
-            if(stat != TNG_CRITICAL)
-            {
-                file_pos = ftell(tng_data->input_file);
-                if(file_pos < tng_data->input_file_len)
-                {
-                    stat = tng_block_header_read(tng_data, block);
-                }
-            }
-        }
-        if(stat == TNG_CRITICAL)
-        {
-            printf("TNG library: Cannot read block header at pos %ld. %s: %d\n",
-                   file_pos, __FILE__, __LINE__);
-            tng_block_destroy(&block);
-            return(stat);
-        }
-
-        if(block->id == TNG_TRAJECTORY_FRAME_SET)
-        {
-            fseek(tng_data->input_file, file_pos, SEEK_SET);
-        }
-    }
-
-    tng_block_destroy(&block);
-
-    return(TNG_SUCCESS);
+    return(tng_frame_set_read(tng_data, hash_mode));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next_only_data_from_block_id
@@ -15875,7 +15894,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
                  tng_trajectory_t *tng_data_p)
 {
     tng_function_status stat;
-    tng_gen_block_t block;
 
     TNG_ASSERT(filename, "TNG library: filename must not be a NULL pointer.");
 
@@ -15910,23 +15928,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
                 (long)(*tng_data_p)->last_trajectory_frame_set_input_file_pos,
                 SEEK_SET);
 
-        tng_block_init(&block);
-
-        stat = tng_block_header_read(*tng_data_p, block);
-        if(stat != TNG_SUCCESS || block->id != TNG_TRAJECTORY_FRAME_SET)
-        {
-            printf("TNG library: Cannot read trajectory frame set block header at pos %"PRId64". %s: %d\n",
-                    (*tng_data_p)->last_trajectory_frame_set_input_file_pos, __FILE__, __LINE__);
-            tng_block_destroy(&block);
-            return(stat);
-        }
-        stat = tng_block_read_next(*tng_data_p, block, TNG_USE_HASH);
-        tng_block_destroy(&block);
+        stat = tng_frame_set_read(*tng_data_p, TNG_USE_HASH);
         if(stat != TNG_SUCCESS)
         {
-            printf("TNG library: Error reading trajectory frame set block. %s: %d\n",
-                    __FILE__, __LINE__);
-            return(stat);
+            printf("TNG library: Cannot read frame set and related blocks. %s: %d\n",
+                   __FILE__, __LINE__);
         }
 
         (*tng_data_p)->first_trajectory_frame_set_output_file_pos =

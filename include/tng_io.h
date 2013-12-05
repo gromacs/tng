@@ -2409,6 +2409,23 @@ tng_function_status DECLSPECDLLEXPORT tng_block_read_next
                 (tng_trajectory_t tng_data,
                  tng_gen_block_t block_data,
                  const char hash_mode);
+
+/**
+ * @brief Read one frame set, including all particle mapping blocks and data
+ * blocks, starting from the current file position.
+ * @param tng_data is a trajectory data container.
+ * @param hash_mode is an option to decide whether to use the md5 hash or not.
+ * If hash_mode == TNG_USE_HASH the written md5 hash in the file will be
+ * compared to the md5 hash of the read contents to ensure valid data.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occurred or TNG_CRITICAL (2) if a major error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_read
+                (tng_trajectory_t tng_data,
+                 const char hash_mode);
+
 /**
  * @brief Read data from the current frame set from the input_file. Only read
  * particle mapping and data blocks matching the specified block_id.
