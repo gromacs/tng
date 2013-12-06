@@ -6598,7 +6598,8 @@ static tng_function_status tng_header_pointers_update
 }
 
 /** Update the frame set pointers in the current frame set block, already
- * written to disk
+ * written to disk. It also updates the pointers of the blocks pointing to
+ * the current frame set block.
  * @param tng_data is a trajectory data container.
  * @param hash_mode specifies whether to update the block md5 hash when
  * updating the pointers.
@@ -11741,6 +11742,10 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
     {
         return(TNG_CRITICAL);
     }
+
+    /* TODO: If there is already frame set data written to this file (e.g. when
+     * appending to an already existing file we might need to move frame sets to
+     * the end of the file. */
 
     if(tng_general_info_block_write(tng_data, hash_mode)
        != TNG_SUCCESS)
