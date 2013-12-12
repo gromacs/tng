@@ -1248,7 +1248,7 @@ tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_get
  * If the distances are specified in Å exp is -10.
  * @return TNG_SUCCESS (0) if successful.
  */
-tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponent_set
+tng_function_status DECLSPECDLLEXPORT tng_distance_unit_exponential_set
                 (const tng_trajectory_t tng_data,
                  const int64_t exp);
 
