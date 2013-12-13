@@ -16343,6 +16343,20 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
     }
     if(data->last_retrieved_frame < 0)
     {
+        fseek(tng_data->input_file,
+                (long)tng_data->first_trajectory_frame_set_input_file_pos,
+                SEEK_SET);
+        stat = tng_frame_set_read(tng_data, TNG_USE_HASH);
+        if(stat != TNG_SUCCESS)
+        {
+            return(stat);
+        }
+        stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
+        if(stat != TNG_SUCCESS)
+        {
+            return(stat);
+        }
+
         i = data->first_frame_with_data;
     }
     else
@@ -16362,13 +16376,16 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
                 {
                     return(stat);
                 }
-                if(frame_set->prev_frame_set_file_pos != frame_set_file_pos &&
-                   tng_data->current_trajectory_frame_set_input_file_pos != frame_set_file_pos)
+                if(tng_data->current_trajectory_frame_set_input_file_pos == frame_set_file_pos)
+                {
+                    return(TNG_FAILURE);
+                }
+                if(frame_set->prev_frame_set_file_pos != frame_set_file_pos)
                 {
                     tng_num_frames_get(tng_data, &n_frames);
                     if(i < n_frames)
                     {
-                        printf("Cannot find frame set of frame %"PRId64". %s: %d\n",
+                        printf("TNG library: Cannot find frame set of frame %"PRId64". %s: %d\n",
                                frame_set->first_frame + i, __FILE__, __LINE__);
                     }
                     return(stat);
@@ -16381,7 +16398,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
             stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
             if(stat != TNG_SUCCESS)
             {
-                printf("Cannot read data blocks of frame set. %s: %d\n",
+                printf("TNG library: Cannot read data blocks of frame set. %s: %d\n",
                     __FILE__, __LINE__);
                 return(stat);
             }
@@ -16399,8 +16416,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
     {
         *retrieved_time = 0;
     }
-
-//     printf("TNG library: TEMP: first_frame_with_data: %"PRId64"\n", data->first_frame_with_data);
 
     if(data->stride_length > 1)
     {
@@ -16498,6 +16513,20 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
     }
     if(data->last_retrieved_frame < 0)
     {
+        fseek(tng_data->input_file,
+                (long)tng_data->first_trajectory_frame_set_input_file_pos,
+                SEEK_SET);
+        stat = tng_frame_set_read(tng_data, TNG_USE_HASH);
+        if(stat != TNG_SUCCESS)
+        {
+            return(stat);
+        }
+        stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
+        if(stat != TNG_SUCCESS)
+        {
+            return(stat);
+        }
+
         i = data->first_frame_with_data;
     }
     else
@@ -16517,13 +16546,16 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
                 {
                     return(stat);
                 }
-                if(frame_set->prev_frame_set_file_pos != frame_set_file_pos &&
-                   tng_data->current_trajectory_frame_set_input_file_pos != frame_set_file_pos)
+                if(tng_data->current_trajectory_frame_set_input_file_pos == frame_set_file_pos)
+                {
+                    return(TNG_FAILURE);
+                }
+                if(frame_set->prev_frame_set_file_pos != frame_set_file_pos)
                 {
                     tng_num_frames_get(tng_data, &n_frames);
                     if(i < n_frames)
                     {
-                        printf("Cannot find frame set of frame %"PRId64". %s: %d\n",
+                        printf("TNG library: Cannot find frame set of frame %"PRId64". %s: %d\n",
                                frame_set->first_frame + i, __FILE__, __LINE__);
                     }
                     return(stat);
@@ -16536,7 +16568,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
             stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
             if(stat != TNG_SUCCESS)
             {
-                printf("Cannot read data blocks of frame set. %s: %d\n",
+                printf("TNG library: Cannot read data blocks of frame set. %s: %d\n",
                     __FILE__, __LINE__);
                 return(stat);
             }
@@ -18010,7 +18042,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_frame_current_compression_get
         stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
         if(stat != TNG_SUCCESS)
         {
-            printf("Cannot read data block of frame set. %s: %d\n",
+            printf("TNG library: Cannot read data block of frame set. %s: %d\n",
                 __FILE__, __LINE__);
             return(stat);
         }
@@ -18159,7 +18191,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                                                                       TNG_USE_HASH, block_id);
             if(stat == TNG_CRITICAL)
             {
-                printf("Cannot read data block of frame set. %s: %d\n",
+                printf("TNG library: Cannot read data block of frame set. %s: %d\n",
                     __FILE__, __LINE__);
                 return(stat);
             }
@@ -18246,7 +18278,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                                                                       TNG_USE_HASH, block_id);
             if(stat == TNG_CRITICAL)
             {
-                printf("Cannot read data block of frame set. %s: %d\n",
+                printf("TNG library: Cannot read data block of frame set. %s: %d\n",
                     __FILE__, __LINE__);
                 return(stat);
             }
