@@ -679,14 +679,14 @@ static tng_function_status tng_input_file_init(tng_trajectory_t tng_data)
     {
         if(!tng_data->input_file_path)
         {
-            printf("TNG library: No file specified for reading. %s: %d\n",
+            fprintf(stderr, "TNG library: No file specified for reading. %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
         tng_data->input_file = fopen(tng_data->input_file_path, "r");
         if(!tng_data->input_file)
         {
-            printf("TNG library: Cannot open file %s. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot open file %s. %s: %d\n",
                    tng_data->input_file_path, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -705,7 +705,7 @@ static tng_function_status tng_output_file_init(tng_trajectory_t tng_data)
     {
         if(!tng_data->output_file_path)
         {
-            printf("TNG library: No file specified for writing. %s: %d\n",
+            fprintf(stderr, "TNG library: No file specified for writing. %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -714,7 +714,7 @@ static tng_function_status tng_output_file_init(tng_trajectory_t tng_data)
 
         if(!tng_data->output_file)
         {
-            printf("TNG library: Cannot open file %s. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot open file %s. %s: %d\n",
                    tng_data->output_file_path, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -765,7 +765,7 @@ static tng_function_status tng_block_init(struct tng_gen_block **block_p)
 
     if(!*block_p)
     {
-        printf("TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
                sizeof(struct tng_gen_block), __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -801,7 +801,7 @@ static tng_function_status tng_block_destroy(struct tng_gen_block **block_p)
         return(TNG_SUCCESS);
     }
 
-/*     printf("TNG library: Destroying block\n"); */
+/*     fprintf(stderr, "TNG library: Destroying block\n"); */
     if(block->name)
     {
         free(block->name);
@@ -844,7 +844,7 @@ static tng_function_status tng_block_header_read
     if(fread(&block->header_contents_size, sizeof(block->header_contents_size),
         1, tng_data->input_file) == 0)
     {
-        printf("TNG library: Cannot read header size. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read header size. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -911,7 +911,7 @@ static tng_function_status tng_block_header_read
                                                    &block->header_contents_size)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -930,7 +930,7 @@ static tng_function_status tng_block_header_read
     block->header_contents = malloc(block->header_contents_size);
     if(!block->header_contents)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->header_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -941,7 +941,7 @@ static tng_function_status tng_block_header_read
     if(fread(block->header_contents, block->header_contents_size, 1,
         tng_data->input_file) == 0)
     {
-        printf("TNG library: Cannot read header. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Cannot read header. %s: %d\n", __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
 
@@ -958,7 +958,7 @@ static tng_function_status tng_block_header_read
                                                    &block->block_contents_size)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -972,7 +972,7 @@ static tng_function_status tng_block_header_read
                                                    &block->id)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -993,7 +993,7 @@ static tng_function_status tng_block_header_read
         block->name = malloc(len);
         if(!block->name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                     __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -1009,7 +1009,7 @@ static tng_function_status tng_block_header_read
                                                    &block->block_version)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1030,27 +1030,27 @@ static tng_function_status tng_block_header_read
 // {
 //     if(!block->header_contents)
 //     {
-//         printf("TNG library: No contents to write. %s: %d\n", __FILE__, __LINE__);
+//         fprintf(stderr, "TNG library: No contents to write. %s: %d\n", __FILE__, __LINE__);
 //         return(TNG_FAILURE);
 //     }
 //     if(fwrite(block->header_contents, block->header_contents_size, 1,
 //                 tng_data->output_file) != 1)
 //     {
-//         printf("TNG library: Could not write all header data. %s: %d\n",
+//         fprintf(stderr, "TNG library: Could not write all header data. %s: %d\n",
 //                 __FILE__, __LINE__);
 //         return(TNG_CRITICAL);
 //     }
 //
 //     if(!block->block_contents)
 //     {
-//         printf("TNG library: No block data to write. %s: %d\n",
+//         fprintf(stderr, "TNG library: No block data to write. %s: %d\n",
 //                 __FILE__, __LINE__);
 //         return(TNG_FAILURE);
 //     }
 //     if(fwrite(block->block_contents, block->block_contents_size, 1,
 //                 tng_data->output_file) != 1)
 //     {
-//         printf("TNG library: Could not write all block data. %s: %d\n",
+//         fprintf(stderr, "TNG library: Could not write all block data. %s: %d\n",
 //                 __FILE__, __LINE__);
 //         return(TNG_CRITICAL);
 //     }
@@ -1076,7 +1076,7 @@ static tng_function_status tng_block_header_write
 
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot initialise destination file. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot initialise destination file. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -1086,7 +1086,7 @@ static tng_function_status tng_block_header_write
         block->name = malloc(1);
         if(!block->name)
         {
-            printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -1116,7 +1116,7 @@ static tng_function_status tng_block_header_write
     block->header_contents = malloc(block->header_contents_size);
     if(!block->header_contents)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->header_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -1131,7 +1131,7 @@ static tng_function_status tng_block_header_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1145,7 +1145,7 @@ static tng_function_status tng_block_header_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1158,7 +1158,7 @@ static tng_function_status tng_block_header_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1178,7 +1178,7 @@ static tng_function_status tng_block_header_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1186,7 +1186,7 @@ static tng_function_status tng_block_header_write
     if(fwrite(block->header_contents, block->header_contents_size,
        1, tng_data->output_file) != 1)
     {
-        printf("TNG library: Could not write all header data. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Could not write all header data. %s: %d\n", __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
     return(TNG_SUCCESS);
@@ -1221,7 +1221,7 @@ static tng_function_status tng_general_info_block_read
     temp = realloc(block->block_contents, block->block_contents_size);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         free(block->block_contents);
         block->block_contents = 0;
@@ -1234,7 +1234,7 @@ static tng_function_status tng_general_info_block_read
     if(fread(block->block_contents, block->block_contents_size, 1,
              tng_data->input_file) == 0)
     {
-        printf("TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
 
@@ -1246,7 +1246,7 @@ static tng_function_status tng_general_info_block_read
         tng_md5_hash_match_verify(block, &same_hash);
         if(same_hash != TNG_TRUE)
         {
-            printf("TNG library: General info block contents corrupt. Hashes do not match. "
+            fprintf(stderr, "TNG library: General info block contents corrupt. Hashes do not match. "
                 "%s: %d\n",
                 __FILE__, __LINE__);
     /*         return(TNG_FAILURE); */
@@ -1257,7 +1257,7 @@ static tng_function_status tng_general_info_block_read
     temp = realloc(tng_data->first_program_name, len);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->first_program_name);
         tng_data->first_program_name = 0;
@@ -1271,7 +1271,7 @@ static tng_function_status tng_general_info_block_read
     temp = realloc(tng_data->last_program_name, len);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->last_program_name);
         tng_data->last_program_name = 0;
@@ -1285,7 +1285,7 @@ static tng_function_status tng_general_info_block_read
     temp = realloc(tng_data->first_user_name, len);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->first_user_name);
         tng_data->first_user_name = 0;
@@ -1299,7 +1299,7 @@ static tng_function_status tng_general_info_block_read
     temp = realloc(tng_data->last_user_name, len);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->last_user_name);
         tng_data->last_user_name = 0;
@@ -1313,7 +1313,7 @@ static tng_function_status tng_general_info_block_read
     temp = realloc(tng_data->first_computer_name, len);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->first_computer_name);
         tng_data->first_computer_name = 0;
@@ -1327,7 +1327,7 @@ static tng_function_status tng_general_info_block_read
     temp = realloc(tng_data->last_computer_name, len);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->last_computer_name);
         tng_data->last_computer_name = 0;
@@ -1341,7 +1341,7 @@ static tng_function_status tng_general_info_block_read
     temp = realloc(tng_data->first_pgp_signature, len);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->first_pgp_signature);
         tng_data->first_pgp_signature = 0;
@@ -1355,7 +1355,7 @@ static tng_function_status tng_general_info_block_read
     temp = realloc(tng_data->last_pgp_signature, len);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->last_pgp_signature);
         tng_data->last_pgp_signature = 0;
@@ -1369,7 +1369,7 @@ static tng_function_status tng_general_info_block_read
     temp = realloc(tng_data->forcefield_name, len);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->forcefield_name);
         tng_data->forcefield_name = 0;
@@ -1387,7 +1387,7 @@ static tng_function_status tng_general_info_block_read
                                                    &tng_data->time)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1405,7 +1405,7 @@ static tng_function_status tng_general_info_block_read
                                                  &tng_data->frame_set_n_frames)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1420,7 +1420,7 @@ static tng_function_status tng_general_info_block_read
                           &tng_data->first_trajectory_frame_set_input_file_pos)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1439,7 +1439,7 @@ static tng_function_status tng_general_info_block_read
                           &tng_data->last_trajectory_frame_set_input_file_pos)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1453,7 +1453,7 @@ static tng_function_status tng_general_info_block_read
                                                &tng_data->medium_stride_length)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1467,7 +1467,7 @@ static tng_function_status tng_general_info_block_read
                                                  &tng_data->long_stride_length)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1483,7 +1483,7 @@ static tng_function_status tng_general_info_block_read
                                           &tng_data->distance_unit_exponential)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -1525,7 +1525,7 @@ static tng_function_status tng_general_info_block_write
         tng_data->first_program_name = malloc(1);
         if(!tng_data->first_program_name)
         {
-            printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -1536,7 +1536,7 @@ static tng_function_status tng_general_info_block_write
         tng_data->last_program_name = malloc(1);
         if(!tng_data->last_program_name)
         {
-            printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -1547,7 +1547,7 @@ static tng_function_status tng_general_info_block_write
         tng_data->first_user_name = malloc(1);
         if(!tng_data->first_user_name)
         {
-            printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -1558,7 +1558,7 @@ static tng_function_status tng_general_info_block_write
         tng_data->last_user_name = malloc(1);
         if(!tng_data->last_user_name)
         {
-            printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -1569,7 +1569,7 @@ static tng_function_status tng_general_info_block_write
         tng_data->first_computer_name = malloc(1);
         if(!tng_data->first_computer_name)
         {
-            printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -1580,7 +1580,7 @@ static tng_function_status tng_general_info_block_write
         tng_data->last_computer_name = malloc(1);
         if(!tng_data->last_computer_name)
         {
-            printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -1591,7 +1591,7 @@ static tng_function_status tng_general_info_block_write
         tng_data->first_pgp_signature = malloc(1);
         if(!tng_data->first_pgp_signature)
         {
-            printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -1602,7 +1602,7 @@ static tng_function_status tng_general_info_block_write
         tng_data->last_pgp_signature = malloc(1);
         if(!tng_data->last_pgp_signature)
         {
-            printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -1613,7 +1613,7 @@ static tng_function_status tng_general_info_block_write
         tng_data->forcefield_name = malloc(1);
         if(!tng_data->forcefield_name)
         {
-            printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -1627,7 +1627,7 @@ static tng_function_status tng_general_info_block_write
     block->name = malloc(name_len + 1);
     if(!block->name)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
                 name_len+1, __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
@@ -1680,7 +1680,7 @@ static tng_function_status tng_general_info_block_write
     block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
@@ -1726,7 +1726,7 @@ static tng_function_status tng_general_info_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1744,7 +1744,7 @@ static tng_function_status tng_general_info_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1759,7 +1759,7 @@ static tng_function_status tng_general_info_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1774,7 +1774,7 @@ static tng_function_status tng_general_info_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1788,7 +1788,7 @@ static tng_function_status tng_general_info_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1802,7 +1802,7 @@ static tng_function_status tng_general_info_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1816,14 +1816,14 @@ static tng_function_status tng_general_info_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
 
     if(tng_block_header_write(tng_data, block, hash_mode) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot write header of file %s. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
@@ -1832,7 +1832,7 @@ static tng_function_status tng_general_info_block_write
     if(fwrite(block->block_contents, block->block_contents_size, 1,
         tng_data->output_file) != 1)
     {
-        printf("TNG library: Could not write all block data. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Could not write all block data. %s: %d\n", __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
@@ -1866,7 +1866,7 @@ static tng_function_status tng_chain_data_read(tng_trajectory_t tng_data,
                                                    &chain->id)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1887,7 +1887,7 @@ static tng_function_status tng_chain_data_read(tng_trajectory_t tng_data,
                                                    &chain->n_residues)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1919,7 +1919,7 @@ static tng_function_status tng_chain_data_write(tng_trajectory_t tng_data,
                                     (int64_t *)block->header_contents+*offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1937,7 +1937,7 @@ static tng_function_status tng_chain_data_write(tng_trajectory_t tng_data,
                                     (int64_t *)block->header_contents+*offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1970,7 +1970,7 @@ static tng_function_status tng_residue_data_read(tng_trajectory_t tng_data,
                                                    &residue->id)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -1991,7 +1991,7 @@ static tng_function_status tng_residue_data_read(tng_trajectory_t tng_data,
                                                    &residue->n_atoms)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -2023,7 +2023,7 @@ static tng_function_status tng_residue_data_write(tng_trajectory_t tng_data,
                                     (int64_t *)block->header_contents+*offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -2041,7 +2041,7 @@ static tng_function_status tng_residue_data_write(tng_trajectory_t tng_data,
                                     (int64_t *)block->header_contents+*offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -2074,7 +2074,7 @@ static tng_function_status tng_atom_data_read(tng_trajectory_t tng_data,
                                                     &atom->id)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -2121,7 +2121,7 @@ static tng_function_status tng_atom_data_write(tng_trajectory_t tng_data,
                                     (int64_t *)block->header_contents+*offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -2174,7 +2174,7 @@ static tng_function_status tng_molecules_block_read
     block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -2184,7 +2184,7 @@ static tng_function_status tng_molecules_block_read
     if(fread(block->block_contents, block->block_contents_size, 1,
              tng_data->input_file) == 0)
     {
-        printf("TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
     }
 
     /* FIXME: Does not check if the size of the contents matches the expected
@@ -2195,7 +2195,7 @@ static tng_function_status tng_molecules_block_read
         tng_md5_hash_match_verify(block, &same_hash);
         if(same_hash != TNG_TRUE)
         {
-            printf("TNG library: Molecules block contents corrupt. Hashes do not match. "
+            fprintf(stderr, "TNG library: Molecules block contents corrupt. Hashes do not match. "
                 "%s: %d\n",
                 __FILE__, __LINE__);
         }
@@ -2220,7 +2220,7 @@ static tng_function_status tng_molecules_block_read
                                                    &tng_data->n_molecules)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -2237,7 +2237,7 @@ static tng_function_status tng_molecules_block_read
                           sizeof(struct tng_molecule));
     if(!tng_data->molecules)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                tng_data->n_molecules * sizeof(struct tng_molecule),
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
@@ -2253,7 +2253,7 @@ static tng_function_status tng_molecules_block_read
                                       tng_data->n_molecules);
         if(!tng_data->molecule_cnt_list)
         {
-            printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    tng_data->n_molecules * sizeof(struct tng_molecule),
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
@@ -2273,13 +2273,13 @@ static tng_function_status tng_molecules_block_read
                                                        &molecule->id)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
         offset += sizeof(molecule->id);
 
-/*         printf("TNG library: Read id: %"PRId64" offset: %d\n", molecule->id, offset);*/
+/*         fprintf(stderr, "TNG library: Read id: %"PRId64" offset: %d\n", molecule->id, offset);*/
         len = tng_min_i((int)strlen(block->block_contents+offset) + 1, TNG_MAX_STR_LEN);
         molecule->name = malloc(len);
         strncpy(molecule->name, block->block_contents+offset, len);
@@ -2293,7 +2293,7 @@ static tng_function_status tng_molecules_block_read
                                                      &molecule->quaternary_str)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -2310,7 +2310,7 @@ static tng_function_status tng_molecules_block_read
                                                &tng_data->molecule_cnt_list[i])
                     != TNG_SUCCESS)
                 {
-                    printf("TNG library: Cannot swap byte order. %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                             __FILE__, __LINE__);
                 }
             }
@@ -2326,7 +2326,7 @@ static tng_function_status tng_molecules_block_read
                                                        &molecule->n_chains)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -2340,7 +2340,7 @@ static tng_function_status tng_molecules_block_read
                                                        &molecule->n_residues)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -2354,7 +2354,7 @@ static tng_function_status tng_molecules_block_read
                                                        &molecule->n_atoms)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -2369,7 +2369,7 @@ static tng_function_status tng_molecules_block_read
                                     sizeof(struct tng_chain));
             if(!molecule->chains)
             {
-                printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                     molecule->n_chains * sizeof(struct tng_chain),
                     __FILE__, __LINE__);
                 return(TNG_CRITICAL);
@@ -2388,7 +2388,7 @@ static tng_function_status tng_molecules_block_read
                                 sizeof(struct tng_residue));
             if(!molecule->residues)
             {
-                printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                     molecule->n_residues * sizeof(struct tng_residue),
                     __FILE__, __LINE__);
                 if(molecule->chains)
@@ -2410,7 +2410,7 @@ static tng_function_status tng_molecules_block_read
                                  sizeof(struct tng_atom));
         if(!molecule->atoms)
         {
-            printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    molecule->n_atoms * sizeof(struct tng_atom),
                    __FILE__, __LINE__);
             if(molecule->chains)
@@ -2506,7 +2506,7 @@ static tng_function_status tng_molecules_block_read
                                                        &molecule->n_bonds)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -2518,7 +2518,7 @@ static tng_function_status tng_molecules_block_read
                                            sizeof(struct tng_bond));
             if(!molecule->bonds)
             {
-                printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                        molecule->n_bonds * sizeof(struct tng_bond),
                        __FILE__, __LINE__);
                 if(molecule->chains)
@@ -2551,7 +2551,7 @@ static tng_function_status tng_molecules_block_read
                                                                &bond->from_atom_id)
                         != TNG_SUCCESS)
                     {
-                        printf("TNG library: Cannot swap byte order. %s: %d\n",
+                        fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                 __FILE__, __LINE__);
                     }
                 }
@@ -2565,7 +2565,7 @@ static tng_function_status tng_molecules_block_read
                                                                &bond->to_atom_id)
                         != TNG_SUCCESS)
                     {
-                        printf("TNG library: Cannot swap byte order. %s: %d\n",
+                        fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                 __FILE__, __LINE__);
                     }
                 }
@@ -2617,7 +2617,7 @@ static tng_function_status tng_molecules_block_write
             molecule->name = malloc(1);
             if(!molecule->name)
             {
-                printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                        __FILE__, __LINE__);
                 return(TNG_CRITICAL);
             }
@@ -2635,7 +2635,7 @@ static tng_function_status tng_molecules_block_write
                 chain->name = malloc(1);
                 if(!chain->name)
                 {
-                    printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                            __FILE__, __LINE__);
                     return(TNG_CRITICAL);
                 }
@@ -2658,7 +2658,7 @@ static tng_function_status tng_molecules_block_write
                 residue->name = malloc(1);
                 if(!residue->name)
                 {
-                    printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                            __FILE__, __LINE__);
                     return(TNG_CRITICAL);
                 }
@@ -2680,7 +2680,7 @@ static tng_function_status tng_molecules_block_write
                 atom->name = malloc(1);
                 if(!atom->name)
                 {
-                    printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                            __FILE__, __LINE__);
                     return(TNG_CRITICAL);
                 }
@@ -2693,7 +2693,7 @@ static tng_function_status tng_molecules_block_write
                 atom->atom_type = malloc(1);
                 if(!atom->atom_type)
                 {
-                    printf("TNG library: Cannot allocate memory (1 byte). %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot allocate memory (1 byte). %s: %d\n",
                            __FILE__, __LINE__);
                     return(TNG_CRITICAL);
                 }
@@ -2717,7 +2717,7 @@ static tng_function_status tng_molecules_block_write
     block->name = malloc(name_len + 1);
     if(!block->name)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
                 name_len+1, __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
@@ -2744,7 +2744,7 @@ static tng_function_status tng_molecules_block_write
     block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
@@ -2758,7 +2758,7 @@ static tng_function_status tng_molecules_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -2775,13 +2775,13 @@ static tng_function_status tng_molecules_block_write
                                         (int64_t *)block->header_contents+offset)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
         offset += sizeof(molecule->id);
 
-/*         printf("TNG library: Wrote id: %"PRId64" offset: %d\n", molecule->id, offset); */
+/*         fprintf(stderr, "TNG library: Wrote id: %"PRId64" offset: %d\n", molecule->id, offset); */
         len = tng_min_i((int)strlen(molecule->name) + 1, TNG_MAX_STR_LEN);
         strncpy(block->block_contents + offset, molecule->name, len);
         offset += len;
@@ -2794,7 +2794,7 @@ static tng_function_status tng_molecules_block_write
                                         (int64_t *)block->header_contents+offset)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -2810,7 +2810,7 @@ static tng_function_status tng_molecules_block_write
                                             (int64_t *)block->header_contents+offset)
                     != TNG_SUCCESS)
                 {
-                    printf("TNG library: Cannot swap byte order. %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                             __FILE__, __LINE__);
                 }
             }
@@ -2825,7 +2825,7 @@ static tng_function_status tng_molecules_block_write
                                         (int64_t *)block->header_contents+offset)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -2839,7 +2839,7 @@ static tng_function_status tng_molecules_block_write
                                         (int64_t *)block->header_contents+offset)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -2853,7 +2853,7 @@ static tng_function_status tng_molecules_block_write
                                         (int64_t *)block->header_contents+offset)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -2922,7 +2922,7 @@ static tng_function_status tng_molecules_block_write
                                         (int64_t *)block->header_contents+offset)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -2939,7 +2939,7 @@ static tng_function_status tng_molecules_block_write
                                             (int64_t *)block->header_contents+offset)
                     != TNG_SUCCESS)
                 {
-                    printf("TNG library: Cannot swap byte order. %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                             __FILE__, __LINE__);
                 }
             }
@@ -2953,7 +2953,7 @@ static tng_function_status tng_molecules_block_write
                                             (int64_t *)block->header_contents+offset)
                     != TNG_SUCCESS)
                 {
-                    printf("TNG library: Cannot swap byte order. %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                             __FILE__, __LINE__);
                 }
             }
@@ -2965,7 +2965,7 @@ static tng_function_status tng_molecules_block_write
 
     if(tng_block_header_write(tng_data, block, hash_mode) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot write header of file %s. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
@@ -2974,7 +2974,7 @@ static tng_function_status tng_molecules_block_write
     if(fwrite(block->block_contents, block->block_contents_size, 1,
               tng_data->output_file) != 1)
     {
-        printf("TNG library: Could not write all block data. %s: %d\n",
+        fprintf(stderr, "TNG library: Could not write all block data. %s: %d\n",
                __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
@@ -3019,7 +3019,7 @@ static tng_function_status tng_frame_set_block_read
     block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -3029,7 +3029,7 @@ static tng_function_status tng_frame_set_block_read
     if(fread(block->block_contents, block->block_contents_size, 1,
              tng_data->input_file) == 0)
     {
-        printf("TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
 
@@ -3044,7 +3044,7 @@ static tng_function_status tng_frame_set_block_read
         tng_md5_hash_match_verify(block, &same_hash);
         if(same_hash != TNG_TRUE)
         {
-            printf("TNG library: Frame set block contents corrupt. File pos %ld Hashes do not match. "
+            fprintf(stderr, "TNG library: Frame set block contents corrupt. File pos %ld Hashes do not match. "
                 "%s: %d\n",
                 file_pos, __FILE__, __LINE__);
     /*         return(TNG_FAILURE); */
@@ -3074,7 +3074,7 @@ static tng_function_status tng_frame_set_block_read
                                                    &frame_set->first_frame)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3088,7 +3088,7 @@ static tng_function_status tng_frame_set_block_read
                                                    &frame_set->n_frames)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3107,7 +3107,7 @@ static tng_function_status tng_frame_set_block_read
 
                 if(!frame_set->molecule_cnt_list)
                 {
-                    printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                            sizeof(int64_t) * tng_data->n_molecules,
                            __FILE__, __LINE__);
                     return(TNG_CRITICAL);
@@ -3124,7 +3124,7 @@ static tng_function_status tng_frame_set_block_read
                                               &frame_set->molecule_cnt_list[i])
                     != TNG_SUCCESS)
                 {
-                    printf("TNG library: Cannot swap byte order. %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                             __FILE__, __LINE__);
                 }
             }
@@ -3147,7 +3147,7 @@ static tng_function_status tng_frame_set_block_read
                                            &frame_set->next_frame_set_file_pos)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3162,7 +3162,7 @@ static tng_function_status tng_frame_set_block_read
                                            &frame_set->prev_frame_set_file_pos)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3177,7 +3177,7 @@ static tng_function_status tng_frame_set_block_read
                              &frame_set->medium_stride_next_frame_set_file_pos)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3192,7 +3192,7 @@ static tng_function_status tng_frame_set_block_read
                              &frame_set->medium_stride_prev_frame_set_file_pos)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3207,7 +3207,7 @@ static tng_function_status tng_frame_set_block_read
                                &frame_set->long_stride_next_frame_set_file_pos)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3222,7 +3222,7 @@ static tng_function_status tng_frame_set_block_read
                                &frame_set->long_stride_prev_frame_set_file_pos)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3239,7 +3239,7 @@ static tng_function_status tng_frame_set_block_read
                                 (int64_t *)&frame_set->first_frame_time)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -3254,7 +3254,7 @@ static tng_function_status tng_frame_set_block_read
                                 (int64_t *)&tng_data->time_per_frame)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -3302,7 +3302,7 @@ static tng_function_status tng_frame_set_block_write
         temp_name = realloc(block->name, name_len + 1);
         if(!temp_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
                    name_len+1, __FILE__, __LINE__);
             free(block->name);
             block->name = 0;
@@ -3328,7 +3328,7 @@ static tng_function_status tng_frame_set_block_write
     block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -3341,7 +3341,7 @@ static tng_function_status tng_frame_set_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3355,7 +3355,7 @@ static tng_function_status tng_frame_set_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3374,7 +3374,7 @@ static tng_function_status tng_frame_set_block_write
                                             (int64_t *)block->header_contents+offset)
                     != TNG_SUCCESS)
                 {
-                    printf("TNG library: Cannot swap byte order. %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                             __FILE__, __LINE__);
                 }
             }
@@ -3391,7 +3391,7 @@ static tng_function_status tng_frame_set_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3405,7 +3405,7 @@ static tng_function_status tng_frame_set_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3420,7 +3420,7 @@ static tng_function_status tng_frame_set_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3435,7 +3435,7 @@ static tng_function_status tng_frame_set_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3450,7 +3450,7 @@ static tng_function_status tng_frame_set_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3465,7 +3465,7 @@ static tng_function_status tng_frame_set_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3480,7 +3480,7 @@ static tng_function_status tng_frame_set_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3495,14 +3495,14 @@ static tng_function_status tng_frame_set_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
 
     if(tng_block_header_write(tng_data, block, hash_mode) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot write header of file %s. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -3510,7 +3510,7 @@ static tng_function_status tng_frame_set_block_write
     if(fwrite(block->block_contents, block->block_contents_size, 1,
               tng_data->output_file) != 1)
     {
-        printf("TNG library: Could not write all block data. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Could not write all block data. %s: %d\n", __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
 
@@ -3554,7 +3554,7 @@ static tng_function_status tng_trajectory_mapping_block_read
     block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -3564,7 +3564,7 @@ static tng_function_status tng_trajectory_mapping_block_read
     if(fread(block->block_contents, block->block_contents_size, 1,
         tng_data->input_file) == 0)
     {
-        printf("TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
 
@@ -3576,7 +3576,7 @@ static tng_function_status tng_trajectory_mapping_block_read
         tng_md5_hash_match_verify(block, &same_hash);
         if(same_hash != TNG_TRUE)
         {
-            printf("TNG library: Particle mapping block contents corrupt. Hashes do not match. "
+            fprintf(stderr, "TNG library: Particle mapping block contents corrupt. Hashes do not match. "
                 "%s: %d\n",
                 __FILE__, __LINE__);
     /*         return(TNG_FAILURE); */
@@ -3589,7 +3589,7 @@ static tng_function_status tng_trajectory_mapping_block_read
                        frame_set->n_mapping_blocks);
     if(!mappings)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         free(frame_set->mappings);
         frame_set->mappings = 0;
@@ -3607,7 +3607,7 @@ static tng_function_status tng_trajectory_mapping_block_read
                                                    &mapping->num_first_particle)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3621,7 +3621,7 @@ static tng_function_status tng_trajectory_mapping_block_read
                                                    &mapping->n_particles)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3631,7 +3631,7 @@ static tng_function_status tng_trajectory_mapping_block_read
                                             sizeof(int64_t));
     if(!mapping->real_particle_numbers)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                 mapping->n_particles * sizeof(int64_t), __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -3649,7 +3649,7 @@ static tng_function_status tng_trajectory_mapping_block_read
                                             &mapping->real_particle_numbers[i])
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
             offset += sizeof(int64_t);
@@ -3690,7 +3690,7 @@ static tng_function_status tng_trajectory_mapping_block_write
     if(mapping_block_nr >=
        tng_data->current_trajectory_frame_set.n_mapping_blocks)
     {
-        printf("TNG library: Mapping block index out of bounds. %s: %d\n",
+        fprintf(stderr, "TNG library: Mapping block index out of bounds. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
@@ -3707,7 +3707,7 @@ static tng_function_status tng_trajectory_mapping_block_write
         temp_name = realloc(block->name, name_len + 1);
         if(!temp_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
                    name_len+1, __FILE__, __LINE__);
             free(block->name);
             block->name = 0;
@@ -3727,7 +3727,7 @@ static tng_function_status tng_trajectory_mapping_block_write
     block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -3740,7 +3740,7 @@ static tng_function_status tng_trajectory_mapping_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3754,7 +3754,7 @@ static tng_function_status tng_trajectory_mapping_block_write
                                       (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -3770,7 +3770,7 @@ static tng_function_status tng_trajectory_mapping_block_write
                                         (int64_t *)block->header_contents+offset)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
             offset += sizeof(int64_t);
@@ -3785,7 +3785,7 @@ static tng_function_status tng_trajectory_mapping_block_write
 
     if(tng_block_header_write(tng_data, block, hash_mode) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot write header of file %s. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -3793,7 +3793,7 @@ static tng_function_status tng_trajectory_mapping_block_write
     if(fwrite(block->block_contents, block->block_contents_size, 1,
               tng_data->output_file) != 1)
     {
-        printf("TNG library: Could not write all block data. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Could not write all block data. %s: %d\n", __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
 
@@ -3824,7 +3824,7 @@ static tng_function_status tng_particle_data_block_create
                     frame_set->n_particle_data_blocks);
         if(!data)
         {
-            printf("TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
                 sizeof(struct tng_particle_data) *
                 frame_set->n_particle_data_blocks,
                 __FILE__, __LINE__);
@@ -3842,7 +3842,7 @@ static tng_function_status tng_particle_data_block_create
                         tng_data->n_particle_data_blocks);
         if(!data)
         {
-            printf("TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
                     sizeof(struct tng_particle_data) *
                     tng_data->n_particle_data_blocks,
                     __FILE__, __LINE__);
@@ -3875,19 +3875,19 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
     if(block->id != TNG_TRAJ_POSITIONS &&
        block->id != TNG_TRAJ_VELOCITIES)
     {
-        printf("TNG library: Can only compress positions and velocities with the "
+        fprintf(stderr, "TNG library: Can only compress positions and velocities with the "
                "TNG method. %s: %d\n", __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
     if(type != TNG_FLOAT_DATA && type != TNG_DOUBLE_DATA)
     {
-        printf("TNG library: Data type not supported. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Data type not supported. %s: %d\n", __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
 
     if(n_frames <= 0 || n_particles <= 0)
     {
-        printf("TNG library: Missing frames or particles. Cannot compress data "
+        fprintf(stderr, "TNG library: Missing frames or particles. Cannot compress data "
                "with the TNG method. %s: %d\n", __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
@@ -4093,7 +4093,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
     }
     else
     {
-        printf("TNG library: Can only compress positions and velocities using TNG-MF1 algorithms.\n");
+        fprintf(stderr, "TNG library: Can only compress positions and velocities using TNG-MF1 algorithms.\n");
         return(TNG_FAILURE);
     }
 
@@ -4111,7 +4111,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
     {
         free(block->block_contents);
         block->block_contents = 0;
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -4123,7 +4123,7 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
     }
     else
     {
-        printf("TNG library: Error during TNG compression. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error during TNG compression. %s: %d\n", __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
 
@@ -4148,13 +4148,13 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
     if(block->id != TNG_TRAJ_POSITIONS &&
        block->id != TNG_TRAJ_VELOCITIES)
     {
-        printf("TNG library: Can only uncompress positions and velocities with the"
+        fprintf(stderr, "TNG library: Can only uncompress positions and velocities with the"
                "TNG method.\n");
         return(TNG_FAILURE);
     }
     if(type != TNG_FLOAT_DATA && type != TNG_DOUBLE_DATA)
     {
-        printf("TNG library: Data type not supported.\n");
+        fprintf(stderr, "TNG library: Data type not supported.\n");
         return(TNG_FAILURE);
     }
 
@@ -4163,7 +4163,7 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
         f_dest = malloc(uncompressed_len);
         if(!f_dest)
         {
-            printf("TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
                 uncompressed_len, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -4174,7 +4174,7 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
         d_dest = malloc(uncompressed_len);
         if(!d_dest)
         {
-            printf("TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
                 uncompressed_len, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -4183,7 +4183,7 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
 
     if(result == 1)
     {
-        printf("TNG library: Cannot uncompress TNG compressed block.\n");
+        fprintf(stderr, "TNG library: Cannot uncompress TNG compressed block.\n");
         return(TNG_FAILURE);
     }
 
@@ -4204,7 +4204,7 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
         {
             free(f_dest);
         }
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -4250,13 +4250,13 @@ static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
         free(dest);
         if(stat == (unsigned long)Z_MEM_ERROR)
         {
-            printf("TNG library: Not enough memory. ");
+            fprintf(stderr, "TNG library: Not enough memory. ");
         }
         else if(stat == (unsigned long)Z_BUF_ERROR)
         {
-            printf("TNG library: Destination buffer too small. ");
+            fprintf(stderr, "TNG library: Destination buffer too small. ");
         }
-        printf("TNG library: Error gzipping data. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error gzipping data. %s: %d\n", __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
 
@@ -4270,7 +4270,7 @@ static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
         free(block->block_contents);
         free(dest);
         block->block_contents = 0;
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -4307,17 +4307,17 @@ static tng_function_status tng_gzip_uncompress(tng_trajectory_t tng_data,
         free(dest);
         if(stat == (unsigned long)Z_MEM_ERROR)
         {
-            printf("TNG library: Not enough memory. ");
+            fprintf(stderr, "TNG library: Not enough memory. ");
         }
         else if(stat == (unsigned long)Z_BUF_ERROR)
         {
-            printf("TNG library: Destination buffer too small. ");
+            fprintf(stderr, "TNG library: Destination buffer too small. ");
         }
         else if(stat == (unsigned long)Z_DATA_ERROR)
         {
-            printf("TNG library: Data corrupt. ");
+            fprintf(stderr, "TNG library: Data corrupt. ");
         }
-        printf("TNG library: Error uncompressing gzipped data. %s: %d\n", __FILE__,
+        fprintf(stderr, "TNG library: Error uncompressing gzipped data. %s: %d\n", __FILE__,
                __LINE__);
         return(TNG_FAILURE);
     }
@@ -4331,7 +4331,7 @@ static tng_function_status tng_gzip_uncompress(tng_trajectory_t tng_data,
         free(block->block_contents);
         block->block_contents = 0;
         free(dest);
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -4408,7 +4408,7 @@ static tng_function_status tng_allocate_particle_data_mem
                                     n_particles);
             if(!data->strings[i])
             {
-                printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                     sizeof(union data_values *) * n_particles,
                     __FILE__, __LINE__);
                 return(TNG_CRITICAL);
@@ -4419,7 +4419,7 @@ static tng_function_status tng_allocate_particle_data_mem
                                             n_values_per_frame);
                 if(!data->strings[i][j])
                 {
-                    printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                         sizeof(union data_values) * n_values_per_frame,
                         __FILE__, __LINE__);
                     return(TNG_CRITICAL);
@@ -4451,7 +4451,7 @@ static tng_function_status tng_allocate_particle_data_mem
                          n_particles * n_values_per_frame);
         if(!values)
         {
-            printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    size * frame_alloc *
                    n_particles * n_values_per_frame,
                    __FILE__, __LINE__);
@@ -4663,7 +4663,7 @@ static tng_function_status tng_particle_data_read
         if(tng_particle_data_block_create(tng_data, block_type_flag) !=
            TNG_SUCCESS)
         {
-            printf("TNG library: Cannot create particle data block. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot create particle data block. %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -4682,7 +4682,7 @@ static tng_function_status tng_particle_data_read
         data->block_name = malloc(strlen(block->name) + 1);
         if(!data->block_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
                    (int)strlen(block->name)+1, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -4718,32 +4718,32 @@ static tng_function_status tng_particle_data_read
         switch(codec_id)
         {
         case TNG_XTC_COMPRESSION:
-            printf("TNG library: XTC compression not implemented yet.\n");
+            fprintf(stderr, "TNG library: XTC compression not implemented yet.\n");
             break;
         case TNG_TNG_COMPRESSION:
-/*            printf("TNG library: Before TNG uncompression: %"PRId64"\n", block->block_contents_size);*/
+/*            fprintf(stderr, "TNG library: Before TNG uncompression: %"PRId64"\n", block->block_contents_size);*/
             if(tng_uncompress(tng_data, block, datatype,
                               block->block_contents + *offset,
                               data_size) != TNG_SUCCESS)
             {
-                printf("TNG library: Could not read tng compressed block data. %s: %d\n",
+                fprintf(stderr, "TNG library: Could not read tng compressed block data. %s: %d\n",
                        __FILE__, __LINE__);
                 return(TNG_CRITICAL);
             }
-/*            printf("TNG library: After TNG uncompression: %"PRId64"\n", block->block_contents_size);*/
+/*            fprintf(stderr, "TNG library: After TNG uncompression: %"PRId64"\n", block->block_contents_size);*/
             break;
 #ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
-/*            printf("TNG library: Before GZIP uncompression: %"PRId64"\n", block->block_contents_size);*/
+/*            fprintf(stderr, "TNG library: Before GZIP uncompression: %"PRId64"\n", block->block_contents_size);*/
             if(tng_gzip_uncompress(tng_data, block,
                                    block->block_contents + *offset,
                                    data_size) != TNG_SUCCESS)
             {
-                printf("TNG library: Could not read gzipped block data. %s: %d\n", __FILE__,
+                fprintf(stderr, "TNG library: Could not read gzipped block data. %s: %d\n", __FILE__,
                     __LINE__);
                 return(TNG_CRITICAL);
             }
-/*            printf("TNG library: After GZIP uncompression: %"PRId64"\n", block->block_contents_size);*/
+/*            fprintf(stderr, "TNG library: After GZIP uncompression: %"PRId64"\n", block->block_contents_size);*/
             break;
 #endif
         }
@@ -4757,7 +4757,7 @@ static tng_function_status tng_particle_data_read
                                           tot_n_particles, n_values) !=
            TNG_SUCCESS)
         {
-            printf("TNG library: Cannot allocate memory for particle data. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory for particle data. %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -4785,7 +4785,7 @@ static tng_function_status tng_particle_data_read
                     second_dim_values[k] = malloc(len);
                     if(!second_dim_values[k])
                     {
-                        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+                        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
                             len, __FILE__, __LINE__);
                         return(TNG_CRITICAL);
                     }
@@ -4813,7 +4813,7 @@ static tng_function_status tng_particle_data_read
                         (int32_t *)((char *)data->values + i))
                         != TNG_SUCCESS)
                     {
-                        printf("TNG library: Cannot swap byte order. %s: %d\n",
+                        fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                 __FILE__, __LINE__);
                     }
                 }
@@ -4829,7 +4829,7 @@ static tng_function_status tng_particle_data_read
                         (int64_t *)((char *)data->values + i))
                         != TNG_SUCCESS)
                     {
-                        printf("TNG library: Cannot swap byte order. %s: %d\n",
+                        fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                 __FILE__, __LINE__);
                     }
                 }
@@ -4934,7 +4934,7 @@ static tng_function_status tng_particle_data_block_write
         temp_name = realloc(block->name, len);
         if(!temp_name)
         {
-            printf("TNG library: Cannot allocate memory (%ld bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ld bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             free(block->name);
             block->name = 0;
@@ -5056,7 +5056,7 @@ static tng_function_status tng_particle_data_block_write
     block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -5090,7 +5090,7 @@ static tng_function_status tng_particle_data_block_write
            (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -5104,7 +5104,7 @@ static tng_function_status tng_particle_data_block_write
            (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -5120,7 +5120,7 @@ static tng_function_status tng_particle_data_block_write
                (int64_t *)block->header_contents+offset)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -5142,7 +5142,7 @@ static tng_function_status tng_particle_data_block_write
                (int64_t *)block->header_contents+offset)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -5156,7 +5156,7 @@ static tng_function_status tng_particle_data_block_write
                (int64_t *)block->header_contents+offset)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -5172,7 +5172,7 @@ static tng_function_status tng_particle_data_block_write
            (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -5185,7 +5185,7 @@ static tng_function_status tng_particle_data_block_write
            (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -5232,7 +5232,7 @@ static tng_function_status tng_particle_data_block_write
                            (int32_t *)(block->block_contents + i))
                            != TNG_SUCCESS)
                         {
-                            printf("TNG library: Cannot swap byte order. %s: %d\n",
+                            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                     __FILE__, __LINE__);
                         }
                     }
@@ -5252,7 +5252,7 @@ static tng_function_status tng_particle_data_block_write
                         (int32_t *)(block->block_contents + i))
                         != TNG_SUCCESS)
                         {
-                            printf("TNG library: Cannot swap byte order. %s: %d\n",
+                            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                     __FILE__, __LINE__);
                         }
                     }
@@ -5268,7 +5268,7 @@ static tng_function_status tng_particle_data_block_write
                        (int64_t *)(block->block_contents + i))
                        != TNG_SUCCESS)
                     {
-                        printf("TNG library: Cannot swap byte order. %s: %d\n",
+                        fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                 __FILE__, __LINE__);
                     }
                 }
@@ -5286,7 +5286,7 @@ static tng_function_status tng_particle_data_block_write
                            (int64_t *)(block->block_contents + i))
                            != TNG_SUCCESS)
                         {
-                            printf("TNG library: Cannot swap byte order. %s: %d\n",
+                            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                     __FILE__, __LINE__);
                         }
                     }
@@ -5306,7 +5306,7 @@ static tng_function_status tng_particle_data_block_write
                         (int64_t *)(block->block_contents + i))
                         != TNG_SUCCESS)
                         {
-                            printf("TNG library: Cannot swap byte order. %s: %d\n",
+                            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                     __FILE__, __LINE__);
                         }
                     }
@@ -5330,7 +5330,7 @@ static tng_function_status tng_particle_data_block_write
         switch(data->codec_id)
         {
         case TNG_XTC_COMPRESSION:
-            printf("TNG library: XTC compression not implemented yet.\n");
+            fprintf(stderr, "TNG library: XTC compression not implemented yet.\n");
             data->codec_id = TNG_UNCOMPRESSED;
             break;
         case TNG_TNG_COMPRESSION:
@@ -5339,7 +5339,7 @@ static tng_function_status tng_particle_data_block_write
                                 block->block_contents + data_start_pos);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Could not write tng compressed block data. %s: %d\n",
+                fprintf(stderr, "TNG library: Could not write tng compressed block data. %s: %d\n",
                     __FILE__, __LINE__);
                 if(stat == TNG_CRITICAL)
                 {
@@ -5356,13 +5356,13 @@ static tng_function_status tng_particle_data_block_write
             break;
 #ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
-    /*         printf("TNG library: Before compression: %"PRId64"\n", block->block_contents_size);*/
+    /*         fprintf(stderr, "TNG library: Before compression: %"PRId64"\n", block->block_contents_size);*/
             stat = tng_gzip_compress(tng_data, block,
                                      block->block_contents + data_start_pos,
                                      block->block_contents_size - data_start_pos);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Could not write gzipped block data. %s: %d\n", __FILE__,
+                fprintf(stderr, "TNG library: Could not write gzipped block data. %s: %d\n", __FILE__,
                     __LINE__);
                 if(stat == TNG_CRITICAL)
                 {
@@ -5376,7 +5376,7 @@ static tng_function_status tng_particle_data_block_write
                                                      hash_mode);
                 return(stat);
             }
-    /*         printf("TNG library: After compression: %"PRId64"\n", block->block_contents_size);*/
+    /*         fprintf(stderr, "TNG library: After compression: %"PRId64"\n", block->block_contents_size);*/
             break;
 #endif
         }
@@ -5384,7 +5384,7 @@ static tng_function_status tng_particle_data_block_write
 
     if(tng_block_header_write(tng_data, block, hash_mode) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot write header of file %s. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -5392,7 +5392,7 @@ static tng_function_status tng_particle_data_block_write
     if(fwrite(block->block_contents, block->block_contents_size, 1,
         tng_data->output_file) != 1)
     {
-        printf("TNG library: Could not write all block data. %s: %d\n", __FILE__,
+        fprintf(stderr, "TNG library: Could not write all block data. %s: %d\n", __FILE__,
                 __LINE__);
         return(TNG_CRITICAL);
     }
@@ -5424,7 +5424,7 @@ static tng_function_status tng_data_block_create
                        frame_set->n_data_blocks);
         if(!data)
         {
-            printf("TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
                 sizeof(struct tng_non_particle_data) * frame_set->n_data_blocks,
                 __FILE__, __LINE__);
             free(frame_set->tr_data);
@@ -5440,7 +5440,7 @@ static tng_function_status tng_data_block_create
                         tng_data->n_data_blocks);
         if(!data)
         {
-            printf("TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
                 sizeof(struct tng_non_particle_data) * tng_data->n_data_blocks,
                 __FILE__, __LINE__);
             free(tng_data->non_tr_data);
@@ -5506,7 +5506,7 @@ static tng_function_status tng_allocate_data_mem
             data->strings[i] = malloc(sizeof(char *) * n_values_per_frame);
             if(!data->strings[i])
             {
-                printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                        n_values_per_frame,
                        __FILE__, __LINE__);
                 return(TNG_CRITICAL);
@@ -5537,7 +5537,7 @@ static tng_function_status tng_allocate_data_mem
                          n_values_per_frame);
         if(!values)
         {
-            printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    size * frame_alloc *
                    n_values_per_frame,
                    __FILE__, __LINE__);
@@ -5595,7 +5595,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
 
     TNG_ASSERT(offset != 0, "TNG library: offset must not be a NULL pointer.");
 
-/*     printf("TNG library: %s\n", block->name);*/
+/*     fprintf(stderr, "TNG library: %s\n", block->name);*/
 
     switch(datatype)
     {
@@ -5628,7 +5628,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
         if(tng_data_block_create(tng_data, block_type_flag) !=
             TNG_SUCCESS)
         {
-            printf("TNG library: Cannot create particle data block. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot create particle data block. %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -5645,7 +5645,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
         data->block_name = malloc(strlen(block->name) + 1);
         if(!data->block_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
                    (int)strlen(block->name)+1, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -5671,16 +5671,16 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
 #ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
             data_size = n_frames_div * size * n_values;
-    /*         printf("TNG library: Before compression: %"PRId64"\n", block->block_contents_size); */
+    /*         fprintf(stderr, "TNG library: Before compression: %"PRId64"\n", block->block_contents_size); */
             if(tng_gzip_uncompress(tng_data, block,
                                    block->block_contents + *offset,
                                    data_size) != TNG_SUCCESS)
             {
-                printf("TNG library: Could not read gzipped block data. %s: %d\n", __FILE__,
+                fprintf(stderr, "TNG library: Could not read gzipped block data. %s: %d\n", __FILE__,
                     __LINE__);
                 return(TNG_CRITICAL);
             }
-    /*         printf("TNG library: After compression: %"PRId64"\n", block->block_contents_size); */
+    /*         fprintf(stderr, "TNG library: After compression: %"PRId64"\n", block->block_contents_size); */
             break;
 #endif
         }
@@ -5694,7 +5694,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
                                  n_values) !=
            TNG_SUCCESS)
         {
-            printf("TNG library: Cannot allocate memory for data. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory for data. %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -5717,7 +5717,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
                 data->strings[i][j] = malloc(len);
                 if(!data->strings[i][j])
                 {
-                    printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
                            len, __FILE__, __LINE__);
                     return(TNG_CRITICAL);
                 }
@@ -5742,7 +5742,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
                         (int32_t *)((char *)data->values + i))
                         != TNG_SUCCESS)
                     {
-                        printf("TNG library: Cannot swap byte order. %s: %d\n",
+                        fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                 __FILE__, __LINE__);
                     }
                 }
@@ -5758,7 +5758,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
                         (int64_t *)((char *)data->values + i))
                         != TNG_SUCCESS)
                     {
-                        printf("TNG library: Cannot swap byte order. %s: %d\n",
+                        fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                 __FILE__, __LINE__);
                     }
                 }
@@ -5860,7 +5860,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         temp_name = realloc(block->name, len);
         if(!temp_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len+1,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len+1,
                    __FILE__, __LINE__);
             free(block->name);
             block->name = 0;
@@ -5957,7 +5957,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -5991,7 +5991,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
            (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -6005,7 +6005,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
            (int64_t *)block->header_contents+offset)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -6021,7 +6021,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
             (int64_t *)block->header_contents+offset)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -6043,7 +6043,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
             (int64_t *)block->header_contents+offset)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -6057,7 +6057,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
             (int64_t *)block->header_contents+offset)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -6098,7 +6098,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                            (int32_t *)(block->block_contents + i))
                            != TNG_SUCCESS)
                         {
-                            printf("TNG library: Cannot swap byte order. %s: %d\n",
+                            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                     __FILE__, __LINE__);
                         }
                     }
@@ -6118,7 +6118,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                         (int32_t *)(block->block_contents + i))
                         != TNG_SUCCESS)
                         {
-                            printf("TNG library: Cannot swap byte order. %s: %d\n",
+                            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                     __FILE__, __LINE__);
                         }
                     }
@@ -6134,7 +6134,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                        (int64_t *)(block->block_contents + i))
                        != TNG_SUCCESS)
                     {
-                        printf("TNG library: Cannot swap byte order. %s: %d\n",
+                        fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                 __FILE__, __LINE__);
                     }
                 }
@@ -6152,7 +6152,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                            (int64_t *)(block->block_contents + i))
                            != TNG_SUCCESS)
                         {
-                            printf("TNG library: Cannot swap byte order. %s: %d\n",
+                            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                     __FILE__, __LINE__);
                         }
                     }
@@ -6172,7 +6172,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                         (int64_t *)(block->block_contents + i))
                         != TNG_SUCCESS)
                         {
-                            printf("TNG library: Cannot swap byte order. %s: %d\n",
+                            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                     __FILE__, __LINE__);
                         }
                     }
@@ -6197,13 +6197,13 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         {
 #ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
-    /*         printf("TNG library: Before compression: %"PRId64"\n", block->block_contents_size); */
+    /*         fprintf(stderr, "TNG library: Before compression: %"PRId64"\n", block->block_contents_size); */
             stat = tng_gzip_compress(tng_data, block,
                                      block->block_contents + data_start_pos,
                                      block->block_contents_size - data_start_pos);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Could not write gzipped block data. %s: %d\n", __FILE__,
+                fprintf(stderr, "TNG library: Could not write gzipped block data. %s: %d\n", __FILE__,
                     __LINE__);
                 if(stat == TNG_CRITICAL)
                 {
@@ -6211,7 +6211,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                 }
                 data->codec_id = TNG_UNCOMPRESSED;
             }
-    /*         printf("TNG library: After compression: %"PRId64"\n", block->block_contents_size); */
+    /*         fprintf(stderr, "TNG library: After compression: %"PRId64"\n", block->block_contents_size); */
             break;
 #endif
         }
@@ -6219,7 +6219,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
 
     if(tng_block_header_write(tng_data, block, hash_mode) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot write header of file %s. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot write header of file %s. %s: %d\n",
                tng_data->output_file_path, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -6227,7 +6227,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     if(fwrite(block->block_contents, block->block_contents_size, 1,
               tng_data->output_file) != 1)
     {
-        printf("TNG library: Could not write all block data. %s: %d\n",
+        fprintf(stderr, "TNG library: Could not write all block data. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -6270,7 +6270,7 @@ static tng_function_status tng_data_block_contents_read
     block->block_contents = malloc(block->block_contents_size);
     if(!block->block_contents)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                block->block_contents_size, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -6280,7 +6280,7 @@ static tng_function_status tng_data_block_contents_read
     if(fread(block->block_contents, block->block_contents_size, 1,
              tng_data->input_file) == 0)
     {
-        printf("TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
 
@@ -6292,7 +6292,7 @@ static tng_function_status tng_data_block_contents_read
         tng_md5_hash_match_verify(block, &same_hash);
         if(same_hash != TNG_TRUE)
         {
-            printf("TNG library: '%s' data block contents corrupt. Hashes do not match. %s: %d\n",
+            fprintf(stderr, "TNG library: '%s' data block contents corrupt. Hashes do not match. %s: %d\n",
                 block->name, __FILE__, __LINE__);
     /*         return(TNG_FAILURE); */
         }
@@ -6321,7 +6321,7 @@ static tng_function_status tng_data_block_contents_read
                                                    &n_values)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -6335,7 +6335,7 @@ static tng_function_status tng_data_block_contents_read
                                                    &codec_id)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -6351,7 +6351,7 @@ static tng_function_status tng_data_block_contents_read
                                                        (int64_t *) &multiplier)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -6374,7 +6374,7 @@ static tng_function_status tng_data_block_contents_read
                                                         &first_frame_with_data)
                     != TNG_SUCCESS)
                 {
-                    printf("TNG library: Cannot swap byte order. %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                             __FILE__, __LINE__);
                 }
             }
@@ -6388,7 +6388,7 @@ static tng_function_status tng_data_block_contents_read
                                                            &stride_length)
                     != TNG_SUCCESS)
                 {
-                    printf("TNG library: Cannot swap byte order. %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                             __FILE__, __LINE__);
                 }
             }
@@ -6421,7 +6421,7 @@ static tng_function_status tng_data_block_contents_read
                                                        &num_first_particle)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -6435,7 +6435,7 @@ static tng_function_status tng_data_block_contents_read
                                                        &block_n_particles)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -6488,7 +6488,7 @@ static tng_function_status tng_md5_hash_update(tng_trajectory_t tng_data,
     if(fread(block->block_contents, block->block_contents_size, 1,
             tng_data->output_file) == 0)
     {
-        printf("TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
 
@@ -6518,7 +6518,7 @@ static tng_function_status tng_header_pointers_update
 
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot initialise destination file. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot initialise destination file. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -6532,7 +6532,7 @@ static tng_function_status tng_header_pointers_update
 
     if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot read general info header. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read general info header. %s: %d\n",
                __FILE__, __LINE__);
         tng_data->input_file = temp;
         tng_block_destroy(&block);
@@ -6554,7 +6554,7 @@ static tng_function_status tng_header_pointers_update
                                                     &pos)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -6573,7 +6573,7 @@ static tng_function_status tng_header_pointers_update
                                                     &pos)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -6616,7 +6616,7 @@ static tng_function_status tng_frame_set_pointers_update
 
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot initialise destination file. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot initialise destination file. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -6639,7 +6639,7 @@ static tng_function_status tng_frame_set_pointers_update
 
         if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot read frame header. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read frame header. %s: %d\n",
                 __FILE__, __LINE__);
             tng_data->input_file = temp;
             tng_block_destroy(&block);
@@ -6659,7 +6659,7 @@ static tng_function_status tng_frame_set_pointers_update
                                                         &pos)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -6689,7 +6689,7 @@ static tng_function_status tng_frame_set_pointers_update
 
         if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot read frame set header. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read frame set header. %s: %d\n",
                 __FILE__, __LINE__);
             tng_data->input_file = temp;
             tng_block_destroy(&block);
@@ -6709,7 +6709,7 @@ static tng_function_status tng_frame_set_pointers_update
                                                         &pos)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -6739,7 +6739,7 @@ static tng_function_status tng_frame_set_pointers_update
 
         if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot read frame set header. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read frame set header. %s: %d\n",
                 __FILE__, __LINE__);
             tng_data->input_file = temp;
             tng_block_destroy(&block);
@@ -6759,7 +6759,7 @@ static tng_function_status tng_frame_set_pointers_update
                                                         &pos)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -6819,7 +6819,7 @@ static tng_function_status tng_frame_set_pointers_update
 //
 //     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
 //     {
-//         printf("TNG library: Cannot initialise destination file. %s: %d\n",
+//         fprintf(stderr, "TNG library: Cannot initialise destination file. %s: %d\n",
 //                __FILE__, __LINE__);
 //         return(TNG_CRITICAL);
 //     }
@@ -6834,7 +6834,7 @@ static tng_function_status tng_frame_set_pointers_update
 //     fseek(tng_data->output_file, pos, SEEK_SET);
 //     if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
 //     {
-//         printf("TNG library: Cannot read frame set header. %s: %d\n",
+//         fprintf(stderr, "TNG library: Cannot read frame set header. %s: %d\n",
 //             __FILE__, __LINE__);
 //         tng_data->input_file = temp;
 //         tng_block_destroy(&block);
@@ -6853,7 +6853,7 @@ static tng_function_status tng_frame_set_pointers_update
 //     {
 //         if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
 //         {
-//             printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", pos,
+//             fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", pos,
 //                    __FILE__, __LINE__);
 //             tng_data->input_file = temp;
 //             tng_block_destroy(&block);
@@ -6892,7 +6892,7 @@ static tng_function_status tng_frame_set_finalize
 
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot initialise destination file. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot initialise destination file. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -6908,7 +6908,7 @@ static tng_function_status tng_frame_set_finalize
 
     if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot read frame set header. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read frame set header. %s: %d\n",
             __FILE__, __LINE__);
         tng_data->input_file = temp;
         tng_block_destroy(&block);
@@ -6942,7 +6942,7 @@ static tng_function_status tng_frame_set_finalize
     {
         if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", pos,
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", pos,
                    __FILE__, __LINE__);
             tng_data->input_file = temp;
             tng_block_destroy(&block);
@@ -6991,7 +6991,7 @@ static tng_function_status tng_frame_set_finalize
 //         block->name = malloc(len);
 //         if(!block->name)
 //         {
-//             printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+//             fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
 //                    __FILE__, __LINE__);
 //             return(TNG_CRITICAL);
 //         }
@@ -7046,7 +7046,7 @@ tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
         atom->name = malloc(len);
         if(!atom->name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -7100,7 +7100,7 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
         atom->atom_type = malloc(len);
         if(!atom->atom_type)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -7195,7 +7195,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
 
     if(!new_molecules)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(struct tng_molecule) * (tng_data->n_molecules + 1),
                __FILE__, __LINE__);
         free(tng_data->molecules);
@@ -7209,7 +7209,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
 
     if(!new_molecule_cnt_list)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(int64_t) * (tng_data->n_molecules + 1),
                __FILE__, __LINE__);
         free(tng_data->molecule_cnt_list);
@@ -7234,7 +7234,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
         if(tng_data->molecules[i].id == id)
         {
             stat = TNG_FAILURE;
-            printf("TNG library: Molecule ID %"PRId64" already in use. %s: %d\n", id,
+            fprintf(stderr, "TNG library: Molecule ID %"PRId64" already in use. %s: %d\n", id,
                    __FILE__, __LINE__);
             break;
         }
@@ -7282,7 +7282,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_existing_add
 
     if(!new_molecules)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(struct tng_molecule) * (tng_data->n_molecules + 1),
                __FILE__, __LINE__);
         free(tng_data->molecules);
@@ -7296,7 +7296,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_existing_add
 
     if(!new_molecule_cnt_list)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(int64_t) * (tng_data->n_molecules + 1),
                __FILE__, __LINE__);
         free(tng_data->molecule_cnt_list);
@@ -7371,7 +7371,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_set
         molecule->name = malloc(len);
         if(!molecule->name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -7428,7 +7428,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set
     }
     if(index == -1)
     {
-        printf("TNG library: Could not find molecule in TNG trajectory. %s: %d\n",
+        fprintf(stderr, "TNG library: Could not find molecule in TNG trajectory. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
@@ -7516,7 +7516,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
                     sizeof(struct tng_molecule) * tng_data_src->n_molecules);
     if(!molecule_temp)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(struct tng_molecule) * tng_data_src->n_molecules,
                __FILE__, __LINE__);
         free(tng_data_dest->molecules);
@@ -7527,7 +7527,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
                                      sizeof(int64_t) * tng_data_src->n_molecules);
     if(!list_temp)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(int64_t) * tng_data_src->n_molecules,
                __FILE__, __LINE__);
         free(tng_data_dest->molecule_cnt_list);
@@ -7546,7 +7546,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
                                      &molecule_temp);
         if(stat != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot create new molecule to make a copy. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot create new molecule to make a copy. %s: %d\n",
                    __FILE__, __LINE__);
             return(stat);
         }
@@ -7559,7 +7559,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
                                                &chain_temp);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot create new chain to make a copy. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot create new chain to make a copy. %s: %d\n",
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -7571,7 +7571,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
                                                   &residue_temp);
                 if(stat != TNG_SUCCESS)
                 {
-                    printf("TNG library: Cannot create new residue to make a copy. %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot create new residue to make a copy. %s: %d\n",
                            __FILE__, __LINE__);
                     return(stat);
                 }
@@ -7583,7 +7583,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
                                                      atom->id, &atom_temp);
                     if(stat != TNG_SUCCESS)
                     {
-                    printf("TNG library: Cannot create new atom to make a copy. %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot create new atom to make a copy. %s: %d\n",
                            __FILE__, __LINE__);
                         return(stat);
                     }
@@ -7595,7 +7595,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
                             molecule->n_bonds);
         if(!bond_temp)
         {
-            printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    sizeof(struct tng_bond) * molecule->n_bonds,
                    __FILE__, __LINE__);
             free(molecule_temp->bonds);
@@ -7611,7 +7611,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t 
                                     tng_data_src->molecule_cnt_list[i]);
         if(stat != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot set molecule count. %s: %d.\n",
+            fprintf(stderr, "TNG library: Cannot set molecule count. %s: %d.\n",
                    __FILE__, __LINE__);
             return(stat);
         }
@@ -7783,7 +7783,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
 
     if(!new_chains)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(struct tng_chain) * (molecule->n_chains + 1),
                __FILE__, __LINE__);
         free(molecule->chains);
@@ -7806,7 +7806,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
         if(molecule->chains[i].id == id)
         {
             stat = TNG_FAILURE;
-            printf("TNG library: Chain ID already in use. %s: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Chain ID already in use. %s: %d\n", __FILE__, __LINE__);
             break;
         }
     }
@@ -7846,7 +7846,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_bond_add
 
     if(!new_bonds)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(struct tng_bond) * (molecule->n_bonds + 1),
                __FILE__, __LINE__);
         *bond = 0;
@@ -7941,7 +7941,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
         chain->name = malloc(len);
         if(!chain->name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -8059,7 +8059,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
 
     if(!new_residues)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(struct tng_residue) * (molecule->n_residues + 1),
                __FILE__, __LINE__);
         free(molecule->residues);
@@ -8111,7 +8111,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
         if(chain->residues[i].id == id)
         {
             stat = TNG_FAILURE;
-            printf("TNG library: Residue ID already in use. %s: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Residue ID already in use. %s: %d\n", __FILE__, __LINE__);
             break;
         }
     }
@@ -8167,7 +8167,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_set(tng_trajectory_t tng_
         residue->name = malloc(len);
         if(!residue->name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -8267,7 +8267,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
 
     if(!new_atoms)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(struct tng_atom) * (molecule->n_atoms + 1),
                __FILE__, __LINE__);
         free(molecule->atoms);
@@ -8290,7 +8290,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
         if(molecule->atoms[i].id == id)
         {
             stat = TNG_FAILURE;
-            printf("TNG library: Atom ID %"PRId64" already in use. %s: %d\n", id, __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Atom ID %"PRId64" already in use. %s: %d\n", id, __FILE__, __LINE__);
             break;
         }
     }
@@ -8309,7 +8309,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_alloc(const tng_trajectory_t 
     *molecule_p = malloc(sizeof(struct tng_molecule));
     if(!*molecule_p)
     {
-        printf("TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
                sizeof(struct tng_molecule), __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -8521,14 +8521,14 @@ tng_function_status DECLSPECDLLEXPORT tng_molsystem_bonds_get
     *from_atoms = malloc(sizeof(int64_t) * (*n_bonds));
     if(!*from_atoms)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(int64_t) * (*n_bonds), __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
     *to_atoms = malloc(sizeof(int64_t) * (*n_bonds));
     if(!*to_atoms)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(int64_t) * (*n_bonds), __FILE__, __LINE__);
         free(*from_atoms);
         *from_atoms = 0;
@@ -8845,7 +8845,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
            num_first_particle < mapping->num_first_particle +
                                    mapping->n_particles)
         {
-            printf("TNG library: Particle mapping overlap. %s: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Particle mapping overlap. %s: %d\n", __FILE__, __LINE__);
             return(TNG_FAILURE);
         }
         if(num_first_particle + n_particles >=
@@ -8853,14 +8853,14 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
            num_first_particle + n_particles <
            mapping->num_first_particle + mapping->n_particles)
         {
-            printf("TNG library: Particle mapping overlap. %s: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Particle mapping overlap. %s: %d\n", __FILE__, __LINE__);
             return(TNG_FAILURE);
         }
         if(mapping->num_first_particle >= num_first_particle &&
            mapping->num_first_particle < num_first_particle +
                                             n_particles)
         {
-            printf("TNG library: Particle mapping overlap. %s: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Particle mapping overlap. %s: %d\n", __FILE__, __LINE__);
             return(TNG_FAILURE);
         }
         if(mapping->num_first_particle + mapping->n_particles >
@@ -8868,7 +8868,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
            mapping->num_first_particle + mapping->n_particles <
            num_first_particle + n_particles)
         {
-            printf("TNG library: Particle mapping overlap. %s: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Particle mapping overlap. %s: %d\n", __FILE__, __LINE__);
             return(TNG_FAILURE);
         }
     }
@@ -8880,7 +8880,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
 
     if(!mapping)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(struct tng_particle_mapping)*frame_set->n_mapping_blocks,
                __FILE__, __LINE__);
         free(frame_set->mappings);
@@ -8895,7 +8895,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
     frame_set->mappings[frame_set->n_mapping_blocks - 1].real_particle_numbers = malloc(sizeof(int64_t) * n_particles);
     if(!frame_set->mappings[frame_set->n_mapping_blocks - 1].real_particle_numbers)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(int64_t) * n_particles, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -8917,7 +8917,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
     *tng_data_p = malloc(sizeof(struct tng_trajectory));
     if(!*tng_data_p)
     {
-        printf("TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
                sizeof(struct tng_trajectory), __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -8945,7 +8945,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
     seconds = time(0);
     if ( seconds == -1)
     {
-        printf("TNG library: Cannot get time. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Cannot get time. %s: %d\n", __FILE__, __LINE__);
     }
     else
     {
@@ -9434,7 +9434,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
     *dest_p = malloc(sizeof(struct tng_trajectory));
     if(!*dest_p)
     {
-        printf("TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%lu bytes). %s: %d\n",
                sizeof(struct tng_trajectory), __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -9585,7 +9585,7 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_set(tng_trajectory_t tng_da
     temp = realloc(tng_data->input_file_path, len);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->input_file_path);
         tng_data->input_file_path = 0;
@@ -9638,7 +9638,7 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_set(tng_trajectory_t tng_d
     temp = realloc(tng_data->output_file_path, len);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->output_file_path);
         tng_data->output_file_path = 0;
@@ -9676,7 +9676,7 @@ tng_function_status DECLSPECDLLEXPORT tng_output_append_file_set
     temp = realloc(tng_data->output_file_path, len);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->output_file_path);
         tng_data->output_file_path = 0;
@@ -9689,7 +9689,7 @@ tng_function_status DECLSPECDLLEXPORT tng_output_append_file_set
     tng_data->output_file = fopen(tng_data->output_file_path, "r+");
     if(!tng_data->output_file)
     {
-        printf("TNG library: Cannot open file %s. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot open file %s. %s: %d\n",
                 tng_data->output_file_path, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -9874,7 +9874,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_program_name_set(tng_trajectory_
         tng_data->first_program_name = malloc(len);
         if(!tng_data->first_program_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -9923,7 +9923,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_program_name_set
         tng_data->last_program_name = malloc(len);
         if(!tng_data->last_program_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -9974,7 +9974,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_user_name_set
         tng_data->first_user_name = malloc(len);
         if(!tng_data->first_user_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10025,7 +10025,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_user_name_set
         tng_data->last_user_name = malloc(len);
         if(!tng_data->last_user_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10076,7 +10076,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_set
         tng_data->first_computer_name = malloc(len);
         if(!tng_data->first_computer_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10128,7 +10128,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_set
         tng_data->last_computer_name = malloc(len);
         if(!tng_data->last_computer_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10180,7 +10180,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_signature_set
         tng_data->first_pgp_signature = malloc(len);
         if(!tng_data->first_pgp_signature)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10232,7 +10232,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_signature_set
         tng_data->last_pgp_signature = malloc(len);
         if(!tng_data->last_pgp_signature)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10283,7 +10283,7 @@ tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_set
         tng_data->forcefield_name = malloc(len);
         if(!tng_data->forcefield_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10429,7 +10429,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_get
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
     {
-        printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", last_file_pos,
+        fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", last_file_pos,
                 __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_FAILURE);
@@ -10438,13 +10438,13 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_get
 
     if(fread(&first_frame, sizeof(int64_t), 1, tng_data->input_file) == 0)
     {
-        printf("TNG library: Cannot read first frame of frame set. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read first frame of frame set. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
     if(fread(&n_frames, sizeof(int64_t), 1, tng_data->input_file) == 0)
     {
-        printf("TNG library: Cannot read n frames of frame set. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read n frames of frame set. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -10498,9 +10498,9 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
     }
     else if(diff < 0)
     {
-        printf("TNG library: Already more particles than requested implicit ");
-        printf("particle count.\n");
-        printf("TNG library: Cannot set implicit particle count. %s: %d\n",
+        fprintf(stderr, "TNG library: Already more particles than requested implicit ");
+        fprintf(stderr, "particle count.\n");
+        fprintf(stderr, "TNG library: Cannot set implicit particle count. %s: %d\n",
                 __FILE__, __LINE__);
         /* FIXME: Should we set the count of all other molecules to 0 and add
          * implicit molecules? */
@@ -10541,9 +10541,9 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
                 n_mod = diff % mol->n_atoms;
                 if(n_mod != 0)
                 {
-                    printf("TNG library: Number of atoms in implicit molecule ");
-                    printf("not compatible with requested implicit particle cnt.\n");
-                    printf("TNG library: Cannot set implicit particle count. %s: %d\n",
+                    fprintf(stderr, "TNG library: Number of atoms in implicit molecule ");
+                    fprintf(stderr, "not compatible with requested implicit particle cnt.\n");
+                    fprintf(stderr, "TNG library: Cannot set implicit particle count. %s: %d\n",
                            __FILE__, __LINE__);
                     return(TNG_FAILURE);
                 }
@@ -10715,7 +10715,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
     {
-        printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", file_pos,
+        fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", file_pos,
                 __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
@@ -10746,7 +10746,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -10777,7 +10777,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -10807,7 +10807,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -10898,7 +10898,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
     {
-        printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", file_pos,
+        fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", file_pos,
                 __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
@@ -10932,7 +10932,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos,  __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -10967,7 +10967,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11002,7 +11002,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11037,7 +11037,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11072,7 +11072,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11106,7 +11106,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11141,7 +11141,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11194,7 +11194,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
         stat = tng_block_header_read(tng_data, block);
         if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
         {
-            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                     file_pos, __FILE__, __LINE__);
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
@@ -11277,7 +11277,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11316,7 +11316,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11353,7 +11353,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11388,7 +11388,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11425,7 +11425,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11462,7 +11462,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11497,7 +11497,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11533,7 +11533,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
             stat = tng_block_header_read(tng_data, block);
             if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                        file_pos, __FILE__, __LINE__);
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -11750,7 +11750,7 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
     if(tng_general_info_block_write(tng_data, hash_mode)
        != TNG_SUCCESS)
     {
-        printf("TNG library: Error writing general info block of file %s. %s: %d\n",
+        fprintf(stderr, "TNG library: Error writing general info block of file %s. %s: %d\n",
                 tng_data->input_file_path, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -11758,7 +11758,7 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
     if(tng_molecules_block_write(tng_data, hash_mode)
         != TNG_SUCCESS)
     {
-        printf("TNG library: Error writing atom names block of file %s. %s: %d\n",
+        fprintf(stderr, "TNG library: Error writing atom names block of file %s. %s: %d\n",
                 tng_data->input_file_path, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -11846,7 +11846,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
     {
-        printf("TNG library: Cannot read block header at pos %ld. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read block header at pos %ld. %s: %d\n",
                file_pos, __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
@@ -11878,7 +11878,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read
         }
         if(stat == TNG_CRITICAL)
         {
-            printf("TNG library: Cannot read block header at pos %ld. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read block header at pos %ld. %s: %d\n",
                    file_pos, __FILE__, __LINE__);
             tng_block_destroy(&block);
             return(stat);
@@ -11947,7 +11947,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_current_only_data_from_
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
     {
-        printf("TNG library: Cannot read block header at pos %ld. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read block header at pos %ld. %s: %d\n",
                file_pos, __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
@@ -11964,7 +11964,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_current_only_data_from_
                                    hash_mode);
         if(stat != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot read frame set block. %s: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Cannot read frame set block. %s: %d\n", __FILE__, __LINE__);
             tng_block_destroy(&block);
             return(stat);
         }
@@ -12006,7 +12006,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_current_only_data_from_
     }
     if(stat == TNG_CRITICAL)
     {
-        printf("TNG library: Cannot read block header at pos %ld. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read block header at pos %ld. %s: %d\n",
                 file_pos, __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(stat);
@@ -12110,7 +12110,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next_only_data_from_blo
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
     {
-        printf("TNG library: Cannot read block header at pos %ld. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read block header at pos %ld. %s: %d\n",
                file_pos, __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
@@ -12306,7 +12306,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
 
             if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot read frame set header. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read frame set header. %s: %d\n",
                     __FILE__, __LINE__);
                 tng_data->input_file = temp;
                 tng_block_destroy(&block);
@@ -12321,7 +12321,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
                sizeof(frame_set->medium_stride_prev_frame_set_file_pos),
                1, tng_data->output_file) == 0)
             {
-                printf("TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
+                fprintf(stderr, "TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
                 tng_data->input_file = temp;
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -12333,7 +12333,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
                    &frame_set->medium_stride_prev_frame_set_file_pos)
                     != TNG_SUCCESS)
                 {
-                    printf("TNG library: Cannot swap byte order. %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                             __FILE__, __LINE__);
                 }
             }
@@ -12362,7 +12362,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
 
                     if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
                     {
-                        printf("TNG library: Cannot read frame set header. %s: %d\n",
+                        fprintf(stderr, "TNG library: Cannot read frame set header. %s: %d\n",
                             __FILE__, __LINE__);
                         tng_data->input_file = temp;
                         tng_block_destroy(&block);
@@ -12380,7 +12380,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
                     sizeof(frame_set->long_stride_prev_frame_set_file_pos),
                     1, tng_data->output_file) == 0)
                     {
-                        printf("TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
+                        fprintf(stderr, "TNG library: Cannot read block. %s: %d\n", __FILE__, __LINE__);
                         tng_data->input_file = temp;
                         return(TNG_CRITICAL);
                     }
@@ -12391,7 +12391,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
                            &frame_set->long_stride_prev_frame_set_file_pos)
                             != TNG_SUCCESS)
                         {
-                            printf("TNG library: Cannot swap byte order. %s: %d\n",
+                            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                                     __FILE__, __LINE__);
                         }
                     }
@@ -12503,7 +12503,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_frame_nr_of_next_frame_set_get
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
     {
-        printf("TNG library: Cannot read block header at pos %ld. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read block header at pos %ld. %s: %d\n",
                file_pos, __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -12515,7 +12515,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_frame_nr_of_next_frame_set_get
 
     if(fread(frame, sizeof(int64_t), 1, tng_data->input_file) == 0)
     {
-        printf("TNG library: Cannot read first frame of next frame set. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read first frame of next frame set. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -12560,7 +12560,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
         if(tng_data_block_create(tng_data, block_type_flag) !=
             TNG_SUCCESS)
         {
-            printf("TNG library: Cannot create data block. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot create data block. %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -12577,7 +12577,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
         data->block_name = malloc(strlen(block_name) + 1);
         if(!data->block_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
                    (int)strlen(block_name)+1, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -12619,7 +12619,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
                                  n_values_per_frame) !=
         TNG_SUCCESS)
         {
-            printf("TNG library: Cannot allocate data memory. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate data memory. %s: %d\n",
                 __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -12649,7 +12649,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
                     first_dim_values[j] = malloc(len);
                     if(!first_dim_values[j])
                     {
-                        printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+                        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
                             len, __FILE__, __LINE__);
                         return(TNG_CRITICAL);
                     }
@@ -12711,7 +12711,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
         if(tng_particle_data_block_create(tng_data, block_type_flag) !=
             TNG_SUCCESS)
         {
-            printf("TNG library: Cannot create particle data block. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot create particle data block. %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -12730,7 +12730,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
         data->block_name = malloc(strlen(block_name) + 1);
         if(!data->block_name)
         {
-            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
                    (int)strlen(block_name)+1, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -12770,7 +12770,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
                                           n_values_per_frame) !=
         TNG_SUCCESS)
         {
-            printf("TNG library: Cannot allocate particle data memory. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate particle data memory. %s: %d\n",
                 __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -12804,7 +12804,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
                         second_dim_values[k] = malloc(len);
                         if(!second_dim_values[k])
                         {
-                            printf("TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+                            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
                                 len, __FILE__, __LINE__);
                             return(TNG_CRITICAL);
                         }
@@ -13115,7 +13115,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
 
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot initialise destination file. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot initialise destination file. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -13189,7 +13189,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
             /* Write the frame set to disk */
             if(tng_frame_set_write(tng_data, hash_mode) != TNG_SUCCESS)
             {
-                printf("TNG library: Error writing frame set. %s: %d\n", __FILE__, __LINE__);
+                fprintf(stderr, "TNG library: Error writing frame set. %s: %d\n", __FILE__, __LINE__);
                 return(TNG_CRITICAL);
             }
         }
@@ -13215,7 +13215,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL)
     {
-        printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                file_pos, __FILE__, __LINE__);
         tng_block_destroy(&block);
         tng_data->input_file = temp;
@@ -13245,7 +13245,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
     }
     if(stat == TNG_CRITICAL)
     {
-        printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                file_pos, __FILE__, __LINE__);
         tng_block_destroy(&block);
         tng_data->input_file = temp;
@@ -13263,13 +13263,13 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
 
     if(fread(&datatype, sizeof(datatype), 1, tng_data->input_file) == 0)
     {
-        printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
     if(fread(&dependency, sizeof(dependency), 1, tng_data->input_file) == 0)
     {
-        printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
@@ -13289,7 +13289,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
 
     if(fread(&sparse_data, sizeof(sparse_data), 1, tng_data->input_file) == 0)
     {
-        printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
@@ -13297,7 +13297,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
     if(fread(&data.n_values_per_frame, sizeof(data.n_values_per_frame), 1,
              tng_data->input_file) == 0)
     {
-        printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
@@ -13307,7 +13307,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
             &data.n_values_per_frame)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -13315,7 +13315,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
     if(fread(&data.codec_id, sizeof(data.codec_id), 1,
              tng_data->input_file) == 0)
     {
-        printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
@@ -13325,7 +13325,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
             &data.codec_id)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -13336,7 +13336,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
                  sizeof(data.compression_multiplier), 1, tng_data->input_file)
             == 0)
         {
-            printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
         }
@@ -13346,7 +13346,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
                 (int64_t *)&data.compression_multiplier)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -13361,7 +13361,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
         if(fread(&data.first_frame_with_data, sizeof(data.first_frame_with_data),
                  1, tng_data->input_file) == 0)
         {
-            printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
         }
@@ -13371,7 +13371,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
                 &data.first_frame_with_data)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -13379,7 +13379,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
         if(fread(&data.stride_length, sizeof(data.stride_length),
                  1, tng_data->input_file) == 0)
         {
-            printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
         }
@@ -13389,7 +13389,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
                 &data.stride_length)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -13419,7 +13419,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
             size = sizeof(double);
             break;
         default:
-            printf("TNG library: Cannot calculate writing locations. %s: %d.\n", __FILE__,
+            fprintf(stderr, "TNG library: Cannot calculate writing locations. %s: %d.\n", __FILE__,
                    __LINE__);
             tng_block_destroy(&block);
             return(TNG_FAILURE);
@@ -13434,7 +13434,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
 
     if(file_pos > contents_size)
     {
-        printf("TNG library: Attempting to write outside the block. %s: %d\n", __FILE__,
+        fprintf(stderr, "TNG library: Attempting to write outside the block. %s: %d\n", __FILE__,
                __LINE__);
         tng_block_destroy(&block);
         return(TNG_FAILURE);
@@ -13455,7 +13455,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
                 (int64_t *)copy+i)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -13474,7 +13474,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
                 (int32_t *)copy+i)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -13542,7 +13542,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
 
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot initialise destination file. %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot initialise destination file. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
     }
@@ -13567,7 +13567,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
     {
         last_frame = frame_set->first_frame +
                      frame_set->n_frames - 1;
-/*         printf("TNG library: Frame %"PRId64" not found. Last frame: %"PRId64"\n", frame_nr,
+/*         fprintf(stderr, "TNG library: Frame %"PRId64" not found. Last frame: %"PRId64"\n", frame_nr,
                   last_frame); */
         /* If the wanted frame would be in the frame set after the last
          * frame set create a new frame set. */
@@ -13617,7 +13617,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
             /* Write the frame set to disk */
             if(tng_frame_set_write(tng_data, hash_mode) != TNG_SUCCESS)
             {
-                printf("TNG library: Error writing frame set. %s: %d\n", __FILE__, __LINE__);
+                fprintf(stderr, "TNG library: Error writing frame set. %s: %d\n", __FILE__, __LINE__);
                 exit(1);
             }
         }
@@ -13644,7 +13644,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL)
     {
-        printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                file_pos, __FILE__, __LINE__);
         tng_block_destroy(&block);
         tng_data->input_file = temp;
@@ -13704,7 +13704,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
         }
         if(stat == TNG_CRITICAL)
         {
-            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                    file_pos, __FILE__, __LINE__);
             tng_block_destroy(&block);
             tng_data->input_file = temp;
@@ -13745,7 +13745,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
     }
     if(stat == TNG_CRITICAL)
     {
-        printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                 file_pos, __FILE__, __LINE__);
         tng_block_destroy(&block);
         tng_data->input_file = temp;
@@ -13764,7 +13764,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
 
     if(fread(&datatype, sizeof(datatype), 1, tng_data->input_file) == 0)
     {
-        printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
@@ -13773,7 +13773,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
 
     if(fread(&dependency, sizeof(dependency), 1, tng_data->input_file) == 0)
     {
-        printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
@@ -13792,7 +13792,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
 
     if(fread(&sparse_data, sizeof(sparse_data), 1, tng_data->input_file) == 0)
     {
-        printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
@@ -13800,7 +13800,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
     if(fread(&data.n_values_per_frame, sizeof(data.n_values_per_frame), 1,
              tng_data->input_file) == 0)
     {
-        printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
@@ -13810,7 +13810,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
             &data.n_values_per_frame)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -13818,7 +13818,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
     if(fread(&data.codec_id, sizeof(data.codec_id), 1,
              tng_data->input_file) == 0)
     {
-        printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
@@ -13828,7 +13828,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
             &data.codec_id)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -13839,7 +13839,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
                  sizeof(data.compression_multiplier), 1, tng_data->input_file)
             == 0)
         {
-            printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
         }
@@ -13850,7 +13850,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
                (int64_t *)&data.compression_multiplier)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -13866,7 +13866,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
                  sizeof(data.first_frame_with_data),
                  1, tng_data->input_file) == 0)
         {
-            printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
         }
@@ -13876,7 +13876,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
                 &data.first_frame_with_data)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -13884,7 +13884,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
         if(fread(&data.stride_length, sizeof(data.stride_length),
                  1, tng_data->input_file) == 0)
         {
-            printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
             tng_block_destroy(&block);
             return(TNG_CRITICAL);
         }
@@ -13894,7 +13894,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
                 &data.stride_length)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -13909,7 +13909,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
     if(fread(&num_first_particle, sizeof(num_first_particle), 1,
              tng_data->input_file) == 0)
     {
-        printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
@@ -13919,7 +13919,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
             &num_first_particle)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -13927,7 +13927,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
     if(fread(&block_n_particles, sizeof(block_n_particles), 1,
              tng_data->input_file) == 0)
     {
-        printf("TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "TNG library: Error reading file. %s: %d\n", __FILE__, __LINE__);
         tng_block_destroy(&block);
         return(TNG_CRITICAL);
     }
@@ -13937,7 +13937,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
             &block_n_particles)
             != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot swap byte order. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, __LINE__);
         }
     }
@@ -13962,7 +13962,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
             size = sizeof(double);
             break;
         default:
-            printf("TNG library: Cannot calculate writing locations. %s: %d.\n", __FILE__,
+            fprintf(stderr, "TNG library: Cannot calculate writing locations. %s: %d.\n", __FILE__,
                    __LINE__);
             tng_block_destroy(&block);
             return(TNG_FAILURE);
@@ -13977,7 +13977,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
 
     if(file_pos > contents_size)
     {
-        printf("TNG library: Attempting to write outside the block. %s: %d\n", __FILE__,
+        fprintf(stderr, "TNG library: Attempting to write outside the block. %s: %d\n", __FILE__,
                __LINE__);
         tng_block_destroy(&block);
         return(TNG_FAILURE);
@@ -13998,7 +13998,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
                 (int64_t *) copy+i)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -14017,7 +14017,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
                 (int32_t *) copy+i)
                 != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot swap byte order. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                         __FILE__, __LINE__);
             }
         }
@@ -14074,7 +14074,7 @@ static tng_function_status tng_data_values_alloc
                                     type);
         if(stat != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot free particle data values. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot free particle data values. %s: %d\n",
                    __FILE__, __LINE__);
             return(stat);
         }
@@ -14082,7 +14082,7 @@ static tng_function_status tng_data_values_alloc
     *values = malloc(sizeof(union data_values *) * n_frames);
     if(!*values)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(union data_values **) * n_frames,
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
@@ -14095,7 +14095,7 @@ static tng_function_status tng_data_values_alloc
                            n_values_per_frame);
         if(!(*values)[i])
         {
-            printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    sizeof(union data_values) * n_values_per_frame,
                    __FILE__, __LINE__);
             free(values);
@@ -14167,7 +14167,7 @@ static tng_function_status tng_particle_data_values_alloc
                                              type);
         if(stat != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot free particle data values. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot free particle data values. %s: %d\n",
                    __FILE__, __LINE__);
             return(stat);
         }
@@ -14175,7 +14175,7 @@ static tng_function_status tng_particle_data_values_alloc
     *values = malloc(sizeof(union data_values **) * n_frames);
     if(!*values)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                sizeof(union data_values **) * n_frames,
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
@@ -14188,7 +14188,7 @@ static tng_function_status tng_particle_data_values_alloc
                            n_particles);
         if(!(*values)[i])
         {
-            printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                    sizeof(union data_values *) * n_particles,
                    __FILE__, __LINE__);
             free(*values);
@@ -14201,7 +14201,7 @@ static tng_function_status tng_particle_data_values_alloc
                                   n_values_per_frame);
             if(!(*values)[i][j])
             {
-                printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                     sizeof(union data_values *) * n_particles,
                     __FILE__, __LINE__);
                 tng_particle_data_values_free(tng_data, *values, n_frames,
@@ -14311,7 +14311,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
         tng_block_destroy(&block);
         if(stat == TNG_CRITICAL)
         {
-            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                     file_pos, __FILE__, __LINE__);
             return(stat);
         }
@@ -14451,7 +14451,7 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
         tng_block_destroy(&block);
         if(stat == TNG_CRITICAL)
         {
-            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                     file_pos, __FILE__, __LINE__);
             return(stat);
         }
@@ -14500,7 +14500,7 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
     temp = realloc(*values, data_size);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                data_size, __FILE__, __LINE__);
         free(*values);
         *values = 0;
@@ -14578,7 +14578,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
         tng_block_destroy(&block);
         if(stat == TNG_CRITICAL)
         {
-            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                     file_pos, __FILE__, __LINE__);
             return(stat);
         }
@@ -14599,7 +14599,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
 
     if(block_index < 0)
     {
-        printf("TNG library: Could not find non-particle data block with id %"PRId64". %s: %d\n",
+        fprintf(stderr, "TNG library: Could not find non-particle data block with id %"PRId64". %s: %d\n",
                 block_id, __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
@@ -14802,7 +14802,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
         tng_block_destroy(&block);
         if(stat == TNG_CRITICAL)
         {
-            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                     file_pos, __FILE__, __LINE__);
             return(stat);
         }
@@ -14856,13 +14856,13 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                  tot_n_frames / *stride_length;
     data_size = n_frames_div * size * (*n_values_per_frame);
 
-/*     printf("TNG library: size: %d, n_frames_div: %"PRId64", data_size: %"PRId64"\n",
+/*     fprintf(stderr, "TNG library: size: %d, n_frames_div: %"PRId64", data_size: %"PRId64"\n",
               size, n_frames_div, data_size);
 */
     temp = realloc(*values, data_size);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                data_size, __FILE__, __LINE__);
         free(*values);
         *values = 0;
@@ -15014,7 +15014,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
         tng_block_destroy(&block);
         if(stat == TNG_CRITICAL)
         {
-            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                     file_pos, __FILE__, __LINE__);
             return(stat);
         }
@@ -15209,7 +15209,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
         tng_block_destroy(&block);
         if(stat == TNG_CRITICAL)
         {
-            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                     file_pos, __FILE__, __LINE__);
             return(stat);
         }
@@ -15279,7 +15279,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
     temp = realloc(*values, data_size);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                data_size, __FILE__, __LINE__);
         free(*values);
         *values = 0;
@@ -15378,7 +15378,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
         tng_block_destroy(&block);
         if(stat == TNG_CRITICAL)
         {
-            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                     file_pos, __FILE__, __LINE__);
             return(stat);
         }
@@ -15399,7 +15399,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
 
     if(block_index < 0)
     {
-        printf("TNG library: Could not find particle data block with id %"PRId64". %s: %d\n",
+        fprintf(stderr, "TNG library: Could not find particle data block with id %"PRId64". %s: %d\n",
                 block_id, __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
@@ -15639,7 +15639,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
         tng_block_destroy(&block);
         if(stat == TNG_CRITICAL)
         {
-            printf("TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
                     file_pos, __FILE__, __LINE__);
             return(stat);
         }
@@ -15697,7 +15697,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
     temp = realloc(*values, data_size);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                data_size, __FILE__, __LINE__);
         free(*values);
         *values = 0;
@@ -15936,7 +15936,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
         stat = tng_frame_set_read(*tng_data_p, TNG_USE_HASH);
         if(stat != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot read frame set and related blocks. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read frame set and related blocks. %s: %d\n",
                    __FILE__, __LINE__);
         }
 
@@ -15974,7 +15974,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
 
     if(tng_data_p == 0)
     {
-        printf("TNG library: Empty pointer to trajectory when attempting to close. %s: %d\n",
+        fprintf(stderr, "TNG library: Empty pointer to trajectory when attempting to close. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
@@ -16010,7 +16010,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
     stat = tng_frame_set_of_frame_find(tng_data, frame_nr);
     if(stat != TNG_SUCCESS)
     {
-        printf("TNG library: Cannot find frame nr %"PRId64". %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot find frame nr %"PRId64". %s: %d\n",
                frame_nr, __FILE__, __LINE__);
         return(stat);
     }
@@ -16385,7 +16385,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
                     tng_num_frames_get(tng_data, &n_frames);
                     if(i < n_frames)
                     {
-                        printf("TNG library: Cannot find frame set of frame %"PRId64". %s: %d\n",
+                        fprintf(stderr, "TNG library: Cannot find frame set of frame %"PRId64". %s: %d\n",
                                frame_set->first_frame + i, __FILE__, __LINE__);
                     }
                     return(stat);
@@ -16398,7 +16398,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
             stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot read data blocks of frame set. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read data blocks of frame set. %s: %d\n",
                     __FILE__, __LINE__);
                 return(stat);
             }
@@ -16447,13 +16447,13 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
 
     data_size = size * n_particles * data->n_values_per_frame;
 
-//     printf("TNG library: TEMP: i = %"PRId64", data_size = %"PRId64", size = %d, n_particles = %"PRId64", n_values_per_frame = %"PRId64"\n",
+//     fprintf(stderr, "TNG library: TEMP: i = %"PRId64", data_size = %"PRId64", size = %d, n_particles = %"PRId64", n_values_per_frame = %"PRId64"\n",
 //            i, data_size, size, n_particles, data->n_values_per_frame);
 
     temp = realloc(*values, data_size);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                data_size, __FILE__, __LINE__);
         free(*values);
         *values = 0;
@@ -16555,7 +16555,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
                     tng_num_frames_get(tng_data, &n_frames);
                     if(i < n_frames)
                     {
-                        printf("TNG library: Cannot find frame set of frame %"PRId64". %s: %d\n",
+                        fprintf(stderr, "TNG library: Cannot find frame set of frame %"PRId64". %s: %d\n",
                                frame_set->first_frame + i, __FILE__, __LINE__);
                     }
                     return(stat);
@@ -16568,7 +16568,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
             stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot read data blocks of frame set. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read data blocks of frame set. %s: %d\n",
                     __FILE__, __LINE__);
                 return(stat);
             }
@@ -16618,7 +16618,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
     temp = realloc(*values, data_size);
     if(!temp)
     {
-        printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                data_size, __FILE__, __LINE__);
         free(*values);
         *values = 0;
@@ -16763,7 +16763,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
 
     if(i <= 0)
     {
-        printf("TNG library: Cannot set writing frequency to %"PRId64". %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot set writing frequency to %"PRId64". %s: %d\n",
                i, __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
@@ -16777,7 +16777,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
         stat = tng_frame_set_new(tng_data, 0, n_frames);
         if(stat != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
+            fprintf(stderr, "TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
                 __LINE__);
             return(stat);
         }
@@ -16807,7 +16807,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
                                                compression, 0);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error %s adding data block. %s: %d\n", block_name,
+                fprintf(stderr, "TNG library: Error %s adding data block. %s: %d\n", block_name,
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -16818,7 +16818,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
                                                   n_values_per_frame);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error allocating particle data memory. %s: %d\n",
+                fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -16833,7 +16833,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
                                                       n_values_per_frame);
                 if(stat != TNG_SUCCESS)
                 {
-                    printf("TNG library: Error allocating particle data memory. %s: %d\n",
+                    fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
                            __FILE__, __LINE__);
                     return(stat);
                 }
@@ -16850,7 +16850,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
                                       i, compression, 0);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error %s adding data block. %s: %d\n", block_name,
+                fprintf(stderr, "TNG library: Error %s adding data block. %s: %d\n", block_name,
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -16860,7 +16860,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
                                          i, n_values_per_frame);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error allocating particle data memory. %s: %d\n",
+                fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -16874,7 +16874,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
                                              i, n_values_per_frame);
                 if(stat != TNG_SUCCESS)
                 {
-                    printf("TNG library: Error allocating particle data memory. %s: %d\n",
+                    fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
                            __FILE__, __LINE__);
                     return(stat);
                 }
@@ -16905,7 +16905,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
 
     if(i <= 0)
     {
-        printf("TNG library: Cannot set writing frequency to %"PRId64". %s: %d\n",
+        fprintf(stderr, "TNG library: Cannot set writing frequency to %"PRId64". %s: %d\n",
                i, __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
@@ -16919,7 +16919,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
         stat = tng_frame_set_new(tng_data, 0, n_frames);
         if(stat != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
+            fprintf(stderr, "TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
                 __LINE__);
             return(stat);
         }
@@ -16950,7 +16950,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
                                             compression, 0);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error %s adding data block. %s: %d\n", block_name,
+                fprintf(stderr, "TNG library: Error %s adding data block. %s: %d\n", block_name,
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -16961,7 +16961,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
                                                   n_values_per_frame);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error allocating particle data memory. %s: %d\n",
+                fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -16981,7 +16981,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
                                       i, compression, 0);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error %s adding data block. %s: %d\n", block_name,
+                fprintf(stderr, "TNG library: Error %s adding data block. %s: %d\n", block_name,
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -16991,7 +16991,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
                                          i, n_values_per_frame);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error allocating particle data memory. %s: %d\n",
+                fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -17014,7 +17014,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
                  const char particle_dependency,
                  const char compression)
 {
-    printf("TNG library: Using obsolete function tng_util_generic_write_frequency_set(). "
+    fprintf(stderr, "TNG library: Using obsolete function tng_util_generic_write_frequency_set(). "
            "See documentation. %s: %d", __FILE__, __LINE__);
     return(tng_util_generic_write_interval_set(tng_data, i, n_values_per_frame,
                                                block_id, block_name,
@@ -17053,7 +17053,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequency_set
                 (tng_trajectory_t tng_data,
                  const int64_t i)
 {
-    printf("TNG library: Using obsolete function tng_util_pos_write_frequency_set(). "
+    fprintf(stderr, "TNG library: Using obsolete function tng_util_pos_write_frequency_set(). "
            "See documentation. %s: %d", __FILE__, __LINE__);
     return(tng_util_pos_write_interval_set(tng_data, i));
 }
@@ -17090,7 +17090,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_frequency_set
                 (tng_trajectory_t tng_data,
                  const int64_t i)
 {
-    printf("TNG library: Using obsolete function tng_util_vel_write_frequency_set(). "
+    fprintf(stderr, "TNG library: Using obsolete function tng_util_vel_write_frequency_set(). "
            "See documentation. %s: %d", __FILE__, __LINE__);
     return(tng_util_vel_write_interval_set(tng_data, i));
 }
@@ -17127,7 +17127,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write_frequency_set
                 (tng_trajectory_t tng_data,
                  const int64_t i)
 {
-    printf("TNG library: Using obsolete function tng_util_force_write_frequency_set(). "
+    fprintf(stderr, "TNG library: Using obsolete function tng_util_force_write_frequency_set(). "
            "See documentation. %s: %d", __FILE__, __LINE__);
     return(tng_util_force_write_interval_set(tng_data, i));
 }
@@ -17164,7 +17164,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_frequency_set
                 (tng_trajectory_t tng_data,
                  const int64_t i)
 {
-    printf("TNG library: Using obsolete function tng_util_box_shape_write_frequency_set(). "
+    fprintf(stderr, "TNG library: Using obsolete function tng_util_box_shape_write_frequency_set(). "
            "See documentation. %s: %d", __FILE__, __LINE__);
     return(tng_util_box_shape_write_interval_set(tng_data, i));
 }
@@ -17219,7 +17219,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
             stat = tng_frame_set_new(tng_data, 0, tng_data->frame_set_n_frames);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
+                fprintf(stderr, "TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
                     __LINE__);
                 return(stat);
             }
@@ -17231,7 +17231,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
             stat = tng_frame_set_write(tng_data, TNG_USE_HASH);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot write frame set.  %s: %d\n", __FILE__,
+                fprintf(stderr, "TNG library: Cannot write frame set.  %s: %d\n", __FILE__,
                     __LINE__);
                 return(stat);
             }
@@ -17243,7 +17243,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                                      tng_data->frame_set_n_frames);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
+                fprintf(stderr, "TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
                     __LINE__);
                 return(stat);
             }
@@ -17273,7 +17273,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                                                compression, 0);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error %s adding data block. %s: %d\n", block_name,
+                fprintf(stderr, "TNG library: Error %s adding data block. %s: %d\n", block_name,
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -17292,7 +17292,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                                                   n_values_per_frame);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error allocating particle data memory. %s: %d\n",
+                fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -17332,7 +17332,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                                       stride_length, compression, 0);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error %s adding data block. %s: %d\n", block_name,
+                fprintf(stderr, "TNG library: Error %s adding data block. %s: %d\n", block_name,
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -17350,7 +17350,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
                                          stride_length, n_values_per_frame);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error allocating particle data memory. %s: %d\n",
+                fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -17435,7 +17435,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
             stat = tng_frame_set_new(tng_data, 0, n_frames);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
+                fprintf(stderr, "TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
                     __LINE__);
                 return(stat);
             }
@@ -17451,7 +17451,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
             stat = tng_frame_set_write(tng_data, TNG_USE_HASH);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot write frame set.  %s: %d\n", __FILE__,
+                fprintf(stderr, "TNG library: Cannot write frame set.  %s: %d\n", __FILE__,
                     __LINE__);
                 return(stat);
             }
@@ -17462,7 +17462,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
             stat = tng_frame_set_new(tng_data, last_frame + 1, n_frames);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
+                fprintf(stderr, "TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
                     __LINE__);
                 return(stat);
             }
@@ -17490,7 +17490,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
                                             compression, 0);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error %s adding data block. %s: %d\n", block_name,
+                fprintf(stderr, "TNG library: Error %s adding data block. %s: %d\n", block_name,
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -17509,7 +17509,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
                                                   n_values_per_frame);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error allocating particle data memory. %s: %d\n",
+                fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -17549,7 +17549,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
                                       stride_length, compression, 0);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error %s adding data block. %s: %d\n", block_name,
+                fprintf(stderr, "TNG library: Error %s adding data block. %s: %d\n", block_name,
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -17567,7 +17567,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
                                          stride_length, n_values_per_frame);
             if(stat != TNG_SUCCESS)
             {
-                printf("TNG library: Error allocating particle data memory. %s: %d\n",
+                fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
                        __FILE__, __LINE__);
                 return(stat);
             }
@@ -18042,7 +18042,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_frame_current_compression_get
         stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
         if(stat != TNG_SUCCESS)
         {
-            printf("TNG library: Cannot read data block of frame set. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read data block of frame set. %s: %d\n",
                 __FILE__, __LINE__);
             return(stat);
         }
@@ -18092,7 +18092,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
         temp = realloc(*data_block_ids_in_next_frame, size);
         if(!temp)
         {
-            printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                     sizeof(int64_t) * (*n_data_blocks_in_next_frame),
                     __FILE__, __LINE__);
             free(*data_block_ids_in_next_frame);
@@ -18150,7 +18150,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
         tng_block_destroy(&block);
         if(stat == TNG_CRITICAL)
         {
-            printf("TNG library: Cannot read block header at pos %ld. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot read block header at pos %ld. %s: %d\n",
                     file_pos, __FILE__, __LINE__);
             return(stat);
         }
@@ -18191,7 +18191,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                                                                       TNG_USE_HASH, block_id);
             if(stat == TNG_CRITICAL)
             {
-                printf("TNG library: Cannot read data block of frame set. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read data block of frame set. %s: %d\n",
                     __FILE__, __LINE__);
                 return(stat);
             }
@@ -18230,7 +18230,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                 temp = realloc(*data_block_ids_in_next_frame, size);
                 if(!temp)
                 {
-                    printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                            sizeof(int64_t) * (*n_data_blocks_in_next_frame),
                            __FILE__, __LINE__);
                     free(*data_block_ids_in_next_frame);
@@ -18278,7 +18278,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                                                                       TNG_USE_HASH, block_id);
             if(stat == TNG_CRITICAL)
             {
-                printf("TNG library: Cannot read data block of frame set. %s: %d\n",
+                fprintf(stderr, "TNG library: Cannot read data block of frame set. %s: %d\n",
                     __FILE__, __LINE__);
                 return(stat);
             }
@@ -18317,7 +18317,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                 temp = realloc(*data_block_ids_in_next_frame, size);
                 if(!temp)
                 {
-                    printf("TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                    fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
                            sizeof(int64_t) * (*n_data_blocks_in_next_frame),
                            __FILE__, __LINE__);
                     free(*data_block_ids_in_next_frame);
