@@ -4,7 +4,7 @@ endif()
 
 link_directories(${TNG_IO_BINARY_DIR}/src/lib)
 
-add_definitions(-DTNG_EXAMPLE_FILES_DIR="${CMAKE_BINARY_DIR}/example_files/") # Directory where to find input test files and save output files.
+add_definitions(-DTNG_EXAMPLE_FILES_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests/example_files/") # Directory where to find input test files and save output files.
 
 if(TNG_BUILD_TEST)
     add_executable(tng_testing tng_io_testing.c)
@@ -16,6 +16,8 @@ if(TNG_BUILD_TEST)
     if(HAVE_INTTYPES_H)
       set_property(TARGET tng_testing APPEND PROPERTY COMPILE_DEFINITIONS USE_STD_INTTYPES_H=1)
     endif()
+
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../../example_files DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests/)
 
     set_property(TARGET tng_testing PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests)
 endif()

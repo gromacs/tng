@@ -37,8 +37,6 @@ add_subdirectory(src)
 
 install(FILES include/tng_io.h DESTINATION include/)
 
-file(COPY example_files DESTINATION .)
-
 #-- Add an Option to toggle the generation of the API documentation
 option(TNG_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 if(TNG_BUILD_DOCUMENTATION)
