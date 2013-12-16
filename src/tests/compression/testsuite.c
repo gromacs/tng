@@ -40,22 +40,22 @@ static void keepinbox(int *val)
 }
 
 static int intsintable[128]={
-0 , 3215 , 6423 , 9615 , 12785 , 15923 , 19023 , 22078 , 
-25079 , 28019 , 30892 , 33691 , 36409 , 39039 , 41574 , 44010 , 
-46340 , 48558 , 50659 , 52638 , 54490 , 56211 , 57796 , 59242 , 
-60546 , 61704 , 62713 , 63570 , 64275 , 64825 , 65219 , 65456 , 
-65535 , 65456 , 65219 , 64825 , 64275 , 63570 , 62713 , 61704 , 
-60546 , 59242 , 57796 , 56211 , 54490 , 52638 , 50659 , 48558 , 
-46340 , 44010 , 41574 , 39039 , 36409 , 33691 , 30892 , 28019 , 
-25079 , 22078 , 19023 , 15923 , 12785 , 9615 , 6423 , 3215 , 
-0 , -3215 , -6423 , -9615 , -12785 , -15923 , -19023 , -22078 , 
--25079 , -28019 , -30892 , -33691 , -36409 , -39039 , -41574 , -44010 , 
--46340 , -48558 , -50659 , -52638 , -54490 , -56211 , -57796 , -59242 , 
--60546 , -61704 , -62713 , -63570 , -64275 , -64825 , -65219 , -65456 , 
--65535 , -65456 , -65219 , -64825 , -64275 , -63570 , -62713 , -61704 , 
--60546 , -59242 , -57796 , -56211 , -54490 , -52638 , -50659 , -48558 , 
--46340 , -44010 , -41574 , -39039 , -36409 , -33691 , -30892 , -28019 , 
--25079 , -22078 , -19023 , -15923 , -12785 , -9615 , -6423 , -3215 , 
+0 , 3215 , 6423 , 9615 , 12785 , 15923 , 19023 , 22078 ,
+25079 , 28019 , 30892 , 33691 , 36409 , 39039 , 41574 , 44010 ,
+46340 , 48558 , 50659 , 52638 , 54490 , 56211 , 57796 , 59242 ,
+60546 , 61704 , 62713 , 63570 , 64275 , 64825 , 65219 , 65456 ,
+65535 , 65456 , 65219 , 64825 , 64275 , 63570 , 62713 , 61704 ,
+60546 , 59242 , 57796 , 56211 , 54490 , 52638 , 50659 , 48558 ,
+46340 , 44010 , 41574 , 39039 , 36409 , 33691 , 30892 , 28019 ,
+25079 , 22078 , 19023 , 15923 , 12785 , 9615 , 6423 , 3215 ,
+0 , -3215 , -6423 , -9615 , -12785 , -15923 , -19023 , -22078 ,
+-25079 , -28019 , -30892 , -33691 , -36409 , -39039 , -41574 , -44010 ,
+-46340 , -48558 , -50659 , -52638 , -54490 , -56211 , -57796 , -59242 ,
+-60546 , -61704 , -62713 , -63570 , -64275 , -64825 , -65219 , -65456 ,
+-65535 , -65456 , -65219 , -64825 , -64275 , -63570 , -62713 , -61704 ,
+-60546 , -59242 , -57796 , -56211 , -54490 , -52638 , -50659 , -48558 ,
+-46340 , -44010 , -41574 , -39039 , -36409 , -33691 , -30892 , -28019 ,
+-25079 , -22078 , -19023 , -15923 , -12785 , -9615 , -6423 , -3215 ,
 };
 
 static int intsin(int i)
@@ -76,7 +76,7 @@ static int intcos(int i)
   return intsin(i+32);
 }
 
-static void molecule(int *target, 
+static void molecule(int *target,
                      int *base,
                      int length,
                      int scale, int *direction,
@@ -160,7 +160,7 @@ static void genibox(int *intbox, int iframe)
         dir=-1;
       molpos[2]+=dir*(INTMAX3-INTMIN3+1)/20;
       keepinbox(molpos);
-      
+
       direction[0]=((direction[0]+1)%7)+1;
       direction[1]=((direction[1]+1)%3)+1;
       direction[2]=((direction[2]+1)%6)+1;
@@ -402,6 +402,13 @@ static void flush_tng_frames(struct tng_file *tng_file,
   int algo[4];
   char *buf;
   int nitems;
+
+  /* Make sure these variables are used to avoid compilation warnings */
+  (void)prec_hi;
+  (void)prec_lo;
+  (void)velprec_hi;
+  (void)velprec_lo;
+
   fwrite_int_le(&tng_file->nframes,tng_file->f);
   algo[0]=tng_file->initial_coding;
   algo[1]=tng_file->initial_coding_parameter;
@@ -412,7 +419,7 @@ static void flush_tng_frames(struct tng_file *tng_file,
                              tng_file->natoms,
                              tng_file->nframes,
                              prec_hi,prec_lo,
-                             tng_file->speed,algo,&nitems);  
+                             tng_file->speed,algo,&nitems);
 #else /* RECOMPRESS */
 #ifdef TEST_FLOAT
   buf=tng_compress_pos_float(tng_file->pos,
@@ -606,7 +613,7 @@ static int read_tng_file(struct tng_file *tng_file,
               free(buf);
               return 1;
           }
-#if 0      
+#if 0
           {
             int natoms, nframes, algo[4];
             double precision;
@@ -693,7 +700,7 @@ static void close_tng_file_read(struct tng_file *tng_file)
   free(tng_file);
 }
 
-                       
+
 
 #ifndef EXPECTED_FILESIZE
 #define EXPECTED_FILESIZE 1
@@ -728,8 +735,6 @@ static int algotest()
 #endif
   REAL *box1=malloc(NATOMS*STRIDE1*sizeof *box1);
   REAL *velbox1=malloc(NATOMS*STRIDE1*sizeof *velbox1);
-  REAL time1, lambda1;
-  REAL H1[9];
   int startframe=0;
   int endframe=NFRAMES;
 #ifdef GEN
@@ -738,10 +743,7 @@ static int algotest()
   REAL *box2=0;
   REAL *velbox2=0;
 #else
-  int i2;
   int readreturn;
-  REAL H2[9];
-  REAL time2, lambda2;
   REAL *box2=malloc(NATOMS*STRIDE2*sizeof *box2);
   REAL *velbox2=malloc(NATOMS*STRIDE2*sizeof *velbox2);
 #endif
@@ -789,11 +791,6 @@ static int algotest()
         free(velbox2);
       return 1;
     }
-  for (i=0; i<9; i++)
-    H1[i]=0.;
-  H1[0]=INTMAX1*PRECISION*SCALE;
-  H1[4]=INTMAX2*PRECISION*SCALE;
-  H1[8]=INTMAX3*PRECISION*SCALE;
   for (i=startframe; i<endframe; i++)
     {
 #ifdef RECOMPRESS
@@ -809,8 +806,6 @@ static int algotest()
       genivelbox(intvelbox,i);
       realvelbox(intvelbox,velbox1,STRIDE1);
 #endif
-      time1=(REAL)i;
-      lambda1=(REAL)(i+100);
 #ifdef GEN
       write_tng_file(dumpfile,box1,velbox1);
 #else /* GEN */
