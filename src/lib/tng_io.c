@@ -16398,8 +16398,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
             stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
             if(stat != TNG_SUCCESS)
             {
-                fprintf(stderr, "TNG library: Cannot read data blocks of frame set. %s: %d\n",
-                    __FILE__, __LINE__);
                 return(stat);
             }
         }
@@ -16568,8 +16566,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
             stat = tng_frame_set_read_current_only_data_from_block_id(tng_data, TNG_USE_HASH, block_id);
             if(stat != TNG_SUCCESS)
             {
-                fprintf(stderr, "TNG library: Cannot read data blocks of frame set. %s: %d\n",
-                    __FILE__, __LINE__);
                 return(stat);
             }
         }
