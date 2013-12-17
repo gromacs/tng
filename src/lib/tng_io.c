@@ -17298,7 +17298,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
         {
             stride_length = p_data->stride_length;
 
-            if(is_first_frame_flag)
+            if(is_first_frame_flag || p_data->first_frame_with_data < frame_set->first_frame)
             {
                 p_data->first_frame_with_data = frame_nr;
                 frame_pos = 0;
@@ -17356,7 +17356,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
         {
             stride_length = np_data->stride_length;
 
-            if(is_first_frame_flag)
+            if(is_first_frame_flag || np_data->first_frame_with_data < frame_set->first_frame)
             {
                 np_data->first_frame_with_data = frame_nr;
                 frame_pos = 0;
@@ -17777,6 +17777,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_double_write
                  const char particle_dependency,
                  const char compression)
 {
+    tng_trajectory_frame_set_t frame_set;
     tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -17793,9 +17794,24 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_double_write
     {
         return(stat);
     }
-    if(tng_data->current_trajectory_frame_set.first_frame == frame_nr)
+
+    frame_set = &tng_data->current_trajectory_frame_set;
+
+    /* first_frame_time is -1 when it is not yet set. */
+    if(frame_set->first_frame_time < -0.1)
     {
-        stat = tng_frame_set_first_frame_time_set(tng_data, time);
+        if(frame_nr > frame_set->first_frame)
+        {
+            stat = tng_frame_set_first_frame_time_set(tng_data,
+                                                      time -
+                                                      (frame_nr -
+                                                       frame_set->first_frame) *
+                                                      tng_data->time_per_frame);
+        }
+        else
+        {
+            stat = tng_frame_set_first_frame_time_set(tng_data, time);
+        }
     }
     return(stat);
 }
