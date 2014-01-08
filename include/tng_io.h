@@ -309,7 +309,10 @@ typedef unsigned __int64 uint64_t;
 /* From stdint.h (GNU C Library) */
 /* Macros for printing format specifiers. */
 /* Decimal notation.  */
+#ifndef PRId64
 # define PRId64         __PRI64_PREFIX "d"
+#endif
+
 #endif
 
 #endif /* USE_STD_INTTYPES_H */
