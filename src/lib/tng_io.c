@@ -835,6 +835,8 @@ static tng_function_status tng_block_header_read
 {
     int len, offset = 0;
 
+    TNG_ASSERT(block != 0, "TNG library: Trying to read to uninitialized block (NULL pointer).");
+
     if(tng_input_file_init(tng_data) != TNG_SUCCESS)
     {
         return(TNG_CRITICAL);
@@ -853,7 +855,7 @@ static tng_function_status tng_block_header_read
     if(ftell(tng_data->input_file) < 9)
     {
         /* File is little endian */
-        if ( *(const char*)&block->header_contents_size != 0x00 &&
+        if ( *((const char*)&block->header_contents_size) != 0x00 &&
              *((const char*)(&block->header_contents_size) + 7) == 0x00)
         {
             /* If the architecture endianness is little endian no byte swap
@@ -8430,6 +8432,11 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
     tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
+    
+    if(!molecule_cnt_list)
+    {
+        return(TNG_FAILURE);
+    }
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -8471,6 +8478,11 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_id_of_particle_nr_get
 
     tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
+    if(!molecule_cnt_list)
+    {
+        return(TNG_FAILURE);
+    }
+
     for(i = 0; i < tng_data->n_molecules; i++)
     {
         mol = &tng_data->molecules[i];
@@ -8510,6 +8522,11 @@ tng_function_status DECLSPECDLLEXPORT tng_molsystem_bonds_get
 
     tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
+    if(!molecule_cnt_list)
+    {
+        return(TNG_FAILURE);
+    }
+
     *n_bonds = 0;
     /* First count the total number of bonds to allocate memory */
     for(i = 0; i < tng_data->n_molecules; i++)
@@ -8518,6 +8535,11 @@ tng_function_status DECLSPECDLLEXPORT tng_molsystem_bonds_get
         mol_cnt = molecule_cnt_list[i];
         *n_bonds += mol_cnt * mol->n_bonds;
     }
+    if(*n_bonds == 0)
+    {
+        return(TNG_SUCCESS);
+    }
+    
     *from_atoms = malloc(sizeof(int64_t) * (*n_bonds));
     if(!*from_atoms)
     {
@@ -8573,6 +8595,11 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_of_particle_nr_get
 
     tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
+    if(!molecule_cnt_list)
+    {
+        return(TNG_FAILURE);
+    }
+
     for(i = 0; i < tng_data->n_molecules; i++)
     {
         mol = &tng_data->molecules[i];
@@ -8620,6 +8647,11 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
 
     tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
+    if(!molecule_cnt_list)
+    {
+        return(TNG_FAILURE);
+    }
+
     for(i = 0; i < tng_data->n_molecules; i++)
     {
         mol = &tng_data->molecules[i];
@@ -8666,6 +8698,11 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_id_of_particle_nr_get
 
     tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
+    if(!molecule_cnt_list)
+    {
+        return(TNG_FAILURE);
+    }
+
     for(i = 0; i < tng_data->n_molecules; i++)
     {
         mol = &tng_data->molecules[i];
@@ -8706,6 +8743,11 @@ tng_function_status DECLSPECDLLEXPORT tng_global_residue_id_of_particle_nr_get
     TNG_ASSERT(id, "TNG library: id must not be a NULL pointer.");
 
     tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
+
+    if(!molecule_cnt_list)
+    {
+        return(TNG_FAILURE);
+    }
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -8752,6 +8794,11 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_name_of_particle_nr_get
 
     tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
 
+    if(!molecule_cnt_list)
+    {
+        return(TNG_FAILURE);
+    }
+
     for(i = 0; i < tng_data->n_molecules; i++)
     {
         mol = &tng_data->molecules[i];
@@ -8794,6 +8841,11 @@ tng_function_status tng_atom_type_of_particle_nr_get
     TNG_ASSERT(type, "TNG library: type must not be a NULL pointer.");
 
     tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
+
+    if(!molecule_cnt_list)
+    {
+        return(TNG_FAILURE);
+    }
 
     for(i = 0; i < tng_data->n_molecules; i++)
     {
@@ -10609,6 +10661,11 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
     TNG_ASSERT(n, "TNG library: n must not be a NULL pointer");
 
     tng_molecule_cnt_list_get(tng_data, &cnt_list);
+
+    if(!cnt_list)
+    {
+        return(TNG_FAILURE);
+    }
 
     for(i = tng_data->n_molecules; i --;)
     {
@@ -14767,6 +14824,13 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                   (long)tng_data->current_trajectory_frame_set_input_file_pos,
                   SEEK_SET);
             stat = tng_block_header_read(tng_data, block);
+            if(stat != TNG_SUCCESS)
+            {
+                fprintf(stderr, "TNG library: Cannot read block header. %s: %d\n",
+                        __FILE__, __LINE__);
+                return(stat);
+            }
+            
             fseek(tng_data->input_file, (long)block->block_contents_size, SEEK_CUR);
         }
         file_pos = ftell(tng_data->input_file);
@@ -15604,6 +15668,13 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                   (long)tng_data->current_trajectory_frame_set_input_file_pos,
                   SEEK_SET);
             stat = tng_block_header_read(tng_data, block);
+            if(stat != TNG_SUCCESS)
+            {
+                fprintf(stderr, "TNG library: Cannot read block header. %s: %d\n",
+                        __FILE__, __LINE__);
+                return(stat);
+            }
+            
             fseek(tng_data->input_file, (long)block->block_contents_size, SEEK_CUR);
         }
         file_pos = ftell(tng_data->input_file);
@@ -16382,7 +16453,13 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
                 }
                 if(frame_set->prev_frame_set_file_pos != frame_set_file_pos)
                 {
-                    tng_num_frames_get(tng_data, &n_frames);
+                    stat = tng_num_frames_get(tng_data, &n_frames);
+                    if(stat != TNG_SUCCESS)
+                    {
+                        fprintf(stderr, "TNG library: Cannot get number of frames. %s: %d\n",
+                                __FILE__, __LINE__);
+                        return(stat);
+                    }
                     if(i < n_frames)
                     {
                         fprintf(stderr, "TNG library: Cannot find frame set of frame %"PRId64". %s: %d\n",
@@ -16551,6 +16628,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
                 if(frame_set->prev_frame_set_file_pos != frame_set_file_pos)
                 {
                     tng_num_frames_get(tng_data, &n_frames);
+                    if(stat != TNG_SUCCESS)
+                    {
+                        fprintf(stderr, "TNG library: Cannot get number of frames. %s: %d\n",
+                                __FILE__, __LINE__);
+                        return(stat);
+                    }
                     if(i < n_frames)
                     {
                         fprintf(stderr, "TNG library: Cannot find frame set of frame %"PRId64". %s: %d\n",
@@ -16893,7 +16976,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
     tng_trajectory_frame_set_t frame_set;
     tng_particle_data_t p_data;
     tng_non_particle_data_t np_data;
-    int64_t n_particles, n_frames = 100*i;
+    int64_t n_particles, n_frames;
     tng_function_status stat;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
