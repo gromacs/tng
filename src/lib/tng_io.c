@@ -10564,11 +10564,16 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
     
     if(diff == 0)
     {
+        if(stat == TNG_SUCCESS)
+        {
+            stat = tng_molecule_cnt_set(tng_data, mol, 0);
+            return(stat);
+        }
         return(TNG_SUCCESS);
     }
     else if(diff < 0)
     {
-        fprintf(stderr, "TNG library: Already more particles than requested implicit ");
+        fprintf(stderr, "TNG library: Already more actual particles than requested implicit ");
         fprintf(stderr, "particle count.\n");
         fprintf(stderr, "TNG library: Cannot set implicit particle count. %s: %d\n",
                 __FILE__, __LINE__);
@@ -10576,51 +10581,48 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
          * implicit molecules? */
         return(TNG_FAILURE);
     }
-    else if(diff > 0)
+    if(stat != TNG_SUCCESS)
     {
+        stat = tng_molecule_add(tng_data,
+                                "TNG_IMPLICIT_MOL",
+                                &mol);
         if(stat != TNG_SUCCESS)
         {
-            stat = tng_molecule_add(tng_data,
-                                    "TNG_IMPLICIT_MOL",
-                                    &mol);
-            if(stat != TNG_SUCCESS)
-            {
-                return(stat);
-            }
-            stat = tng_molecule_chain_add(tng_data, mol, "", &chain);
-            if(stat != TNG_SUCCESS)
-            {
-                return(stat);
-            }
-            stat = tng_chain_residue_add(tng_data, chain, "", &res);
-            if(stat != TNG_SUCCESS)
-            {
-                return(stat);
-            }
-            stat = tng_residue_atom_add(tng_data, res, "", "", &atom);
-            if(stat != TNG_SUCCESS)
-            {
-                return(stat);
-            }
+            return(stat);
         }
-        else
+        stat = tng_molecule_chain_add(tng_data, mol, "", &chain);
+        if(stat != TNG_SUCCESS)
         {
-            if(mol->n_atoms != 1)
-            {
-                n_mod = diff % mol->n_atoms;
-                if(n_mod != 0)
-                {
-                    fprintf(stderr, "TNG library: Number of atoms in implicit molecule ");
-                    fprintf(stderr, "not compatible with requested implicit particle cnt.\n");
-                    fprintf(stderr, "TNG library: Cannot set implicit particle count. %s: %d\n",
-                           __FILE__, __LINE__);
-                    return(TNG_FAILURE);
-                }
-                diff /= mol->n_atoms;
-            }
+            return(stat);
         }
-        stat = tng_molecule_cnt_set(tng_data, mol, diff);
+        stat = tng_chain_residue_add(tng_data, chain, "", &res);
+        if(stat != TNG_SUCCESS)
+        {
+            return(stat);
+        }
+        stat = tng_residue_atom_add(tng_data, res, "", "", &atom);
+        if(stat != TNG_SUCCESS)
+        {
+            return(stat);
+        }
     }
+    else
+    {
+        if(mol->n_atoms > 1)
+        {
+            n_mod = diff % mol->n_atoms;
+            if(n_mod != 0)
+            {
+                fprintf(stderr, "TNG library: Number of atoms in implicit molecule ");
+                fprintf(stderr, "not compatible with requested implicit particle cnt.\n");
+                fprintf(stderr, "TNG library: Cannot set implicit particle count. %s: %d\n",
+                        __FILE__, __LINE__);
+                return(TNG_FAILURE);
+            }
+            diff /= mol->n_atoms;
+        }
+    }
+    stat = tng_molecule_cnt_set(tng_data, mol, diff);
 
     return(stat);
 }
