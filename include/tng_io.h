@@ -282,6 +282,7 @@
 #else
 /* Visual Studio does not contain inttypes.h and stdint.h. Some defines and
  * typedefs are used from the GNU C Library */
+#ifndef _STDINT_H
 #ifdef _MSC_VER
 
 typedef __int32 int32_t;
@@ -291,8 +292,10 @@ typedef unsigned __int64 uint64_t;
 
 #else
 #include <stdint.h>
-#endif
+#endif /* _MSC_VER */
+#endif /* _STDINT_H */
 
+#ifndef _INTTYPES_H
 /* This is from inttypes.h  (GNU C Library) */
 /* The ISO C99 standard specifies that these macros must only be
    defined if explicitly requested.  */
@@ -315,7 +318,9 @@ typedef unsigned __int64 uint64_t;
 # define PRId64         __PRI64_PREFIX "d"
 #endif
 
-#endif
+#endif /* _INTTYPES_H */
+
+#endif /* USE_STD_INTTYPES_H */
 
 
 #ifndef USE_WINDOWS
