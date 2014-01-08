@@ -7434,11 +7434,22 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set
                __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
-    old_cnt = tng_data->molecule_cnt_list[index];
-    tng_data->molecule_cnt_list[index] = cnt;
+    if(tng_data->var_num_atoms_flag == TNG_CONSTANT_N_ATOMS)
+    {
+        old_cnt = tng_data->molecule_cnt_list[index];
+        tng_data->molecule_cnt_list[index] = cnt;
 
-    tng_data->n_particles += (cnt-old_cnt) *
-                             tng_data->molecules[index].n_atoms;
+        tng_data->n_particles += (cnt-old_cnt) *
+                                 tng_data->molecules[index].n_atoms;
+    }
+    else
+    {
+        old_cnt = tng_data->current_trajectory_frame_set.molecule_cnt_list[index];
+        tng_data->current_trajectory_frame_set.molecule_cnt_list[index] = cnt;
+        
+        tng_data->current_trajectory_frame_set.n_particles += (cnt-old_cnt) *
+                tng_data->molecules[index].n_atoms;
+    }
 
     return(TNG_SUCCESS);
 }
@@ -10537,16 +10548,23 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
     tng_chain_t chain;
     tng_residue_t res;
     tng_atom_t atom;
-    tng_function_status stat = TNG_SUCCESS;
-    int64_t diff, n_mod;
+    tng_function_status stat;
+    int64_t diff, n_mod, n_impl;
 
     TNG_ASSERT(n >= 0, "TNG library: The number of molecules must be >= 0");
 
     diff = n - tng_data->n_particles;
 
+    stat = tng_molecule_find(tng_data, "TNG_IMPLICIT_MOL", -1, &mol);
+    if(stat == TNG_SUCCESS)
+    {
+        tng_molecule_cnt_get(tng_data, mol, &n_impl);
+        diff -= n_impl * mol->n_atoms;
+    }
+    
     if(diff == 0)
     {
-        return(stat);
+        return(TNG_SUCCESS);
     }
     else if(diff < 0)
     {
@@ -10560,7 +10578,6 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
     }
     else if(diff > 0)
     {
-        stat = tng_molecule_find(tng_data, "TNG_IMPLICIT_MOL", -1, &mol);
         if(stat != TNG_SUCCESS)
         {
             stat = tng_molecule_add(tng_data,
