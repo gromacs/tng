@@ -722,35 +722,6 @@ static tng_function_status tng_output_file_init(tng_trajectory_t tng_data)
     return(TNG_SUCCESS);
 }
 
-static tng_function_status DECLSPECDLLEXPORT tng_frame_set_particle_mapping_free(tng_trajectory_t tng_data)
-{
-    tng_trajectory_frame_set_t frame_set;
-    tng_particle_mapping_t mapping;
-    int64_t i;
-
-    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
-
-    frame_set = &tng_data->current_trajectory_frame_set;
-
-    if(frame_set->n_mapping_blocks && frame_set->mappings)
-    {
-        for(i = frame_set->n_mapping_blocks; i--;)
-        {
-            mapping = &frame_set->mappings[i];
-            if(mapping->real_particle_numbers)
-            {
-                free(mapping->real_particle_numbers);
-                mapping->real_particle_numbers = 0;
-            }
-        }
-        free(frame_set->mappings);
-        frame_set->mappings = 0;
-        frame_set->n_mapping_blocks = 0;
-    }
-
-    return(TNG_SUCCESS);
-}
-
 /** Setup a file block container.
  * @param block_p a pointer to memory to initialise as a file block container.
  * @details Memory is allocated during initialisation.
@@ -7446,7 +7417,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set
     {
         old_cnt = tng_data->current_trajectory_frame_set.molecule_cnt_list[index];
         tng_data->current_trajectory_frame_set.molecule_cnt_list[index] = cnt;
-        
+
         tng_data->current_trajectory_frame_set.n_particles += (cnt-old_cnt) *
                 tng_data->molecules[index].n_atoms;
     }
@@ -8443,7 +8414,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
     tng_molecule_cnt_list_get(tng_data, &molecule_cnt_list);
-    
+
     if(!molecule_cnt_list)
     {
         return(TNG_FAILURE);
@@ -8550,7 +8521,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molsystem_bonds_get
     {
         return(TNG_SUCCESS);
     }
-    
+
     *from_atoms = malloc(sizeof(int64_t) * (*n_bonds));
     if(!*from_atoms)
     {
@@ -8966,6 +8937,35 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
     for(i=0; i<n_particles; i++)
     {
         frame_set->mappings[frame_set->n_mapping_blocks - 1].real_particle_numbers[i] = mapping_table[i];
+    }
+
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_particle_mapping_free(tng_trajectory_t tng_data)
+{
+    tng_trajectory_frame_set_t frame_set;
+    tng_particle_mapping_t mapping;
+    int64_t i;
+
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+
+    frame_set = &tng_data->current_trajectory_frame_set;
+
+    if(frame_set->n_mapping_blocks && frame_set->mappings)
+    {
+        for(i = frame_set->n_mapping_blocks; i--;)
+        {
+            mapping = &frame_set->mappings[i];
+            if(mapping->real_particle_numbers)
+            {
+                free(mapping->real_particle_numbers);
+                mapping->real_particle_numbers = 0;
+            }
+        }
+        free(frame_set->mappings);
+        frame_set->mappings = 0;
+        frame_set->n_mapping_blocks = 0;
     }
 
     return(TNG_SUCCESS);
@@ -10561,7 +10561,7 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
         tng_molecule_cnt_get(tng_data, mol, &n_impl);
         diff -= n_impl * mol->n_atoms;
     }
-    
+
     if(diff == 0)
     {
         if(stat == TNG_SUCCESS)
@@ -12353,9 +12353,6 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
 
     tng_data->current_trajectory_frame_set_output_file_pos =
     ftell(tng_data->output_file);
-
-    /* Clear mappings if they remain. */
-    tng_frame_set_particle_mapping_free(tng_data);
 
     tng_data->n_trajectory_frame_sets++;
 
@@ -14849,7 +14846,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                         __FILE__, __LINE__);
                 return(stat);
             }
-            
+
             fseek(tng_data->input_file, (long)block->block_contents_size, SEEK_CUR);
         }
         file_pos = ftell(tng_data->input_file);
@@ -15693,7 +15690,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                         __FILE__, __LINE__);
                 return(stat);
             }
-            
+
             fseek(tng_data->input_file, (long)block->block_contents_size, SEEK_CUR);
         }
         file_pos = ftell(tng_data->input_file);

@@ -2323,6 +2323,19 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
                  const int64_t *mapping_table);
 
 /**
+ * @brief Remove all particle mappings (in memory) from the current frame set.
+ * @details Clears the currently setup particle mappings of the current frame
+ * set.
+ * @param tng_data is the trajectory, with the frame set of which to clear
+ * all particle mappings.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_particle_mapping_free
+                (tng_trajectory_t tng_data);
+
+/**
  * @brief Read the header blocks from the input_file of tng_data.
  * @details The trajectory blocks must be read separately and iteratively in chunks
  * to fit in memory.
@@ -2504,6 +2517,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_premature_write
 
 /**
  * @brief Create and initialise a frame set.
+ * @details Particle mappings are retained from previous frame set (if any).
+ * To explicitly clear particle mappings use tng_frame_set_particle_mapping_free().
  * @param tng_data is the trajectory data container in which to add the frame
  * set.
  * @param first_frame is the first frame of the frame set.

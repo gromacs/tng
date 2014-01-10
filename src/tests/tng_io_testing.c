@@ -286,6 +286,8 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t *traj)
             return(TNG_CRITICAL);
         }
 
+        tng_frame_set_particle_mapping_free(*traj);
+
         /* Setup particle mapping. Use 4 different mapping blocks with arbitrary
          * mappings. */
         for(k=0; k<150; k++)
