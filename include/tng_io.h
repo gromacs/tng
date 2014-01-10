@@ -2042,6 +2042,18 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
                  tng_atom_t *atom);
 
 /**
+ * @brief Get the residue of an atom.
+ * @param tng_data the trajectory containing the atom.
+ * @param atom the atom of which to get the name.
+ * @param residue is set to the residue of the atom.
+ * @pre \code atom != 0 \endcode The atom must not be NULL.
+ * @return TNG_SUCCESS (0) if successful.
+ */
+tng_function_status tng_atom_residue_get(tng_trajectory_t tng_data,
+                                         const tng_atom_t atom,
+                                         tng_residue_t *residue);
+
+/**
  * @brief Get the name of an atom.
  * @param tng_data the trajectory containing the atom.
  * @param atom the atom of which to get the name.

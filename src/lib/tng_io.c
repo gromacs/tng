@@ -6976,6 +6976,19 @@ static tng_function_status tng_frame_set_finalize
 // }
 */
 
+tng_function_status tng_atom_residue_get(tng_trajectory_t tng_data,
+                                         const tng_atom_t atom,
+                                         tng_residue_t *residue)
+{
+    (void) tng_data;
+
+    TNG_ASSERT(atom, "TNG library: atom must not be NULL");
+
+    *residue = atom->residue;
+
+    return(TNG_SUCCESS);
+}
+
 tng_function_status tng_atom_name_get(tng_trajectory_t tng_data,
                                       const tng_atom_t atom,
                                       char *name,
@@ -7442,7 +7455,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_find
     for(i = 0; i < n_molecules; i++)
     {
         *molecule = &tng_data->molecules[i];
-        if(name[0] != 0 || strcmp(name, (*molecule)->name) == 0)
+        if(name[0] == 0 || strcmp(name, (*molecule)->name) == 0)
         {
             if(nr == -1 || nr == (*molecule)->id)
             {
@@ -7720,7 +7733,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
     for(i = 0; i < n_chains; i++)
     {
         *chain = &molecule->chains[i];
-        if(name[0] != 0 || strcmp(name, (*chain)->name) == 0)
+        if(name[0] == 0 || strcmp(name, (*chain)->name) == 0)
         {
             if(nr == -1 || nr == (*chain)->id)
             {
@@ -7868,7 +7881,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_atom_find
     for(i = 0; i < n_atoms; i++)
     {
         *atom = &molecule->atoms[i];
-        if(name[0] != 0 || strcmp(name, (*atom)->name) == 0)
+        if(name[0] == 0 || strcmp(name, (*atom)->name) == 0)
         {
             if(id == -1 || id == (*atom)->id)
             {
@@ -7986,7 +7999,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find
     for(i = 0; i < n_residues; i++)
     {
         *residue = &chain->residues[i];
-        if(name[0] != 0 || strcmp(name, (*residue)->name) == 0)
+        if(name[0] == 0 || strcmp(name, (*residue)->name) == 0)
         {
             if(id == -1 || id == (*residue)->id)
             {
