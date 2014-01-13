@@ -10855,12 +10855,15 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
     int64_t long_stride_length, medium_stride_length;
     int64_t file_pos;
     tng_trajectory_frame_set_t frame_set;
+    struct tng_trajectory_frame_set   orig_frame_set;
     tng_gen_block_t block;
     tng_function_status stat;
     int64_t cnt = 0;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(n, "TNG library: n must not be a NULL pointer");
+
+    orig_frame_set = tng_data->current_trajectory_frame_set;
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
@@ -10986,6 +10989,8 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
     tng_block_destroy(&block);
 
     *n = tng_data->n_trajectory_frame_sets = cnt;
+
+    *frame_set = orig_frame_set;
 
     return(TNG_SUCCESS);
 }
