@@ -10992,6 +10992,10 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
 
     *frame_set = orig_frame_set;
 
+    fseek(tng_data->input_file,
+          (long)tng_data->first_trajectory_frame_set_input_file_pos,
+          SEEK_SET);
+
     return(TNG_SUCCESS);
 }
 
