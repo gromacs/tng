@@ -9590,10 +9590,10 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
 
     frame_set = &dest->current_trajectory_frame_set;
 
-    dest->input_file_path = 0;
+    strcpy(dest->input_file_path, src->input_file_path);
     if(src->input_file)
     {
-        dest->input_file = fopen(src->input_file_path, "r");
+        dest->input_file = fopen(dest->input_file_path, "r");
     }
     else
     {
@@ -9601,10 +9601,10 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
     }
 
     dest->input_file_len = src->input_file_len;
-    dest->output_file_path = 0;
+    strcpy(dest->output_file_path, src->output_file_path);
     if(src->output_file)
     {
-        dest->output_file = fopen(src->output_file_path, "w+");
+        dest->output_file = fopen(dest->output_file_path, "w+");
     }
     else
     {
