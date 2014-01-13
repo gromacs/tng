@@ -10853,7 +10853,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
                  int64_t *n)
 {
     int64_t long_stride_length, medium_stride_length;
-    int64_t file_pos;
+    int64_t file_pos, orig_frame_set_file_pos;
     tng_trajectory_frame_set_t frame_set;
     struct tng_trajectory_frame_set   orig_frame_set;
     tng_gen_block_t block;
@@ -10867,6 +10867,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
+    orig_frame_set_file_pos = tng_data->current_trajectory_frame_set_input_file_pos;
     file_pos = tng_data->first_trajectory_frame_set_input_file_pos;
 
     tng_block_init(&block);
@@ -10995,6 +10996,8 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frame_sets_get
     fseek(tng_data->input_file,
           (long)tng_data->first_trajectory_frame_set_input_file_pos,
           SEEK_SET);
+
+    tng_data->current_trajectory_frame_set_input_file_pos = orig_frame_set_file_pos;
 
     return(TNG_SUCCESS);
 }
