@@ -4907,7 +4907,7 @@ static tng_function_status tng_particle_data_block_write
         temp_name = realloc(block->name, len);
         if(!temp_name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%ld bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%lud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             free(block->name);
             block->name = 0;
@@ -7103,7 +7103,7 @@ tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
         atom->name = malloc(len);
         if(!atom->name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -7157,7 +7157,7 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
         atom->atom_type = malloc(len);
         if(!atom->atom_type)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -7428,7 +7428,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_set
         molecule->name = malloc(len);
         if(!molecule->name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -8009,7 +8009,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
         chain->name = malloc(len);
         if(!chain->name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -8235,7 +8235,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_set(tng_trajectory_t tng_
         residue->name = malloc(len);
         if(!residue->name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -9591,25 +9591,10 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
     frame_set = &dest->current_trajectory_frame_set;
 
     strcpy(dest->input_file_path, src->input_file_path);
-    if(src->input_file)
-    {
-        dest->input_file = fopen(dest->input_file_path, "r");
-    }
-    else
-    {
-        dest->input_file = 0;
-    }
-
+    dest->input_file = 0;
     dest->input_file_len = src->input_file_len;
     strcpy(dest->output_file_path, src->output_file_path);
-    if(src->output_file)
-    {
-        dest->output_file = fopen(dest->output_file_path, "w+");
-    }
-    else
-    {
-        dest->output_file = 0;
-    }
+    dest->output_file = 0;
 
     dest->first_program_name = 0;
     dest->first_user_name = 0;
@@ -9732,7 +9717,7 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_set(tng_trajectory_t tng_da
     temp = realloc(tng_data->input_file_path, len);
     if(!temp)
     {
-        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+        fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                __FILE__, __LINE__);
         free(tng_data->input_file_path);
         tng_data->input_file_path = 0;
@@ -10021,7 +10006,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_program_name_set(tng_trajectory_
         tng_data->first_program_name = malloc(len);
         if(!tng_data->first_program_name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10070,7 +10055,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_program_name_set
         tng_data->last_program_name = malloc(len);
         if(!tng_data->last_program_name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10121,7 +10106,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_user_name_set
         tng_data->first_user_name = malloc(len);
         if(!tng_data->first_user_name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10172,7 +10157,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_user_name_set
         tng_data->last_user_name = malloc(len);
         if(!tng_data->last_user_name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10223,7 +10208,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_set
         tng_data->first_computer_name = malloc(len);
         if(!tng_data->first_computer_name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10275,7 +10260,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_set
         tng_data->last_computer_name = malloc(len);
         if(!tng_data->last_computer_name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10327,7 +10312,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_signature_set
         tng_data->first_pgp_signature = malloc(len);
         if(!tng_data->first_pgp_signature)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10379,7 +10364,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_signature_set
         tng_data->last_pgp_signature = malloc(len);
         if(!tng_data->last_pgp_signature)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -10430,7 +10415,7 @@ tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_set
         tng_data->forcefield_name = malloc(len);
         if(!tng_data->forcefield_name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n", len,
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n", len,
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -14275,6 +14260,7 @@ static tng_function_status tng_data_values_alloc
     return(TNG_SUCCESS);
 }
 
+/* FIXME: This needs ***values */
 tng_function_status DECLSPECDLLEXPORT tng_data_values_free
                 (const tng_trajectory_t tng_data,
                  union data_values **values,
@@ -14384,6 +14370,7 @@ static tng_function_status tng_particle_data_values_alloc
     return(TNG_SUCCESS);
 }
 
+/* FIXME: This needs ****values */
 tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free
                 (const tng_trajectory_t tng_data,
                  union data_values ***values,
@@ -15109,7 +15096,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
                            last_frame_pos / *stride_length;
             n_frames_div_2 = tng_max_i64(1, n_frames_div_2);
 
-            memcpy((char *)*values + n_frames_div * frame_size,
+            memcpy(((char *)*values) + n_frames_div * frame_size,
                    current_values,
                    n_frames_div_2 * frame_size);
 
@@ -15476,7 +15463,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
             for(j = *n_particles; j--;)
             {
                 tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
-                memcpy((char *)*values + size * (i * i_step + mapping *
+                memcpy(((char *)*values) + size * (i * i_step + mapping *
                        (*n_values_per_frame)),
                        (char *)data->values + size *
                        (i * i_step + j * (*n_values_per_frame)),
@@ -15952,7 +15939,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
                            last_frame_pos / *stride_length;
             n_frames_div_2 = tng_max_i64(1, n_frames_div_2);
 
-            memcpy((char *)*values + n_frames_div * frame_size,
+            memcpy(((char *)*values) + n_frames_div * frame_size,
                    current_values,
                    n_frames_div_2 * frame_size);
 
