@@ -4703,7 +4703,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_frame_current_compression_get
  * @pre \code n_requested_data_block_ids == 0 || requested_data_block_ids != 0 \endcode
  * If the number of requested data blocks != 0 then the array of data block IDs must not be NULL.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
- * has occured (such as invalid mode) or TNG_CRITICAL (2) if a major error
+ * has occured or TNG_CRITICAL (2) if a major error
  * has occured.
  */
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_data_blocks_find
@@ -4714,6 +4714,75 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
                  int64_t *next_frame,
                  int64_t *n_data_blocks_in_next_frame,
                  int64_t **data_block_ids_in_next_frame);
+
+/* @brief High-level function for getting all data block ids and their names
+ * and stride lengths.
+ * @param tng_data is the trajectory to use.
+ * @param n_data_blocks is set to the number of data blocks in the trajectory.
+ * @param data_block_ids is set to an array (of length
+ * n_data_blocks) that lists the data block IDs in the trajectory.
+ * It must be pointing at NULL or previously allocated memory.
+ * Memory for the array is allocated by this function.
+ * The memory must be freed by the client afterwards or
+ * there will be a memory leak.
+ * @param data_block_names is set to an array (of length
+ * n_data_blocks) that contains the names of the data blocks.
+ * It must be pointing at NULL or previously allocated memory.
+ * Memory for the array is allocated by this function.
+ * The memory must be freed by the client afterwards or
+ * there will be a memory leak.
+ * @param stride_lengths is set to an array (of length
+ * n_data_blocks) that lists the stride lengths of the data blocks.
+ * It must be pointing at NULL or previously allocated memory.
+ * Memory for the array is allocated by this function.
+ * The memory must be freed by the client afterwards or
+ * there will be a memory leak.
+ * @param n_values_per_frame is set to an array (of length
+ * n_data_blocks) that lists the number of values per frame of the data blocks.
+ * It must be pointing at NULL or previously allocated memory.
+ * Memory for the array is allocated by this function.
+ * The memory must be freed by the client afterwards or
+ * there will be a memory leak.
+ * @param block_types is set to an array (of length
+ * n_data_blocks) that lists the block types of the data blocks.
+ * It must be pointing at NULL or previously allocated memory.
+ * Memory for the array is allocated by this function.
+ * The memory must be freed by the client afterwards or
+ * there will be a memory leak.
+ * @param dependencies is set to an array (of length
+ * n_data_blocks) that lists the dependencies of the data blocks.
+ * It must be pointing at NULL or previously allocated memory.
+ * Memory for the array is allocated by this function.
+ * The memory must be freed by the client afterwards or
+ * there will be a memory leak.
+ * @param compressions is set to an array (of length
+ * n_data_blocks) that lists the compressions of the data blocks.
+ * It must be pointing at NULL or previously allocated memory.
+ * Memory for the array is allocated by this function.
+ * The memory must be freed by the client afterwards or
+ * there will be a memory leak.
+ * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
+ * must be initialised before using it.
+ * @pre \code n_data_blocks != 0 \endcode The pointer to
+ * n_data_blocks must not be NULL.
+ * @pre \code data_block_ids != 0 \endcode The pointer to the
+ * list of data block IDs must not be NULL.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
+ * has occured or TNG_CRITICAL (2) if a major error
+ * has occured.
+ */
+/*
+tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_all_data_block_types_get
+                (tng_trajectory_t tng_data,
+                 int64_t *n_data_blocks,
+                 int64_t **data_block_ids,
+                 char ***data_block_names,
+                 int64_t **stride_lengths,
+                 int64_t **n_values_per_frame,
+                 char **block_types,
+                 char **dependencies,
+                 char **compressions);
+*/
 
 /** @brief Finds the frame set of the specified frame in order to prepare for writing
  * after it.
