@@ -16479,7 +16479,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
     tng_particle_data_t data;
     tng_function_status stat;
     int size;
-    int64_t i, data_size, n_particles, n_frames, frame_set_file_pos;
+    int64_t i, data_size, n_particles;
     void *temp;
     long file_pos;
 
@@ -16534,7 +16534,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
         i = data->last_retrieved_frame + data->stride_length;
         if(i < frame_set->first_frame || i >= frame_set->first_frame + frame_set->n_frames)
         {
-            frame_set_file_pos = tng_data->current_trajectory_frame_set_input_file_pos;
             stat = tng_frame_set_of_frame_find(tng_data, i);
             if(stat != TNG_SUCCESS)
             {
@@ -16544,22 +16543,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
                  * frame set. */
                 if(stat == TNG_CRITICAL)
                 {
-                    return(stat);
-                }
-                if(frame_set->prev_frame_set_file_pos != frame_set_file_pos)
-                {
-                    stat = tng_num_frames_get(tng_data, &n_frames);
-                    if(stat != TNG_SUCCESS)
-                    {
-                        fprintf(stderr, "TNG library: Cannot get number of frames. %s: %d\n",
-                                __FILE__, __LINE__);
-                        return(stat);
-                    }
-                    if(i < n_frames)
-                    {
-                        fprintf(stderr, "TNG library: Cannot find frame set of frame %"PRId64". %s: %d\n",
-                               frame_set->first_frame + i, __FILE__, __LINE__);
-                    }
                     return(stat);
                 }
                 i = frame_set->first_frame;
@@ -16649,7 +16632,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
     tng_non_particle_data_t data;
     tng_function_status stat;
     int size;
-    int64_t i, data_size, n_frames, frame_set_file_pos;
+    int64_t i, data_size;
     void *temp;
     long file_pos;
 
@@ -16704,7 +16687,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
         i = data->last_retrieved_frame + data->stride_length;
         if(i < frame_set->first_frame || i >= frame_set->first_frame + frame_set->n_frames)
         {
-            frame_set_file_pos = tng_data->current_trajectory_frame_set_input_file_pos;
             stat = tng_frame_set_of_frame_find(tng_data, i);
             if(stat != TNG_SUCCESS)
             {
@@ -16714,22 +16696,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
                  * frame set. */
                 if(stat == TNG_CRITICAL)
                 {
-                    return(stat);
-                }
-                if(frame_set->prev_frame_set_file_pos != frame_set_file_pos)
-                {
-                    tng_num_frames_get(tng_data, &n_frames);
-                    if(stat != TNG_SUCCESS)
-                    {
-                        fprintf(stderr, "TNG library: Cannot get number of frames. %s: %d\n",
-                                __FILE__, __LINE__);
-                        return(stat);
-                    }
-                    if(i < n_frames)
-                    {
-                        fprintf(stderr, "TNG library: Cannot find frame set of frame %"PRId64". %s: %d\n",
-                               frame_set->first_frame + i, __FILE__, __LINE__);
-                    }
                     return(stat);
                 }
                 i = frame_set->first_frame;
