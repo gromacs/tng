@@ -12,8 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "compression/warnmalloc.h"
-#include "compression/merge_sort.h"
+#include "../../include/compression/warnmalloc.h"
+#include "../../include/compression/merge_sort.h"
 
 static void ms_inner(void *base, size_t size,
              size_t start, size_t end,

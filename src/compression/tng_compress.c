@@ -11,9 +11,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "compression/tng_compress.h"
-#include "compression/coder.h"
-#include "compression/fixpoint.h"
+#include "../../include/compression/tng_compress.h"
+#include "../../include/compression/coder.h"
+#include "../../include/compression/fixpoint.h"
 
 /* Please see tng_compress.h for info on how to call these routines. */
 

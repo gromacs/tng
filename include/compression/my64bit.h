@@ -18,7 +18,7 @@ typedef uint64_t my_uint64_t;
 #define HAVE64BIT
 #else /* USE_STD_INTTYPES */
 /* The USE_WINDOWS symbol should be automatically defined in tng_compress.h */
-#include "compression/tng_compress.h"
+#include "../compression/tng_compress.h"
 #ifdef USE_WINDOWS
 typedef __int64 my_int64_t;
 typedef unsigned __int64 my_uint64_t;

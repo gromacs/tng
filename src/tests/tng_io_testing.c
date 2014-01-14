@@ -17,7 +17,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "tng_io.h"
+#include "../../include/tng_io.h"
 
 static tng_function_status tng_test_setup_molecules(tng_trajectory_t traj)
 {

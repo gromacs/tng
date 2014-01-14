@@ -12,8 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "compression/warnmalloc.h"
-#include "compression/bwt.h"
+#include "../../include/compression/warnmalloc.h"
+#include "../../include/compression/bwt.h"
 
 #if 0
 #define SHOWIT

@@ -24,9 +24,9 @@
 #include <zlib.h>
 #endif
 
-#include "tng_io.h"
-#include "md5.h"
-#include "compression/tng_compress.h"
+#include "../../include/tng_io.h"
+#include "../../include/md5.h"
+#include "../../include/compression/tng_compress.h"
 
 
 struct tng_bond {

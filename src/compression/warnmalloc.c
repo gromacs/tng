@@ -11,8 +11,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "compression/tng_compress.h"
-#include "compression/warnmalloc.h"
+#include "../../include/compression/tng_compress.h"
+#include "../../include/compression/warnmalloc.h"
 
 void DECLSPECDLLEXPORT *Ptngc_warnmalloc_x(size_t size, char *file, int line)
 {
