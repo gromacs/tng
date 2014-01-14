@@ -16546,10 +16546,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
                 {
                     return(stat);
                 }
-                if(tng_data->current_trajectory_frame_set_input_file_pos == frame_set_file_pos)
-                {
-                    return(TNG_FAILURE);
-                }
                 if(frame_set->prev_frame_set_file_pos != frame_set_file_pos)
                 {
                     stat = tng_num_frames_get(tng_data, &n_frames);
@@ -16719,10 +16715,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
                 if(stat == TNG_CRITICAL)
                 {
                     return(stat);
-                }
-                if(tng_data->current_trajectory_frame_set_input_file_pos == frame_set_file_pos)
-                {
-                    return(TNG_FAILURE);
                 }
                 if(frame_set->prev_frame_set_file_pos != frame_set_file_pos)
                 {
