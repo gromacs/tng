@@ -78,7 +78,7 @@
  *
  * Revisions
  *
- * v. 1.5 - Version used in GROMACS beta release
+ * v. 1.5 - Third stable release of the API.
  *
  *        - Fortran wrapper split into separate file
  *        - Added more block IDs.
