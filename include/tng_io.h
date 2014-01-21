@@ -1,6 +1,6 @@
 /* This code is part of the tng binary trajectory format.
  *
- *                      VERSION 1.4
+ *                      VERSION 1.5
  *
  * Written by Magnus Lundborg
  * Copyright (c) 2012-2013, The GROMACS development team.
@@ -77,6 +77,17 @@
  * See git log for full revision history.
  *
  * Revisions
+ *
+ * v. 1.5 - Version used in GROMACS beta release
+ *
+ *        - Fortran wrapper split into separate file
+ *        - Added more block IDs.
+ *        - Some new functions and utility functions added.
+ *        - Improved compression precision settings.
+ *        - Improved tests.
+ *        - Make appending to file work better.
+ *        - Modified CMake settings
+ *        - Bugs fixed
  *
  * v. 1.4 - Changed from LGPL to the Revised BSD License.
  *
@@ -334,7 +345,7 @@ typedef unsigned __int64 uint64_t;
 
 
 /** The version of this TNG build */
-#define TNG_VERSION 4 /* TNG_VERSION 4 => Api version 1.4 */
+#define TNG_VERSION 5 /* TNG_VERSION 4 => Api version 1.5 */
 
 /** Flag to indicate frame dependent data. */
 #define TNG_FRAME_DEPENDENT 1
