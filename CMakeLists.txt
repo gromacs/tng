@@ -27,7 +27,7 @@ if(TNG_USE_OPENMP)
   endif()
 endif()
 
-find_package(ZLIB)
+find_package(ZLIB QUIET)
 
 include(CheckIncludeFile)
 check_include_file(inttypes.h   HAVE_INTTYPES_H)
