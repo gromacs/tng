@@ -5459,6 +5459,11 @@ static tng_function_status tng_allocate_data_mem
     int64_t i, j, size, frame_alloc;
     (void)tng_data;
 
+    if(n_values_per_frame == 0)
+    {
+        return(TNG_FAILURE);
+    }
+
     if(data->strings && data->datatype == TNG_CHAR_DATA)
     {
         for(i = data->n_frames; i--;)
@@ -9607,9 +9612,23 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
 
     frame_set = &dest->current_trajectory_frame_set;
 
+    dest->input_file_path = malloc(strlen(src->input_file_path) + 1);
+    if(!dest->input_file_path)
+    {
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+               (int)strlen(src->input_file_path) + 1, __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
     strcpy(dest->input_file_path, src->input_file_path);
     dest->input_file = 0;
     dest->input_file_len = src->input_file_len;
+    dest->output_file_path = malloc(strlen(src->output_file_path) + 1);
+    if(!dest->output_file_path)
+    {
+        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+               (int)strlen(src->output_file_path) + 1, __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
     strcpy(dest->output_file_path, src->output_file_path);
     dest->output_file = 0;
 
@@ -10644,7 +10663,12 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
     stat = tng_molecule_find(tng_data, "TNG_IMPLICIT_MOL", -1, &mol);
     if(stat == TNG_SUCCESS)
     {
-        tng_molecule_cnt_get(tng_data, mol, &n_impl);
+        if(tng_molecule_cnt_get(tng_data, mol, &n_impl) != TNG_SUCCESS)
+        {
+            fprintf(stderr, "TNG library: Cannot get the number of implicit molecules. %s: %d\n",
+                    __FILE__, __LINE__);
+            return(TNG_FAILURE);
+        }
         diff -= n_impl * mol->n_atoms;
     }
 
