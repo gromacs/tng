@@ -352,9 +352,6 @@ struct tng_trajectory {
      *  cannot be trusted to be up-to-date */
     int64_t n_trajectory_frame_sets;
 
-    /** The number of trajectory blocks in the file */
-    int64_t n_trajectory_blocks;
-
     /* These data blocks are non-trajectory data blocks */
     /** The number of non-frame dependent particle dependent data blocks */
     int n_particle_data_blocks;
@@ -1029,6 +1026,383 @@ static tng_function_status tng_block_header_read
 //     return(TNG_SUCCESS);
 // }
 */
+
+static tng_function_status tng_file_pos_of_end_of_non_trajectory_blocks_get
+                (tng_trajectory_t tng_data,
+                 int64_t *pos)
+{
+    int64_t orig_pos, curr_pos;
+    tng_gen_block_t block;
+    tng_function_status stat;
+
+    orig_pos = ftell(tng_data->input_file);
+
+    *pos = 0;
+    curr_pos = 0;
+    fseek(tng_data->input_file, *pos, SEEK_SET);
+
+    tng_block_init(&block);
+    while(block->id != TNG_TRAJECTORY_FRAME_SET && curr_pos < tng_data->input_file_len)
+    {
+        *pos = curr_pos;
+        /* Read block headers until a frame set block is found */
+        stat = tng_block_header_read(tng_data, block);
+        if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
+        {
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", *pos,
+                    __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            return(TNG_FAILURE);
+        }
+        fseek(tng_data->input_file, block->block_contents_size, SEEK_CUR);
+        curr_pos += block->block_contents_size;
+    }
+    if(curr_pos == tng_data->input_file_len-1)
+    {
+        *pos = curr_pos;
+    }
+
+    tng_block_destroy(&block);
+
+    fseek(tng_data->input_file, orig_pos, SEEK_SET);
+
+    return(TNG_SUCCESS);
+}
+
+static tng_function_status tng_file_pos_of_subsequent_trajectory_block_get
+                (tng_trajectory_t tng_data,
+                 int64_t *pos)
+{
+    int64_t orig_pos, curr_frame_set_pos;
+    tng_gen_block_t block;
+    tng_function_status stat;
+    tng_trajectory_frame_set_t frame_set =
+    &tng_data->current_trajectory_frame_set;
+
+    orig_pos = ftell(tng_data->input_file);
+    curr_frame_set_pos = tng_data->current_trajectory_frame_set_input_file_pos;
+
+    *pos = tng_data->first_trajectory_frame_set_input_file_pos;
+
+    if(*pos <= 0)
+    {
+        return(TNG_SUCCESS);
+    }
+
+    fseek(tng_data->input_file, *pos, SEEK_SET);
+
+    tng_block_init(&block);
+    /* Read block headers first to see that a frame set block is found. */
+    stat = tng_block_header_read(tng_data, block);
+    if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
+    {
+        fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", *pos,
+                __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_FAILURE);
+    }
+
+    if(tng_block_read_next(tng_data, block,
+                           TNG_SKIP_HASH) != TNG_SUCCESS)
+    {
+        tng_block_destroy(&block);
+        return(TNG_CRITICAL);
+    }
+
+    /* Read all frame set blocks (not the blocks between them) */
+    while(frame_set->next_frame_set_file_pos > 0)
+    {
+        fseek(tng_data->input_file, frame_set->next_frame_set_file_pos, SEEK_SET);
+        stat = tng_block_header_read(tng_data, block);
+        if(stat == TNG_CRITICAL)
+        {
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", *pos,
+                    __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
+        if(stat != TNG_SUCCESS || block->id != TNG_TRAJECTORY_FRAME_SET)
+        {
+            return(TNG_FAILURE);
+        }
+
+        stat = tng_block_read_next(tng_data, block, TNG_SKIP_HASH);
+        if(stat != TNG_SUCCESS)
+        {
+            tng_block_destroy(&block);
+            return(stat);
+        }
+        /* Update *pos if this is the earliest frame set so far (after orig_pos) */
+        if(tng_data->current_trajectory_frame_set_input_file_pos < *pos &&
+           tng_data->current_trajectory_frame_set_input_file_pos > orig_pos)
+        {
+            *pos = tng_data->current_trajectory_frame_set_input_file_pos;
+        }
+    }
+
+    /* Re-read the frame set that used to be the current one */
+    fseek(tng_data->input_file, curr_frame_set_pos, SEEK_SET);
+    if(curr_frame_set_pos > 0)
+    {
+        stat = tng_block_header_read(tng_data, block);
+        if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
+        {
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", *pos,
+                    __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            return(TNG_FAILURE);
+        }
+
+        if(tng_block_read_next(tng_data, block,
+                               TNG_SKIP_HASH) != TNG_SUCCESS)
+        {
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
+    }
+
+    tng_block_destroy(&block);
+
+    fseek(tng_data->input_file, orig_pos, SEEK_SET);
+
+    return(TNG_SUCCESS);
+}
+
+static tng_function_status tng_file_block_migrate(tng_trajectory_t tng_data,
+                                                 int64_t block_start_pos,
+                                                 int64_t block_len,
+                                                 int64_t new_pos)
+{
+    int64_t i;
+
+    char *contents;
+
+    if(tng_input_file_init(tng_data) != TNG_SUCCESS)
+    {
+        return(TNG_CRITICAL);
+    }
+
+    contents = malloc(block_len);
+    if(!contents)
+    {
+        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                block_len, __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+
+    /* First read the header size to be able to read the whole header. */
+    if(fread(contents, block_len, 1, tng_data->input_file) == 0)
+    {
+        fprintf(stderr, "TNG library: Cannot read data from file when migrating data. %s: %d\n",
+               __FILE__, __LINE__);
+        free(contents);
+        return(TNG_CRITICAL);
+    }
+    fseek(tng_data->output_file, new_pos, SEEK_SET);
+
+    if(fwrite(contents, block_len, 1, tng_data->output_file) != 1)
+    {
+        fprintf(stderr, "TNG library: Could not write data to file when migrating data. %s: %d\n",
+                __FILE__, __LINE__);
+        free(contents);
+        return(TNG_CRITICAL);
+    }
+
+    fseek(tng_data->output_file, new_pos, SEEK_SET);
+
+    /* Fill the block with NULL to avoid confusion. */
+    for(i = 0; i < block_len; i++)
+    {
+        contents[i] = '\0';
+    }
+    /* FIXME: casting block_len to size_t is dangerous */
+    fwrite(contents, 1, block_len, tng_data->output_file);
+
+    free(contents);
+
+    return(TNG_SUCCESS);
+}
+
+static tng_function_status tng_length_of_current_frame_set_contents_get
+                (tng_trajectory_t tng_data,
+                 int64_t *len)
+{
+    int64_t orig_pos, curr_frame_set_pos;
+    tng_gen_block_t block;
+    tng_function_status stat;
+
+    orig_pos = ftell(tng_data->input_file);
+    curr_frame_set_pos = tng_data->current_trajectory_frame_set_input_file_pos;
+
+    *len = 0;
+
+    fseek(tng_data->input_file, curr_frame_set_pos, SEEK_SET);
+
+    tng_block_init(&block);
+    /* Read block headers first to see that a frame set block is found. */
+    stat = tng_block_header_read(tng_data, block);
+    if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
+    {
+        fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                curr_frame_set_pos, __FILE__, __LINE__);
+        tng_block_destroy(&block);
+        return(TNG_FAILURE);
+    }
+
+    /* Read the headers of all blocks in the frame set (not the actual contents of them) */
+    while(stat == TNG_SUCCESS)
+    {
+        *len += block->header_contents_size;
+        fseek(tng_data->input_file, block->block_contents_size, SEEK_CUR);
+        *len += block->block_contents_size;
+        stat = tng_block_header_read(tng_data, block);
+        if(block->id == TNG_TRAJECTORY_FRAME_SET)
+        {
+            tng_block_destroy(&block);
+            return(TNG_SUCCESS);
+        }
+    }
+
+    /* Re-read the frame set that used to be the current one */
+    fseek(tng_data->input_file, curr_frame_set_pos, SEEK_SET);
+    if(curr_frame_set_pos > 0)
+    {
+        stat = tng_block_header_read(tng_data, block);
+        if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
+        {
+            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
+                    curr_frame_set_pos, __FILE__, __LINE__);
+            tng_block_destroy(&block);
+            return(TNG_FAILURE);
+        }
+
+        if(tng_block_read_next(tng_data, block,
+                               TNG_SKIP_HASH) != TNG_SUCCESS)
+        {
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
+    }
+
+    tng_block_destroy(&block);
+
+    fseek(tng_data->input_file, orig_pos, SEEK_SET);
+
+    return(TNG_SUCCESS);
+}
+
+/** Migrate blocks in the file to make room for new data in a block. This
+ * is required e.g. when adding data to a block or extending strings in a
+ * block.
+ * @param tng_data is a trajectory data container.
+ * @param start_pos is the position from which to start moving data, usually
+ * the byte after the end of the block to which data was added.
+ * @param offset is the number of bytes that were inserted.
+ * @details Trajectory blocks (frame sets and their related blocks) are moved
+ * to the end of the file (if needed) in order to make room for non-trajectory
+ * data.
+ */
+static tng_function_status tng_migrate_data_in_file
+                (tng_trajectory_t tng_data,
+                 int64_t start_pos,
+                 int64_t offset)
+{
+    int64_t non_traj_end_pos, traj_start_pos, empty_space, orig_file_pos, frame_set_length;
+    tng_gen_block_t block;
+    tng_function_status stat;
+    tng_bool do_migrate_non_trajectroy_blocks = TNG_FALSE, do_migrate_trajectroy_blocks = TNG_FALSE;
+    FILE *temp;
+
+    temp = tng_data->input_file;
+
+    stat = tng_file_pos_of_end_of_non_trajectory_blocks_get(tng_data,
+                                                            &non_traj_end_pos);
+    if(stat != TNG_SUCCESS)
+    {
+        tng_data->input_file = temp;
+        return(stat);
+    }
+
+    if(non_traj_end_pos < start_pos)
+    {
+        fseek(tng_data->input_file, start_pos, SEEK_SET);
+    }
+    else
+    {
+        do_migrate_non_trajectroy_blocks = TNG_TRUE;
+    }
+
+    stat = tng_file_pos_of_subsequent_trajectory_block_get(tng_data, &traj_start_pos);
+    if(stat != TNG_SUCCESS)
+    {
+        tng_data->input_file = temp;
+        return(stat);
+    }
+
+    if(do_migrate_trajectroy_blocks)
+    {
+        empty_space = traj_start_pos - non_traj_end_pos - 1;
+    }
+    else
+    {
+        empty_space = traj_start_pos - start_pos - 1;
+    }
+
+    if(empty_space < offset)
+    {
+        do_migrate_trajectroy_blocks = TNG_TRUE;
+    }
+
+    if(do_migrate_trajectroy_blocks)
+    {
+        orig_file_pos = ftell(tng_data->input_file);
+
+        while(empty_space < offset)
+        {
+            fseek(tng_data->input_file, traj_start_pos, SEEK_SET);
+            stat = tng_block_header_read(tng_data, block);
+            if(stat == TNG_CRITICAL)
+            {
+                fprintf(stderr, "TNG library: Cannot read block header. %s: %d\n",
+                        __FILE__, __LINE__);
+                tng_block_destroy(&block);
+                tng_data->input_file = temp;
+                return(TNG_CRITICAL);
+            }
+            if(stat != TNG_SUCCESS || block->id != TNG_TRAJECTORY_FRAME_SET)
+            {
+                tng_data->input_file = temp;
+                return(TNG_FAILURE);
+            }
+            stat = tng_length_of_current_frame_set_contents_get(tng_data, &frame_set_length);
+            if(stat != TNG_SUCCESS)
+            {
+                tng_data->input_file = temp;
+                return(stat);
+            }
+            stat = tng_file_block_migrate(tng_data, traj_start_pos,
+                                          frame_set_length, tng_data->input_file_len);
+            if(stat != TNG_SUCCESS)
+            {
+                tng_data->input_file = temp;
+                return(stat);
+            }
+        }
+        fseek(tng_data->input_file, orig_file_pos, SEEK_SET);
+    }
+    if(do_migrate_non_trajectroy_blocks)
+    {
+        stat = tng_file_block_migrate(tng_data, start_pos, non_traj_end_pos, traj_start_pos+offset);
+        if(stat != TNG_SUCCESS)
+        {
+            tng_data->input_file = temp;
+            return(stat);
+        }
+    }
+
+    return(TNG_SUCCESS);
+}
+
 /** Write the header of a data block, regardless of its type
  * @param tng_data is a trajectory data container.
  * @param block is a general block container.
@@ -2175,7 +2549,7 @@ static tng_function_status tng_molecules_block_read
 
     if(tng_data->molecules)
     {
-        for(i=tng_data->n_molecules; i--;)
+        for(i=0; i<tng_data->n_molecules; i++)
         {
             tng_molecule_destroy(tng_data, &tng_data->molecules[i]);
         }
@@ -2403,7 +2777,7 @@ static tng_function_status tng_molecules_block_read
         if(molecule->n_chains > 0)
         {
             /* Read the chains of the molecule */
-            for(j=molecule->n_chains; j--;)
+            for(j=0; j<molecule->n_chains; j++)
             {
                 chain->molecule = molecule;
 
@@ -2413,7 +2787,7 @@ static tng_function_status tng_molecules_block_read
                 residue = chain->residues;
 
                 /* Read the residues of the chain */
-                for(k=chain->n_residues; k--;)
+                for(k=0; k<chain->n_residues; k++)
                 {
                     residue->chain = chain;
 
@@ -2421,7 +2795,7 @@ static tng_function_status tng_molecules_block_read
 
                     residue->atoms_offset = atom - molecule->atoms;
                     /* Read the atoms of the residue */
-                    for(l=residue->n_atoms; l--;)
+                    for(l=0; l<residue->n_atoms; l++)
                     {
                         atom->residue = residue;
 
@@ -2438,7 +2812,7 @@ static tng_function_status tng_molecules_block_read
         {
             if(molecule->n_residues > 0)
             {
-                for(k=molecule->n_residues; k--;)
+                for(k=0; k<molecule->n_residues; k++)
                 {
                     residue->chain = 0;
 
@@ -2446,7 +2820,7 @@ static tng_function_status tng_molecules_block_read
 
                     residue->atoms_offset = atom - molecule->atoms;
                     /* Read the atoms of the residue */
-                    for(l=residue->n_atoms; l--;)
+                    for(l=0; l<residue->n_atoms; l++)
                     {
                         atom->residue = residue;
 
@@ -2459,7 +2833,7 @@ static tng_function_status tng_molecules_block_read
             }
             else
             {
-                for(l=molecule->n_atoms; l--;)
+                for(l=0; l<molecule->n_atoms; l++)
                 {
                     atom->residue = 0;
 
@@ -2513,7 +2887,7 @@ static tng_function_status tng_molecules_block_read
 
             bond = molecule->bonds;
 
-            for(j=molecule->n_bonds; j--;)
+            for(j=0; j<molecule->n_bonds; j++)
             {
                 memcpy(&bond->from_atom_id, block->block_contents+offset,
                     sizeof(bond->from_atom_id));
@@ -2598,7 +2972,7 @@ static tng_function_status tng_molecules_block_write
         len += tng_min_i((int)strlen(molecule->name) + 1, TNG_MAX_STR_LEN);
 
         chain = molecule->chains;
-        for(j = molecule->n_chains; j--;)
+        for(j = 0; j < molecule->n_chains; j++)
         {
             len += sizeof(chain->id);
 
@@ -2621,7 +2995,7 @@ static tng_function_status tng_molecules_block_write
         }
 
         residue = molecule->residues;
-        for(j = molecule->n_residues; j--;)
+        for(j = 0; j < molecule->n_residues; j++)
         {
             len += sizeof(residue->id);
 
@@ -2644,7 +3018,7 @@ static tng_function_status tng_molecules_block_write
         }
 
         atom = molecule->atoms;
-        for(j = molecule->n_atoms; j--;)
+        for(j = 0; j < molecule->n_atoms; j++)
         {
             len += sizeof(atom->id);
             if(!atom->name)
@@ -2676,7 +3050,7 @@ static tng_function_status tng_molecules_block_write
             atom++;
         }
 
-        for(j = molecule->n_bonds; j--;)
+        for(j = 0; j < molecule->n_bonds; j++)
         {
             len += sizeof(bond->from_atom_id) + sizeof(bond->to_atom_id);
         }
@@ -2834,17 +3208,17 @@ static tng_function_status tng_molecules_block_write
         if(molecule->n_chains > 0)
         {
             chain = molecule->chains;
-            for(j = molecule->n_chains; j--;)
+            for(j = 0; j < molecule->n_chains; j++)
             {
                 tng_chain_data_write(tng_data, block, chain, &offset);
 
                 residue = chain->residues;
-                for(k = chain->n_residues; k--;)
+                for(k = 0; k < chain->n_residues; k++)
                 {
                     tng_residue_data_write(tng_data, block, residue, &offset);
 
                     atom = molecule->atoms + residue->atoms_offset;
-                    for(l = residue->n_atoms; l--;)
+                    for(l = 0; l < residue->n_atoms; l++)
                     {
                         tng_atom_data_write(tng_data, block, atom, &offset);
 
@@ -2860,12 +3234,12 @@ static tng_function_status tng_molecules_block_write
             if(molecule->n_residues > 0)
             {
                 residue = molecule->residues;
-                for(k = molecule->n_residues; k--;)
+                for(k = 0; k < chain->n_residues; k++)
                 {
                     tng_residue_data_write(tng_data, block, residue, &offset);
 
                     atom = molecule->atoms + residue->atoms_offset;
-                    for(l = residue->n_atoms; l--;)
+                    for(l = 0; l < residue->n_atoms; l++)
                     {
                         tng_atom_data_write(tng_data, block, atom, &offset);
 
@@ -2877,7 +3251,7 @@ static tng_function_status tng_molecules_block_write
             else
             {
                 atom = molecule->atoms;
-                for(l = molecule->n_atoms; l--;)
+                for(l = 0; l < molecule->n_atoms; l++)
                 {
                     tng_atom_data_write(tng_data, block, atom, &offset);
 
@@ -2901,7 +3275,7 @@ static tng_function_status tng_molecules_block_write
         offset += sizeof(molecule->n_bonds);
 
         bond = molecule->bonds;
-        for(j = molecule->n_bonds; j--;)
+        for(j = 0; j < molecule->n_bonds; j++)
         {
             memcpy(block->block_contents+offset, &bond->from_atom_id,
                    sizeof(bond->from_atom_id));
@@ -4360,11 +4734,11 @@ static tng_function_status tng_allocate_particle_data_mem
 
     if(data->strings && data->datatype == TNG_CHAR_DATA)
     {
-        for(i = data->n_frames; i--;)
+        for(i = 0; i < data->n_frames; i++)
         {
-            for(j = n_particles; j--;)
+            for(j = 0; j < n_particles; j++)
             {
-                for(k = data->n_values_per_frame; k--;)
+                for(k = 0; k < data->n_values_per_frame; k++)
                 {
                     if(data->strings[i][j][k])
                     {
@@ -4386,7 +4760,7 @@ static tng_function_status tng_allocate_particle_data_mem
     if(data->datatype == TNG_CHAR_DATA)
     {
         data->strings = malloc(sizeof(char ***) * frame_alloc);
-        for(i = frame_alloc; i-- ;)
+        for(i = 0; i < frame_alloc; i++)
         {
             data->strings[i] = malloc(sizeof(char **) *
                                     n_particles);
@@ -4397,7 +4771,7 @@ static tng_function_status tng_allocate_particle_data_mem
                     __FILE__, __LINE__);
                 return(TNG_CRITICAL);
             }
-            for(j = n_particles; j--;)
+            for(j = 0; j < n_particles; j++)
             {
                 data->strings[i][j] = malloc(sizeof(char *) *
                                             n_values_per_frame);
@@ -4408,7 +4782,7 @@ static tng_function_status tng_allocate_particle_data_mem
                         __FILE__, __LINE__);
                     return(TNG_CRITICAL);
                 }
-                for(k = n_values_per_frame; k--;)
+                for(k = 0; k < n_values_per_frame; k++)
                 {
                     data->strings[i][j][k] = 0;
                 }
@@ -4471,7 +4845,7 @@ static tng_function_status tng_particle_data_find
     block_index = -1;
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
-        for(i = frame_set->n_particle_data_blocks; i-- ;)
+        for(i = 0; i < frame_set->n_particle_data_blocks; i++)
         {
             *data = &frame_set->tr_particle_data[i];
             if((*data)->block_id == id)
@@ -4483,7 +4857,7 @@ static tng_function_status tng_particle_data_find
     }
     else
     {
-        for(i = tng_data->n_particle_data_blocks; i-- ;)
+        for(i = 0; i < tng_data->n_particle_data_blocks; i++)
         {
             *data = &tng_data->non_tr_particle_data[i];
             if((*data)->block_id == id)
@@ -4523,7 +4897,7 @@ static tng_function_status tng_data_find
     block_index = -1;
     if(block_type_flag == TNG_TRAJECTORY_BLOCK)
     {
-        for(i = frame_set->n_data_blocks; i-- ;)
+        for(i = 0; i < frame_set->n_data_blocks; i++)
         {
             *data = &frame_set->tr_data[i];
             if((*data)->block_id == id)
@@ -4534,7 +4908,7 @@ static tng_function_status tng_data_find
         }
         if(block_index == -1)
         {
-            for(i = tng_data->n_data_blocks; i-- ;)
+            for(i = 0; i < tng_data->n_data_blocks; i++)
             {
                 *data = &tng_data->non_tr_data[i];
                 if((*data)->block_id == id)
@@ -4547,7 +4921,7 @@ static tng_function_status tng_data_find
     }
     else
     {
-        for(i = tng_data->n_data_blocks; i-- ;)
+        for(i = 0; i < tng_data->n_data_blocks; i++)
         {
             *data = &tng_data->non_tr_data[i];
             if((*data)->block_id == id)
@@ -5012,14 +5386,14 @@ static tng_function_status tng_particle_data_block_write
 
     if(data->datatype == TNG_CHAR_DATA)
     {
-        for(i = n_frames; i--;)
+        for(i = 0; i < n_frames; i++)
         {
             first_dim_values = data->strings[i];
             for(j = num_first_particle; j < num_first_particle + n_particles;
                 j++)
             {
                 second_dim_values = first_dim_values[j];
-                for(k = data->n_values_per_frame; k--;)
+                for(k = 0; k < data->n_values_per_frame; k++)
                 {
                     block->block_contents_size +=
                     strlen(second_dim_values[k]) + 1;
@@ -5466,9 +5840,9 @@ static tng_function_status tng_allocate_data_mem
 
     if(data->strings && data->datatype == TNG_CHAR_DATA)
     {
-        for(i = data->n_frames; i--;)
+        for(i = 0; i < data->n_frames; i++)
         {
-            for(j = data->n_values_per_frame; j--;)
+            for(j = 0; j < data->n_values_per_frame; j++)
             {
                 if(data->strings[i][j])
                 {
@@ -5490,7 +5864,7 @@ static tng_function_status tng_allocate_data_mem
     if(data->datatype == TNG_CHAR_DATA)
     {
         data->strings = malloc(sizeof(char **) * frame_alloc);
-        for(i = frame_alloc; i-- ;)
+        for(i = 0; i < frame_alloc; i++)
         {
             data->strings[i] = malloc(sizeof(char *) * n_values_per_frame);
             if(!data->strings[i])
@@ -5500,7 +5874,7 @@ static tng_function_status tng_allocate_data_mem
                        __FILE__, __LINE__);
                 return(TNG_CRITICAL);
             }
-            for(j = n_values_per_frame; j--;)
+            for(j = 0; j < n_values_per_frame; j++)
             {
                 data->strings[i][j] = 0;
             }
@@ -5925,9 +6299,9 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
 
     if(data->datatype == TNG_CHAR_DATA)
     {
-        for(i = n_frames; i--;)
+        for(i = 0; i < n_frames; i++)
         {
-            for(j = data->n_values_per_frame; j--;)
+            for(j = 0; j < data->n_values_per_frame; j++)
             {
                 block->block_contents_size += strlen(data->strings[i][j]) + 1;
             }
@@ -7238,7 +7612,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_add
     while(found_id)
     {
         found_id = TNG_FALSE;
-        for(i = tng_data->n_molecules; i--;)
+        for(i = 0; i < tng_data->n_molecules; i++)
         {
             if(tng_data->molecules[i].id == id)
             {
@@ -7308,7 +7682,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
     /* FIXME: Should this be a function argument instead? */
     tng_data->molecule_cnt_list[tng_data->n_molecules] = 0;
 
-    for(i = tng_data->n_molecules; i--;)
+    for(i = 0; i < tng_data->n_molecules; i++)
     {
         if(tng_data->molecules[i].id == id)
         {
@@ -7341,7 +7715,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_existing_add
     while(found_id)
     {
         found_id = TNG_FALSE;
-        for(i = tng_data->n_molecules; i--;)
+        for(i = 0; i < tng_data->n_molecules; i++)
         {
             if(tng_data->molecules[i].id == id)
             {
@@ -7471,7 +7845,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_get
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(cnt, "TNG library: cnt must not be a NULL pointer.");
 
-    for(i = tng_data->n_molecules; i--;)
+    for(i = 0; i < tng_data->n_molecules; i++)
     {
         if(&tng_data->molecules[i] == molecule)
         {
@@ -7497,7 +7871,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
 
-    for(i = tng_data->n_molecules; i--;)
+    for(i = 0; i < tng_data->n_molecules; i++)
     {
         if(&tng_data->molecules[i] == molecule)
         {
@@ -7891,7 +8265,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
     (*chain)->molecule = molecule;
     (*chain)->n_residues = 0;
 
-    for(i = molecule->n_chains; i--;)
+    for(i = 0; i < molecule->n_chains; i++)
     {
         if(molecule->chains[i].id == id)
         {
@@ -8196,7 +8570,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
     (*residue)->n_atoms = 0;
     (*residue)->atoms_offset = 0;
 
-    for(i = chain->n_residues; i--;)
+    for(i = 0; i < chain->n_residues; i++)
     {
         if(chain->residues[i].id == id)
         {
@@ -8375,7 +8749,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
 
     (*atom)->residue = residue;
 
-    for(i = molecule->n_atoms; i--;)
+    for(i = 0; i < molecule->n_atoms; i++)
     {
         if(molecule->atoms[i].id == id)
         {
@@ -8457,7 +8831,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_destroy(const tng_trajectory_
 
     if(molecule->chains)
     {
-        for(i = molecule->n_chains; i--;)
+        for(i = 0; i < molecule->n_chains; i++)
         {
             if(molecule->chains[i].name)
             {
@@ -8472,7 +8846,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_destroy(const tng_trajectory_
 
     if(molecule->residues)
     {
-        for(i = molecule->n_residues; i--;)
+        for(i = 0; i < molecule->n_residues; i++)
         {
             if(molecule->residues[i].name)
             {
@@ -8487,7 +8861,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_destroy(const tng_trajectory_
 
     if(molecule->atoms)
     {
-        for(i = molecule->n_atoms; i--;)
+        for(i = 0; i < molecule->n_atoms; i++)
         {
             tng_atom_destroy(&molecule->atoms[i]);
         }
@@ -9060,7 +9434,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_particle_mapping_free(tng_tr
 
     if(frame_set->n_mapping_blocks && frame_set->mappings)
     {
-        for(i = frame_set->n_mapping_blocks; i--;)
+        for(i = 0; i < frame_set->n_mapping_blocks; i++)
         {
             mapping = &frame_set->mappings[i];
             if(mapping->real_particle_numbers)
@@ -9130,7 +9504,6 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init(tng_trajectory_t *tng_
     tng_data->current_trajectory_frame_set_output_file_pos = -1;
     tng_data->frame_set_n_frames = 100;
     tng_data->n_trajectory_frame_sets = 0;
-    tng_data->n_trajectory_blocks = 0;
     tng_data->medium_stride_length = 100;
     tng_data->long_stride_length = 10000;
 
@@ -9359,7 +9732,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy(tng_trajectory_t *t
 
     if(tng_data->non_tr_particle_data)
     {
-        for(i = tng_data->n_particle_data_blocks; i--; )
+        for(i = 0; i < tng_data->n_particle_data_blocks; i++)
         {
             if(tng_data->non_tr_particle_data[i].values)
             {
@@ -9373,11 +9746,11 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy(tng_trajectory_t *t
                                      n_values_per_frame;
                 if(tng_data->non_tr_particle_data[i].strings[0])
                 {
-                    for(j = n_particles; j--;)
+                    for(j = 0; j < n_particles; j++)
                     {
                         if(tng_data->non_tr_particle_data[i].strings[0][j])
                         {
-                            for(k = n_values_per_frame; k--;)
+                            for(k = 0; k < n_values_per_frame; k++)
                             {
                                 if(tng_data->non_tr_particle_data[i].
                                    strings[0][j][k])
@@ -9412,7 +9785,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy(tng_trajectory_t *t
 
     if(tng_data->non_tr_data)
     {
-        for(i = tng_data->n_data_blocks; i--;)
+        for(i = 0; i < tng_data->n_data_blocks; i++)
         {
             if(tng_data->non_tr_data[i].values)
             {
@@ -9426,7 +9799,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy(tng_trajectory_t *t
                                      n_values_per_frame;
                 if(tng_data->non_tr_data[i].strings[0])
                 {
-                    for(j = n_values_per_frame; j--;)
+                    for(j = 0; j < n_values_per_frame; j++)
                     {
                         if(tng_data->non_tr_data[i].strings[0][j])
                         {
@@ -9467,7 +9840,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy(tng_trajectory_t *t
 
     if(frame_set->tr_particle_data)
     {
-        for(i = frame_set->n_particle_data_blocks; i--; )
+        for(i = 0; i < frame_set->n_particle_data_blocks; i++)
         {
             if(frame_set->tr_particle_data[i].values)
             {
@@ -9479,16 +9852,16 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy(tng_trajectory_t *t
             {
                 n_values_per_frame = frame_set->tr_particle_data[i].
                                      n_values_per_frame;
-                for(j = frame_set->tr_particle_data[i].n_frames; j--;)
+                for(j = 0; j < frame_set->tr_particle_data[i].n_frames; j++)
                 {
                     if(frame_set->tr_particle_data[i].strings[j])
                     {
-                        for(k = n_particles; k--;)
+                        for(k = 0; k < n_particles; k++)
                         {
                             if(frame_set->tr_particle_data[i].
                                 strings[j][k])
                             {
-                                for(l = n_values_per_frame; l--;)
+                                for(l = 0; l < n_values_per_frame; l++)
                                 {
                                     if(frame_set->tr_particle_data[i].
                                         strings[j][k][l])
@@ -9525,7 +9898,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy(tng_trajectory_t *t
 
     if(frame_set->tr_data)
     {
-        for(i = frame_set->n_data_blocks; i--;)
+        for(i = 0; i < frame_set->n_data_blocks; i++)
         {
             if(frame_set->tr_data[i].values)
             {
@@ -9537,11 +9910,11 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy(tng_trajectory_t *t
             {
                 n_values_per_frame = frame_set->tr_data[i].
                                      n_values_per_frame;
-                for(j = frame_set->tr_data[i].n_frames; j--;)
+                for(j = 0; j < frame_set->tr_data[i].n_frames; j++)
                 {
                     if(frame_set->tr_data[i].strings[j])
                     {
-                        for(k = n_values_per_frame; k--;)
+                        for(k = 0; k < n_values_per_frame; k++)
                         {
                             if(frame_set->tr_data[i].strings[j][k])
                             {
@@ -9572,7 +9945,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy(tng_trajectory_t *t
 
     if(tng_data->molecules)
     {
-        for(i=tng_data->n_molecules; i--;)
+        for(i = 0; i < tng_data->n_molecules; i++)
         {
             tng_molecule_destroy(tng_data, &tng_data->molecules[i]);
         }
@@ -9657,7 +10030,6 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
     src->current_trajectory_frame_set_output_file_pos;
     dest->frame_set_n_frames = src->frame_set_n_frames;
     dest->n_trajectory_frame_sets = src->n_trajectory_frame_sets;
-    dest->n_trajectory_blocks = src->n_trajectory_blocks;
     dest->medium_stride_length = src->medium_stride_length;
     dest->long_stride_length = src->long_stride_length;
 
@@ -10796,7 +11168,7 @@ tng_function_status DECLSPECDLLEXPORT tng_num_molecules_get
         return(TNG_FAILURE);
     }
 
-    for(i = tng_data->n_molecules; i --;)
+    for(i = 0; i < tng_data->n_molecules; i++)
     {
         cnt += cnt_list[i];
     }
@@ -11137,7 +11509,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
             }
 
             if(tng_block_read_next(tng_data, block,
-                                TNG_SKIP_HASH) != TNG_SUCCESS)
+                                   TNG_SKIP_HASH) != TNG_SUCCESS)
             {
                 tng_block_destroy(&block);
                 return(TNG_CRITICAL);
@@ -14284,7 +14656,7 @@ static tng_function_status tng_data_values_alloc
 
     }
 
-    for(i = n_frames; i--;)
+    for(i = 0; i < n_frames; i++)
     {
         (*values)[i] = malloc(sizeof(union data_values) *
                            n_values_per_frame);
@@ -14320,7 +14692,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_values_free
             {
                 if(type == TNG_CHAR_DATA)
                 {
-                    for(j = n_values_per_frame; j--;)
+                    for(j = 0; j < n_values_per_frame; j++)
                     {
                         if(values[i][j].c)
                         {
@@ -14378,7 +14750,7 @@ static tng_function_status tng_particle_data_values_alloc
 
     }
 
-    for(i = n_frames; i--;)
+    for(i = 0; i < n_frames; i++)
     {
         (*values)[i] = malloc(sizeof(union data_values *) *
                            n_particles);
@@ -14391,7 +14763,7 @@ static tng_function_status tng_particle_data_values_alloc
             *values = 0;
             return(TNG_CRITICAL);
         }
-        for(j = n_particles; j--;)
+        for(j = 0; j < n_particles; j++)
         {
             (*values)[i][j] = malloc(sizeof(union data_values) *
                                   n_values_per_frame);
@@ -14433,7 +14805,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free
                 {
                     if(type == TNG_CHAR_DATA)
                     {
-                        for(k = n_values_per_frame; k--;)
+                        for(k = 0; k < n_values_per_frame; k++)
                         {
                             if(values[i][j][k].c)
                             {
@@ -14513,7 +14885,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
             return(stat);
         }
 
-        for(i = frame_set->n_data_blocks; i-- ;)
+        for(i = 0; i < frame_set->n_data_blocks; i++)
         {
             data = &frame_set->tr_data[i];
             if(data->block_id == block_id)
@@ -14546,9 +14918,9 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
     switch(*type)
     {
     case TNG_CHAR_DATA:
-        for(i=*n_frames; i--;)
+        for(i = 0; i < *n_frames; i++)
         {
-            for(j=*n_values_per_frame; j--;)
+            for(j = 0; j < *n_values_per_frame; j++)
             {
                 len = strlen(data->strings[i][j]) + 1;
                 (*values)[i][j].c = malloc(len);
@@ -14558,9 +14930,9 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
         break;
     case TNG_INT_DATA:
         size = sizeof(int);
-        for(i=*n_frames; i--;)
+        for(i = 0; i < *n_frames; i++)
         {
-            for(j=*n_values_per_frame; j--;)
+            for(j = 0; j < *n_values_per_frame; j++)
             {
                 (*values)[i][j].i = *(int *)((char *)data->values + size *
                                              (i*(*n_values_per_frame) + j));
@@ -14569,9 +14941,9 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
         break;
     case TNG_FLOAT_DATA:
         size = sizeof(float);
-        for(i=*n_frames; i--;)
+        for(i = 0; i < *n_frames; i++)
         {
-            for(j=*n_values_per_frame; j--;)
+            for(j = 0; j < *n_values_per_frame; j++)
             {
                 (*values)[i][j].f = *(float *)((char *)data->values + size *
                                                (i*(*n_values_per_frame) + j));
@@ -14581,9 +14953,9 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
     case TNG_DOUBLE_DATA:
     default:
         size = sizeof(double);
-        for(i=*n_frames; i--;)
+        for(i = 0; i < *n_frames; i++)
         {
-            for(j=*n_values_per_frame; j--;)
+            for(j = 0; j < *n_values_per_frame; j++)
             {
                 (*values)[i][j].d = *(double *)((char *)data->values + size *
                                                 (i*(*n_values_per_frame) + j));
@@ -14653,7 +15025,7 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
             return(stat);
         }
 
-        for(i = frame_set->n_data_blocks; i-- ;)
+        for(i = 0; i < frame_set->n_data_blocks; i++)
         {
             data = &frame_set->tr_data[i];
             if(data->block_id == block_id)
@@ -14784,7 +15156,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
 
     /* See if there is a data block of this ID.
      * Start checking the last read frame set */
-    for(i = frame_set->n_data_blocks; i-- ;)
+    for(i = 0; i < frame_set->n_data_blocks; i++)
     {
         data = &frame_set->tr_data[i];
         if(data->block_id == block_id)
@@ -14833,7 +15205,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
                 }
                 current_frame_pos = 0;
             }
-            for(j=*n_values_per_frame; j--;)
+            for(j = 0; j < *n_values_per_frame; j++)
             {
                 len = strlen(data->strings[current_frame_pos][j]) + 1;
                 (*values)[i][j].c = malloc(len);
@@ -14855,7 +15227,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
                 }
                 current_frame_pos = 0;
             }
-            for(j=*n_values_per_frame; j--;)
+            for(j = 0; j < *n_values_per_frame; j++)
             {
                 (*values)[i][j].i = *(int *)((char *)data->values + size *
                                             (current_frame_pos *
@@ -14877,7 +15249,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
                 }
                 current_frame_pos = 0;
             }
-            for(j=*n_values_per_frame; j--;)
+            for(j = 0; j < *n_values_per_frame; j++)
             {
                 (*values)[i][j].f = *(float *)((char *)data->values + size *
                                                (current_frame_pos *
@@ -14900,7 +15272,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
                 }
                 current_frame_pos = 0;
             }
-            for(j=*n_values_per_frame; j--;)
+            for(j = 0; j < *n_values_per_frame; j++)
             {
                 (*values)[i][j].d = *(double *)((char *)data->values + size *
                                                 (current_frame_pos *
@@ -15223,7 +15595,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
             return(stat);
         }
 
-        for(i = frame_set->n_particle_data_blocks; i-- ;)
+        for(i = 0; i < frame_set->n_particle_data_blocks; i++)
         {
             data = &frame_set->tr_particle_data[i];
             if(data->block_id == block_id)
@@ -15281,12 +15653,12 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
     switch(*type)
     {
     case TNG_CHAR_DATA:
-        for(i=*n_frames; i--;)
+        for(i = 0; i < *n_frames; i++)
         {
-            for(j=*n_particles; j--;)
+            for(j = 0; j < *n_particles; j++)
             {
                 tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
-                for(k=*n_values_per_frame; k--;)
+                for(k = 0; k < *n_values_per_frame; k++)
                 {
                     len = strlen(data->strings[i][j][k]) + 1;
                     (*values)[i][mapping][k].c = malloc(len);
@@ -15299,12 +15671,12 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
     case TNG_INT_DATA:
         size = sizeof(int);
         i_step = (*n_particles) * (*n_values_per_frame);
-        for(i=*n_frames; i--;)
+        for(i = 0; i < *n_frames; i++)
         {
-            for(j=*n_particles; j--;)
+            for(j = 0; j < *n_particles; j++)
             {
                 tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
-                for(k=*n_values_per_frame; k--;)
+                for(k = 0; k < *n_values_per_frame; k++)
                 {
                     (*values)[i][mapping][k].i = *(int *)
                                                  ((char *)data->values + size *
@@ -15317,12 +15689,12 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
     case TNG_FLOAT_DATA:
         size = sizeof(float);
         i_step = (*n_particles) * (*n_values_per_frame);
-        for(i=*n_frames; i--;)
+        for(i = 0; i < *n_frames; i++)
         {
-            for(j=*n_particles; j--;)
+            for(j = 0; j < *n_particles; j++)
             {
                 tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
-                for(k=*n_values_per_frame; k--;)
+                for(k = 0; k < *n_values_per_frame; k++)
                 {
                     (*values)[i][mapping][k].f = *(float *)
                                                  ((char *)data->values + size *
@@ -15336,12 +15708,12 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
     default:
         size = sizeof(double);
         i_step = (*n_particles) * (*n_values_per_frame);
-        for(i=*n_frames; i--;)
+        for(i = 0; i < *n_frames; i++)
         {
-            for(j=*n_particles; j--;)
+            for(j = 0; j < *n_particles; j++)
             {
                 tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
-                for(k=*n_values_per_frame; k--;)
+                for(k = 0; k < *n_values_per_frame; k++)
                 {
                     (*values)[i][mapping][k].d = *(double *)
                                                  ((char *)data->values + size *
@@ -15418,7 +15790,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
             return(stat);
         }
 
-        for(i = frame_set->n_particle_data_blocks; i-- ;)
+        for(i = 0; i < frame_set->n_particle_data_blocks; i++)
         {
             data = &frame_set->tr_particle_data[i];
             if(data->block_id == block_id)
@@ -15499,9 +15871,9 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
     else
     {
         i_step = (*n_particles) * (*n_values_per_frame);
-        for(i = *n_frames; i--;)
+        for(i = 0; i < *n_frames; i++)
         {
-            for(j = *n_particles; j--;)
+            for(j = 0; j < *n_particles; j++)
             {
                 tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
                 memcpy(((char *)*values) + size * (i * i_step + mapping *
@@ -15651,10 +16023,10 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
                 }
                 current_frame_pos = 0;
             }
-            for(j=*n_particles; j--;)
+            for(j = 0; j < *n_particles; j++)
             {
                 tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
-                for(k=*n_values_per_frame; k--;)
+                for(k = 0; k < *n_values_per_frame; k++)
                 {
                     len = strlen(data->strings[current_frame_pos][j][k]) + 1;
                     (*values)[i][mapping][k].c = malloc(len);
@@ -15678,10 +16050,10 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
                 }
                 current_frame_pos = 0;
             }
-            for(j=*n_particles; j--;)
+            for(j = 0; j < *n_particles; j++)
             {
                 tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
-                for(k=*n_values_per_frame; k--;)
+                for(k = 0; k < *n_values_per_frame; k++)
                 {
                     (*values)[i][mapping][k].i = *(int *)
                                                  ((char *)data->values + size *
@@ -15707,10 +16079,10 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
                 }
                 current_frame_pos = 0;
             }
-            for(j=*n_particles; j--;)
+            for(j=0; j<*n_particles; j++)
             {
                 tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
-                for(k=*n_values_per_frame; k--;)
+                for(k=0; k<*n_values_per_frame; k++)
                 {
                     (*values)[i][mapping][k].f = *(float *)
                                                  ((char *)data->values + size *
@@ -15737,10 +16109,10 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
                 }
                 current_frame_pos = 0;
             }
-            for(j=*n_particles; j--;)
+            for(j=0; j<*n_particles; j++)
             {
                 tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
-                for(k=*n_values_per_frame; k--;)
+                for(k=0; k<*n_values_per_frame; k++)
                 {
                     (*values)[i][mapping][k].d = *(double *)
                                                  ((char *)data->values + size *
