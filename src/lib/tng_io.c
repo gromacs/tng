@@ -7601,29 +7601,19 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_add
                  const char *name,
                  tng_molecule_t *molecule)
 {
-    int64_t id, i;
-    tng_bool found_id = TNG_TRUE;
+    int64_t id;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
-    /* Find an unused ID */
-    id = 0;
-    while(found_id)
+    /* Set ID to the ID of the last molecule + 1 */
+    if(tng_data->n_molecules)
     {
-        found_id = TNG_FALSE;
-        for(i = 0; i < tng_data->n_molecules; i++)
-        {
-            if(tng_data->molecules[i].id == id)
-            {
-                found_id = TNG_TRUE;
-                i = 0;
-            }
-        }
-        if(found_id)
-        {
-            id++;
-        }
+        id = tng_data->molecules[tng_data->n_molecules-1].id + 1;
+    }
+    else
+    {
+        id = 1;
     }
 
     return(tng_molecule_w_id_add(tng_data, name, id, molecule));
@@ -7636,7 +7626,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
                  tng_molecule_t *molecule)
 {
     tng_molecule_t new_molecules;
-    int64_t *new_molecule_cnt_list, i;
+    int64_t *new_molecule_cnt_list;
     tng_function_status stat = TNG_SUCCESS;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -7682,17 +7672,6 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
     /* FIXME: Should this be a function argument instead? */
     tng_data->molecule_cnt_list[tng_data->n_molecules] = 0;
 
-    for(i = 0; i < tng_data->n_molecules; i++)
-    {
-        if(tng_data->molecules[i].id == id)
-        {
-            stat = TNG_FAILURE;
-            fprintf(stderr, "TNG library: Molecule ID %"PRId64" already in use. %s: %d\n", id,
-                   __FILE__, __LINE__);
-            break;
-        }
-    }
-
     (*molecule)->id = id;
 
     tng_data->n_molecules++;
@@ -7704,29 +7683,19 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_existing_add
                 (tng_trajectory_t tng_data,
                  tng_molecule_t *molecule_p)
 {
-    tng_bool found_id = TNG_TRUE;
+    int64_t *new_molecule_cnt_list, id;
     tng_molecule_t new_molecules, molecule;
-    int64_t *new_molecule_cnt_list, i, id;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
 
-    /* Find an unused ID */
-    id = 0;
-    while(found_id)
+    /* Set ID to the ID of the last molecule + 1 */
+    if(tng_data->n_molecules)
     {
-        found_id = TNG_FALSE;
-        for(i = 0; i < tng_data->n_molecules; i++)
-        {
-            if(tng_data->molecules[i].id == id)
-            {
-                found_id = TNG_TRUE;
-                i = 0;
-            }
-        }
-        if(found_id)
-        {
-            id++;
-        }
+        id = tng_data->molecules[tng_data->n_molecules-1].id + 1;
+    }
+    else
+    {
+        id = 1;
     }
 
     new_molecules = realloc(tng_data->molecules,
@@ -7919,7 +7888,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_find
 
     n_molecules = tng_data->n_molecules;
 
-    for(i = 0; i < n_molecules; i++)
+    for(i = n_molecules - 1; i >= 0; i--)
     {
         *molecule = &tng_data->molecules[i];
         if(name[0] == 0 || strcmp(name, (*molecule)->name) == 0)
@@ -8197,7 +8166,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
 
     n_chains = molecule->n_chains;
 
-    for(i = 0; i < n_chains; i++)
+    for(i = n_chains - 1; i > 0; i--)
     {
         *chain = &molecule->chains[i];
         if(name[0] == 0 || strcmp(name, (*chain)->name) == 0)
@@ -8220,11 +8189,23 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_add
                  const char *name,
                  tng_chain_t *chain)
 {
+    int64_t id;
+
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
+    /* Set ID to the ID of the last chain + 1 */
+    if(molecule->n_chains)
+    {
+        id = molecule->chains[molecule->n_chains-1].id + 1;
+    }
+    else
+    {
+        id = 1;
+    }
+
     return(tng_molecule_chain_w_id_add(tng_data, molecule, name,
-                                       molecule->n_chains + 1, chain));
+                                       id, chain));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
@@ -8234,7 +8215,6 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
                  const int64_t id,
                  tng_chain_t *chain)
 {
-    int64_t i;
     tng_chain_t new_chains;
     tng_function_status stat = TNG_SUCCESS;
 
@@ -8264,16 +8244,6 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
 
     (*chain)->molecule = molecule;
     (*chain)->n_residues = 0;
-
-    for(i = 0; i < molecule->n_chains; i++)
-    {
-        if(molecule->chains[i].id == id)
-        {
-            stat = TNG_FAILURE;
-            fprintf(stderr, "TNG library: Chain ID already in use. %s: %d\n", __FILE__, __LINE__);
-            break;
-        }
-    }
 
     molecule->n_chains++;
 
@@ -8345,7 +8315,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_atom_find
 
     n_atoms = molecule->n_atoms;
 
-    for(i = 0; i < n_atoms; i++)
+    for(i = n_atoms - 1; i >= 0; i--)
     {
         *atom = &molecule->atoms[i];
         if(name[0] == 0 || strcmp(name, (*atom)->name) == 0)
@@ -8463,7 +8433,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find
 
     n_residues = chain->n_residues;
 
-    for(i = 0; i < n_residues; i++)
+    for(i = n_residues - 1; i >= 0; i--)
     {
         *residue = &chain->residues[i];
         if(name[0] == 0 || strcmp(name, (*residue)->name) == 0)
@@ -8486,11 +8456,23 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_add
                  const char *name,
                  tng_residue_t *residue)
 {
+    int64_t id;
+
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer.");
 
+    /* Set ID to the ID of the last residue + 1 */
+    if(chain->n_residues)
+    {
+        id = chain->residues[chain->n_residues-1].id + 1;
+    }
+    else
+    {
+        id = 0;
+    }
+
     return(tng_chain_residue_w_id_add(tng_data, chain, name,
-                                      chain->n_residues + 1, residue));
+                                      id, residue));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
@@ -8500,7 +8482,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
                  const int64_t id,
                  tng_residue_t *residue)
 {
-    int64_t i, curr_index;
+    int64_t curr_index;
     tng_residue_t new_residues, temp_residue, last_residue;
     tng_molecule_t molecule = chain->molecule;
     tng_function_status stat = TNG_SUCCESS;
@@ -8569,16 +8551,6 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
     (*residue)->chain = chain;
     (*residue)->n_atoms = 0;
     (*residue)->atoms_offset = 0;
-
-    for(i = 0; i < chain->n_residues; i++)
-    {
-        if(chain->residues[i].id == id)
-        {
-            stat = TNG_FAILURE;
-            fprintf(stderr, "TNG library: Residue ID already in use. %s: %d\n", __FILE__, __LINE__);
-            break;
-        }
-    }
 
     chain->n_residues++;
     molecule->n_residues++;
@@ -8694,13 +8666,24 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_add
                  const char *atom_type,
                  tng_atom_t *atom)
 {
+    int64_t id;
+
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(atom_name, "TNG library: atom_name must not be a NULL pointer.");
     TNG_ASSERT(atom_type, "TNG library: atom_type must not be a NULL pointer.");
 
+    /* Set ID to the ID of the last atom + 1 */
+    if(residue->chain->molecule->n_atoms)
+    {
+        id = residue->chain->molecule->atoms[residue->chain->molecule->n_atoms-1].id + 1;
+    }
+    else
+    {
+        id = 0;
+    }
+
     return(tng_residue_atom_w_id_add(tng_data, residue, atom_name, atom_type,
-                                     residue->chain->molecule->n_atoms + 1,
-                                     atom));
+                                     id, atom));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
@@ -8711,7 +8694,6 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
                  const int64_t id,
                  tng_atom_t *atom)
 {
-    int64_t i;
     tng_atom_t new_atoms;
     tng_molecule_t molecule = residue->chain->molecule;
     tng_function_status stat = TNG_SUCCESS;
@@ -8748,16 +8730,6 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
     tng_atom_type_set(tng_data, *atom, atom_type);
 
     (*atom)->residue = residue;
-
-    for(i = 0; i < molecule->n_atoms; i++)
-    {
-        if(molecule->atoms[i].id == id)
-        {
-            stat = TNG_FAILURE;
-            fprintf(stderr, "TNG library: Atom ID %"PRId64" already in use. %s: %d\n", id, __FILE__, __LINE__);
-            break;
-        }
-    }
 
     residue->n_atoms++;
     molecule->n_atoms++;
