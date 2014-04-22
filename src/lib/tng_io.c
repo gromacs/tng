@@ -3611,7 +3611,14 @@ static tng_function_status tng_frame_set_block_read
         tng_data->time_per_frame = -1;
     }
 
-    frame_set->n_written_frames = frame_set->n_frames;
+    /* If the output file and the input files are the same the number of
+     * frames in the file are the same number as has just been read.
+     * This is updated here to later on see if there have been new frames
+     * added and thereby the frame set needs to be rewritten. */
+    if(tng_data->output_file == tng_data->input_file)
+    {
+        frame_set->n_written_frames = frame_set->n_frames;
+    }
 
     return(TNG_SUCCESS);
 }
