@@ -17063,7 +17063,14 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
     }
     else
     {
-        i = data->last_retrieved_frame + data->stride_length;
+        if(data->n_frames == 1)
+        {
+            i = data->last_retrieved_frame + 1;
+        }
+        else
+        {
+            i = data->last_retrieved_frame + data->stride_length;
+        }
         if(i < frame_set->first_frame || i >= frame_set->first_frame + frame_set->n_frames)
         {
             stat = tng_frame_set_of_frame_find(tng_data, i);
@@ -17216,7 +17223,14 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
     }
     else
     {
-        i = data->last_retrieved_frame + data->stride_length;
+        if(data->n_frames == 1)
+        {
+            i = data->last_retrieved_frame + 1;
+        }
+        else
+        {
+            i = data->last_retrieved_frame + data->stride_length;
+        }
         if(i < frame_set->first_frame || i >= frame_set->first_frame + frame_set->n_frames)
         {
             stat = tng_frame_set_of_frame_find(tng_data, i);
