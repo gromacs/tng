@@ -18829,33 +18829,36 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
         }
     }
 
-    if(frame_set->n_particle_data_blocks <= 0 || frame_set->n_data_blocks <= 0)
+    /* Check for data blocks only if they have not already been found. */
+    if(frame_set->n_particle_data_blocks <= 0 && frame_set->n_data_blocks <= 0)
     {
-        tng_block_init(&block);
         file_pos = ftell(tng_data->input_file);
-        /* Read all blocks until next frame set block */
-        stat = tng_block_header_read(tng_data, block);
-        while(file_pos < tng_data->input_file_len &&
-            stat != TNG_CRITICAL &&
-            block->id != TNG_TRAJECTORY_FRAME_SET)
+        if(file_pos < tng_data->input_file_len)
         {
-            stat = tng_block_read_next(tng_data, block,
-                                       TNG_USE_HASH);
-            if(stat != TNG_CRITICAL)
+            tng_block_init(&block);
+            stat = tng_block_header_read(tng_data, block);
+            while(file_pos < tng_data->input_file_len &&
+                stat != TNG_CRITICAL &&
+                block->id != TNG_TRAJECTORY_FRAME_SET)
             {
-                file_pos = ftell(tng_data->input_file);
-                if(file_pos < tng_data->input_file_len)
+                stat = tng_block_read_next(tng_data, block,
+                                        TNG_USE_HASH);
+                if(stat != TNG_CRITICAL)
                 {
-                    stat = tng_block_header_read(tng_data, block);
+                    file_pos = ftell(tng_data->input_file);
+                    if(file_pos < tng_data->input_file_len)
+                    {
+                        stat = tng_block_header_read(tng_data, block);
+                    }
                 }
             }
-        }
-        tng_block_destroy(&block);
-        if(stat == TNG_CRITICAL)
-        {
-            fprintf(stderr, "TNG library: Cannot read block header at pos %ld. %s: %d\n",
-                    file_pos, __FILE__, __LINE__);
-            return(stat);
+            tng_block_destroy(&block);
+            if(stat == TNG_CRITICAL)
+            {
+                fprintf(stderr, "TNG library: Cannot read block header at pos %ld. %s: %d\n",
+                        file_pos, __FILE__, __LINE__);
+                return(stat);
+            }
         }
         read_all = 1;
     }
