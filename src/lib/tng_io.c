@@ -1,7 +1,5 @@
 /* This code is part of the tng binary trajectory format.
  *
- *                      VERSION 1.5
- *
  * Written by Magnus Lundborg
  * Copyright (c) 2012-2013, The GROMACS development team.
  * Check out http://www.gromacs.org for more information.
@@ -27,6 +25,7 @@
 #include "../../include/tng_io.h"
 #include "../../include/md5.h"
 #include "../../include/compression/tng_compress.h"
+#include "../include/version.h"
 
 
 struct tng_bond {
@@ -744,7 +743,7 @@ static tng_function_status tng_block_init(struct tng_gen_block **block_p)
     /* Reset the md5_hash */
     memcpy(block->md5_hash, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", TNG_MD5_HASH_LEN);
     block->name = 0;
-    block->block_version = TNG_VERSION;
+    block->block_version = TNG_API_VERSION;
     block->header_contents = 0;
     block->header_contents_size = 0;
     block->block_contents = 0;

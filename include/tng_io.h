@@ -1,7 +1,5 @@
 /* This code is part of the tng binary trajectory format.
  *
- *                      VERSION 1.5
- *
  * Written by Magnus Lundborg
  * Copyright (c) 2012-2013, The GROMACS development team.
  * Check out http://www.gromacs.org for more information.
@@ -342,10 +340,6 @@ typedef unsigned __int64 uint64_t;
 #define DECLSPECDLLEXPORT
 #endif /* USE_WINDOWS */
 #endif /* DECLSPECDLLEXPORT */
-
-
-/** The version of this TNG build */
-#define TNG_VERSION 5 /* TNG_VERSION 4 => Api version 1.5 */
 
 /** Flag to indicate frame dependent data. */
 #define TNG_FRAME_DEPENDENT 1
