@@ -1694,6 +1694,7 @@ static tng_function_status tng_block_header_len_calculate
                  tng_gen_block_t block,
                  int64_t *len)
 {
+    (void)tng_data;
     int name_len;
 
     /* If the string is unallocated allocate memory for just string
@@ -2835,7 +2836,6 @@ static tng_function_status tng_atom_data_write(tng_trajectory_t tng_data,
 
 static tng_function_status tng_molecules_block_len_calculate
                 (const tng_trajectory_t tng_data,
-                 const tng_gen_block_t block,
                  int64_t *len)
 {
     int64_t i, j;
@@ -3450,7 +3450,7 @@ static tng_function_status tng_molecules_block_write
     strcpy(block->name, "MOLECULES");
     block->id = TNG_MOLECULES;
 
-    if(tng_molecules_block_len_calculate(tng_data, block, &block->block_contents_size) !=
+    if(tng_molecules_block_len_calculate(tng_data, &block->block_contents_size) !=
         TNG_SUCCESS)
     {
         fprintf(stderr, "TNG library: Cannot calculate length of molecules block. %s: %d\n",
@@ -3606,7 +3606,7 @@ static tng_function_status tng_molecules_block_write
             if(molecule->n_residues > 0)
             {
                 residue = molecule->residues;
-                for(k = 0; k < chain->n_residues; k++)
+                for(k = 0; k < molecule->n_residues; k++)
                 {
                     tng_residue_data_write(tng_data, block, residue, &offset);
 
@@ -3705,7 +3705,6 @@ static tng_function_status tng_molecules_block_write
 
 static tng_function_status tng_frame_set_block_len_calculate
                 (const tng_trajectory_t tng_data,
-                 const tng_gen_block_t block,
                  int64_t *len)
 {
     *len = sizeof(int64_t) * 8;
@@ -4053,7 +4052,7 @@ static tng_function_status tng_frame_set_block_write
     strcpy(block->name, "TRAJECTORY FRAME SET");
     block->id = TNG_TRAJECTORY_FRAME_SET;
 
-    if(tng_frame_set_block_len_calculate(tng_data, block, &block->block_contents_size) !=
+    if(tng_frame_set_block_len_calculate(tng_data, &block->block_contents_size) !=
         TNG_SUCCESS)
     {
         fprintf(stderr, "TNG library: Cannot calculate length of frame set block. %s: %d\n",
@@ -4259,10 +4258,10 @@ static tng_function_status tng_frame_set_block_write
 
 static tng_function_status tng_trajectory_mapping_block_len_calculate
                 (const tng_trajectory_t tng_data,
-                 const tng_gen_block_t block,
                  const int64_t n_particles,
                  int64_t *len)
 {
+    (void)tng_data;
     *len = sizeof(int64_t) * (2 + n_particles);
 
     return(TNG_SUCCESS);
@@ -4468,7 +4467,7 @@ static tng_function_status tng_trajectory_mapping_block_write
     strcpy(block->name, "PARTICLE MAPPING");
     block->id = TNG_PARTICLE_MAPPING;
 
-    if(tng_trajectory_mapping_block_len_calculate(tng_data, block,
+    if(tng_trajectory_mapping_block_len_calculate(tng_data,
                                                   mapping->n_particles,
                                                   &block->block_contents_size) !=
         TNG_SUCCESS)
@@ -5363,6 +5362,7 @@ static tng_function_status tng_data_block_len_calculate
                  int64_t *data_start_pos,
                  int64_t *len)
 {
+    (void)tng_data;
     int size;
     int64_t i, j, k;
     char ***first_dim_values, **second_dim_values;
@@ -12441,6 +12441,7 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
 {
     int i;
     int64_t len, orig_len, tot_len = 0, data_start_pos;
+    tng_function_status stat;
     tng_gen_block_t block;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -12452,7 +12453,11 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
 
     if(tng_data->n_trajectory_frame_sets > 0)
     {
-        tng_file_headers_len_get(tng_data, &orig_len);
+        stat = tng_file_headers_len_get(tng_data, &orig_len);
+        if(stat != TNG_SUCCESS)
+        {
+            return(stat);
+        }
 
         tng_block_init(&block);
         block->name = malloc(TNG_MAX_STR_LEN);
@@ -12471,7 +12476,7 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
         strcpy(block->name, "MOLECULES");
         tng_block_header_len_calculate(tng_data, block, &len);
         tot_len += len;
-        tng_molecules_block_len_calculate(tng_data, block, &len);
+        tng_molecules_block_len_calculate(tng_data, &len);
         tot_len += len;
 
         for(i = 0; i < tng_data->n_data_blocks; i++)

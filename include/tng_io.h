@@ -1,7 +1,7 @@
 /* This code is part of the tng binary trajectory format.
  *
  * Written by Magnus Lundborg
- * Copyright (c) 2012-2013, The GROMACS development team.
+ * Copyright (c) 2012-2014, The GROMACS development team.
  * Check out http://www.gromacs.org for more information.
  *
  *
