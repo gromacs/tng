@@ -1182,7 +1182,7 @@ static tng_function_status tng_frame_set_pointers_update
     tng_gen_block_t block;
     tng_trajectory_frame_set_t frame_set;
     FILE *temp = tng_data->input_file;
-    int64_t pos, output_file_pos, header_start_pos, contents_start_pos;
+    int64_t pos, output_file_pos, contents_start_pos;
 
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
@@ -1198,14 +1198,13 @@ static tng_function_status tng_frame_set_pointers_update
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
-    /* Update previous frame set */
-    if(frame_set->prev_frame_set_file_pos != -1 &&
-       frame_set->prev_frame_set_file_pos != 0)
-    {
-        fseek(tng_data->output_file, (long)frame_set->prev_frame_set_file_pos,
-              SEEK_SET);
+    pos = tng_data->current_trajectory_frame_set_output_file_pos;
 
-        header_start_pos = frame_set->prev_frame_set_file_pos;
+    /* Update next frame set */
+    if(frame_set->next_frame_set_file_pos > 0)
+    {
+        fseek(tng_data->output_file, (long)frame_set->next_frame_set_file_pos,
+              SEEK_SET);
 
         if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
         {
@@ -1218,10 +1217,8 @@ static tng_function_status tng_frame_set_pointers_update
 
         contents_start_pos = ftell(tng_data->output_file);
 
-        fseek(tng_data->output_file, (long)block->block_contents_size - (6 *
+        fseek(tng_data->output_file, (long)block->block_contents_size - (5 *
             sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
-
-        pos = tng_data->current_trajectory_frame_set_output_file_pos;
 
         if(tng_data->input_endianness_swap_func_64)
         {
@@ -1243,15 +1240,105 @@ static tng_function_status tng_frame_set_pointers_update
 
         if(hash_mode == TNG_USE_HASH)
         {
-            tng_md5_hash_update(tng_data, block, header_start_pos,
+            tng_md5_hash_update(tng_data, block, frame_set->next_frame_set_file_pos,
+                                contents_start_pos);
+        }
+        fseek(tng_data->output_file, (long)output_file_pos, SEEK_SET);
+    }
+    /* Update previous frame set */
+    if(frame_set->prev_frame_set_file_pos > 0)
+    {
+        fseek(tng_data->output_file, (long)frame_set->prev_frame_set_file_pos,
+              SEEK_SET);
+
+        if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
+        {
+            fprintf(stderr, "TNG library: Cannot read frame header. %s: %d\n",
+                __FILE__, __LINE__);
+            tng_data->input_file = temp;
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
+
+        contents_start_pos = ftell(tng_data->output_file);
+
+        fseek(tng_data->output_file, (long)block->block_contents_size - (6 *
+            sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
+
+        if(tng_data->input_endianness_swap_func_64)
+        {
+            if(tng_data->input_endianness_swap_func_64(tng_data,
+                                                        &pos)
+                != TNG_SUCCESS)
+            {
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
+                        __FILE__, __LINE__);
+            }
+        }
+
+        if(fwrite(&pos, sizeof(int64_t), 1, tng_data->output_file) != 1)
+        {
+            tng_data->input_file = temp;
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
+
+        if(hash_mode == TNG_USE_HASH)
+        {
+            tng_md5_hash_update(tng_data, block, frame_set->prev_frame_set_file_pos,
                                 contents_start_pos);
         }
         fseek(tng_data->output_file, (long)output_file_pos, SEEK_SET);
     }
 
+    /* Update the frame set one medium stride step after */
+    if(frame_set->medium_stride_next_frame_set_file_pos > 0)
+    {
+        fseek(tng_data->output_file,
+              (long)frame_set->medium_stride_next_frame_set_file_pos,
+              SEEK_SET);
+
+        if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
+        {
+            fprintf(stderr, "TNG library: Cannot read frame set header. %s: %d\n",
+                __FILE__, __LINE__);
+            tng_data->input_file = temp;
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
+
+        contents_start_pos = ftell(tng_data->output_file);
+
+        fseek(tng_data->output_file, (long)block->block_contents_size - (3 *
+            sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
+
+        if(tng_data->input_endianness_swap_func_64)
+        {
+            if(tng_data->input_endianness_swap_func_64(tng_data,
+                                                        &pos)
+                != TNG_SUCCESS)
+            {
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
+                        __FILE__, __LINE__);
+            }
+        }
+
+        if(fwrite(&pos, sizeof(int64_t), 1, tng_data->output_file) != 1)
+        {
+            tng_data->input_file = temp;
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
+
+        if(hash_mode == TNG_USE_HASH)
+        {
+            tng_md5_hash_update(tng_data, block,
+                                frame_set->medium_stride_next_frame_set_file_pos,
+                                contents_start_pos);
+        }
+    }
     /* Update the frame set one medium stride step before */
-    if(frame_set->medium_stride_prev_frame_set_file_pos != -1 &&
-       frame_set->medium_stride_prev_frame_set_file_pos != 0)
+    if(frame_set->medium_stride_prev_frame_set_file_pos > 0)
     {
         fseek(tng_data->output_file,
               (long)frame_set->medium_stride_prev_frame_set_file_pos,
@@ -1270,8 +1357,6 @@ static tng_function_status tng_frame_set_pointers_update
 
         fseek(tng_data->output_file, (long)block->block_contents_size - (4 *
             sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
-
-        pos = tng_data->current_trajectory_frame_set_output_file_pos;
 
         if(tng_data->input_endianness_swap_func_64)
         {
@@ -1299,9 +1384,54 @@ static tng_function_status tng_frame_set_pointers_update
         }
     }
 
+    /* Update the frame set one long stride step after */
+    if(frame_set->long_stride_next_frame_set_file_pos > 0)
+    {
+        fseek(tng_data->output_file,
+              (long)frame_set->long_stride_next_frame_set_file_pos,
+              SEEK_SET);
+
+        if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
+        {
+            fprintf(stderr, "TNG library: Cannot read frame set header. %s: %d\n",
+                __FILE__, __LINE__);
+            tng_data->input_file = temp;
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
+
+        contents_start_pos = ftell(tng_data->output_file);
+
+        fseek(tng_data->output_file, (long)block->block_contents_size - (1 *
+            sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
+
+        if(tng_data->input_endianness_swap_func_64)
+        {
+            if(tng_data->input_endianness_swap_func_64(tng_data,
+                                                        &pos)
+                != TNG_SUCCESS)
+            {
+                fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
+                        __FILE__, __LINE__);
+            }
+        }
+
+        if(fwrite(&pos, sizeof(int64_t), 1, tng_data->output_file) != 1)
+        {
+            tng_data->input_file = temp;
+            tng_block_destroy(&block);
+            return(TNG_CRITICAL);
+        }
+
+        if(hash_mode == TNG_USE_HASH)
+        {
+            tng_md5_hash_update(tng_data, block,
+                                frame_set->long_stride_next_frame_set_file_pos,
+                                contents_start_pos);
+        }
+    }
     /* Update the frame set one long stride step before */
-    if(frame_set->long_stride_prev_frame_set_file_pos != -1 &&
-       frame_set->long_stride_prev_frame_set_file_pos != 0)
+    if(frame_set->long_stride_prev_frame_set_file_pos > 0)
     {
         fseek(tng_data->output_file,
               (long)frame_set->long_stride_prev_frame_set_file_pos,
@@ -1320,8 +1450,6 @@ static tng_function_status tng_frame_set_pointers_update
 
         fseek(tng_data->output_file, (long)block->block_contents_size - (2 *
             sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
-
-        pos = tng_data->current_trajectory_frame_set_output_file_pos;
 
         if(tng_data->input_endianness_swap_func_64)
         {
@@ -1489,6 +1617,8 @@ static tng_function_status tng_frame_set_complete_migrate
         return(TNG_CRITICAL);
     }
 
+    fseek(tng_data->input_file, block_start_pos, SEEK_SET);
+
     contents = malloc(block_len);
     if(!contents)
     {
@@ -1513,6 +1643,8 @@ static tng_function_status tng_frame_set_complete_migrate
         free(contents);
         return(TNG_CRITICAL);
     }
+
+    tng_data->current_trajectory_frame_set_output_file_pos = new_pos;
 
     tng_frame_set_pointers_update(tng_data, TNG_USE_HASH);
 
@@ -13083,8 +13215,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
 
             /* Read the next frame set from the previous frame set and one
              * medium stride step back */
-            fseek(tng_data->output_file, (long)block->block_contents_size - 6 *
-                sizeof(int64_t), SEEK_CUR);
+            fseek(tng_data->output_file, (long)block->block_contents_size - (6 *
+            sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
             if(fread(&frame_set->medium_stride_prev_frame_set_file_pos,
                sizeof(frame_set->medium_stride_prev_frame_set_file_pos),
                1, tng_data->output_file) == 0)
@@ -13139,8 +13271,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
 
                     /* Read the next frame set from the previous frame set and one
                     * long stride step back */
-                    fseek(tng_data->output_file, (long)block->block_contents_size - 6 *
-                          sizeof(int64_t), SEEK_CUR);
+                    fseek(tng_data->output_file, (long)block->block_contents_size - (6 *
+                          sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
 
                     tng_block_destroy(&block);
 
