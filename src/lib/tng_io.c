@@ -794,8 +794,9 @@ static tng_function_status tng_block_destroy(struct tng_gen_block **block_p)
 /** Read the header of a data block, regardless of its type
  * @param tng_data is a trajectory data container.
  * @param block is a general block container.
- * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
- * error has occured.
+ * @return TNG_SUCCESS (0) if successful, TNG_FAILURE(1) if a minor
+ * error has occured (not able to read the header size, thus skipping
+ * the block) or TNG_CRITICAL (2) if a major error has occured.
  */
 static tng_function_status tng_block_header_read
                 (tng_trajectory_t tng_data, tng_gen_block_t block)
@@ -816,6 +817,12 @@ static tng_function_status tng_block_header_read
         fprintf(stderr, "TNG library: Cannot read header size. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_CRITICAL);
+    }
+
+    if(block->header_contents_size == 0)
+    {
+        block->id = -1;
+        return(TNG_FAILURE);
     }
 
     /* If this was the size of the general info block check the endianness */
@@ -12746,7 +12753,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read
 
     /* Read block headers first to see what block is found. */
     stat = tng_block_header_read(tng_data, block);
-    if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET)
+    if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET ||
+       block->id == -1)
     {
         fprintf(stderr, "TNG library: Cannot read block header at pos %ld. %s: %d\n",
                file_pos, __FILE__, __LINE__);
@@ -12765,7 +12773,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read
         stat = tng_block_header_read(tng_data, block);
         while(file_pos < tng_data->input_file_len &&
               stat != TNG_CRITICAL &&
-              block->id != TNG_TRAJECTORY_FRAME_SET)
+              block->id != TNG_TRAJECTORY_FRAME_SET &&
+              block->id != -1)
         {
             stat = tng_block_read_next(tng_data, block,
                                        hash_mode);
@@ -12880,7 +12889,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_current_only_data_from_
     stat = tng_block_header_read(tng_data, block);
     while(file_pos < tng_data->input_file_len &&
             stat != TNG_CRITICAL &&
-            block->id != TNG_TRAJECTORY_FRAME_SET)
+            block->id != TNG_TRAJECTORY_FRAME_SET &&
+            block->id != -1)
     {
         if(block->id == block_id)
         {
@@ -14065,7 +14075,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
             stat = tng_block_header_read(tng_data, block);
             while(file_pos < output_file_len &&
                   stat != TNG_CRITICAL &&
-                  block->id != TNG_TRAJECTORY_FRAME_SET)
+                  block->id != TNG_TRAJECTORY_FRAME_SET &&
+                  block->id != -1)
             {
                 if(block->id == TNG_PARTICLE_MAPPING)
                 {
@@ -14133,7 +14144,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
     while(file_pos < output_file_len &&
             stat != TNG_CRITICAL &&
             block->id != block_id &&
-            block->id != TNG_TRAJECTORY_FRAME_SET)
+            block->id != TNG_TRAJECTORY_FRAME_SET &&
+            block->id != -1)
     {
         fseek(tng_data->output_file, (long)block->block_contents_size, SEEK_CUR);
         file_pos = ftell(tng_data->output_file);
@@ -14493,7 +14505,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
             stat = tng_block_header_read(tng_data, block);
             while(file_pos < output_file_len &&
                   stat != TNG_CRITICAL &&
-                  block->id != TNG_TRAJECTORY_FRAME_SET)
+                  block->id != TNG_TRAJECTORY_FRAME_SET &&
+                  block->id != -1)
             {
                 if(block->id == TNG_PARTICLE_MAPPING)
                 {
@@ -14572,7 +14585,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
         stat = tng_block_header_read(tng_data, block);
         while(file_pos < output_file_len &&
                 stat != TNG_CRITICAL &&
-                block->id != TNG_TRAJECTORY_FRAME_SET)
+                block->id != TNG_TRAJECTORY_FRAME_SET &&
+                block->id != -1)
         {
             if(block->id == TNG_PARTICLE_MAPPING)
             {
@@ -14633,7 +14647,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
             stat != TNG_CRITICAL &&
             block->id != block_id &&
             block->id != TNG_PARTICLE_MAPPING &&
-            block->id != TNG_TRAJECTORY_FRAME_SET)
+            block->id != TNG_TRAJECTORY_FRAME_SET &&
+            block->id != -1)
     {
         fseek(tng_data->output_file, (long)block->block_contents_size, SEEK_CUR);
         file_pos = ftell(tng_data->output_file);
@@ -15195,7 +15210,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
         stat = tng_block_header_read(tng_data, block);
         while(file_pos < tng_data->input_file_len &&
                 stat != TNG_CRITICAL &&
-                block->id != TNG_TRAJECTORY_FRAME_SET)
+                block->id != TNG_TRAJECTORY_FRAME_SET &&
+                block->id != -1)
         {
             /* Use hash by default */
             stat = tng_block_read_next(tng_data, block,
@@ -15335,7 +15351,8 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
         stat = tng_block_header_read(tng_data, block);
         while(file_pos < tng_data->input_file_len &&
                 stat != TNG_CRITICAL &&
-                block->id != TNG_TRAJECTORY_FRAME_SET)
+                block->id != TNG_TRAJECTORY_FRAME_SET &&
+                block->id != -1)
         {
             /* Use hash by default */
             stat = tng_block_read_next(tng_data, block,
@@ -15463,7 +15480,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
         stat = tng_block_header_read(tng_data, block);
         while(file_pos < tng_data->input_file_len &&
             stat != TNG_CRITICAL &&
-            block->id != TNG_TRAJECTORY_FRAME_SET)
+            block->id != TNG_TRAJECTORY_FRAME_SET &&
+            block->id != -1)
         {
             stat = tng_block_read_next(tng_data, block,
                                     hash_mode);
@@ -15682,7 +15700,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
         stat = tng_block_header_read(tng_data, block);
         while(file_pos < tng_data->input_file_len &&
             stat != TNG_CRITICAL &&
-            block->id != TNG_TRAJECTORY_FRAME_SET)
+            block->id != TNG_TRAJECTORY_FRAME_SET &&
+            block->id != -1)
         {
             if(block->id == block_id)
             {
@@ -15905,7 +15924,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
         stat = tng_block_header_read(tng_data, block);
         while(file_pos < tng_data->input_file_len &&
                 stat != TNG_CRITICAL &&
-                block->id != TNG_TRAJECTORY_FRAME_SET)
+                block->id != TNG_TRAJECTORY_FRAME_SET &&
+                block->id != -1)
         {
             /* Use hash by default */
             stat = tng_block_read_next(tng_data, block,
@@ -16100,7 +16120,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
         stat = tng_block_header_read(tng_data, block);
         while(file_pos < tng_data->input_file_len &&
                 stat != TNG_CRITICAL &&
-                block->id != TNG_TRAJECTORY_FRAME_SET)
+                block->id != TNG_TRAJECTORY_FRAME_SET &&
+                block->id != -1)
         {
             /* Use hash by default */
             stat = tng_block_read_next(tng_data, block,
@@ -16270,7 +16291,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
         stat = tng_block_header_read(tng_data, block);
         while(file_pos < tng_data->input_file_len &&
                 stat != TNG_CRITICAL &&
-                block->id != TNG_TRAJECTORY_FRAME_SET)
+                block->id != TNG_TRAJECTORY_FRAME_SET &&
+                block->id != -1)
         {
             stat = tng_block_read_next(tng_data, block,
                                     hash_mode);
@@ -16526,7 +16548,8 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
         stat = tng_block_header_read(tng_data, block);
         while(file_pos < tng_data->input_file_len &&
             stat != TNG_CRITICAL &&
-            block->id != TNG_TRAJECTORY_FRAME_SET)
+            block->id != TNG_TRAJECTORY_FRAME_SET &&
+            block->id != -1)
         {
             if(block->id == block_id || block->id == TNG_PARTICLE_MAPPING)
             {
@@ -19057,7 +19080,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
             stat = tng_block_header_read(tng_data, block);
             while(file_pos < tng_data->input_file_len &&
                 stat != TNG_CRITICAL &&
-                block->id != TNG_TRAJECTORY_FRAME_SET)
+                block->id != TNG_TRAJECTORY_FRAME_SET &&
+                block->id != -1)
             {
                 stat = tng_block_read_next(tng_data, block,
                                         TNG_USE_HASH);
