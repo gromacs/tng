@@ -1833,8 +1833,8 @@ static tng_function_status tng_block_header_len_calculate
                  tng_gen_block_t block,
                  int64_t *len)
 {
-    (void)tng_data;
     int name_len;
+    (void)tng_data;
 
     /* If the string is unallocated allocate memory for just string
      * termination */
@@ -5501,10 +5501,10 @@ static tng_function_status tng_data_block_len_calculate
                  int64_t *data_start_pos,
                  int64_t *len)
 {
-    (void)tng_data;
     int size;
     int64_t i, j, k;
     char ***first_dim_values, **second_dim_values;
+    (void)tng_data;
 
     if(data == 0)
     {
@@ -12483,7 +12483,7 @@ static TNG_INLINE tng_function_status tng_particle_mapping_get_real_particle
 }
 */
 
-static tng_function_status DECLSPECDLLEXPORT tng_file_headers_len_get
+static tng_function_status tng_file_headers_len_get
                 (tng_trajectory_t tng_data,
                  int64_t *len)
 {
