@@ -6758,12 +6758,11 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
                                                 const int64_t block_index,
                                                 const char hash_mode)
 {
-    int64_t n_frames, stride_length, frame_step;
+    int64_t n_frames, stride_length, frame_step, data_start_pos;
     int64_t i, j;
     int offset = 0, size;
     unsigned int len;
 #ifdef USE_ZLIB
-    int64_t data_start_pos;
     tng_function_status stat;
 #endif
     char temp, dependency, *temp_name;
