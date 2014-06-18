@@ -8075,7 +8075,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_get
         if(&tng_data->molecules[i] == molecule)
         {
             index = i;
-            i = 0;
+            break;
         }
     }
     if(index == -1)
