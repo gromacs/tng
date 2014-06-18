@@ -8422,7 +8422,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
 
     n_chains = molecule->n_chains;
 
-    for(i = n_chains - 1; i > 0; i--)
+    for(i = n_chains - 1; i >= 0; i--)
     {
         *chain = &molecule->chains[i];
         if(name[0] == 0 || strcmp(name, (*chain)->name) == 0)
@@ -8799,6 +8799,10 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
     if(!chain->n_residues)
     {
         chain->residues = *residue;
+    }
+    else
+    {
+        chain->residues = &molecule->residues[curr_index];
     }
 
     (*residue)->name = 0;
