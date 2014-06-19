@@ -8515,20 +8515,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_bond_add
                  const int64_t to_atom_id,
                  tng_bond_t *bond)
 {
-    int64_t i;
     tng_bond_t new_bonds;
     (void)tng_data;
-
-    for(i = 0; i < molecule->n_bonds; i++)
-    {
-        *bond = &molecule->bonds[i];
-        /* Check if the bond already exists */
-        if(((*bond)->from_atom_id == from_atom_id && (*bond)->to_atom_id == to_atom_id) ||
-           ((*bond)->to_atom_id == from_atom_id && (*bond)->from_atom_id == to_atom_id))
-        {
-            return(TNG_SUCCESS);
-        }
-    }
 
     new_bonds = realloc(molecule->bonds,
                         sizeof(struct tng_bond) *
