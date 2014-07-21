@@ -1,7 +1,7 @@
 /* This code is part of the tng compression routines.
  *
- * Written by Daniel Spangberg
- * Copyright (c) 2010, 2013, The GROMACS development team.
+ * Written by Daniel Spangberg and Magnus Lundborg
+ * Copyright (c) 2010, 2013-2014 The GROMACS development team.
  *
  *
  * This program is free software; you can redistribute it and/or
@@ -10,6 +10,7 @@
 
 
 #include <stdlib.h>
+#include <string.h>
 #include "../../include/compression/warnmalloc.h"
 #include "../../include/compression/mtf.h"
 
@@ -63,8 +64,9 @@ void Ptngc_comp_conv_to_mtf_partial(unsigned int *vals, int nvals,
 {
   unsigned char *tmp=warnmalloc(nvals*2);
   int i, j;
-  for (i=0; i<nvals; i++)
-    valsmtf[i]=0U;
+
+  memset(valsmtf, 0U, sizeof(unsigned int) * nvals);
+
   for (j=0; j<3; j++)
     {
       for (i=0; i<nvals; i++)
@@ -138,8 +140,9 @@ void Ptngc_comp_conv_from_mtf_partial(unsigned int *valsmtf, int nvals,
 {
   unsigned char *tmp=warnmalloc(nvals*2);
   int i, j;
-  for (i=0; i<nvals; i++)
-    vals[i]=0U;
+
+  memset(vals, 0U, sizeof(unsigned int) * nvals);
+
   for (j=0; j<3; j++)
     {
       for (i=0; i<nvals; i++)
@@ -156,8 +159,9 @@ void Ptngc_comp_conv_from_mtf_partial3(unsigned char *valsmtf, int nvals,
 {
   unsigned char *tmp=warnmalloc(nvals);
   int i, j;
-  for (i=0; i<nvals; i++)
-    vals[i]=0U;
+
+  memset(vals, 0U, sizeof(unsigned int) * nvals);
+
   for (j=0; j<3; j++)
     {
       comp_conv_from_mtf_byte(valsmtf+j*nvals,nvals,tmp);

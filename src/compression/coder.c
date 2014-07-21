@@ -1,7 +1,7 @@
 /* This code is part of the tng compression routines.
  *
- * Written by Daniel Spangberg
- * Copyright (c) 2010, 2013, The GROMACS development team.
+ * Written by Daniel Spangberg and Magnus Lundborg
+ * Copyright (c) 2010, 2013-2014 The GROMACS development team.
  *
  *
  * This program is free software; you can redistribute it and/or
@@ -44,19 +44,17 @@ void DECLSPECDLLEXPORT Ptngc_coder_deinit(struct coder *coder_inst)
 
 TNG_INLINE void DECLSPECDLLEXPORT Ptngc_out8bits(struct coder *coder_inst, unsigned char **output)
 {
-  int pack_temporary_bits=coder_inst->pack_temporary_bits;
-  unsigned int pack_temporary=coder_inst->pack_temporary;
-  while (pack_temporary_bits>=8)
+  while (coder_inst->pack_temporary_bits>=8)
     {
-      unsigned int mask=~(0xFFU<<(pack_temporary_bits-8));
-      unsigned char out=(unsigned char)(pack_temporary>>(pack_temporary_bits-8));
+      unsigned int mask;
+      unsigned char out;
+      coder_inst->pack_temporary_bits-=8;
+      mask=~(0xFFU<<(coder_inst->pack_temporary_bits));
+      out=(unsigned char)(coder_inst->pack_temporary>>(coder_inst->pack_temporary_bits));
       **output=out;
       (*output)++;
-      pack_temporary_bits-=8;
-      pack_temporary&=mask;
+      coder_inst->pack_temporary&=mask;
     }
-  coder_inst->pack_temporary_bits=pack_temporary_bits;
-  coder_inst->pack_temporary=pack_temporary;
 }
 
 void DECLSPECDLLEXPORT Ptngc_write_pattern(struct coder *coder_inst, unsigned int pattern,
@@ -102,11 +100,11 @@ void DECLSPECDLLEXPORT Ptngc_write32bits(struct coder *coder_inst,unsigned int v
   while (nbits>8)
     {
       /* Make room for the bits. */
+      nbits-=8;
       coder_inst->pack_temporary<<=8;
       coder_inst->pack_temporary_bits+=8;
-      coder_inst->pack_temporary|=(value&mask)>>(nbits-8);
+      coder_inst->pack_temporary|=(value&mask)>>(nbits);
       Ptngc_out8bits(coder_inst,output_ptr);
-      nbits-=8;
       mask>>=8;
     }
   if (nbits)
@@ -246,7 +244,6 @@ unsigned char DECLSPECDLLEXPORT *Ptngc_pack_array(struct coder *coder_inst,
             {
               int item=input[k*3*natoms+i*3+j];
               pval[cnt++]=(unsigned int)(item+most_negative);
-
             }
       if (speed>=5)
         bwlzh_compress(pval,n,output+4,length);

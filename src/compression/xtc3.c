@@ -1,7 +1,7 @@
 /* This code is part of the tng compression routines.
  *
- * Written by Daniel Spangberg
- * Copyright (c) 2010, 2013, The GROMACS development team.
+ * Written by Daniel Spangberg and Magnus Lundborg
+ * Copyright (c) 2010, 2013-2014 The GROMACS development team.
  *
  *
  * This program is free software; you can redistribute it and/or
@@ -60,11 +60,17 @@ static const double iflipgaincheck=0.89089871814033927; /*  1./(2**(1./6)) */
 #define SHOWIT_LIGHT
 #endif
 
+#ifdef USE_WINDOWS
+#define TNG_INLINE __inline
+#else
+#define TNG_INLINE inline
+#endif
+
 /* These routines are in xtc2.c */
 int Ptngc_magic(unsigned int i);
 int Ptngc_find_magic_index(unsigned int maxval);
 
-static unsigned int positive_int(int item)
+TNG_INLINE static unsigned int positive_int(int item)
 {
   int s=0;
   if (item>0)
@@ -74,7 +80,7 @@ static unsigned int positive_int(int item)
   return s;
 }
 
-static int unpositive_int(int val)
+TNG_INLINE static int unpositive_int(int val)
 {
   int s=(val+1)/2;
   if ((val%2)==0)
@@ -574,15 +580,15 @@ static int base_bytes(unsigned int base, int n)
   unsigned int largeint[MAXMAXBASEVALS+1];
   unsigned int largeint_tmp[MAXMAXBASEVALS+1];
   int numbytes=0;
-  for (i=0; i<n+1; i++)
-    largeint[i]=0U;
+
+  memset(largeint, 0U, sizeof(unsigned int) * (n+1));
+
   for (i=0; i<n; i++)
     {
       if (i!=0)
         {
           Ptngc_largeint_mul(base,largeint,largeint_tmp,n+1);
-          for (j=0; j<n+1; j++)
-            largeint[j]=largeint_tmp[j];
+          memcpy(largeint, largeint_tmp, (n+1)*sizeof *largeint);
         }
       Ptngc_largeint_add(base-1U,largeint,n+1);
     }
@@ -612,8 +618,9 @@ static void base_compress(unsigned int *data, int len, unsigned char *output, in
       unsigned int base=0U;
       int nvals=0;
       int basegiven=0;
-      for (j=0; j<MAXBASEVALS+1; j++)
-        largeint[j]=0U;
+
+      memset(largeint, 0U, sizeof(unsigned int) * (MAXBASEVALS+1));
+
       for (i=ixyz; i<len; i+=3)
         {
          if (nvals==0)
@@ -679,8 +686,8 @@ static void base_compress(unsigned int *data, int len, unsigned char *output, in
               fprintf(stderr,"\n");
 #endif
               nvals=0;
-              for (j=0; j<MAXBASEVALS+1; j++)
-                largeint[j]=0U;
+
+              memset(largeint, 0U, sizeof(unsigned int) * (MAXBASEVALS+1));
             }
         }
       if (nvals)
@@ -747,8 +754,7 @@ static void base_decompress(unsigned char *input, int len, unsigned int *output)
               fprintf(stderr,"Base for %d is %u. I need %d bytes for %d values.\n",ixyz,base,numbytes,nvals_left);
 #endif
             }
-          for (j=0; j<maxbasevals+1; j++)
-            largeint[j]=0U;
+          memset(largeint, 0U, sizeof(unsigned int) * (maxbasevals+1));
 #ifdef SHOWIT
           fprintf(stderr,"Reading largeint: ");
 #endif
@@ -840,9 +846,8 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
   struct xtc3_context xtc3_context;
   init_xtc3_context(&xtc3_context);
 
-  xtc3_context.maxint[0]=xtc3_context.minint[0]=input[0];
-  xtc3_context.maxint[1]=xtc3_context.minint[1]=input[1];
-  xtc3_context.maxint[2]=xtc3_context.minint[2]=input[2];
+  memcpy(xtc3_context.maxint, input, 3*sizeof *xtc3_context.maxint);
+  memcpy(xtc3_context.minint, input, 3*sizeof *xtc3_context.maxint);
 
   /* Values of speed should be sane. */
   if (speed<1)
@@ -923,6 +928,7 @@ unsigned char *Ptngc_pack_array_xtc3(int *input, int *length, int natoms, int sp
 #endif
 
   /* Initial prevcoord is the minimum integers. */
+  memcpy(prevcoord, xtc3_context.minint, 3*sizeof *prevcoord);
   prevcoord[0]=xtc3_context.minint[0];
   prevcoord[1]=xtc3_context.minint[1];
   prevcoord[2]=xtc3_context.minint[2];
@@ -1722,9 +1728,7 @@ static void unpack_one_large(struct xtc3_context *xtc3_context,
         +output[outdata-natoms*3+2+didswap*3];
       (*ilargeinter)+=3;
     }
-  prevcoord[0]=large_ints[0];
-  prevcoord[1]=large_ints[1];
-  prevcoord[2]=large_ints[2];
+  memcpy(prevcoord, large_ints, 3*sizeof *prevcoord);
   output[outdata]=large_ints[0];
   output[outdata+1]=large_ints[1];
   output[outdata+2]=large_ints[2];
@@ -1833,9 +1837,7 @@ int Ptngc_unpack_array_xtc3(unsigned char *packed,int *output, int length, int n
     }
 
   /* Initial prevcoord is the minimum integers. */
-  prevcoord[0]=minint[0];
-  prevcoord[1]=minint[1];
-  prevcoord[2]=minint[2];
+  memcpy(prevcoord, minint, 3*sizeof *prevcoord);
 
   while (ntriplets_left>0 && iinstr<xtc3_context.ninstr)
     {
