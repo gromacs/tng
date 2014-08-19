@@ -7165,8 +7165,21 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
 
 /** Read the meta information of a data block (particle or non-particle data).
  * @param tng_data is a trajectory data container.
- * @param block is the block to store the data (should already contain
- * the block headers).
+ * @param datatype is set to the datatype of the data block.
+ * @param dependency is set to the dependency (particle and/or frame dependent)
+ * @param sparse_data is set to TRUE if data is not written every frame.
+ * @param n_values is set to the number of values per frame of the data.
+ * @param codec_id is set to the ID of the codec used to compress the data.
+ * @param first_frame_with_data is set to the first frame with data (only relevant if
+ * sparse_data == TRUE).
+ * @param stride_length is set to the writing interval of the data (1 if sparse_data
+ * == FALSE).
+ * @param num_first_particle is set to the number of the first particle with data written
+ * in this block.
+ * @param block_n_particles is set to the number of particles in this data block.
+ * @param multiplier is set to the compression multiplier.
+ * @param hash_mode specifies whether to check if the hash matches the contents or not.
+ * @param md5_state is the md5 has of the block (only used if hash_mode == TNG_USE_HASH).
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
@@ -7299,7 +7312,7 @@ static tng_function_status tng_data_block_meta_information_read
         }
         else
         {
-            *first_frame_with_data = 0;
+            *first_frame_with_data = tng_data->current_trajectory_frame_set.first_frame;
             *stride_length = 1;
             *n_frames = tng_data->current_trajectory_frame_set.n_frames;
         }
@@ -14038,6 +14051,87 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_num_values_per_frame_get
     return(TNG_FAILURE);
 }
 
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_n_frames_of_data_block_get
+                (tng_trajectory_t tng_data,
+                 const int64_t block_id,
+                 int64_t *n_frames)
+{
+    tng_gen_block_t block;
+    tng_function_status stat;
+    char datatype, dependency, sparse_data;
+    int64_t n_values, codec_id, first_frame_with_data, stride_length, curr_n_frames;
+    int64_t num_first_particle, block_n_particles;
+    double multiplier;
+    md5_state_t md5_state;
+    int found = TNG_FALSE;
+
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+
+    tng_block_init(&block);
+
+    stat = tng_block_header_read(tng_data, block);
+    /* If the block header could not be read the reading position might not have been
+     * at the start of a block. Try again from the file position of the current frame
+     * set. */
+    if(stat != TNG_SUCCESS)
+    {
+        fseeko(tng_data->input_file, tng_data->current_trajectory_frame_set_input_file_pos, SEEK_SET);
+        stat = tng_block_header_read(tng_data, block);
+        if(stat != TNG_SUCCESS)
+        {
+            tng_block_destroy(&block);
+            return(stat);
+        }
+    }
+    if(block->id == TNG_TRAJECTORY_FRAME_SET)
+    {
+        stat = tng_block_read_next(tng_data, block, TNG_SKIP_HASH);
+        if(stat != TNG_SUCCESS)
+        {
+            tng_block_destroy(&block);
+            return(stat);
+        }
+        stat = tng_block_header_read(tng_data, block);
+    }
+    while(stat == TNG_SUCCESS && block->id != TNG_TRAJECTORY_FRAME_SET && found == TNG_FALSE)
+    {
+        if(block->id == block_id)
+        {
+            stat = tng_data_block_meta_information_read(tng_data, &datatype,
+                                                        &dependency, &sparse_data,
+                                                        &n_values, &codec_id,
+                                                        &first_frame_with_data,
+                                                        &stride_length, &curr_n_frames,
+                                                        &num_first_particle,
+                                                        &block_n_particles,
+                                                        &multiplier, TNG_SKIP_HASH,
+                                                        &md5_state);
+            if(stat == TNG_SUCCESS)
+            {
+                found = TNG_TRUE;
+            }
+        }
+        else
+        {
+            fseeko(tng_data->input_file, block->block_contents_size, SEEK_CUR);
+            stat = tng_block_header_read(tng_data, block);
+        }
+    }
+    if(found == TNG_TRUE)
+    {
+        *n_frames = (tng_data->current_trajectory_frame_set.n_frames -
+                     (tng_data->current_trajectory_frame_set.first_frame - first_frame_with_data)) / stride_length;
+    }
+    else if(stat == TNG_SUCCESS)
+    {
+        *n_frames = 0;
+    }
+
+    tng_block_destroy(&block);
+
+    return(stat);
+}
+
 tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
                 (tng_trajectory_t tng_data,
                  const int64_t frame_nr,
@@ -19428,5 +19522,44 @@ tng_function_status DECLSPECDLLEXPORT tng_util_prepare_append_after_frame
 
     tng_data->input_file = temp;
 
+    return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_util_num_frames_with_data_of_block_id_get
+                (tng_trajectory_t tng_data,
+                 const int64_t block_id,
+                 int64_t *n_frames)
+{
+    int64_t curr_file_pos, first_frame_set_file_pos, curr_n_frames;
+    tng_function_status stat;
+
+    *n_frames = 0;
+
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+
+    first_frame_set_file_pos = tng_data->first_trajectory_frame_set_input_file_pos;
+    curr_file_pos = ftello(tng_data->input_file);
+    if(!tng_data->input_file_len)
+    {
+        fseeko(tng_data->input_file, 0, SEEK_END);
+        tng_data->input_file_len = ftello(tng_data->input_file);
+    }
+    fseeko(tng_data->input_file, first_frame_set_file_pos, SEEK_SET);
+
+    stat = tng_frame_set_n_frames_of_data_block_get(tng_data, block_id, &curr_n_frames);
+
+    while(stat == TNG_SUCCESS)
+    {
+        *n_frames += curr_n_frames;
+        fseeko(tng_data->input_file,
+               tng_data->current_trajectory_frame_set.next_frame_set_file_pos,
+               SEEK_SET);
+        stat = tng_frame_set_n_frames_of_data_block_get(tng_data, block_id, &curr_n_frames);
+    }
+    fseeko(tng_data->input_file, curr_file_pos, SEEK_SET);
+    if(stat == TNG_CRITICAL)
+    {
+        return(TNG_CRITICAL);
+    }
     return(TNG_SUCCESS);
 }
