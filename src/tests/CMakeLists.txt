@@ -74,13 +74,6 @@ if(TNG_BUILD_EXAMPLES)
     endif()
     set_property(TARGET tng_io_read_pos_util PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/examples)
 
-    add_executable(tng_io_gen_versioned_output tng_io_gen_versioned_output.c)
-    target_link_libraries(tng_io_gen_versioned_output tng_io)
-    if(HAVE_INTTYPES_H)
-      set_property(TARGET tng_io_gen_versioned_output APPEND PROPERTY COMPILE_DEFINITIONS USE_STD_INTTYPES_H=1)
-    endif()
-    set_property(TARGET tng_io_gen_versioned_output PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/examples)
-
     if(TNG_BUILD_FORTRAN)
         # This does not work due to a bug in CMake. Remove lines below if no fortran compiler is found.
         enable_language(Fortran OPTIONAL)
