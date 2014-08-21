@@ -9,6 +9,12 @@
  * modify it under the terms of the Revised BSD License.
  */
 
+#define _FILE_OFFSET_BITS 64
+/* Define to 1 to make fseeko visible on some hosts (e.g. glibc 2.2). */
+#define _LARGEFILE_SOURCE
+/* Define for large files, on AIX-style hosts. */
+#define _LARGE_FILES
+
 #include "tng/tng_io.h"
 
 #ifdef USE_STD_INTTYPES_H
