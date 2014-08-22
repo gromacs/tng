@@ -701,7 +701,7 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 {
   unsigned char *output=NULL;
   unsigned char *output_ptr=NULL;
-  int i,ienc,j,imult;
+  int i,ienc,j;
   int output_length=0;
   /* Pack triplets. */
   int ntriplets=*length/3;
