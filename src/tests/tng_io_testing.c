@@ -387,6 +387,9 @@ static tng_function_status tng_test_molecules(tng_trajectory_t traj)
         return(stat);
     }
 
+    free(bonds_from);
+    free(bonds_to);
+
     return(TNG_SUCCESS);
 }
 
@@ -1075,6 +1078,8 @@ tng_function_status tng_test_utility_functions(tng_trajectory_t traj, const char
 tng_function_status tng_test_append(tng_trajectory_t traj, const char hash_mode)
 {
     char str[TNG_MAX_STR_LEN];
+    int64_t n_frames, n_particles, i;
+    double time, *velocities;
     tng_function_status stat;
 
     stat = tng_util_trajectory_open(TNG_EXAMPLE_FILES_DIR "tng_test.tng", 'a', &traj);
@@ -1135,6 +1140,29 @@ tng_function_status tng_test_append(tng_trajectory_t traj, const char hash_mode)
                __FILE__, __LINE__);
         return(stat);
     }
+
+    tng_num_frames_get(traj, &n_frames);
+    tng_frame_set_of_frame_find(traj, n_frames - 1);
+    tng_util_time_of_frame_get(traj, n_frames - 1, &time);
+    time += TIME_PER_FRAME;
+    tng_num_particles_get(traj, &n_particles);
+
+    velocities = malloc(sizeof(double) * n_particles * 3);
+    if(!velocities)
+    {
+        printf("Cannot allocate memory. %s: %d\n",
+               __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
+
+    for(i = 0; i < n_particles * 3; i++)
+    {
+        velocities[i] = i;
+    }
+
+    tng_util_vel_with_time_double_write(traj, n_frames, time, velocities);
+
+    free(velocities);
 
     stat = tng_util_trajectory_close(&traj);
 
