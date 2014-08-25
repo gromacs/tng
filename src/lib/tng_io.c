@@ -4645,11 +4645,15 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
             {
                 alt_algo[0] = tng_data->compress_algo_pos[0];
                 alt_algo[1] = tng_data->compress_algo_pos[1];
+                alt_algo[2] = tng_data->compress_algo_pos[2];
+                alt_algo[3] = tng_data->compress_algo_pos[3];
             }
             else
             {
                 alt_algo[0] = -1;
                 alt_algo[1] = -1;
+                alt_algo[2] = -1;
+                alt_algo[3] = -1;
             }
 
             /* If the initial coding and initial coding parameter are -1
@@ -4778,15 +4782,19 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
 
             /* If we have already determined the initial coding and
              * initial coding parameter do not determine them again. */
-            if(tng_data->compress_algo_pos)
+            if(tng_data->compress_algo_vel)
             {
                 alt_algo[0] = tng_data->compress_algo_vel[0];
                 alt_algo[1] = tng_data->compress_algo_vel[1];
+                alt_algo[2] = tng_data->compress_algo_vel[2];
+                alt_algo[3] = tng_data->compress_algo_vel[3];
             }
             else
             {
                 alt_algo[0] = -1;
                 alt_algo[1] = -1;
+                alt_algo[2] = -1;
+                alt_algo[3] = -1;
             }
 
             /* If the initial coding and initial coding parameter are -1
