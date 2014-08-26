@@ -6519,7 +6519,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
         if(tng_data_block_create(tng_data, block_type_flag) !=
             TNG_SUCCESS)
         {
-            fprintf(stderr, "TNG library: Cannot create particle data block. %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot create data block. %s: %d\n",
                    __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -18533,21 +18533,15 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
     {
         block_type_flag = TNG_TRAJECTORY_BLOCK;
 
-        n_frames = tng_data->frame_set_n_frames;
-
         if(!frame_set || tng_data->n_trajectory_frame_sets <= 0)
         {
-            stat = tng_frame_set_new(tng_data, 0, n_frames);
+            stat = tng_frame_set_new(tng_data, 0, tng_data->frame_set_n_frames);
             if(stat != TNG_SUCCESS)
             {
                 fprintf(stderr, "TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
                     __LINE__);
                 return(stat);
             }
-        }
-        else
-        {
-            n_frames = frame_set->n_frames;
         }
         last_frame = frame_set->first_frame +
                      frame_set->n_frames - 1;
@@ -18564,7 +18558,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
             {
                 last_frame = frame_nr - 1;
             }
-            stat = tng_frame_set_new(tng_data, last_frame + 1, n_frames);
+            stat = tng_frame_set_new(tng_data, last_frame + 1,
+                                     tng_data->frame_set_n_frames);
             if(stat != TNG_SUCCESS)
             {
                 fprintf(stderr, "TNG library: Cannot create frame set.  %s: %d\n", __FILE__,
@@ -18578,7 +18573,10 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
         }
         frame_set->n_unwritten_frames = frame_nr -
                                         frame_set->first_frame + 1;
+
+        n_frames = frame_set->n_frames;
     }
+
 
     if(particle_dependency == TNG_PARTICLE_BLOCK_DATA)
     {
@@ -18624,7 +18622,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
         {
             stride_length = p_data->stride_length;
 
-            if(is_first_frame_flag)
+            if(is_first_frame_flag || p_data->first_frame_with_data < frame_set->first_frame)
             {
                 p_data->first_frame_with_data = frame_nr;
                 frame_pos = 0;
@@ -18682,7 +18680,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
         {
             stride_length = np_data->stride_length;
 
-            if(is_first_frame_flag)
+            if(is_first_frame_flag || np_data->first_frame_with_data < frame_set->first_frame)
             {
                 np_data->first_frame_with_data = frame_nr;
                 frame_pos = 0;
