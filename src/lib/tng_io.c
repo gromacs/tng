@@ -213,6 +213,9 @@ struct tng_data {
     char *block_name;
     /** The type of data stored. */
     char datatype;
+    /** A flag to indicate if this data block contains frame and/or particle dependent
+     * data */
+    char dependency;
     /** The frame number of the first data value */
     int64_t first_frame_with_data;
     /** The number of frames in this frame set */
@@ -4984,7 +4987,6 @@ static tng_function_status tng_data_block_len_calculate
                  const int64_t stride_length,
                  const int64_t num_first_particle,
                  const int64_t n_particles,
-                 const char dependency,
                  int64_t *data_start_pos,
                  int64_t *len)
 {
@@ -5032,7 +5034,7 @@ static tng_function_status tng_data_block_len_calculate
         *len += sizeof(data->compression_multiplier);
     }
 
-    if(dependency & TNG_FRAME_DEPENDENT)
+    if(data->dependency & TNG_FRAME_DEPENDENT)
     {
         *len += sizeof(char);
     }
@@ -5204,6 +5206,14 @@ static tng_function_status tng_particle_data_read
         /* FIXME: Memory leak from strings. */
         data->strings = 0;
         data->n_frames = 0;
+        data->dependency = TNG_PARTICLE_DEPENDENT;
+        if(block_type_flag == TNG_TRAJECTORY_BLOCK &&
+                              (n_frames > 1 ||
+                               frame_set->n_frames == n_frames ||
+                               stride_length > 1))
+        {
+            data->dependency += TNG_FRAME_DEPENDENT;
+        }
         data->codec_id = codec_id;
         data->compression_multiplier = multiplier;
         data->last_retrieved_frame = -1;
@@ -5403,7 +5413,7 @@ static tng_function_status tng_particle_data_block_write
     int64_t i, j, k, curr_file_pos, header_file_pos;
     int size;
     size_t len;
-    char dependency, temp, *temp_name;
+    char temp, *temp_name;
     double multiplier;
     char ***first_dim_values, **second_dim_values, *contents;
     tng_trajectory_frame_set_t frame_set;
@@ -5532,18 +5542,9 @@ static tng_function_status tng_particle_data_block_write
         }
     }
 
-    if(block_type_flag == TNG_TRAJECTORY_BLOCK && data->n_frames > 0)
-    {
-        dependency = TNG_FRAME_DEPENDENT + TNG_PARTICLE_DEPENDENT;
-    }
-    else
-    {
-        dependency = TNG_PARTICLE_DEPENDENT;
-    }
-
     if(tng_data_block_len_calculate(tng_data, data, TNG_TRUE, n_frames,
                                     frame_step, stride_length, num_first_particle,
-                                    n_particles, dependency, &data_start_pos,
+                                    n_particles, &data_start_pos,
                                     &block->block_contents_size) != TNG_SUCCESS)
     {
         fprintf(stderr, "TNG library: Cannot calculate length of particle data block. %s: %d\n",
@@ -5572,14 +5573,14 @@ static tng_function_status tng_particle_data_block_write
         return(TNG_CRITICAL);
     }
 
-    if(tng_file_output_numerical(tng_data, &dependency,
-                                 sizeof(dependency),
+    if(tng_file_output_numerical(tng_data, &data->dependency,
+                                 sizeof(data->dependency),
                                  hash_mode, &md5_state, __LINE__) == TNG_CRITICAL)
     {
         return(TNG_CRITICAL);
     }
 
-    if(dependency & TNG_FRAME_DEPENDENT)
+    if(data->dependency & TNG_FRAME_DEPENDENT)
     {
         if(stride_length > 1)
         {
@@ -6180,6 +6181,14 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
         /* FIXME: Memory leak from strings. */
         data->strings = 0;
         data->n_frames = 0;
+        data->dependency = 0;
+        if(block_type_flag == TNG_TRAJECTORY_BLOCK &&
+                              (n_frames > 1 ||
+                               frame_set->n_frames == n_frames ||
+                               stride_length > 1))
+        {
+            data->dependency += TNG_FRAME_DEPENDENT;
+        }
         data->codec_id = codec_id;
         data->compression_multiplier = multiplier;
         data->last_retrieved_frame = -1;
@@ -6344,7 +6353,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
 #ifdef USE_ZLIB
     tng_function_status stat;
 #endif
-    char temp, dependency, *temp_name, *contents;
+    char temp, *temp_name, *contents;
     double multiplier;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
@@ -6452,18 +6461,9 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         data->compression_multiplier = 1.0;
     }
 
-    if(block_type_flag == TNG_TRAJECTORY_BLOCK && data->n_frames > 0)
-    {
-        dependency = TNG_FRAME_DEPENDENT;
-    }
-    else
-    {
-        dependency = 0;
-    }
-
-    if(tng_data_block_len_calculate(tng_data, (tng_data_t)data, TNG_FALSE, n_frames,
+    if(tng_data_block_len_calculate(tng_data, data, TNG_FALSE, n_frames,
                                     frame_step, stride_length, 0,
-                                    1, dependency, &data_start_pos,
+                                    1, &data_start_pos,
                                     &block->block_contents_size) != TNG_SUCCESS)
     {
         fprintf(stderr, "TNG library: Cannot calculate length of non-particle data block. %s: %d\n",
@@ -6492,14 +6492,14 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
         return(TNG_CRITICAL);
     }
 
-    if(tng_file_output_numerical(tng_data, &dependency,
-                                 sizeof(dependency),
+    if(tng_file_output_numerical(tng_data, &data->dependency,
+                                 sizeof(data->dependency),
                                  hash_mode, &md5_state, __LINE__) == TNG_CRITICAL)
     {
         return(TNG_CRITICAL);
     }
 
-    if(dependency & TNG_FRAME_DEPENDENT)
+    if(data->dependency & TNG_FRAME_DEPENDENT)
     {
         if(stride_length > 1)
         {
@@ -6974,6 +6974,7 @@ static tng_function_status tng_data_block_contents_read
 
     remaining_len = block->block_contents_size - (ftello(tng_data->input_file) - start_pos);
 
+    /* FIXME: MERGE */
     if (dependency & TNG_PARTICLE_DEPENDENT)
     {
         stat = tng_particle_data_read(tng_data, block,
@@ -12242,9 +12243,9 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
             tot_len += len;
             tng_data_block_len_calculate(tng_data,
                                         (tng_data_t)&tng_data->non_tr_data[i],
-                                        TNG_FALSE, 1, 1, 1, 0,
-                                        1, 0, &data_start_pos,
-                                        &len);
+                                         TNG_FALSE, 1, 1, 1, 0, 1,
+                                         &data_start_pos,
+                                         &len);
             tot_len += len;
         }
         for(i = 0; i < tng_data->n_particle_data_blocks; i++)
@@ -12253,11 +12254,11 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
             tng_block_header_len_calculate(tng_data, block, &len);
             tot_len += len;
             tng_data_block_len_calculate(tng_data,
-                                        &tng_data->non_tr_particle_data[i],
-                                        TNG_TRUE, 1, 1, 1, 0,
-                                        tng_data->n_particles, TNG_PARTICLE_DEPENDENT,
-                                        &data_start_pos,
-                                        &len);
+                                         &tng_data->non_tr_particle_data[i],
+                                         TNG_TRUE, 1, 1, 1, 0,
+                                         tng_data->n_particles,
+                                         &data_start_pos,
+                                         &len);
             tot_len += len;
         }
         tng_block_destroy(&block);
@@ -13120,6 +13121,14 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
     data->stride_length = tng_max_i64(stride_length, 1);
     data->n_values_per_frame = n_values_per_frame;
     data->n_frames = n_frames;
+    data->dependency = 0;
+    if(block_type_flag == TNG_TRAJECTORY_BLOCK &&
+                          (n_frames > 1 ||
+                           frame_set->n_frames == n_frames ||
+                           stride_length > 1))
+    {
+        data->dependency += TNG_FRAME_DEPENDENT;
+    }
     data->codec_id = codec_id;
     data->compression_multiplier = 1.0;
     /* FIXME: This can cause problems. */
@@ -13274,6 +13283,14 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
     data->stride_length = tng_max_i64(stride_length, 1);
     data->n_values_per_frame = n_values_per_frame;
     data->n_frames = n_frames;
+    data->dependency = TNG_PARTICLE_DEPENDENT;
+    if(block_type_flag == TNG_TRAJECTORY_BLOCK &&
+                          (n_frames > 1 ||
+                           frame_set->n_frames == n_frames ||
+                           stride_length > 1))
+    {
+        data->dependency += TNG_FRAME_DEPENDENT;
+    }
     data->codec_id = codec_id;
     data->compression_multiplier = 1.0;
     /* FIXME: This can cause problems. */
@@ -13475,16 +13492,15 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_dependency_get
 {
     int64_t i;
     tng_function_status stat;
-    tng_data_t p_data;
-    tng_data_t np_data;
+    tng_data_t data;
 
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(block_dependency, "TNG library: block_dependency must not be a NULL pointer.");
 
     for(i = 0; i < tng_data->n_particle_data_blocks; i++)
     {
-        p_data = &tng_data->non_tr_particle_data[i];
-        if(p_data->block_id == block_id)
+        data = &tng_data->non_tr_particle_data[i];
+        if(data->block_id == block_id)
         {
             *block_dependency = TNG_PARTICLE_DEPENDENT;
             return(TNG_SUCCESS);
@@ -13492,15 +13508,15 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_dependency_get
     }
     for(i = 0; i < tng_data->n_data_blocks; i++)
     {
-        np_data = &tng_data->non_tr_data[i];
-        if(np_data->block_id == block_id)
+        data = &tng_data->non_tr_data[i];
+        if(data->block_id == block_id)
         {
             *block_dependency = 0;
             return(TNG_SUCCESS);
         }
     }
 
-    stat = tng_particle_data_find(tng_data, block_id, &p_data);
+    stat = tng_particle_data_find(tng_data, block_id, &data);
     if(stat == TNG_SUCCESS)
     {
         *block_dependency = TNG_PARTICLE_DEPENDENT + TNG_FRAME_DEPENDENT;
@@ -13508,7 +13524,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_dependency_get
     }
     else
     {
-        stat = tng_data_find(tng_data, block_id, &np_data);
+        stat = tng_data_find(tng_data, block_id, &data);
         if(stat == TNG_SUCCESS)
         {
             *block_dependency = TNG_FRAME_DEPENDENT;
@@ -13521,7 +13537,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_dependency_get
             {
                 return(stat);
             }
-            stat = tng_particle_data_find(tng_data, block_id, &p_data);
+            stat = tng_particle_data_find(tng_data, block_id, &data);
             if(stat == TNG_SUCCESS)
             {
                 *block_dependency = TNG_PARTICLE_DEPENDENT + TNG_FRAME_DEPENDENT;
@@ -13529,7 +13545,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_dependency_get
             }
             else
             {
-                stat = tng_data_find(tng_data, block_id, &np_data);
+                stat = tng_data_find(tng_data, block_id, &data);
                 if(stat == TNG_SUCCESS)
                 {
                     *block_dependency = TNG_FRAME_DEPENDENT;
