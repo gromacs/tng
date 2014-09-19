@@ -988,11 +988,6 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj,
         }
     }
 
-    tng_particle_data_values_free(traj, values, n_frames, n_particles,
-                                  n_values_per_frame, type);
-
-    values = 0;
-
     if(tng_particle_data_interval_get(traj, TNG_TRAJ_POSITIONS, 111000, 111499,
                                       hash_mode, &values, &n_particles,
                                       &n_values_per_frame, &type) == TNG_SUCCESS)
@@ -1022,7 +1017,7 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj,
                 {
                     printf("Coordinates not in range. %s: %d\n",
                            __FILE__, __LINE__);
-                    tng_particle_data_values_free(traj, values, 50, n_particles,
+                    tng_particle_data_values_free(traj, values, n_frames, n_particles,
                                                   n_values_per_frame, type);
                     return(TNG_FAILURE);
                 }
@@ -1031,7 +1026,7 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj,
         }
     }
 
-    tng_particle_data_values_free(traj, values, 50, n_particles,
+    tng_particle_data_values_free(traj, values, n_frames, n_particles,
                                   n_values_per_frame, type);
 
     return(TNG_SUCCESS);
