@@ -928,18 +928,6 @@ tng_function_status tng_test_get_box_data(tng_trajectory_t traj)
         return(TNG_CRITICAL);
     }
 
-/*
-//     int64_t i, j;
-//     printf("Box shape:");
-//     for(i=0; i<n_frames; i++)
-//     {
-//         for(j=0; j<n_values_per_frame; j++)
-//         {
-//             printf("\t%f", (values[i][j]).d);
-//         }
-//         printf("\n");
-//     }
-*/
     /* The X dimension in the example file is 50 */
     if(fabs(values[0][0].d - 50) > 0.000001)
     {
@@ -958,7 +946,7 @@ tng_function_status tng_test_get_box_data(tng_trajectory_t traj)
 tng_function_status tng_test_get_positions_data(tng_trajectory_t traj,
                                                 const char hash_mode)
 {
-    int64_t n_frames, n_particles, n_values_per_frame;
+    int64_t i, j, k, n_frames, n_particles, n_values_per_frame;
     union data_values ***values = 0;
     char type;
 
@@ -970,18 +958,80 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj,
         return(TNG_CRITICAL);
     }
 
+    if(n_values_per_frame != 3)
+    {
+        printf("Number of values per frame does not match expected value. %s: %d\n",
+               __FILE__, __LINE__);
+        tng_particle_data_values_free(traj, values, n_frames, n_particles,
+                                      n_values_per_frame, type);
+        return(TNG_FAILURE);
+    }
+
+    for(i = 0; i < n_frames; i++)
+    {
+//         printf("%"PRId64"\n", i);
+        for(j = 0; j < n_particles; j++)
+        {
+            for(k = 0; k < n_values_per_frame; k++)
+            {
+//                 printf("%f ", values[i][j][k].f);
+                if(values[i][j][k].f < -500 || values[i][j][k].f > 500)
+                {
+                    printf("Coordinates not in range. %s: %d\n",
+                           __FILE__, __LINE__);
+                    tng_particle_data_values_free(traj, values, n_frames, n_particles,
+                                                  n_values_per_frame, type);
+                    return(TNG_FAILURE);
+                }
+            }
+//             printf("\n");
+        }
+    }
+
     tng_particle_data_values_free(traj, values, n_frames, n_particles,
                                   n_values_per_frame, type);
 
     values = 0;
 
-    tng_particle_data_interval_get(traj, TNG_TRAJ_POSITIONS, 11000, 11499,
-                                   hash_mode, &values, &n_particles,
-                                   &n_values_per_frame, &type);
+    if(tng_particle_data_interval_get(traj, TNG_TRAJ_POSITIONS, 111000, 111499,
+                                      hash_mode, &values, &n_particles,
+                                      &n_values_per_frame, &type) == TNG_SUCCESS)
+    {
+        printf("Getting particle positions succeeded when it should have failed. %s: %d\n",
+               __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
 
-    /* Here the particle positions can be printed */
+    if(tng_particle_data_interval_get(traj, TNG_TRAJ_POSITIONS, 1000, 1050,
+                                      hash_mode, &values, &n_particles,
+                                      &n_values_per_frame, &type) != TNG_SUCCESS)
+    {
+        printf("Failed getting particle positions. %s: %d\n", __FILE__, __LINE__);
+        return(TNG_CRITICAL);
+    }
 
-    tng_particle_data_values_free(traj, values, 500, n_particles,
+    for(i = 0; i < 50; i++)
+    {
+//         printf("%"PRId64"\n", i);
+        for(j = 0; j < n_particles; j++)
+        {
+            for(k = 0; k < n_values_per_frame; k++)
+            {
+//                 printf("%f ", values[i][j][k].f);
+                if(values[i][j][k].f < -500 || values[i][j][k].f > 500)
+                {
+                    printf("Coordinates not in range. %s: %d\n",
+                           __FILE__, __LINE__);
+                    tng_particle_data_values_free(traj, values, 50, n_particles,
+                                                  n_values_per_frame, type);
+                    return(TNG_FAILURE);
+                }
+            }
+//             printf("\n");
+        }
+    }
+
+    tng_particle_data_values_free(traj, values, 50, n_particles,
                                   n_values_per_frame, type);
 
     return(TNG_SUCCESS);
@@ -991,7 +1041,7 @@ tng_function_status tng_test_utility_functions(tng_trajectory_t traj, const char
 {
     tng_function_status stat;
     int64_t n_particles, i, j, k, codec_id;
-    int64_t n_frames_to_read=10, stride_len, next_frame, n_blocks, *block_ids = 0;
+    int64_t n_frames_to_read=30, stride_len, next_frame, n_blocks, *block_ids = 0;
     double time, multiplier;
     float *positions = 0;
 
