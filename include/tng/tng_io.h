@@ -2888,6 +2888,9 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
  * @param n_frames is the number of frames in the data array.
  * @param n_values_per_frame is the number of values per frame in the data array.
  * @param type is the data type of the data in the array (e.g. int/float/char).
+ * @details This function should not be used. The data_values union is obsolete.
+ * This function also causes memory leaks, but its signature cannot be changed
+ * without disturbing the API.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_data_values_free
@@ -2905,6 +2908,9 @@ tng_function_status DECLSPECDLLEXPORT tng_data_values_free
  * @param n_particles is the number of particles in the data array.
  * @param n_values_per_frame is the number of values per frame in the data array.
  * @param type is the data type of the data in the array (e.g. int/float/char).
+ * @details This function should not be used. The data_values union is obsolete.
+ * This function also causes memory leaks, but its signature cannot be changed
+ * without disturbing the API.
  * @return TNG_SUCCESS (0) if successful.
  */
 tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free
