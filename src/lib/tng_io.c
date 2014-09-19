@@ -14189,34 +14189,33 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
                             n_values_per_frame, type));
 }
 
-tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
-                                        const int64_t block_id,
-                                        void **values,
-                                        int64_t *n_frames,
-                                        int64_t *stride_length,
-                                        int64_t *n_values_per_frame,
-                                        char *type)
+static tng_function_status tng_gen_data_vector_get
+                (tng_trajectory_t tng_data,
+                 const int64_t block_id,
+                 const tng_bool is_particle_data,
+                 void **values,
+                 int64_t *n_frames,
+                 int64_t *stride_length,
+                 int64_t *n_particles,
+                 int64_t *n_values_per_frame,
+                 char *type)
 {
-    int64_t file_pos, full_data_len, n_frames_div, block_index;
-    int i, size;
+    int64_t i, j, mapping, file_pos, i_step, full_data_len, n_frames_div;
+    int64_t block_index;
+    int size;
     tng_data_t data;
     tng_trajectory_frame_set_t frame_set;
     tng_gen_block_t block;
     void *temp;
+    char block_type_flag;
     tng_function_status stat;
-
-    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
-    TNG_ASSERT(n_frames, "TNG library: n_frames must not be a NULL pointer.");
-    TNG_ASSERT(stride_length, "TNG library: stride_length must not be a NULL pointer.");
-    TNG_ASSERT(n_values_per_frame, "TNG library: n_values_per_frame must not be a NULL pointer.");
-    TNG_ASSERT(type, "TNG library: type must not be a NULL pointer.");
 
     frame_set = &tng_data->current_trajectory_frame_set;
 
     block_index = -1;
     data = 0;
 
-    if(tng_data_find(tng_data, block_id, &data) != TNG_SUCCESS)
+    if(tng_particle_data_find(tng_data, block_id, &data) != TNG_SUCCESS)
     {
         tng_block_init(&block);
         file_pos = ftello(tng_data->input_file);
@@ -14247,9 +14246,9 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
             return(stat);
         }
 
-        for(i = 0; i < frame_set->n_data_blocks; i++)
+        for(i = 0; i < frame_set->n_particle_data_blocks; i++)
         {
-            data = &frame_set->tr_data[i];
+            data = &frame_set->tr_particle_data[i];
             if(data->block_id == block_id)
             {
                 block_index = i;
@@ -14259,6 +14258,28 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
         if(block_index < 0)
         {
             return(TNG_FAILURE);
+        }
+    }
+
+    if(is_particle_data == TNG_TRUE)
+    {
+        if(tng_data->current_trajectory_frame_set_input_file_pos > 0)
+        {
+            block_type_flag = TNG_TRAJECTORY_BLOCK;
+        }
+        else
+        {
+            block_type_flag = TNG_NON_TRAJECTORY_BLOCK;
+        }
+
+       if(block_type_flag == TNG_TRAJECTORY_BLOCK &&
+          tng_data->var_num_atoms_flag)
+        {
+            *n_particles = frame_set->n_particles;
+        }
+        else
+        {
+            *n_particles = tng_data->n_particles;
         }
     }
 
@@ -14279,14 +14300,16 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
         size = sizeof(double);
     }
 
-    *n_frames = data->n_frames;
+    *n_frames = tng_max_i64(1, data->n_frames);
     *n_values_per_frame = data->n_values_per_frame;
     *stride_length = data->stride_length;
-    n_frames_div = (*n_frames % *stride_length) ? *n_frames / *stride_length + 1:
+
+    n_frames_div = (*n_frames % *stride_length) ?
+                   *n_frames / *stride_length + 1:
                    *n_frames / *stride_length;
 
-    full_data_len = n_frames_div * size *
-                *n_values_per_frame;
+    full_data_len = n_frames_div * size * (*n_particles) *
+                (*n_values_per_frame);
 
     temp = realloc(*values, full_data_len);
     if(!temp)
@@ -14300,11 +14323,50 @@ tng_function_status tng_data_vector_get(tng_trajectory_t tng_data,
 
     *values = temp;
 
-    memcpy(*values, data->values, full_data_len);
+    if(is_particle_data != TNG_TRUE || frame_set->n_mapping_blocks <= 0)
+    {
+        memcpy(*values, data->values, full_data_len);
+    }
+    else
+    {
+        i_step = (*n_particles) * (*n_values_per_frame);
+        for(i = 0; i < *n_frames; i++)
+        {
+            for(j = 0; j < *n_particles; j++)
+            {
+                tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
+                memcpy(((char *)*values) + size * (i * i_step + mapping *
+                       (*n_values_per_frame)),
+                       (char *)data->values + size *
+                       (i * i_step + j * (*n_values_per_frame)),
+                       size * (*n_values_per_frame));
+            }
+        }
+    }
 
     data->last_retrieved_frame = frame_set->first_frame + data->n_frames - 1;
 
     return(TNG_SUCCESS);
+}
+
+tng_function_status DECLSPECDLLEXPORT tng_data_vector_get
+                (tng_trajectory_t tng_data,
+                 const int64_t block_id,
+                 void **values,
+                 int64_t *n_frames,
+                 int64_t *stride_length,
+                 int64_t *n_values_per_frame,
+                 char *type)
+{
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    TNG_ASSERT(n_frames, "TNG library: n_frames must not be a NULL pointer.");
+    TNG_ASSERT(stride_length, "TNG library: stride_length must not be a NULL pointer.");
+    TNG_ASSERT(n_values_per_frame, "TNG library: n_values_per_frame must not be a NULL pointer.");
+    TNG_ASSERT(type, "TNG library: type must not be a NULL pointer.");
+
+    return(tng_gen_data_vector_get(tng_data, block_id, TNG_FALSE, values,
+                                   n_frames, stride_length, 0, n_values_per_frame,
+                                   type));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
@@ -14780,156 +14842,15 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
                  int64_t *n_values_per_frame,
                  char *type)
 {
-    int64_t i, j, mapping, file_pos, i_step, full_data_len, n_frames_div;
-    int64_t block_index;
-    int size;
-    tng_data_t data;
-    tng_trajectory_frame_set_t frame_set;
-    tng_gen_block_t block;
-    void *temp;
-    char block_type_flag;
-    tng_function_status stat;
-
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(n_particles, "TNG library: n_particles must not be a NULL pointer.");
     TNG_ASSERT(stride_length, "TNG library: stride_length must not be a NULL pointer.");
     TNG_ASSERT(n_values_per_frame, "TNG library: n_values_per_frame must not be a NULL pointer.");
     TNG_ASSERT(type, "TNG library: type must not be a NULL pointer.");
 
-    frame_set = &tng_data->current_trajectory_frame_set;
-
-    block_index = -1;
-    data = 0;
-
-    if(tng_particle_data_find(tng_data, block_id, &data) != TNG_SUCCESS)
-    {
-        tng_block_init(&block);
-        file_pos = ftello(tng_data->input_file);
-        /* Read all blocks until next frame set block */
-        stat = tng_block_header_read(tng_data, block);
-        while(file_pos < tng_data->input_file_len &&
-                stat != TNG_CRITICAL &&
-                block->id != TNG_TRAJECTORY_FRAME_SET &&
-                block->id != -1)
-        {
-            /* Use hash by default */
-            stat = tng_block_read_next(tng_data, block,
-                                    TNG_USE_HASH);
-            if(stat != TNG_CRITICAL)
-            {
-                file_pos = ftello(tng_data->input_file);
-                if(file_pos < tng_data->input_file_len)
-                {
-                    stat = tng_block_header_read(tng_data, block);
-                }
-            }
-        }
-        tng_block_destroy(&block);
-        if(stat == TNG_CRITICAL)
-        {
-            fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n",
-                    file_pos, __FILE__, __LINE__);
-            return(stat);
-        }
-
-        for(i = 0; i < frame_set->n_particle_data_blocks; i++)
-        {
-            data = &frame_set->tr_particle_data[i];
-            if(data->block_id == block_id)
-            {
-                block_index = i;
-                break;
-            }
-        }
-        if(block_index < 0)
-        {
-            return(TNG_FAILURE);
-        }
-    }
-
-    if(tng_data->current_trajectory_frame_set_input_file_pos > 0)
-    {
-        block_type_flag = TNG_TRAJECTORY_BLOCK;
-    }
-    else
-    {
-        block_type_flag = TNG_NON_TRAJECTORY_BLOCK;
-    }
-
-   if(block_type_flag == TNG_TRAJECTORY_BLOCK &&
-      tng_data->var_num_atoms_flag)
-    {
-        *n_particles = frame_set->n_particles;
-    }
-    else
-    {
-        *n_particles = tng_data->n_particles;
-    }
-
-    *type = data->datatype;
-
-    switch(*type)
-    {
-    case TNG_CHAR_DATA:
-        return(TNG_FAILURE);
-    case TNG_INT_DATA:
-        size = sizeof(int64_t);
-        break;
-    case TNG_FLOAT_DATA:
-        size = sizeof(float);
-        break;
-    case TNG_DOUBLE_DATA:
-    default:
-        size = sizeof(double);
-    }
-
-    *n_frames = tng_max_i64(1, data->n_frames);
-    *n_values_per_frame = data->n_values_per_frame;
-    *stride_length = data->stride_length;
-
-    n_frames_div = (*n_frames % *stride_length) ?
-                   *n_frames / *stride_length + 1:
-                   *n_frames / *stride_length;
-
-    full_data_len = n_frames_div * size * (*n_particles) *
-                (*n_values_per_frame);
-
-    temp = realloc(*values, full_data_len);
-    if(!temp)
-    {
-        fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-               full_data_len, __FILE__, __LINE__);
-        free(*values);
-        *values = 0;
-        return(TNG_CRITICAL);
-    }
-
-    *values = temp;
-
-    if(frame_set->n_mapping_blocks <= 0)
-    {
-        memcpy(*values, data->values, full_data_len);
-    }
-    else
-    {
-        i_step = (*n_particles) * (*n_values_per_frame);
-        for(i = 0; i < *n_frames; i++)
-        {
-            for(j = 0; j < *n_particles; j++)
-            {
-                tng_particle_mapping_get_real_particle(frame_set, j, &mapping);
-                memcpy(((char *)*values) + size * (i * i_step + mapping *
-                       (*n_values_per_frame)),
-                       (char *)data->values + size *
-                       (i * i_step + j * (*n_values_per_frame)),
-                       size * (*n_values_per_frame));
-            }
-        }
-    }
-
-    data->last_retrieved_frame = frame_set->first_frame + data->n_frames - 1;
-
-    return(TNG_SUCCESS);
+    return(tng_gen_data_vector_get(tng_data, block_id, TNG_TRUE, values,
+                                   n_frames, stride_length, n_particles,
+                                   n_values_per_frame, type));
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
