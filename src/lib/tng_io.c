@@ -9219,24 +9219,38 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
 
     frame_set = &dest->current_trajectory_frame_set;
 
-    dest->input_file_path = malloc(strlen(src->input_file_path) + 1);
-    if(!dest->input_file_path)
+    if(src->input_file_path)
     {
-        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
-               (unsigned int)strlen(src->input_file_path) + 1, __FILE__, __LINE__);
-        return(TNG_CRITICAL);
+        dest->input_file_path = malloc(strlen(src->input_file_path) + 1);
+        if(!dest->input_file_path)
+        {
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+                   (unsigned int)strlen(src->input_file_path) + 1, __FILE__, __LINE__);
+            return(TNG_CRITICAL);
+        }
+        strcpy(dest->input_file_path, src->input_file_path);
+        dest->input_file_len = src->input_file_len;
     }
-    strcpy(dest->input_file_path, src->input_file_path);
+    else
+    {
+        dest->input_file_path = 0;
+    }
     dest->input_file = 0;
-    dest->input_file_len = src->input_file_len;
-    dest->output_file_path = malloc(strlen(src->output_file_path) + 1);
-    if(!dest->output_file_path)
+    if(src->output_file_path)
     {
-        fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
-               (unsigned int)strlen(src->output_file_path) + 1, __FILE__, __LINE__);
-        return(TNG_CRITICAL);
+        dest->output_file_path = malloc(strlen(src->output_file_path) + 1);
+        if(!dest->output_file_path)
+        {
+            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+                   (unsigned int)strlen(src->output_file_path) + 1, __FILE__, __LINE__);
+            return(TNG_CRITICAL);
+        }
+        strcpy(dest->output_file_path, src->output_file_path);
     }
-    strcpy(dest->output_file_path, src->output_file_path);
+    else
+    {
+        dest->output_file_path = 0;
+    }
     dest->output_file = 0;
 
     dest->first_program_name = 0;
@@ -9290,6 +9304,9 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
 
     frame_set->tr_particle_data = 0;
     frame_set->tr_data = 0;
+
+    frame_set->n_written_frames = 0;
+    frame_set->n_unwritten_frames = 0;
 
     frame_set->next_frame_set_file_pos = -1;
     frame_set->prev_frame_set_file_pos = -1;

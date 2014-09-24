@@ -1205,11 +1205,46 @@ tng_function_status tng_test_append(tng_trajectory_t traj, const char hash_mode)
         velocities[i] = i;
     }
 
-    tng_util_vel_with_time_double_write(traj, n_frames, time, velocities);
+    stat = tng_util_vel_with_time_double_write(traj, n_frames, time, velocities);
 
     free(velocities);
 
     stat = tng_util_trajectory_close(&traj);
+
+    return(stat);
+}
+
+tng_function_status tng_test_copy_container(tng_trajectory_t traj, const char hash_mode)
+{
+    tng_trajectory_t dest;
+    tng_function_status stat;
+
+    stat = tng_util_trajectory_open(TNG_EXAMPLE_FILES_DIR "tng_test.tng", 'r', &traj);
+    if(stat != TNG_SUCCESS)
+    {
+        printf("Cannot open trajectory. %s: %d\n",
+               __FILE__, __LINE__);
+        return(stat);
+    }
+
+    stat = tng_trajectory_init_from_src(traj, &dest);
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+
+    stat = tng_molecule_system_copy(traj, dest);
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+
+    stat = tng_util_trajectory_close(&traj);
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+    stat = tng_util_trajectory_close(&dest);
 
     return(stat);
 }
@@ -1329,7 +1364,16 @@ int main()
     if(tng_test_append(traj, hash_mode) != TNG_SUCCESS)
     {
         printf("Failed. %s: %d.\n", __FILE__, __LINE__);
-        exit(1);
+    }
+    else
+    {
+        printf("Succeeded.\n");
+    }
+
+    printf("Test Copy trajectory container:\t\t\t");
+    if(tng_test_copy_container(traj, hash_mode) != TNG_SUCCESS)
+    {
+        printf("Failed. %s: %d.\n", __FILE__, __LINE__);
     }
     else
     {
