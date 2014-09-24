@@ -375,17 +375,6 @@ static TNG_INLINE size_t tng_min_size(size_t a, size_t b)
     return (a < b ? a : b);
 }
 
-/*
-static TNG_INLINE int tng_min_i(int a, int b)
-{
-    return (a < b ? a : b);
-}
-static TNG_INLINE int tng_max_i(int a, int b)
-{
-    return (a > b ? a : b);
-}
-*/
-
 static TNG_INLINE int64_t tng_min_i64(int64_t a, int64_t b)
 {
     return (a < b ? a : b);
@@ -395,28 +384,6 @@ static TNG_INLINE int64_t tng_max_i64(int64_t a, int64_t b)
 {
     return (a > b ? a : b);
 }
-
-/*
-static TNG_INLINE float tng_min_f(float a, float b)
-{
-    return (a < b ? a : b);
-}
-
-static TNG_INLINE float tng_max_f(float a, float b)
-{
-    return (a > b ? a : b);
-}
-
-static TNG_INLINE double tng_min_d(double a, double b)
-{
-    return (a < b ? a : b);
-}
-
-static TNG_INLINE double tng_max_d(double a, double b)
-{
-    return (a > b ? a : b);
-}
-*/
 
 /** This function swaps the byte order of a 32 bit numerical variable
  * to big endian.
@@ -6642,31 +6609,6 @@ static tng_function_status tng_frame_set_finalize
         tng_md5_hash_update(tng_data, block, pos,
                             pos + block->header_contents_size);
     }
-
-//     fseeko(tng_data->output_file, 0, SEEK_END);
-//     output_file_len = ftello(tng_data->output_file);
-//     pos = contents_start_pos + block->block_contents_size;
-//     fseeko(tng_data->output_file, pos, SEEK_SET);
-
-//     while(pos < output_file_len)
-//     {
-//         if(tng_block_header_read(tng_data, block) != TNG_SUCCESS)
-//         {
-//             fprintf(stderr, "TNG library: Cannot read block header at pos %"PRId64". %s: %d\n", pos,
-//                    __FILE__, __LINE__);
-//             tng_data->input_file = temp;
-//             tng_block_destroy(&block);
-//             return(TNG_CRITICAL);
-//         }
-//
-//         if(hash_mode == TNG_USE_HASH)
-//         {
-//             tng_md5_hash_update(tng_data, block, pos,
-//                                 pos + block->header_contents_size);
-//         }
-//         pos += block->header_contents_size + block->block_contents_size;
-//         fseeko(tng_data->output_file, pos, SEEK_SET);
-//     }
 
     fseeko(tng_data->output_file, curr_file_pos, SEEK_SET);
 
