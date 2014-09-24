@@ -817,6 +817,8 @@ static tng_function_status tng_block_md5_hash_generate(tng_gen_block_t block)
  */
 static tng_function_status tng_input_file_init(tng_trajectory_t tng_data)
 {
+    int64_t file_pos;
+
     if(!tng_data->input_file)
     {
         if(!tng_data->input_file_path)
@@ -833,6 +835,15 @@ static tng_function_status tng_input_file_init(tng_trajectory_t tng_data)
             return(TNG_CRITICAL);
         }
     }
+
+    if(!tng_data->input_file_len)
+    {
+        file_pos = ftello(tng_data->input_file);
+        fseeko(tng_data->input_file, 0, SEEK_END);
+        tng_data->input_file_len = ftello(tng_data->input_file);
+        fseeko(tng_data->input_file, file_pos, SEEK_SET);
+    }
+
     return(TNG_SUCCESS);
 }
 
@@ -11530,11 +11541,6 @@ static tng_function_status tng_file_headers_len_get
 
     orig_pos = ftello(tng_data->input_file);
 
-    if(!tng_data->input_file_len)
-    {
-        fseeko(tng_data->input_file, 0, SEEK_END);
-        tng_data->input_file_len = ftello(tng_data->input_file);
-    }
     fseeko(tng_data->input_file, 0, SEEK_SET);
 
     tng_block_init(&block);
@@ -11572,11 +11578,6 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_read
         return(TNG_CRITICAL);
     }
 
-    if(!tng_data->input_file_len)
-    {
-        fseeko(tng_data->input_file, 0, SEEK_END);
-        tng_data->input_file_len = ftello(tng_data->input_file);
-    }
     fseeko(tng_data->input_file, 0, SEEK_SET);
 
     tng_block_init(&block);
@@ -11773,13 +11774,6 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read
 
     tng_block_init(&block);
 
-    if(!tng_data->input_file_len)
-    {
-        fseeko(tng_data->input_file, 0, SEEK_END);
-        tng_data->input_file_len = ftello(tng_data->input_file);
-        fseeko(tng_data->input_file, file_pos, SEEK_SET);
-    }
-
     /* Read block headers first to see what block is found. */
     stat = tng_block_header_read(tng_data, block);
     if(stat == TNG_CRITICAL || block->id != TNG_TRAJECTORY_FRAME_SET ||
@@ -11875,13 +11869,6 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_current_only_data_from_
     }
 
     tng_block_init(&block);
-
-    if(!tng_data->input_file_len)
-    {
-        fseeko(tng_data->input_file, 0, SEEK_END);
-        tng_data->input_file_len = ftello(tng_data->input_file);
-        fseeko(tng_data->input_file, file_pos, SEEK_SET);
-    }
 
     /* Read block headers first to see what block is found. */
     stat = tng_block_header_read(tng_data, block);
@@ -12039,13 +12026,6 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next_only_data_from_blo
     }
 
     tng_block_init(&block);
-
-    if(!tng_data->input_file_len)
-    {
-        fseeko(tng_data->input_file, 0, SEEK_END);
-        tng_data->input_file_len = ftello(tng_data->input_file);
-        fseeko(tng_data->input_file, file_pos, SEEK_SET);
-    }
 
     /* Read block headers first to see what block is found. */
     stat = tng_block_header_read(tng_data, block);
@@ -17638,13 +17618,12 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_all_data_block_types_g
     TNG_ASSERT(data_block_names, "TNG library: The pointer to the list of data block names must not be NULL.");
     TNG_ASSERT(stride_lengths, "TNG library: The pointer to the list of stride lengths must not be NULL.");
 
-    orig_file_pos = ftello(tng_data->input_file);
-
-    if(!tng_data->input_file_len)
+    if(tng_input_file_init(tng_data) != TNG_SUCCESS)
     {
-        fseeko(tng_data->input_file, 0, SEEK_END);
-        tng_data->input_file_len = ftello(tng_data->input_file);
+        return(TNG_CRITICAL);
     }
+
+    orig_file_pos = ftello(tng_data->input_file);
 
     fseeko(tng_data->input_file, 0, SEEK_SET);
     file_pos = 0;
@@ -17703,17 +17682,17 @@ tng_function_status DECLSPECDLLEXPORT tng_util_num_frames_with_data_of_block_id_
     int64_t curr_file_pos, first_frame_set_file_pos, curr_n_frames;
     tng_function_status stat;
 
+    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+
     *n_frames = 0;
 
-    TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
+    if(tng_input_file_init(tng_data) != TNG_SUCCESS)
+    {
+        return(TNG_CRITICAL);
+    }
 
     first_frame_set_file_pos = tng_data->first_trajectory_frame_set_input_file_pos;
     curr_file_pos = ftello(tng_data->input_file);
-    if(!tng_data->input_file_len)
-    {
-        fseeko(tng_data->input_file, 0, SEEK_END);
-        tng_data->input_file_len = ftello(tng_data->input_file);
-    }
     fseeko(tng_data->input_file, first_frame_set_file_pos, SEEK_SET);
 
     stat = tng_frame_set_n_frames_of_data_block_get(tng_data, block_id, &curr_n_frames);
