@@ -1222,23 +1222,24 @@ int main()
     char hash_mode = TNG_USE_HASH;
 
     tng_version(traj, version_str, TNG_MAX_STR_LEN);
+    printf("Test version control:\t\t\t\t");
     if(strncmp(TNG_VERSION, version_str, TNG_MAX_STR_LEN) == 0)
     {
-        printf("Test version control: \t\t\t\tSucceeded.\n");
+        printf("Succeeded.\n");
     }
     else
     {
-        printf("Test version control: \t\t\t\tFailed.\n");
+        printf("Failed.\n");
     }
 
+    printf("Test Init trajectory:\t\t\t\t");
     if(tng_trajectory_init(&traj) != TNG_SUCCESS)
     {
         tng_trajectory_destroy(&traj);
-        printf("Test Init trajectory:\t\t\t\tFailed. %s: %d.\n",
-               __FILE__, __LINE__);
+        printf("Failed. %s: %d.\n", __FILE__, __LINE__);
         exit(1);
     }
-    printf("Test Init trajectory:\t\t\t\tSucceeded.\n");
+    printf("Succeeded.\n");
 
     tng_time_get_str(traj, time_str);
 
@@ -1247,92 +1248,92 @@ int main()
     tng_input_file_set(traj, TNG_EXAMPLE_FILES_DIR "tng_example.tng");
     tng_output_file_set(traj, TNG_EXAMPLE_FILES_DIR "tng_example_out.tng");
 
-
+    printf("Test Read and write file:\t\t\t");
     if(tng_test_read_and_write_file(traj, hash_mode) != TNG_SUCCESS)
     {
-        printf("Test Read and write file:\t\t\tFailed. %s: %d\n",
-               __FILE__, __LINE__);
+        printf("Failed. %s: %d\n", __FILE__, __LINE__);
     }
     else
     {
-        printf("Test Read and write file:\t\t\tSucceeded.\n");
+        printf("Succeeded.\n");
     }
 
+    printf("Test Get data:\t\t\t\t\t");
     if(tng_test_get_box_data(traj) != TNG_SUCCESS)
     {
-        printf("Test Get data:\t\t\t\t\tFailed. %s: %d\n",
-               __FILE__, __LINE__);
+        printf("Failed. %s: %d\n", __FILE__, __LINE__);
     }
     else
     {
-        printf("Test Get data:\t\t\t\t\tSucceeded.\n");
+        printf("Succeeded.\n");
     }
 
+    printf("Test Destroy and init trajectory:\t\t");
     if(tng_trajectory_destroy(&traj) != TNG_SUCCESS ||
        tng_trajectory_init(&traj) != TNG_SUCCESS)
     {
-        printf("Test Destroy and init trajectory:\t\tFailed. %s: %d\n",
-               __FILE__, __LINE__);
+        printf("Failed. %s: %d\n", __FILE__, __LINE__);
     }
     else
     {
-        printf("Test Destroy and init trajectory:\t\tSucceeded.\n");
+        printf("Succeeded.\n");
     }
 
 
     tng_output_file_set(traj, TNG_EXAMPLE_FILES_DIR "tng_test.tng");
 
+    printf("Test Write and read file:\t\t\t");
     if(tng_test_write_and_read_traj(&traj, hash_mode) != TNG_SUCCESS)
     {
-        printf("Test Write and read file:\t\t\tFailed. %s: %d\n",
-               __FILE__, __LINE__);
+        printf("Failed. %s: %d\n", __FILE__, __LINE__);
     }
     else
     {
-        printf("Test Write and read file:\t\t\tSucceeded.\n");
+        printf("Succeeded.\n");
     }
 
+    printf("Test Get particle data:\t\t\t\t");
     if(tng_test_get_positions_data(traj, hash_mode) != TNG_SUCCESS)
     {
-        printf("Test Get particle data:\t\t\t\tFailed. %s: %d\n",
+        printf("Failed. %s: %d\n",
                __FILE__, __LINE__);
     }
     else
     {
-        printf("Test Get particle data:\t\t\t\tSucceeded.\n");
+        printf("Succeeded.\n");
     }
 
+    printf("Test Destroy trajectory:\t\t\t");
     if(tng_trajectory_destroy(&traj) != TNG_SUCCESS)
     {
-        printf("Test Destroy trajectory:\t\t\tFailed. %s: %d.\n",
-               __FILE__, __LINE__);
+        printf("Failed. %s: %d.\n", __FILE__, __LINE__);
         exit(1);
     }
     else
     {
-        printf("Test Destroy trajectory:\t\t\tSucceeded.\n");
+        printf("Succeeded.\n");
     }
 
+    printf("Test Utility functions:\t\t\t\t");
     if(tng_test_utility_functions(traj, hash_mode) != TNG_SUCCESS)
     {
-        printf("Test Utility functions:\t\t\t\tFailed. %s: %d.\n",
-               __FILE__, __LINE__);
+        printf("Failed. %s: %d.\n", __FILE__, __LINE__);
         exit(1);
     }
     else
     {
-        printf("Test Utility functions:\t\t\t\tSucceeded.\n");
+        printf("Succeeded.\n");
     }
 
+    printf("Test Append:\t\t\t\t\t");
     if(tng_test_append(traj, hash_mode) != TNG_SUCCESS)
     {
-        printf("Test Append:\t\t\t\t\tFailed. %s: %d.\n",
-               __FILE__, __LINE__);
+        printf("Failed. %s: %d.\n", __FILE__, __LINE__);
         exit(1);
     }
     else
     {
-        printf("Test Append:\t\t\t\t\tSucceeded.\n");
+        printf("Succeeded.\n");
     }
 
     printf("Tests finished\n");
