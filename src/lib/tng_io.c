@@ -810,6 +810,48 @@ static tng_function_status tng_block_md5_hash_generate(tng_gen_block_t block)
     return(TNG_SUCCESS);
 }
 
+/** If there is data left in the block read that to append that to the MD5 hash.
+ * @param tng_data is a trajectory data container.
+ * @param block is the data block that is being read.
+ * @param start_pos is the file position where the block started.
+ * @param md5_state is the md5 to which the md5 of the remaining block
+ * will be appended.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
+static tng_function_status tng_md5_remaining_append(tng_trajectory_t tng_data,
+                                                    const tng_gen_block_t block,
+                                                    const int64_t start_pos,
+                                                    md5_state_t *md5_state)
+{
+    int64_t curr_file_pos;
+    char *temp_data;
+
+    curr_file_pos = ftello(tng_data->input_file);
+    if(curr_file_pos < start_pos + block->block_contents_size)
+    {
+        temp_data = malloc(start_pos + block->block_contents_size - curr_file_pos);
+        if(!temp_data)
+        {
+            fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
+                    start_pos + block->block_contents_size - curr_file_pos, __FILE__, __LINE__);
+            return(TNG_CRITICAL);
+        }
+        if(fread(temp_data, start_pos + block->block_contents_size - curr_file_pos,
+                    1, tng_data->input_file) == 0)
+        {
+            fprintf(stderr, "TNG library: Cannot read remaining part of block to generate MD5 sum. %s: %d\n", __FILE__, __LINE__);
+            free(temp_data);
+            return(TNG_CRITICAL);
+        }
+        md5_append(md5_state, (md5_byte_t *)temp_data,
+                   start_pos + block->block_contents_size - curr_file_pos);
+        free(temp_data);
+    }
+
+    return(TNG_SUCCESS);
+}
+
 /** Open the input file if it is not already opened.
  * @param tng_data is a trajectory data container.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
@@ -2193,8 +2235,8 @@ static tng_function_status tng_general_info_block_read
                 (tng_trajectory_t tng_data, tng_gen_block_t block,
                  const char hash_mode)
 {
-    int64_t start_pos, curr_file_pos;
-    char hash[TNG_MD5_HASH_LEN], *temp_data;
+    int64_t start_pos;
+    char hash[TNG_MD5_HASH_LEN];
     md5_state_t md5_state;
 
     TNG_ASSERT(block != 0, "TNG library: Trying to read data to an uninitialized block (NULL pointer)");
@@ -2300,27 +2342,8 @@ static tng_function_status tng_general_info_block_read
     {
         /* If there is data left in the block that the current version of the library
          * cannot interpret still read that to generate the MD5 hash. */
-        curr_file_pos = ftello(tng_data->input_file);
-        if(curr_file_pos < start_pos + block->block_contents_size)
-        {
-            temp_data = malloc(start_pos + block->block_contents_size - curr_file_pos);
-            if(!temp_data)
-            {
-                fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                        start_pos + block->block_contents_size - curr_file_pos, __FILE__, __LINE__);
-                return(TNG_CRITICAL);
-            }
-            if(fread(temp_data, start_pos + block->block_contents_size - curr_file_pos,
-                     1, tng_data->input_file) == 0)
-            {
-                fprintf(stderr, "TNG library: Cannot read remaining part of block to generate MD5 sum. %s: %d\n", __FILE__, __LINE__);
-                free(temp_data);
-                return(TNG_CRITICAL);
-            }
-            md5_append(&md5_state, (md5_byte_t *)temp_data,
-                       start_pos + block->block_contents_size - curr_file_pos);
-            free(temp_data);
-        }
+        tng_md5_remaining_append(tng_data, block, start_pos, &md5_state);
+
         md5_finish(&md5_state, (md5_byte_t *)hash);
         if(strncmp(block->md5_hash, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", TNG_MD5_HASH_LEN) != 0)
         {
@@ -2331,8 +2354,11 @@ static tng_function_status tng_general_info_block_read
             }
         }
     }
-
-    fseeko(tng_data->input_file, start_pos + block->block_contents_size, SEEK_SET);
+    else
+    {
+        /* Seek to the end of the block */
+        fseeko(tng_data->input_file, start_pos + block->block_contents_size, SEEK_SET);
+    }
 
     return(TNG_SUCCESS);
 }
@@ -2871,13 +2897,13 @@ static tng_function_status tng_molecules_block_read
                  tng_gen_block_t block,
                  const char hash_mode)
 {
-    int64_t start_pos, curr_file_pos, i, j, k, l;
+    int64_t start_pos, i, j, k, l;
     tng_molecule_t molecule;
     tng_chain_t chain;
     tng_residue_t residue;
     tng_atom_t atom;
     tng_bond_t bond;
-    char hash[TNG_MD5_HASH_LEN], *temp_data;
+    char hash[TNG_MD5_HASH_LEN];
     md5_state_t md5_state;
 
     if(tng_input_file_init(tng_data) != TNG_SUCCESS)
@@ -3224,27 +3250,8 @@ static tng_function_status tng_molecules_block_read
     {
         /* If there is data left in the block that the current version of the library
          * cannot interpret still read that to generate the MD5 hash. */
-        curr_file_pos = ftello(tng_data->input_file);
-        if(curr_file_pos < start_pos + block->block_contents_size)
-        {
-            temp_data = malloc(start_pos + block->block_contents_size - curr_file_pos);
-            if(!temp_data)
-            {
-                fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                        start_pos + block->block_contents_size - curr_file_pos, __FILE__, __LINE__);
-                return(TNG_CRITICAL);
-            }
-            if(fread(temp_data, start_pos + block->block_contents_size - curr_file_pos,
-                     1, tng_data->input_file) == 0)
-            {
-                fprintf(stderr, "TNG library: Cannot read remaining part of block to generate MD5 sum. %s: %d\n", __FILE__, __LINE__);
-                free(temp_data);
-                return(TNG_CRITICAL);
-            }
-            md5_append(&md5_state, (md5_byte_t *)temp_data,
-                       start_pos + block->block_contents_size - curr_file_pos);
-            free(temp_data);
-        }
+        tng_md5_remaining_append(tng_data, block, start_pos, &md5_state);
+
         md5_finish(&md5_state, (md5_byte_t *)hash);
         if(strncmp(block->md5_hash, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", TNG_MD5_HASH_LEN) != 0)
         {
@@ -3256,7 +3263,11 @@ static tng_function_status tng_molecules_block_read
         }
     }
 
-    fseeko(tng_data->input_file, start_pos + block->block_contents_size, SEEK_SET);
+    else
+    {
+        /* Seek to the end of the block */
+        fseeko(tng_data->input_file, start_pos + block->block_contents_size, SEEK_SET);
+    }
 
     return(TNG_SUCCESS);
 }
@@ -3521,7 +3532,7 @@ static tng_function_status tng_frame_set_block_read
     int64_t file_pos, start_pos, i, prev_n_particles;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
-    char hash[TNG_MD5_HASH_LEN], *temp_data;
+    char hash[TNG_MD5_HASH_LEN];
     md5_state_t md5_state;
 
     if(tng_input_file_init(tng_data) != TNG_SUCCESS)
@@ -3663,27 +3674,8 @@ static tng_function_status tng_frame_set_block_read
     {
         /* If there is data left in the block that the current version of the library
          * cannot interpret still read that to generate the MD5 hash. */
-        file_pos = ftello(tng_data->input_file);
-        if(file_pos < start_pos + block->block_contents_size)
-        {
-            temp_data = malloc(start_pos + block->block_contents_size - file_pos);
-            if(!temp_data)
-            {
-                fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                        start_pos + block->block_contents_size - file_pos, __FILE__, __LINE__);
-                return(TNG_CRITICAL);
-            }
-            if(fread(temp_data, start_pos + block->block_contents_size - file_pos,
-                     1, tng_data->input_file) == 0)
-            {
-                fprintf(stderr, "TNG library: Cannot read remaining part of block to generate MD5 sum. %s: %d\n", __FILE__, __LINE__);
-                free(temp_data);
-                return(TNG_CRITICAL);
-            }
-            md5_append(&md5_state, (md5_byte_t *)temp_data,
-                       start_pos + block->block_contents_size - file_pos);
-            free(temp_data);
-        }
+        tng_md5_remaining_append(tng_data, block, start_pos, &md5_state);
+
         md5_finish(&md5_state, (md5_byte_t *)hash);
         if(strncmp(block->md5_hash, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", TNG_MD5_HASH_LEN) != 0)
         {
@@ -3693,6 +3685,11 @@ static tng_function_status tng_frame_set_block_read
                         "%s: %d\n", frame_set->first_frame, __FILE__, __LINE__);
             }
         }
+    }
+    else
+    {
+        /* Seek to the end of the block */
+        fseeko(tng_data->input_file, start_pos + block->block_contents_size, SEEK_SET);
     }
 
     /* If the output file and the input files are the same the number of
@@ -3897,11 +3894,11 @@ static tng_function_status tng_trajectory_mapping_block_read
                  tng_gen_block_t block,
                  const char hash_mode)
 {
-    int64_t start_pos, curr_file_pos, i;
+    int64_t start_pos, i;
     tng_trajectory_frame_set_t frame_set =
     &tng_data->current_trajectory_frame_set;
     tng_particle_mapping_t mapping, mappings;
-    char hash[TNG_MD5_HASH_LEN], *temp_data;
+    char hash[TNG_MD5_HASH_LEN];
     md5_state_t md5_state;
 
     if(tng_input_file_init(tng_data) != TNG_SUCCESS)
@@ -3991,27 +3988,8 @@ static tng_function_status tng_trajectory_mapping_block_read
     {
         /* If there is data left in the block that the current version of the library
          * cannot interpret still read that to generate the MD5 hash. */
-        curr_file_pos = ftello(tng_data->input_file);
-        if(curr_file_pos < start_pos + block->block_contents_size)
-        {
-            temp_data = malloc(start_pos + block->block_contents_size - curr_file_pos);
-            if(!temp_data)
-            {
-                fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                        start_pos + block->block_contents_size - curr_file_pos, __FILE__, __LINE__);
-                return(TNG_CRITICAL);
-            }
-            if(fread(temp_data, start_pos + block->block_contents_size - curr_file_pos,
-                     1, tng_data->input_file) == 0)
-            {
-                fprintf(stderr, "TNG library: Cannot read remaining part of block to generate MD5 sum. %s: %d\n", __FILE__, __LINE__);
-                free(temp_data);
-                return(TNG_CRITICAL);
-            }
-            md5_append(&md5_state, (md5_byte_t *)temp_data,
-                       start_pos + block->block_contents_size - curr_file_pos);
-            free(temp_data);
-        }
+        tng_md5_remaining_append(tng_data, block, start_pos, &md5_state);
+
         md5_finish(&md5_state, (md5_byte_t *)hash);
         if(strncmp(block->md5_hash, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", TNG_MD5_HASH_LEN) != 0)
         {
@@ -4022,8 +4000,11 @@ static tng_function_status tng_trajectory_mapping_block_read
             }
         }
     }
-
-    fseeko(tng_data->input_file, start_pos + block->block_contents_size, SEEK_SET);
+    else
+    {
+        /* Seek to the end of the block */
+        fseeko(tng_data->input_file, start_pos + block->block_contents_size, SEEK_SET);
+    }
 
     return(TNG_SUCCESS);
 }
@@ -6377,12 +6358,12 @@ static tng_function_status tng_data_block_contents_read
                  tng_gen_block_t block,
                  const char hash_mode)
 {
-    int64_t start_pos, curr_file_pos, n_values, codec_id, n_frames, first_frame_with_data;
+    int64_t start_pos, n_values, codec_id, n_frames, first_frame_with_data;
     int64_t remaining_len, stride_length, block_n_particles, num_first_particle;
     double multiplier;
     char datatype, dependency, sparse_data;
     tng_function_status stat = TNG_SUCCESS;
-    char hash[TNG_MD5_HASH_LEN], *temp_data;
+    char hash[TNG_MD5_HASH_LEN];
     md5_state_t md5_state;
 
     if(tng_input_file_init(tng_data) != TNG_SUCCESS)
@@ -6435,27 +6416,8 @@ static tng_function_status tng_data_block_contents_read
     {
         /* If there is data left in the block that the current version of the library
          * cannot interpret still read that to generate the MD5 hash. */
-        curr_file_pos = ftello(tng_data->input_file);
-        if(curr_file_pos < start_pos + block->block_contents_size)
-        {
-            temp_data = malloc(start_pos + block->block_contents_size - curr_file_pos);
-            if(!temp_data)
-            {
-                fprintf(stderr, "TNG library: Cannot allocate memory (%"PRId64" bytes). %s: %d\n",
-                        start_pos + block->block_contents_size - curr_file_pos, __FILE__, __LINE__);
-                return(TNG_CRITICAL);
-            }
-            if(fread(temp_data, start_pos + block->block_contents_size - curr_file_pos,
-                     1, tng_data->input_file) == 0)
-            {
-                fprintf(stderr, "TNG library: Cannot read remaining part of block to generate MD5 sum. %s: %d\n", __FILE__, __LINE__);
-                free(temp_data);
-                return(TNG_CRITICAL);
-            }
-            md5_append(&md5_state, (md5_byte_t *)temp_data,
-                       start_pos + block->block_contents_size - curr_file_pos);
-            free(temp_data);
-        }
+        tng_md5_remaining_append(tng_data, block, start_pos, &md5_state);
+
         md5_finish(&md5_state, (md5_byte_t *)hash);
         if(strncmp(block->md5_hash, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", TNG_MD5_HASH_LEN) != 0)
         {
@@ -6466,8 +6428,11 @@ static tng_function_status tng_data_block_contents_read
             }
         }
     }
-
-    fseeko(tng_data->input_file, start_pos + block->block_contents_size, SEEK_SET);
+    else
+    {
+        /* Seek to the end of the block */
+        fseeko(tng_data->input_file, start_pos + block->block_contents_size, SEEK_SET);
+    }
 
     return(stat);
 }
