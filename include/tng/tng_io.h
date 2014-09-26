@@ -4877,6 +4877,19 @@ tng_function_status DECLSPECDLLEXPORT tng_util_prepare_append_after_frame
                 (tng_trajectory_t tng_data,
                  const int64_t prev_frame);
 
+
+/** @brief Get the number of frames containing data of a specific type.
+ * @param tng_data is the trajectory to use.
+ * @param block_id is the id of the block of the data type.
+ * @param n_frames is set to the number of frames containing data of
+ * the requested data type.
+ * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
+ * error has occured.
+ */
+tng_function_status DECLSPECDLLEXPORT tng_util_num_frames_with_data_of_block_id_get
+                (tng_trajectory_t tng_data,
+                 const int64_t block_id,
+                 int64_t *n_frames);
 /** @} */ /* end of group2 */
 
 

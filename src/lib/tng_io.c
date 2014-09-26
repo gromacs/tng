@@ -17635,13 +17635,17 @@ tng_function_status DECLSPECDLLEXPORT tng_util_num_frames_with_data_of_block_id_
 
     stat = tng_frame_set_n_frames_of_data_block_get(tng_data, block_id, &curr_n_frames);
 
-    while(stat == TNG_SUCCESS)
+    while(stat == TNG_SUCCESS && tng_data->current_trajectory_frame_set.next_frame_set_file_pos != -1)
     {
         *n_frames += curr_n_frames;
         fseeko(tng_data->input_file,
                tng_data->current_trajectory_frame_set.next_frame_set_file_pos,
                SEEK_SET);
         stat = tng_frame_set_n_frames_of_data_block_get(tng_data, block_id, &curr_n_frames);
+    }
+    if(stat == TNG_SUCCESS)
+    {
+        *n_frames += curr_n_frames;
     }
     fseeko(tng_data->input_file, curr_file_pos, SEEK_SET);
     if(stat == TNG_CRITICAL)

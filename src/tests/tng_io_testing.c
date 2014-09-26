@@ -1035,7 +1035,7 @@ tng_function_status tng_test_get_positions_data(tng_trajectory_t traj,
 tng_function_status tng_test_utility_functions(tng_trajectory_t traj, const char hash_mode)
 {
     tng_function_status stat;
-    int64_t n_particles, i, j, k, codec_id;
+    int64_t n_particles, i, j, k, codec_id, n_frames, n_frames_per_frame_set;
     int64_t n_frames_to_read=30, stride_len, next_frame, n_blocks, *block_ids = 0;
     double time, multiplier;
     float *positions = 0;
@@ -1053,6 +1053,14 @@ tng_function_status tng_test_utility_functions(tng_trajectory_t traj, const char
     }
     stat = tng_util_time_of_frame_get(traj, 100, &time);
     if(stat != TNG_SUCCESS || fabs(time - 200e-13) > 0.000001)
+    {
+        return(stat);
+    }
+
+    tng_num_frames_per_frame_set_get(traj, &n_frames_per_frame_set);
+
+    stat = tng_util_num_frames_with_data_of_block_id_get(traj, TNG_TRAJ_POSITIONS, &n_frames);
+    if(stat != TNG_SUCCESS || n_frames != n_frames_per_frame_set * N_FRAME_SETS)
     {
         return(stat);
     }
