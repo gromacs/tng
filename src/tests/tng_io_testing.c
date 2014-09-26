@@ -1074,6 +1074,14 @@ tng_function_status tng_test_utility_functions(tng_trajectory_t traj, const char
         return(stat);
     }
 
+    tng_num_frames_per_frame_set_get(traj, &n_frames_per_frame_set);
+
+    stat = tng_util_num_frames_with_data_of_block_id_get(traj, TNG_TRAJ_POSITIONS, &n_frames);
+    if(stat != TNG_SUCCESS || n_frames != n_frames_per_frame_set * N_FRAME_SETS)
+    {
+        return(stat);
+    }
+
     tng_num_particles_get(traj, &n_particles);
 
     stat = tng_util_pos_read_range(traj, 1, n_frames_to_read, &positions, &stride_len);
