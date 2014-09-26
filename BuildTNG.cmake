@@ -7,7 +7,7 @@ function (TNG_GENERATE_VERSION_H)
     set(TNG_MINOR_VERSION "7")
     set(TNG_VERSION_PATCH_LEVEL "0")
     set(TNG_IO_VERSION "${TNG_MAJOR_VERSION}.${TNG_MINOR_VERSION}.${TNG_VERSION_PATCH_LEVEL}")
-    set(TNG_API_VERSION "0")
+    set(TNG_API_VERSION "7")
     configure_file(${TNG_ROOT_SOURCE_DIR}/include/tng/version.h.in
                    ${TNG_ROOT_BINARY_DIR}/include/tng/version.h)
 
