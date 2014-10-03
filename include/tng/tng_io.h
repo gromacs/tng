@@ -76,6 +76,13 @@
  *
  * Revisions
  *
+ * v. 1.7 - Fifth stable release of the API
+ *
+ *        - Added function tng_util_num_frames_with_data_of_block_id_get().
+ *        - Merged some functions and data structures
+ *          to make less difference between data blocks.
+ *        - Bugs fixed
+ *
  * v. 1.6 - Fourth stable release of the API.
  *
  *        - Removed OpenMP option when building.
