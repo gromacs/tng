@@ -385,12 +385,13 @@ static TNG_INLINE int64_t tng_max_i64(int64_t a, int64_t b)
     return (a > b ? a : b);
 }
 
-/** This function swaps the byte order of a 32 bit numerical variable
+/**
+ * @brief This function swaps the byte order of a 32 bit numerical variable
  * to big endian.
- * It does not only work with integer, but e.g. floats need casting.
- * If the byte order is already big endian no change is needed.
  * @param tng_data is a trajectory data container.
  * @param v is a pointer to a 32 bit numerical value (float or integer).
+ * @details The function does not only work with integer, but e.g. floats need casting.
+ * If the byte order is already big endian no change is needed.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the current
  * byte order is not recognised.
  */
@@ -421,14 +422,15 @@ static tng_function_status tng_swap_byte_order_big_endian_32
     }
 }
 
-/** This function swaps the byte order of a 64 bit numerical variable
+/**
+ * @brief This function swaps the byte order of a 64 bit numerical variable
  * to big endian.
- * It does not only work with integer, but e.g. floats need casting.
+ * @param tng_data is a trajectory data container.
+ * @param v is a pointer to a 64 bit numerical value (double or integer).
+ * @details The function does not only work with integer, but e.g. floats need casting.
  * The byte order swapping routine can convert four different byte
  * orders to big endian.
  * If the byte order is already big endian no change is needed.
- * @param tng_data is a trajectory data container.
- * @param v is a pointer to a 64 bit numerical value (double or integer).
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the current
  * byte order is not recognised.
  */
@@ -475,12 +477,13 @@ static tng_function_status tng_swap_byte_order_big_endian_64
     }
 }
 
-/** This function swaps the byte order of a 32 bit numerical variable
+/**
+ * @brief This function swaps the byte order of a 32 bit numerical variable
  * to little endian.
- * It does not only work with integer, but e.g. floats need casting.
- * If the byte order is already little endian no change is needed.
  * @param tng_data is a trajectory data container.
  * @param v is a pointer to a 32 bit numerical value (float or integer).
+ * @details The function does not only work with integer, but e.g. floats need casting.
+ * If the byte order is already little endian no change is needed.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the current
  * byte order is not recognised.
  */
@@ -511,14 +514,15 @@ static tng_function_status tng_swap_byte_order_little_endian_32
     }
 }
 
-/** This function swaps the byte order of a 64 bit numerical variable
+/**
+ * @brief This function swaps the byte order of a 64 bit numerical variable
  * to little endian.
- * It does not only work with integer, but e.g. floats need casting.
+ * @param tng_data is a trajectory data container.
+ * @param v is a pointer to a 64 bit numerical value (double or integer).
+ * @details The function does not only work with integer, but e.g. floats need casting.
  * The byte order swapping routine can convert four different byte
  * orders to little endian.
  * If the byte order is already little endian no change is needed.
- * @param tng_data is a trajectory data container.
- * @param v is a pointer to a 64 bit numerical value (double or integer).
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if the current
  * byte order is not recognised.
  */
@@ -571,7 +575,8 @@ static tng_function_status tng_swap_byte_order_little_endian_64
     }
 }
 
-/** Read a NULL terminated string from a file.
+/**
+ * @brief Read a NULL terminated string from a file.
  * @param tng_data is a trajectory data container
  * @param str is a pointer to the character string that will
  * contain the read string. *str is reallocated in the function
@@ -629,7 +634,8 @@ static tng_function_status tng_freadstr(tng_trajectory_t tng_data,
     return TNG_SUCCESS;
 }
 
-/** Write a NULL terminated string to a file.
+/**
+ * @brief Write a NULL terminated string to a file.
  * @param tng_data is a trajectory data container
  * @param str is a pointer to the character string should be written.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
@@ -662,7 +668,8 @@ static inline tng_function_status tng_fwritestr(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Read a numerical value from file.
+/**
+ * @brief Read a numerical value from file.
  * The byte order will be swapped if need be.
  * @param tng_data is a trajectory data container
  * @param dest is a pointer to where to store the read data.
@@ -716,7 +723,8 @@ static inline tng_function_status tng_file_input_numerical
     return(TNG_SUCCESS);
 }
 
-/** Write a numerical value to file.
+/**
+ * @brief Write a numerical value to file.
  * The byte order will be swapped if need be.
  * @param tng_data is a trajectory data container
  * @param src is a pointer to the data to write.
@@ -793,7 +801,8 @@ static inline tng_function_status tng_file_output_numerical
     return(TNG_SUCCESS);
 }
 
-/** Generate the md5 hash of a block.
+/**
+ * @brief Generate the md5 hash of a block.
  * The hash is created based on the actual block contents.
  * @param block is a general block container.
  * @return TNG_SUCCESS (0) if successful.
@@ -810,7 +819,8 @@ static tng_function_status tng_block_md5_hash_generate(tng_gen_block_t block)
     return(TNG_SUCCESS);
 }
 
-/** If there is data left in the block read that to append that to the MD5 hash.
+/**
+ * @brief If there is data left in the block read that to append that to the MD5 hash.
  * @param tng_data is a trajectory data container.
  * @param block is the data block that is being read.
  * @param start_pos is the file position where the block started.
@@ -852,7 +862,8 @@ static tng_function_status tng_md5_remaining_append(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Open the input file if it is not already opened.
+/**
+ * @brief Open the input file if it is not already opened.
  * @param tng_data is a trajectory data container.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
@@ -889,7 +900,8 @@ static tng_function_status tng_input_file_init(tng_trajectory_t tng_data)
     return(TNG_SUCCESS);
 }
 
-/** Open the output file if it is not already opened
+/**
+ * @brief Open the output file if it is not already opened
  * @param tng_data is a trajectory data container.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
@@ -917,7 +929,8 @@ static tng_function_status tng_output_file_init(tng_trajectory_t tng_data)
     return(TNG_SUCCESS);
 }
 
-/** Setup a file block container.
+/**
+ * @brief Setup a file block container.
  * @param block_p a pointer to memory to initialise as a file block container.
  * @details Memory is allocated during initialisation.
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
@@ -989,7 +1002,8 @@ static tng_function_status tng_block_destroy(struct tng_gen_block **block_p)
     return(TNG_SUCCESS);
 }
 
-/** Read the header of a data block, regardless of its type
+/**
+ * @brief Read the header of a data block, regardless of its type
  * @param tng_data is a trajectory data container.
  * @param block is a general block container.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE(1) if a minor
@@ -1122,7 +1136,8 @@ static tng_function_status tng_block_header_read
     return(TNG_SUCCESS);
 }
 
-/** Write a whole block, both header and contents, regardless of it type
+/**
+ * @brief Write a whole block, both header and contents, regardless of it type
  * @param tng_data is a trajectory data container.
  * @param block is a general block container.
  * @return TNG_SUCCESS (0) if successful, TNG_FAILURE (1) if a minor error
@@ -1163,7 +1178,8 @@ static tng_function_status tng_block_header_read
 // }
 */
 
-/** Update the md5 hash of a block already written to the file
+/**
+ * @brief Update the md5 hash of a block already written to the file
  * @param tng_data is a trajectory data container.
  * @param block is the block, of which to update the md5 hash.
  * @param header_start_pos is the file position where the block header starts.
@@ -1207,7 +1223,8 @@ static tng_function_status tng_md5_hash_update(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Update the frame set pointers in the file header (general info block),
+/**
+ * @brief Update the frame set pointers in the file header (general info block),
  * already written to disk
  * @param tng_data is a trajectory data container.
  * @param hash_mode specifies whether to update the block md5 hash when
@@ -1303,7 +1320,8 @@ static tng_function_status tng_header_pointers_update
     return(TNG_SUCCESS);
 }
 
-/** Update the frame set pointers in the current frame set block, already
+/**
+ * @brief Update the frame set pointers in the current frame set block, already
  * written to disk. It also updates the pointers of the blocks pointing to
  * the current frame set block.
  * @param tng_data is a trajectory data container.
@@ -1736,7 +1754,8 @@ static tng_function_status tng_file_pos_of_subsequent_trajectory_block_get
     return(TNG_SUCCESS);
 }
 
-/** Migrate a whole frame set from one position in the file to another.
+/**
+ * @brief Migrate a whole frame set from one position in the file to another.
  * @param tng_data is a trajectory data container.
  * @param block_start_pos is the starting position in the file of the frame set.
  * @param block_len is the length of the whole frame set (including all data blocks etc).
@@ -1871,7 +1890,8 @@ static tng_function_status tng_length_of_current_frame_set_contents_get
     return(TNG_SUCCESS);
 }
 
-/** Migrate blocks in the file to make room for new data in a block. This
+/**
+ * @brief Migrate blocks in the file to make room for new data in a block. This
  * is required e.g. when adding data to a block or extending strings in a
  * block.
  * @param tng_data is a trajectory data container.
@@ -1998,7 +2018,8 @@ static tng_function_status tng_block_header_len_calculate
     return (TNG_SUCCESS);
 }
 
-/** Write the header of a data block, regardless of its type
+/**
+ * @brief Write the header of a data block, regardless of its type
  * @param tng_data is a trajectory data container.
  * @param block is a general block container.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
@@ -2221,8 +2242,9 @@ static tng_function_status tng_general_info_block_len_calculate
     return(TNG_SUCCESS);
 }
 
-/** Read a general info block. This is the first block of a TNG file.
- *  Populate the fields in tng_data.
+/**
+ * @brief Read a general info block. This is the first block of a TNG file.
+ * Populate the fields in tng_data.
  * @param tng_data is a trajectory data container.
  * @param block is a general block container.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
@@ -2363,7 +2385,8 @@ static tng_function_status tng_general_info_block_read
     return(TNG_SUCCESS);
 }
 
-/** Write a general info block. This is the first block of a TNG file.
+/**
+ * @brief Write a general info block. This is the first block of a TNG file.
  * @param tng_data is a trajectory data container.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
  * If hash_mode == TNG_USE_HASH an md5 hash will be generated and written.
@@ -2555,7 +2578,8 @@ static tng_function_status tng_general_info_block_write
     return(TNG_SUCCESS);
 }
 
-/** Read the chain data of a molecules block.
+/**
+ * @brief Read the chain data of a molecules block.
  * @param tng_data is a trajectory data container.
  * @param chain is the chain data container.
  * @param hash_mode is an option to decide whether to generate/update the relevant md5 hashes.
@@ -2587,7 +2611,8 @@ static tng_function_status tng_chain_data_read(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Write the chain data of a molecules block.
+/**
+ * @brief Write the chain data of a molecules block.
  * @param tng_data is a trajectory data container.
  * @param chain is the chain data container.
  * @param hash_mode is an option to decide whether to generate/update the relevant md5 hashes.
@@ -2623,7 +2648,8 @@ static tng_function_status tng_chain_data_write(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Read the residue data of a molecules block.
+/**
+ * @brief Read the residue data of a molecules block.
  * @param tng_data is a trajectory data container.
  * @param residue is the residue data container.
  * @param hash_mode is an option to decide whether to generate/update the relevant md5 hashes.
@@ -2655,7 +2681,8 @@ static tng_function_status tng_residue_data_read(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Write the residue data of a molecules block.
+/**
+ * @brief Write the residue data of a molecules block.
  * @param tng_data is a trajectory data container.
  * @param residue is the residue data container.
  * @param hash_mode is an option to decide whether to generate/update the relevant md5 hashes.
@@ -2691,7 +2718,8 @@ static tng_function_status tng_residue_data_write(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Read the atom data of a molecules block.
+/**
+ * @brief Read the atom data of a molecules block.
  * @param tng_data is a trajectory data container.
  * @param atom is the atom data container.
  * @param hash_mode is an option to decide whether to generate/update the relevant md5 hashes.
@@ -2718,7 +2746,8 @@ static tng_function_status tng_atom_data_read(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Write the atom data of a molecules block.
+/**
+ * @brief Write the atom data of a molecules block.
  * @param tng_data is a trajectory data container.
  * @param atom is the atom data container.
  * @param hash_mode is an option to decide whether to generate/update the relevant md5 hashes.
@@ -2883,7 +2912,8 @@ static tng_function_status tng_molecules_block_len_calculate
     return(TNG_SUCCESS);
 }
 
-/** Read a molecules block. Contains chain, residue and atom data
+/**
+ * @brief Read a molecules block. Contains chain, residue and atom data
  * @param tng_data is a trajectory data container.
  * @param block is a general block container.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
@@ -3272,7 +3302,8 @@ static tng_function_status tng_molecules_block_read
     return(TNG_SUCCESS);
 }
 
-/** Write a molecules block.
+/**
+ * @brief Write a molecules block.
  * @param tng_data is a trajectory data container.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
  * If hash_mode == TNG_USE_HASH an md5 hash will be generated and written.
@@ -3515,7 +3546,8 @@ static tng_function_status tng_frame_set_block_len_calculate
     return(TNG_SUCCESS);
 }
 
-/** Read a frame set block. Update tng_data->current_trajectory_frame_set
+/**
+ * @brief Read a frame set block. Update tng_data->current_trajectory_frame_set
  * @param tng_data is a trajectory data container.
  * @param block is a general block container.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
@@ -3704,7 +3736,8 @@ static tng_function_status tng_frame_set_block_read
     return(TNG_SUCCESS);
 }
 
-/** Write tng_data->current_trajectory_frame_set to file
+/**
+ * @brief Write tng_data->current_trajectory_frame_set to file
  * @param tng_data is a trajectory data container.
  * @param block is a general block container.
  * @param hash_mode is an option to decide whether to use the md5 hash or not.
@@ -3879,7 +3912,8 @@ static tng_function_status tng_trajectory_mapping_block_len_calculate
     return(TNG_SUCCESS);
 }
 
-/** Read an atom mappings block (translating between real atom indexes and how
+/**
+ * @brief Read an atom mappings block (translating between real atom indexes and how
  *  the atom info is written in this frame set).
  * @param tng_data is a trajectory data container.
  * @param block is a general block container.
@@ -4009,7 +4043,8 @@ static tng_function_status tng_trajectory_mapping_block_read
     return(TNG_SUCCESS);
 }
 
-/** Write the atom mappings of the current trajectory frame set
+/**
+ * @brief Write the atom mappings of the current trajectory frame set
  * @param tng_data is a trajectory data container.
  * @param block is a general block container.
  * @param mapping_block_nr is the index of the mapping block to write.
@@ -4146,7 +4181,8 @@ static tng_function_status tng_trajectory_mapping_block_write
     return(TNG_SUCCESS);
 }
 
-/** Prepare a block for storing particle data
+/**
+ * @brief Prepare a block for storing particle data
  * @param tng_data is a trajectory data container.
  * @param block_type_flag specifies if this is a trajectory block or a
  * non-trajectory block. (TNG_TRAJECTORY_BLOCK or TNG_NON_TRAJECTORY_BLOCK)
@@ -4702,7 +4738,8 @@ static tng_function_status tng_gzip_uncompress(tng_trajectory_t tng_data,
 }
 #endif
 
-/** Allocate memory for storing particle data.
+/**
+ * @brief Allocate memory for storing particle data.
  * The allocated block will be refered to by data->values.
  * @param tng_data is a trajectory data container.
  * @param data is the data struct, which will contain the allocated memory in
@@ -5039,7 +5076,8 @@ static tng_function_status tng_data_block_len_calculate
 }
 
 /* TEST: */
-/** Create a non-particle data block
+/**
+ * @brief Create a non-particle data block
  * @param tng_data is a trajectory data container.
  * @param block_type_flag specifies if this is a trajectory block or a
  * non-trajectory block. (TNG_TRAJECTORY_BLOCK or TNG_NON_TRAJECTORY_BLOCK)
@@ -5092,7 +5130,8 @@ static tng_function_status tng_data_block_create
 }
 
 /* TEST: */
-/** Allocate memory for storing non-particle data.
+/**
+ * @brief Allocate memory for storing non-particle data.
  * The allocated block will be refered to by data->values.
  * @param tng_data is a trajectory data container.
  * @param data is the data struct, which will contain the allocated memory in
@@ -5197,7 +5236,8 @@ static tng_function_status tng_allocate_data_mem
     return(TNG_SUCCESS);
 }
 
-/** Read the values of a data block
+/**
+ * @brief Read the values of a data block
  * @param tng_data is a trajectory data container.
  * @param block is the block to store the data (should already contain
  * the block headers and the block contents).
@@ -5612,7 +5652,8 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Write a data block (particle or non-particle data)
+/**
+ * @brief Write a data block (particle or non-particle data)
  * @param tng_data is a trajectory data container.
  * @param block is the block to store the data (should already contain
  * the block headers and the block contents).
@@ -6194,7 +6235,8 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Read the meta information of a data block (particle or non-particle data).
+/**
+ * @brief Read the meta information of a data block (particle or non-particle data).
  * @param tng_data is a trajectory data container.
  * @param datatype is set to the datatype of the data block.
  * @param dependency is set to the dependency (particle and/or frame dependent)
@@ -6343,7 +6385,8 @@ static tng_function_status tng_data_block_meta_information_read
     return(TNG_SUCCESS);
 }
 
-/** Read the contents of a data block (particle or non-particle data).
+/**
+ * @brief Read the contents of a data block (particle or non-particle data).
  * @param tng_data is a trajectory data container.
  * @param block is the block to store the data (should already contain
  * the block headers).
@@ -6516,7 +6559,8 @@ static tng_function_status tng_data_block_contents_read
 //     return(TNG_SUCCESS);
 // }
 */
-/** Finish writing the current frame set. Update the number of frames
+/**
+ * @brief Finish writing the current frame set. Update the number of frames
  * and the hashes of the frame set and all its data blocks (if hash_mode
  * == TNG_USE_HASH).
  * @param tng_data is a trajectory data container.
@@ -6754,7 +6798,8 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-/** Initialise an atom struct
+/**
+ * @brief Initialise an atom struct
  * @param atom is the atom to initialise.
  * @return TNG_SUCCESS (0) if successful.
  */
@@ -6766,7 +6811,8 @@ static tng_function_status tng_atom_init(tng_atom_t atom)
     return(TNG_SUCCESS);
 }
 
-/** Free the memory in an atom struct
+/**
+ * @brief Free the memory in an atom struct
  * @param atom is the atom to destroy.
  * @return TNG_SUCCESS (0) if successful.
  */
@@ -11416,7 +11462,8 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_frame_range_get
     return(TNG_SUCCESS);
 }
 
-/** Translate from the particle numbering used in a frame set to the real
+/**
+ * @brief Translate from the particle numbering used in a frame set to the real
  *  particle numbering - used in the molecule description.
  * @param frame_set is the frame_set containing the mappings to use.
  * @param local is the index number of the atom in this frame set
@@ -11452,7 +11499,8 @@ static TNG_INLINE tng_function_status tng_particle_mapping_get_real_particle
     return(TNG_FAILURE);
 }
 
-/** Translate from the real particle numbering to the particle numbering
+/**
+ * @brief Translate from the real particle numbering to the particle numbering
  *  used in a frame set.
  * @param frame_set is the frame_set containing the mappings to use.
  * @param real is the index number of the atom in the molecular system.
