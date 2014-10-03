@@ -833,6 +833,7 @@ static tng_function_status tng_test_write_and_read_traj(tng_trajectory_t *traj,
     {
         printf("Time per frame does not match when reading written file. %s: %d\n",
                __FILE__, __LINE__);
+        printf("Value: %e, expected value: %e\n", temp_double, TIME_PER_FRAME);
         return(TNG_FAILURE);
     }
 
@@ -1049,11 +1050,15 @@ tng_function_status tng_test_utility_functions(tng_trajectory_t traj, const char
     stat = tng_util_time_of_frame_get(traj, 50, &time);
     if(stat != TNG_SUCCESS || fabs(time - 100e-13) > 0.000001)
     {
+        printf("Unexpected time at frame 50. %s: %d\n", __FILE__, __LINE__);
+        printf("Value: %e, expected value: %e\n", time, 100e-13);
         return(stat);
     }
     stat = tng_util_time_of_frame_get(traj, 100, &time);
     if(stat != TNG_SUCCESS || fabs(time - 200e-13) > 0.000001)
     {
+        printf("Unexpected time at frame 100. %s: %d\n", __FILE__, __LINE__);
+        printf("Value: %e, expected value: %e\n", time, 100e-13);
         return(stat);
     }
 
@@ -1062,6 +1067,10 @@ tng_function_status tng_test_utility_functions(tng_trajectory_t traj, const char
     stat = tng_util_num_frames_with_data_of_block_id_get(traj, TNG_TRAJ_POSITIONS, &n_frames);
     if(stat != TNG_SUCCESS || n_frames != n_frames_per_frame_set * N_FRAME_SETS)
     {
+        printf("Unexpected number of frames with positions data. %s: %d\n",
+               __FILE__, __LINE__);
+        printf("Value: %"PRId64", expected value: %"PRId64"\n", n_frames,
+               n_frames_per_frame_set * N_FRAME_SETS);
         return(stat);
     }
 
