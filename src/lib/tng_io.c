@@ -5471,7 +5471,11 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
 
     if(codec_id != TNG_UNCOMPRESSED)
     {
-        full_data_len = n_frames_div * size * n_particles * n_values;
+        full_data_len = n_frames_div * size * n_values;
+        if(is_particle_data == TNG_TRUE)
+        {
+            full_data_len *= n_particles;
+        }
         switch(codec_id)
         {
         case TNG_XTC_COMPRESSION:
@@ -14140,7 +14144,16 @@ static tng_function_status tng_gen_data_vector_get
     block_index = -1;
     data = 0;
 
-    if(tng_particle_data_find(tng_data, block_id, &data) != TNG_SUCCESS)
+    if(is_particle_data == TNG_TRUE)
+    {
+        stat = tng_particle_data_find(tng_data, block_id, &data);
+    }
+    else
+    {
+        stat = tng_data_find(tng_data, block_id, &data);
+    }
+
+    if(stat != TNG_SUCCESS)
     {
         tng_block_init(&block);
         file_pos = ftello(tng_data->input_file);
@@ -14233,8 +14246,12 @@ static tng_function_status tng_gen_data_vector_get
                    *n_frames / *stride_length + 1:
                    *n_frames / *stride_length;
 
-    full_data_len = n_frames_div * size * (*n_particles) *
+    full_data_len = n_frames_div * size *
                 (*n_values_per_frame);
+    if(is_particle_data == TNG_TRUE)
+    {
+        full_data_len *= (*n_particles);
+    }
 
     temp = realloc(*values, full_data_len);
     if(!temp)
@@ -14673,7 +14690,15 @@ static tng_function_status tng_gen_data_vector_interval_get
 
     /* Do not re-read the frame set and only need the requested block + particle mapping blocks. */
     /* TODO: Test that blocks are read correctly now that now all of them are read at the same time. */
-    stat = tng_particle_data_find(tng_data, block_id, &data);
+    if(is_particle_data == TNG_TRUE)
+    {
+        stat = tng_particle_data_find(tng_data, block_id, &data);
+    }
+    else
+    {
+        stat = tng_data_find(tng_data, block_id, &data);
+    }
+
     if(first_frame != frame_set->first_frame ||
        stat != TNG_SUCCESS)
     {
@@ -14732,7 +14757,14 @@ static tng_function_status tng_gen_data_vector_interval_get
             return(stat);
         }
     }
-    stat = tng_particle_data_find(tng_data, block_id, &data);
+    if(is_particle_data == TNG_TRUE)
+    {
+        stat = tng_particle_data_find(tng_data, block_id, &data);
+    }
+    else
+    {
+        stat = tng_data_find(tng_data, block_id, &data);
+    }
     if(stat != TNG_SUCCESS)
     {
         return(stat);
