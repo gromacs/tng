@@ -36,12 +36,18 @@
 #include "compression/tng_compress.h"
 #include "tng/version.h"
 
-#ifdef _MSC_VER
-#define fseeko _fseeki64
-#define ftello _ftelli64
+#if defined( _WIN32 ) || defined( _WIN64 )
+    #ifndef fseeko
+        #define fseeko _fseeki64
+    #endif
+    #ifndef ftello
+        #ifdef __MINGW32__
+            #define ftello ftello64
+        #else
+            #define ftello _ftelli64
+        #endif
+    #endif
 #endif
-
-
 
 struct tng_bond {
     /** One of the atoms of the bond */
