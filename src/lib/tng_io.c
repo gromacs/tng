@@ -10524,9 +10524,15 @@ tng_function_status DECLSPECDLLEXPORT tng_num_frames_per_frame_set_set
                 (const tng_trajectory_t tng_data,
                  const int64_t n)
 {
+    tng_trajectory_frame_set_t frame_set;
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
 
     tng_data->frame_set_n_frames = n;
+    frame_set = &tng_data->current_trajectory_frame_set;
+    if(frame_set)
+    {
+        frame_set->n_frames = n;
+    }
 
     return(TNG_SUCCESS);
 }
