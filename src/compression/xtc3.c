@@ -68,9 +68,9 @@ static const double iflipgaincheck=0.89089871814033927; /*  1./(2**(1./6)) */
 
 /* These routines are in xtc2.c */
 int Ptngc_magic(unsigned int i);
-int Ptngc_find_magic_index(unsigned int maxval);
+int Ptngc_find_magic_index(const unsigned int maxval);
 
-TNG_INLINE static unsigned int positive_int(int item)
+static TNG_INLINE unsigned int positive_int(int item)
 {
   int s=0;
   if (item>0)
@@ -80,7 +80,7 @@ TNG_INLINE static unsigned int positive_int(int item)
   return s;
 }
 
-TNG_INLINE static int unpositive_int(int val)
+static TNG_INLINE int unpositive_int(int val)
 {
   int s=(val+1)/2;
   if ((val%2)==0)

@@ -650,7 +650,7 @@ static tng_function_status tng_freadstr(tng_trajectory_t tng_data,
  * @param line_nr is the line number where this function was called, to be
  * able to give more useful error messages.
  */
-static inline tng_function_status tng_fwritestr(tng_trajectory_t tng_data,
+static TNG_INLINE tng_function_status tng_fwritestr(tng_trajectory_t tng_data,
                                                 const char *str,
                                                 const char hash_mode,
                                                 md5_state_t *md5_state,
@@ -687,7 +687,7 @@ static inline tng_function_status tng_fwritestr(tng_trajectory_t tng_data,
  * @param line_nr is the line number where this function was called, to be
  * able to give more useful error messages.
  */
-static inline tng_function_status tng_file_input_numerical
+static TNG_INLINE tng_function_status tng_file_input_numerical
                 (tng_trajectory_t tng_data,
                  void *dest,
                  const size_t len,
@@ -742,7 +742,7 @@ static inline tng_function_status tng_file_input_numerical
  * @param line_nr is the line number where this function was called, to be
  * able to give more useful error messages.
  */
-static inline tng_function_status tng_file_output_numerical
+static TNG_INLINE tng_function_status tng_file_output_numerical
                 (tng_trajectory_t tng_data,
                  void *src,
                  const size_t len,
@@ -5406,7 +5406,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
         data->block_name = malloc(strlen(block->name) + 1);
         if(!data->block_name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n",
                    (unsigned int)strlen(block->name)+1, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -5612,7 +5612,7 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
     {
         if(is_particle_data)
         {
-            memcpy(data->values + n_frames_div * size * n_values *
+            memcpy((char *)data->values + n_frames_div * size * n_values *
                    num_first_particle, contents, full_data_len);
         }
         else
@@ -5689,9 +5689,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
     int64_t i, j, k, curr_file_pos, header_file_pos;
     int size;
     size_t len;
-#ifdef USE_ZLIB
     tng_function_status stat;
-#endif
     char temp, *temp_name, ***first_dim_values, **second_dim_values, *contents;
     double multiplier;
     tng_trajectory_frame_set_t frame_set =
@@ -9256,7 +9254,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
         dest->input_file_path = malloc(strlen(src->input_file_path) + 1);
         if(!dest->input_file_path)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n",
                    (unsigned int)strlen(src->input_file_path) + 1, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -9273,7 +9271,7 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
         dest->output_file_path = malloc(strlen(src->output_file_path) + 1);
         if(!dest->output_file_path)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n",
                    (unsigned int)strlen(src->output_file_path) + 1, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -12471,7 +12469,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_frame_nr_of_next_frame_set_get
     return(TNG_SUCCESS);
 }
 
-static tng_function_status DECLSPECDLLEXPORT tng_gen_data_block_add
+static tng_function_status tng_gen_data_block_add
                 (tng_trajectory_t tng_data,
                  const int64_t id,
                  const tng_bool is_particle_data,
@@ -12557,7 +12555,7 @@ static tng_function_status DECLSPECDLLEXPORT tng_gen_data_block_add
         data->block_name = malloc(strlen(block_name) + 1);
         if(!data->block_name)
         {
-            fprintf(stderr, "TNG library: Cannot allocate memory (%d bytes). %s: %d\n",
+            fprintf(stderr, "TNG library: Cannot allocate memory (%ud bytes). %s: %d\n",
                    (unsigned int)strlen(block_name)+1, __FILE__, __LINE__);
             return(TNG_CRITICAL);
         }
@@ -12603,6 +12601,12 @@ static tng_function_status DECLSPECDLLEXPORT tng_gen_data_block_add
         {
             tot_n_particles = tng_data->n_particles;
         }
+    }
+    /* This is just to keep the compiler happy - avoid it considering tot_n_particles
+     * uninitialized. */
+    else
+    {
+        tot_n_particles = 0;
     }
 
     /* If data values are supplied add that data to the data block. */
@@ -13971,6 +13975,9 @@ static tng_function_status tng_gen_data_get
                 return(TNG_CRITICAL);
             }
         }
+
+        i_step = (*n_particles) * (*n_values_per_frame);
+
         /* It's not very elegant to reuse so much of the code in the different case
          * statements, but it's unnecessarily slow to have the switch-case block
          * inside the for loops. */
@@ -13994,7 +14001,6 @@ static tng_function_status tng_gen_data_get
             break;
         case TNG_INT_DATA:
             size = sizeof(int);
-            i_step = (*n_particles) * (*n_values_per_frame);
             for(i = 0; i < *n_frames; i++)
             {
                 for(j = 0; j < *n_particles; j++)
@@ -14012,7 +14018,6 @@ static tng_function_status tng_gen_data_get
             break;
         case TNG_FLOAT_DATA:
             size = sizeof(float);
-            i_step = (*n_particles) * (*n_values_per_frame);
             for(i = 0; i < *n_frames; i++)
             {
                 for(j = 0; j < *n_particles; j++)
@@ -14031,7 +14036,6 @@ static tng_function_status tng_gen_data_get
         case TNG_DOUBLE_DATA:
         default:
             size = sizeof(double);
-            i_step = (*n_particles) * (*n_values_per_frame);
             for(i = 0; i < *n_frames; i++)
             {
                 for(j = 0; j < *n_particles; j++)
@@ -14468,6 +14472,15 @@ static tng_function_status tng_gen_data_interval_get
     }
 
     current_frame_pos = start_frame_nr - frame_set->first_frame;
+
+    if(is_particle_data == TNG_TRUE)
+    {
+        i_step = (*n_particles) * (*n_values_per_frame);
+    }
+    else
+    {
+        i_step = (*n_values_per_frame);
+    }
     /* It's not very elegant to reuse so much of the code in the different case
      * statements, but it's unnecessarily slow to have the switch-case block
      * inside the for loops. */
@@ -14512,10 +14525,6 @@ static tng_function_status tng_gen_data_interval_get
         break;
     case TNG_INT_DATA:
         size = sizeof(int);
-        if(is_particle_data == TNG_TRUE)
-        {
-            i_step = (*n_particles) * (*n_values_per_frame);
-        }
         for(i=0; i<n_frames; i++)
         {
             if(current_frame_pos == frame_set->n_frames)
@@ -14549,17 +14558,13 @@ static tng_function_status tng_gen_data_interval_get
                 {
                     (*values)[0][i][j].i = *(int *)((char *)data->values + size *
                                                 (current_frame_pos *
-                                                 (*n_values_per_frame) + j));
+                                                 i_step + j));
                 }
             }
         }
         break;
     case TNG_FLOAT_DATA:
         size = sizeof(float);
-        if(is_particle_data == TNG_TRUE)
-        {
-            i_step = (*n_particles) * (*n_values_per_frame);
-        }
         for(i=0; i<n_frames; i++)
         {
             if(current_frame_pos == frame_set->n_frames)
@@ -14592,7 +14597,7 @@ static tng_function_status tng_gen_data_interval_get
                 {
                     (*values)[0][i][j].f = *(float *)((char *)data->values + size *
                                                    (current_frame_pos *
-                                                    (*n_values_per_frame) + j));
+                                                    i_step + j));
                 }
             }
             current_frame_pos++;
@@ -14601,10 +14606,6 @@ static tng_function_status tng_gen_data_interval_get
     case TNG_DOUBLE_DATA:
     default:
         size = sizeof(double);
-        if(is_particle_data == TNG_TRUE)
-        {
-            i_step = (*n_particles) * (*n_values_per_frame);
-        }
         for(i=0; i<n_frames; i++)
         {
             if(current_frame_pos == frame_set->n_frames)
@@ -14637,7 +14638,7 @@ static tng_function_status tng_gen_data_interval_get
                 {
                     (*values)[0][i][j].d = *(double *)((char *)data->values + size *
                                                     (current_frame_pos *
-                                                     (*n_values_per_frame) + j));
+                                                     i_step + j));
                 }
             }
             current_frame_pos++;

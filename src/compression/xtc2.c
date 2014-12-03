@@ -176,7 +176,7 @@ int Ptngc_magic(unsigned int i)
   return magic[i];
 }
 
-TNG_INLINE int Ptngc_find_magic_index(const unsigned int maxval)
+int Ptngc_find_magic_index(const unsigned int maxval)
 {
   int i;
 
@@ -201,7 +201,7 @@ TNG_INLINE int Ptngc_find_magic_index(const unsigned int maxval)
   return i;
 }
 
-TNG_INLINE static unsigned int positive_int(const int item)
+static TNG_INLINE unsigned int positive_int(const int item)
 {
   int s=0;
   if (item>0)
@@ -211,7 +211,7 @@ TNG_INLINE static unsigned int positive_int(const int item)
   return s;
 }
 
-TNG_INLINE static int unpositive_int(const int val)
+static TNG_INLINE int unpositive_int(const int val)
 {
   int s=(val+1)/2;
   if ((val%2)==0)

@@ -39,7 +39,7 @@
 #endif
 
 /* Multiply two 32 bit unsigned integers returning a 64 bit unsigned value (in two integers) */
-TNG_INLINE void Ptngc_widemul(unsigned int i1, unsigned int i2, unsigned int *ohi, unsigned int *olo)
+static TNG_INLINE void Ptngc_widemul(unsigned int i1, unsigned int i2, unsigned int *ohi, unsigned int *olo)
 {
 #if defined(TRAJNG_X86_GCC_INLINE_MULDIV)
   __asm__ __volatile__ ("mull %%edx\n\t"
@@ -106,7 +106,7 @@ TNG_INLINE void Ptngc_widemul(unsigned int i1, unsigned int i2, unsigned int *oh
 
 /* Divide a 64 bit unsigned value in hi:lo with the 32 bit value i and
    return the result in result and the remainder in remainder */
-TNG_INLINE void Ptngc_widediv(unsigned int hi, unsigned int lo, unsigned int i, unsigned int *result, unsigned int *remainder)
+static TNG_INLINE void Ptngc_widediv(unsigned int hi, unsigned int lo, unsigned int i, unsigned int *result, unsigned int *remainder)
 {
 #if defined(TRAJNG_X86_GCC_INLINE_MULDIV)
   __asm__ __volatile__ ("divl %%ecx\n\t"
@@ -170,7 +170,7 @@ TNG_INLINE void Ptngc_widediv(unsigned int hi, unsigned int lo, unsigned int i, 
 
 /* Add a unsigned int to a largeint. j determines which value in the
    largeint to add v1 to. */
-TNG_INLINE static void largeint_add_gen(const unsigned int v1, unsigned int *largeint, const int n, int j)
+static TNG_INLINE void largeint_add_gen(const unsigned int v1, unsigned int *largeint, const int n, int j)
 {
   /* Add with carry. unsigned ints in C wrap modulo 2**bits when "overflowed". */
   unsigned int v2=(v1+largeint[j])&0xFFFFFFFFU; /* Add and cap at 32 bits */
@@ -197,7 +197,7 @@ void Ptngc_largeint_add(const unsigned int v1, unsigned int *largeint, const int
 }
 
 /* Multiply v1 with largeint_in and return result in largeint_out */
-TNG_INLINE void Ptngc_largeint_mul(const unsigned int v1, unsigned int *largeint_in, unsigned int *largeint_out, const int n)
+void Ptngc_largeint_mul(const unsigned int v1, unsigned int *largeint_in, unsigned int *largeint_out, const int n)
 {
   int i;
   unsigned int lo,hi;
@@ -221,7 +221,7 @@ TNG_INLINE void Ptngc_largeint_mul(const unsigned int v1, unsigned int *largeint
 }
 
 /* Return the remainder from dividing largeint_in with v1. Result of the division is returned in largeint_out */
-TNG_INLINE unsigned int Ptngc_largeint_div(const unsigned int v1, unsigned int *largeint_in, unsigned int *largeint_out, const int n)
+unsigned int Ptngc_largeint_div(const unsigned int v1, unsigned int *largeint_in, unsigned int *largeint_out, const int n)
 {
   unsigned int result,remainder=0;
   int i;
