@@ -171,7 +171,7 @@ static const double iflipgaincheck=0.89089871814033927; /*  1./(2**(1./6)) */
 #define TNG_INLINE inline
 #endif
 
-int Ptngc_magic(unsigned int i)
+int Ptngc_magic(const unsigned int i)
 {
   return magic[i];
 }
@@ -262,7 +262,7 @@ static const int seq_instr[MAXINSTR][2]=
                more efficiently coded with two large instructions. */
  };
 
-static void write_instruction(struct coder *coder,int instr,unsigned char **output_ptr)
+static void write_instruction(struct coder *coder, const int instr, unsigned char **output_ptr)
 {
   Ptngc_writebits(coder,seq_instr[instr][0],seq_instr[instr][1],output_ptr);
 #ifdef SHOWIT
@@ -388,7 +388,7 @@ static void swap_is_better(int *input, int *minint, int *sum_normal, int *sum_sw
   *sum_swapped=swapped_max;
 }
 
-static void swapdecide(struct coder *coder, int *input,int *swapatoms, int *large_index, int *minint, unsigned char **output_ptr)
+static void swapdecide(struct coder *coder, int *input, int *swapatoms, int *large_index, int *minint, unsigned char **output_ptr)
 {
   int didswap=0;
   int normal,swapped;
@@ -1299,7 +1299,7 @@ unsigned char *Ptngc_pack_array_xtc2(struct coder *coder,int *input, int *length
 }
 
 
-int Ptngc_unpack_array_xtc2(struct coder *coder,unsigned char *packed,int *output, int length)
+int Ptngc_unpack_array_xtc2(struct coder *coder, unsigned char *packed, int *output, const int length)
 {
   unsigned char *ptr=packed;
   int bitptr=0;

@@ -106,7 +106,7 @@ static TNG_INLINE void Ptngc_widemul(unsigned int i1, unsigned int i2, unsigned 
 
 /* Divide a 64 bit unsigned value in hi:lo with the 32 bit value i and
    return the result in result and the remainder in remainder */
-static TNG_INLINE void Ptngc_widediv(unsigned int hi, unsigned int lo, unsigned int i, unsigned int *result, unsigned int *remainder)
+static TNG_INLINE void Ptngc_widediv(unsigned int hi, unsigned int lo, const unsigned int i, unsigned int *result, unsigned int *remainder)
 {
 #if defined(TRAJNG_X86_GCC_INLINE_MULDIV)
   __asm__ __volatile__ ("divl %%ecx\n\t"

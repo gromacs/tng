@@ -17,7 +17,7 @@
 /* "Partial" MTF. Byte based. */
 /* Move to front coding.
    Acceptable inputs are max 8 bits (0-0xFF) */
-static void comp_conv_to_mtf_byte(unsigned char *vals, int nvals,
+static void comp_conv_to_mtf_byte(unsigned char *vals, const int nvals,
                                   unsigned char *valsmtf)
 {
   int i;
@@ -59,7 +59,7 @@ static void comp_conv_to_mtf_byte(unsigned char *vals, int nvals,
     }
 }
 
-void Ptngc_comp_conv_to_mtf_partial(unsigned int *vals, int nvals,
+void Ptngc_comp_conv_to_mtf_partial(unsigned int *vals, const int nvals,
                               unsigned int *valsmtf)
 {
   unsigned char *tmp=warnmalloc(nvals*2);
@@ -78,7 +78,7 @@ void Ptngc_comp_conv_to_mtf_partial(unsigned int *vals, int nvals,
   free(tmp);
 }
 
-void Ptngc_comp_conv_to_mtf_partial3(unsigned int *vals, int nvals,
+void Ptngc_comp_conv_to_mtf_partial3(unsigned int *vals, const int nvals,
                                unsigned char *valsmtf)
 {
   unsigned char *tmp=warnmalloc(nvals);
@@ -93,7 +93,7 @@ void Ptngc_comp_conv_to_mtf_partial3(unsigned int *vals, int nvals,
 }
 
 /* Move to front decoding */
-static void comp_conv_from_mtf_byte(unsigned char *valsmtf, int nvals,
+static void comp_conv_from_mtf_byte(unsigned char *valsmtf, const int nvals,
                              unsigned char *vals)
 {
   int i;
@@ -135,7 +135,7 @@ static void comp_conv_from_mtf_byte(unsigned char *valsmtf, int nvals,
     }
 }
 
-void Ptngc_comp_conv_from_mtf_partial(unsigned int *valsmtf, int nvals,
+void Ptngc_comp_conv_from_mtf_partial(unsigned int *valsmtf, const int nvals,
                                 unsigned int *vals)
 {
   unsigned char *tmp=warnmalloc(nvals*2);
@@ -154,7 +154,7 @@ void Ptngc_comp_conv_from_mtf_partial(unsigned int *valsmtf, int nvals,
   free(tmp);
 }
 
-void Ptngc_comp_conv_from_mtf_partial3(unsigned char *valsmtf, int nvals,
+void Ptngc_comp_conv_from_mtf_partial3(unsigned char *valsmtf, const int nvals,
                                  unsigned int *vals)
 {
   unsigned char *tmp=warnmalloc(nvals);
@@ -173,8 +173,8 @@ void Ptngc_comp_conv_from_mtf_partial3(unsigned char *valsmtf, int nvals,
 
 /* Move to front coding.
    Acceptable inputs are max 24 bits (0-0xFFFFFF) */
-void Ptngc_comp_conv_to_mtf(unsigned int *vals, int nvals,
-                      unsigned int *dict, int ndict,
+void Ptngc_comp_conv_to_mtf(unsigned int *vals, const int nvals,
+                      unsigned int *dict, const int ndict,
                       unsigned int *valsmtf)
 {
   int i;
@@ -215,8 +215,8 @@ void Ptngc_comp_conv_to_mtf(unsigned int *vals, int nvals,
 }
 
 /* Move to front decoding */
-void Ptngc_comp_conv_from_mtf(unsigned int *valsmtf, int nvals,
-                        unsigned int *dict, int ndict,
+void Ptngc_comp_conv_from_mtf(unsigned int *valsmtf, const int nvals,
+                        unsigned int *dict, const int ndict,
                         unsigned int *vals)
 {
   int i;

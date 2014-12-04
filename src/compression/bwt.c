@@ -22,7 +22,7 @@
 #define SHOWIT2
 #endif
 
-static int compare_index(int i1,int i2,int nvals,unsigned int *vals,unsigned int *nrepeat)
+static int compare_index(int i1,int i2, const int nvals, unsigned int *vals, unsigned int *nrepeat)
 {
   int i,j;
   for (i=0; i<nvals; i++)
@@ -75,10 +75,10 @@ static int compare_index(int i1,int i2,int nvals,unsigned int *vals,unsigned int
   return 0;
 }
 
-void Ptngc_bwt_merge_sort_inner(int *indices, int nvals,unsigned int *vals,
-                          int start, int end,
-                          unsigned int *nrepeat,
-                          int *workarray)
+void Ptngc_bwt_merge_sort_inner(int *indices, const int nvals,unsigned int *vals,
+                                const int start, const int end,
+                                unsigned int *nrepeat,
+                                int *workarray)
 {
   int middle;
   if ((end-start)>1)
@@ -140,8 +140,8 @@ void Ptngc_bwt_merge_sort_inner(int *indices, int nvals,unsigned int *vals,
 }
 
 /* Burrows-Wheeler transform. */
-void Ptngc_comp_to_bwt(unsigned int *vals, int nvals,
-                 unsigned int *output, int *index)
+void Ptngc_comp_to_bwt(unsigned int *vals, const int nvals,
+                       unsigned int *output, int *index)
 {
   int i;
   int *indices=warnmalloc(2*nvals*sizeof *indices);
@@ -305,8 +305,8 @@ void Ptngc_comp_to_bwt(unsigned int *vals, int nvals,
 }
 
 /* Burrows-Wheeler inverse transform. */
-void Ptngc_comp_from_bwt(unsigned int *input, int nvals, int index,
-                   unsigned int *vals)
+void Ptngc_comp_from_bwt(unsigned int *input, const int nvals, int index,
+                         unsigned int *vals)
 {
   /* Straightforward from the Burrows-Wheeler paper (page 13). */
   int i;

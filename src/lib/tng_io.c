@@ -376,17 +376,17 @@ struct tng_trajectory {
 #define TNG_SNPRINTF snprintf
 #endif
 
-static TNG_INLINE size_t tng_min_size(size_t a, size_t b)
+static TNG_INLINE size_t tng_min_size(const size_t a, const size_t b)
 {
     return (a < b ? a : b);
 }
 
-static TNG_INLINE int64_t tng_min_i64(int64_t a, int64_t b)
+static TNG_INLINE int64_t tng_min_i64(const int64_t a, const int64_t b)
 {
     return (a < b ? a : b);
 }
 
-static TNG_INLINE int64_t tng_max_i64(int64_t a, int64_t b)
+static TNG_INLINE int64_t tng_max_i64(const int64_t a, const int64_t b)
 {
     return (a > b ? a : b);
 }
@@ -593,7 +593,7 @@ static tng_function_status tng_swap_byte_order_little_endian_64
  * @param line_nr is the line number where this function was called, to be
  * able to give more useful error messages.
  */
-static tng_function_status tng_freadstr(tng_trajectory_t tng_data,
+static tng_function_status tng_freadstr(const tng_trajectory_t tng_data,
                                         char **str,
                                         const char hash_mode,
                                         md5_state_t *md5_state,
@@ -688,7 +688,7 @@ static TNG_INLINE tng_function_status tng_fwritestr(tng_trajectory_t tng_data,
  * able to give more useful error messages.
  */
 static TNG_INLINE tng_function_status tng_file_input_numerical
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  void *dest,
                  const size_t len,
                  const char hash_mode,
@@ -743,8 +743,8 @@ static TNG_INLINE tng_function_status tng_file_input_numerical
  * able to give more useful error messages.
  */
 static TNG_INLINE tng_function_status tng_file_output_numerical
-                (tng_trajectory_t tng_data,
-                 void *src,
+                (const tng_trajectory_t tng_data,
+                 const void *src,
                  const size_t len,
                  const char hash_mode,
                  md5_state_t *md5_state,
@@ -813,7 +813,7 @@ static TNG_INLINE tng_function_status tng_file_output_numerical
  * @param block is a general block container.
  * @return TNG_SUCCESS (0) if successful.
  */
-static tng_function_status tng_block_md5_hash_generate(tng_gen_block_t block)
+static tng_function_status tng_block_md5_hash_generate(const tng_gen_block_t block)
 {
     md5_state_t md5_state;
 
@@ -835,7 +835,7 @@ static tng_function_status tng_block_md5_hash_generate(tng_gen_block_t block)
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
-static tng_function_status tng_md5_remaining_append(tng_trajectory_t tng_data,
+static tng_function_status tng_md5_remaining_append(const tng_trajectory_t tng_data,
                                                     const tng_gen_block_t block,
                                                     const int64_t start_pos,
                                                     md5_state_t *md5_state)
@@ -874,7 +874,7 @@ static tng_function_status tng_md5_remaining_append(tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
-static tng_function_status tng_input_file_init(tng_trajectory_t tng_data)
+static tng_function_status tng_input_file_init(const tng_trajectory_t tng_data)
 {
     int64_t file_pos;
 
@@ -912,7 +912,7 @@ static tng_function_status tng_input_file_init(tng_trajectory_t tng_data)
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
-static tng_function_status tng_output_file_init(tng_trajectory_t tng_data)
+static tng_function_status tng_output_file_init(const tng_trajectory_t tng_data)
 {
     if(!tng_data->output_file)
     {
@@ -1017,7 +1017,7 @@ static tng_function_status tng_block_destroy(struct tng_gen_block **block_p)
  * the block) or TNG_CRITICAL (2) if a major error has occured.
  */
 static tng_function_status tng_block_header_read
-                (tng_trajectory_t tng_data, tng_gen_block_t block)
+                (const tng_trajectory_t tng_data, const tng_gen_block_t block)
 {
     int64_t start_pos;
 
@@ -1194,8 +1194,8 @@ static tng_function_status tng_block_header_read
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
-static tng_function_status tng_md5_hash_update(tng_trajectory_t tng_data,
-                                               tng_gen_block_t block,
+static tng_function_status tng_md5_hash_update(const tng_trajectory_t tng_data,
+                                               const tng_gen_block_t block,
                                                const int64_t header_start_pos,
                                                const int64_t contents_start_pos)
 {
@@ -1239,7 +1239,7 @@ static tng_function_status tng_md5_hash_update(tng_trajectory_t tng_data,
  * error has occured.
  */
 static tng_function_status tng_header_pointers_update
-                (tng_trajectory_t tng_data, const char hash_mode)
+                (const tng_trajectory_t tng_data, const char hash_mode)
 {
     tng_gen_block_t block;
     FILE *temp = tng_data->input_file;
@@ -1337,7 +1337,7 @@ static tng_function_status tng_header_pointers_update
  * error has occured.
  */
 static tng_function_status tng_frame_set_pointers_update
-                (tng_trajectory_t tng_data, const char hash_mode)
+                (const tng_trajectory_t tng_data, const char hash_mode)
 {
     tng_gen_block_t block;
     tng_trajectory_frame_set_t frame_set;
@@ -1646,7 +1646,7 @@ static tng_function_status tng_frame_set_pointers_update
 }
 
 static tng_function_status tng_reread_frame_set_at_file_pos
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t pos)
 {
     tng_gen_block_t block;
@@ -1680,7 +1680,7 @@ static tng_function_status tng_reread_frame_set_at_file_pos
 }
 
 static tng_function_status tng_file_pos_of_subsequent_trajectory_block_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  int64_t *pos)
 {
     int64_t orig_pos, curr_frame_set_pos;
@@ -1769,10 +1769,10 @@ static tng_function_status tng_file_pos_of_subsequent_trajectory_block_get
  * @param hash_mode is an option to decide whether to generate/update the relevant md5 hashes.
  */
 static tng_function_status tng_frame_set_complete_migrate
-                (tng_trajectory_t tng_data,
-                 int64_t block_start_pos,
-                 int64_t block_len,
-                 int64_t new_pos,
+                (const tng_trajectory_t tng_data,
+                 const int64_t block_start_pos,
+                 const int64_t block_len,
+                 const int64_t new_pos,
                  const char hash_mode)
 {
     tng_bool updated = TNG_FALSE;
@@ -1844,7 +1844,7 @@ static tng_function_status tng_frame_set_complete_migrate
 }
 
 static tng_function_status tng_length_of_current_frame_set_contents_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  int64_t *len)
 {
     int64_t orig_pos, pos, curr_frame_set_pos;
@@ -1910,9 +1910,9 @@ static tng_function_status tng_length_of_current_frame_set_contents_get
  * data.
  */
 static tng_function_status tng_migrate_data_in_file
-                (tng_trajectory_t tng_data,
-                 int64_t start_pos,
-                 int64_t offset,
+                (const tng_trajectory_t tng_data,
+                 const int64_t start_pos,
+                 const int64_t offset,
                  const char hash_mode)
 {
     int64_t traj_start_pos, empty_space, orig_file_pos, frame_set_length;
@@ -1991,7 +1991,7 @@ static tng_function_status tng_migrate_data_in_file
 
 static tng_function_status tng_block_header_len_calculate
                 (const tng_trajectory_t tng_data,
-                 tng_gen_block_t block,
+                 const tng_gen_block_t block,
                  int64_t *len)
 {
     int name_len;
@@ -2034,8 +2034,8 @@ static tng_function_status tng_block_header_len_calculate
  * error has occured.
  */
 static tng_function_status tng_block_header_write
-                (tng_trajectory_t tng_data,
-                 tng_gen_block_t block)
+                (const tng_trajectory_t tng_data,
+                 const tng_gen_block_t block)
 {
     TNG_ASSERT(block != 0, "TNG library: Trying to write uninitialized block (NULL pointer).");
 
@@ -2097,7 +2097,7 @@ static tng_function_status tng_block_header_write
 }
 
 static tng_function_status tng_general_info_block_len_calculate
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  int64_t *len)
 {
     size_t first_program_name_len, first_user_name_len;
@@ -2260,7 +2260,8 @@ static tng_function_status tng_general_info_block_len_calculate
  * error has occured.
  */
 static tng_function_status tng_general_info_block_read
-                (tng_trajectory_t tng_data, tng_gen_block_t block,
+                (const tng_trajectory_t tng_data,
+                 const tng_gen_block_t block,
                  const char hash_mode)
 {
     int64_t start_pos;
@@ -2400,7 +2401,7 @@ static tng_function_status tng_general_info_block_read
  * error has occured.
  */
 static tng_function_status tng_general_info_block_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char hash_mode)
 {
     int64_t header_file_pos, curr_file_pos;
@@ -2593,8 +2594,8 @@ static tng_function_status tng_general_info_block_write
  * if hash_mode == TNG_USE_HASH.
  * @return TNG_SUCCESS(0) is successful.
  */
-static tng_function_status tng_chain_data_read(tng_trajectory_t tng_data,
-                                               tng_chain_t chain,
+static tng_function_status tng_chain_data_read(const tng_trajectory_t tng_data,
+                                               const tng_chain_t chain,
                                                const char hash_mode,
                                                md5_state_t *md5_state)
 {
@@ -2626,8 +2627,8 @@ static tng_function_status tng_chain_data_read(tng_trajectory_t tng_data,
  * if hash_mode == TNG_USE_HASH.
  * @return TNG_SUCCESS(0) is successful.
  */
-static tng_function_status tng_chain_data_write(tng_trajectory_t tng_data,
-                                                tng_chain_t chain,
+static tng_function_status tng_chain_data_write(const tng_trajectory_t tng_data,
+                                                const tng_chain_t chain,
                                                 const char hash_mode,
                                                 md5_state_t *md5_state)
 {
@@ -2663,8 +2664,8 @@ static tng_function_status tng_chain_data_write(tng_trajectory_t tng_data,
  * if hash_mode == TNG_USE_HASH.
  * @return TNG_SUCCESS(0) is successful.
  */
-static tng_function_status tng_residue_data_read(tng_trajectory_t tng_data,
-                                                 tng_residue_t residue,
+static tng_function_status tng_residue_data_read(const tng_trajectory_t tng_data,
+                                                 const tng_residue_t residue,
                                                  const char hash_mode,
                                                  md5_state_t *md5_state)
 {
@@ -2696,8 +2697,8 @@ static tng_function_status tng_residue_data_read(tng_trajectory_t tng_data,
  * if hash_mode == TNG_USE_HASH.
  * @return TNG_SUCCESS(0) is successful.
  */
-static tng_function_status tng_residue_data_write(tng_trajectory_t tng_data,
-                                                  tng_residue_t residue,
+static tng_function_status tng_residue_data_write(const tng_trajectory_t tng_data,
+                                                  const tng_residue_t residue,
                                                   const char hash_mode,
                                                   md5_state_t *md5_state)
 {
@@ -2733,8 +2734,8 @@ static tng_function_status tng_residue_data_write(tng_trajectory_t tng_data,
  * if hash_mode == TNG_USE_HASH.
  * @return TNG_SUCCESS(0) is successful.
  */
-static tng_function_status tng_atom_data_read(tng_trajectory_t tng_data,
-                                              tng_atom_t atom,
+static tng_function_status tng_atom_data_read(const tng_trajectory_t tng_data,
+                                              const tng_atom_t atom,
                                               const char hash_mode,
                                               md5_state_t *md5_state)
 {
@@ -2761,8 +2762,8 @@ static tng_function_status tng_atom_data_read(tng_trajectory_t tng_data,
  * if hash_mode == TNG_USE_HASH.
  * @return TNG_SUCCESS(0) is successful.
  */
-static tng_function_status tng_atom_data_write(tng_trajectory_t tng_data,
-                                               tng_atom_t atom,
+static tng_function_status tng_atom_data_write(const tng_trajectory_t tng_data,
+                                               const tng_atom_t atom,
                                                const char hash_mode,
                                                md5_state_t *md5_state)
 {
@@ -2929,8 +2930,8 @@ static tng_function_status tng_molecules_block_len_calculate
  * error has occured.
  */
 static tng_function_status tng_molecules_block_read
-                (tng_trajectory_t tng_data,
-                 tng_gen_block_t block,
+                (const tng_trajectory_t tng_data,
+                 const tng_gen_block_t block,
                  const char hash_mode)
 {
     int64_t start_pos, i, j, k, l;
@@ -3317,7 +3318,7 @@ static tng_function_status tng_molecules_block_read
  * error has occured.
  */
 static tng_function_status tng_molecules_block_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char hash_mode)
 {
     int name_len;
@@ -3752,8 +3753,8 @@ static tng_function_status tng_frame_set_block_read
  * error has occured.
  */
 static tng_function_status tng_frame_set_block_write
-                (tng_trajectory_t tng_data,
-                 tng_gen_block_t block,
+                (const tng_trajectory_t tng_data,
+                 const tng_gen_block_t block,
                  const char hash_mode)
 {
     char *temp_name;
@@ -3930,8 +3931,8 @@ static tng_function_status tng_trajectory_mapping_block_len_calculate
  * error has occured.
  */
 static tng_function_status tng_trajectory_mapping_block_read
-                (tng_trajectory_t tng_data,
-                 tng_gen_block_t block,
+                (const tng_trajectory_t tng_data,
+                 const tng_gen_block_t block,
                  const char hash_mode)
 {
     int64_t start_pos, i;
@@ -4060,9 +4061,9 @@ static tng_function_status tng_trajectory_mapping_block_read
  * has occurred or TNG_CRITICAL (2) if a major error has occured.
  */
 static tng_function_status tng_trajectory_mapping_block_write
-                (tng_trajectory_t tng_data,
-                 tng_gen_block_t block,
-                 int mapping_block_nr,
+                (const tng_trajectory_t tng_data,
+                 const tng_gen_block_t block,
+                 const int mapping_block_nr,
                  const char hash_mode)
 {
     int64_t header_file_pos, curr_file_pos;
@@ -4196,7 +4197,7 @@ static tng_function_status tng_trajectory_mapping_block_write
  * error has occured.
  */
 static tng_function_status tng_particle_data_block_create
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char block_type_flag)
 {
     tng_trajectory_frame_set_t frame_set =
@@ -4244,8 +4245,8 @@ static tng_function_status tng_particle_data_block_create
     return(TNG_SUCCESS);
 }
 
-static tng_function_status tng_compress(tng_trajectory_t tng_data,
-                                        tng_gen_block_t block,
+static tng_function_status tng_compress(const tng_trajectory_t tng_data,
+                                        const tng_gen_block_t block,
                                         const int64_t n_frames,
                                         const int64_t n_particles,
                                         const char type,
@@ -4586,8 +4587,8 @@ static tng_function_status tng_compress(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
-                                          tng_gen_block_t block,
+static tng_function_status tng_uncompress(const tng_trajectory_t tng_data,
+                                          const tng_gen_block_t block,
                                           const char type,
                                           char **data,
                                           const int64_t uncompressed_len)
@@ -4653,7 +4654,7 @@ static tng_function_status tng_uncompress(tng_trajectory_t tng_data,
 }
 
 #ifdef USE_ZLIB
-static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
+static tng_function_status tng_gzip_compress(const tng_trajectory_t tng_data,
                                              char **data, const int64_t len,
                                              int64_t *new_len)
 {
@@ -4695,7 +4696,7 @@ static tng_function_status tng_gzip_compress(tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-static tng_function_status tng_gzip_uncompress(tng_trajectory_t tng_data,
+static tng_function_status tng_gzip_uncompress(const tng_trajectory_t tng_data,
                                                char **data,
                                                const int64_t compressed_len,
                                                const int64_t uncompressed_len)
@@ -4758,10 +4759,10 @@ static tng_function_status tng_gzip_uncompress(tng_trajectory_t tng_data,
  * error has occured.
  */
 static tng_function_status tng_allocate_particle_data_mem
-                (tng_trajectory_t tng_data,
-                 tng_data_t data,
+                (const tng_trajectory_t tng_data,
+                 const tng_data_t data,
                  int64_t n_frames,
-                 int64_t stride_length,
+                 const int64_t stride_length,
                  const int64_t n_particles,
                  const int64_t n_values_per_frame)
 {
@@ -4865,7 +4866,7 @@ static tng_function_status tng_allocate_particle_data_mem
 }
 
 static tng_function_status tng_particle_data_find
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t id,
                  tng_data_t *data)
 {
@@ -4917,7 +4918,7 @@ static tng_function_status tng_particle_data_find
 }
 
 static tng_function_status tng_data_find
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t id,
                  tng_data_t *data)
 {
@@ -5091,7 +5092,7 @@ static tng_function_status tng_data_block_len_calculate
  * error has occured.
  */
 static tng_function_status tng_data_block_create
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char block_type_flag)
 {
     tng_trajectory_frame_set_t frame_set =
@@ -5148,10 +5149,10 @@ static tng_function_status tng_data_block_create
  * error has occured.
  */
 static tng_function_status tng_allocate_data_mem
-                (tng_trajectory_t tng_data,
-                 tng_data_t data,
+                (const tng_trajectory_t tng_data,
+                 const tng_data_t data,
                  int64_t n_frames,
-                 int64_t stride_length,
+                 const int64_t stride_length,
                  const int64_t n_values_per_frame)
 {
     void **values;
@@ -5247,6 +5248,7 @@ static tng_function_status tng_allocate_data_mem
  * @param tng_data is a trajectory data container.
  * @param block is the block to store the data (should already contain
  * the block headers and the block contents).
+ * @param block_data_len is the length of the data contents of the block.
  * @param datatype is the type of data of the data block (char, int, float or
  * double).
  * @param num_first_particle is the number of the first particle in the data
@@ -5270,9 +5272,9 @@ static tng_function_status tng_allocate_data_mem
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
-static tng_function_status tng_data_read(tng_trajectory_t tng_data,
-                                         tng_gen_block_t block,
-                                         int64_t block_data_len,
+static tng_function_status tng_data_read(const tng_trajectory_t tng_data,
+                                         const tng_gen_block_t block,
+                                         const int64_t block_data_len,
                                          const char datatype,
                                          const int64_t num_first_particle,
                                          const int64_t n_particles,
@@ -5677,8 +5679,8 @@ static tng_function_status tng_data_read(tng_trajectory_t tng_data,
  * @return TNG_SUCCESS (0) if successful or TNG_CRITICAL (2) if a major
  * error has occured.
  */
-static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
-                                                tng_gen_block_t block,
+static tng_function_status tng_data_block_write(const tng_trajectory_t tng_data,
+                                                const tng_gen_block_t block,
                                                 const int64_t block_index,
                                                 const tng_bool is_particle_data,
                                                 const tng_particle_mapping_t mapping,
@@ -6265,7 +6267,7 @@ static tng_function_status tng_data_block_write(tng_trajectory_t tng_data,
  * error has occured.
  */
 static tng_function_status tng_data_block_meta_information_read
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  char *datatype,
                  char *dependency,
                  char *sparse_data,
@@ -6405,8 +6407,8 @@ static tng_function_status tng_data_block_meta_information_read
  * error has occured.
  */
 static tng_function_status tng_data_block_contents_read
-                (tng_trajectory_t tng_data,
-                 tng_gen_block_t block,
+                (const tng_trajectory_t tng_data,
+                 const tng_gen_block_t block,
                  const char hash_mode)
 {
     int64_t start_pos, n_values, codec_id, n_frames, first_frame_with_data;
@@ -6578,7 +6580,8 @@ static tng_function_status tng_data_block_contents_read
  * error has occured.
  */
 static tng_function_status tng_frame_set_finalize
-                (tng_trajectory_t tng_data, const char hash_mode)
+                (const tng_trajectory_t tng_data,
+                 const char hash_mode)
 {
     tng_gen_block_t block;
     tng_trajectory_frame_set_t frame_set;
@@ -6717,8 +6720,8 @@ tng_function_status tng_atom_name_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_atom_name_set(tng_trajectory_t tng_data,
-                                      tng_atom_t atom,
+tng_function_status tng_atom_name_set(const tng_trajectory_t tng_data,
+                                      const tng_atom_t atom,
                                       const char *new_name)
 {
     unsigned int len;
@@ -6771,8 +6774,8 @@ tng_function_status tng_atom_type_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
-                                      tng_atom_t atom,
+tng_function_status tng_atom_type_set(const tng_trajectory_t tng_data,
+                                      const tng_atom_t atom,
                                       const char *new_type)
 {
     unsigned int len;
@@ -6811,7 +6814,7 @@ tng_function_status tng_atom_type_set(tng_trajectory_t tng_data,
  * @param atom is the atom to initialise.
  * @return TNG_SUCCESS (0) if successful.
  */
-static tng_function_status tng_atom_init(tng_atom_t atom)
+static tng_function_status tng_atom_init(const tng_atom_t atom)
 {
     atom->name = 0;
     atom->atom_type = 0;
@@ -6824,7 +6827,7 @@ static tng_function_status tng_atom_init(tng_atom_t atom)
  * @param atom is the atom to destroy.
  * @return TNG_SUCCESS (0) if successful.
  */
-static tng_function_status tng_atom_destroy(tng_atom_t atom)
+static tng_function_status tng_atom_destroy(const tng_atom_t atom)
 {
     if(atom->name)
     {
@@ -6887,7 +6890,7 @@ tng_function_status DECLSPECDLLEXPORT tng_version
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_add
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char *name,
                  tng_molecule_t *molecule)
 {
@@ -6910,7 +6913,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_add
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char *name,
                  const int64_t id,
                  tng_molecule_t *molecule)
@@ -6970,7 +6973,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_w_id_add
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_existing_add
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  tng_molecule_t *molecule_p)
 {
     int64_t *new_molecule_cnt_list, id;
@@ -7059,8 +7062,8 @@ tng_function_status tng_molecule_name_get(const tng_trajectory_t tng_data,
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_name_set
-                (tng_trajectory_t tng_data,
-                 tng_molecule_t molecule,
+                (const tng_trajectory_t tng_data,
+                 const tng_molecule_t molecule,
                  const char *new_name)
 {
     unsigned int len;
@@ -7122,8 +7125,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set
-                (tng_trajectory_t tng_data,
-                 tng_molecule_t molecule,
+                (const tng_trajectory_t tng_data,
+                 const tng_molecule_t molecule,
                  const int64_t cnt)
 {
     int64_t i, old_cnt, index = -1;
@@ -7165,9 +7168,9 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_cnt_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_find
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char *name,
-                 int64_t nr,
+                 const int64_t nr,
                  tng_molecule_t *molecule)
 {
     int64_t i, n_molecules;
@@ -7196,8 +7199,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_find
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_of_index_get
-                (tng_trajectory_t tng_data,
-                 int64_t index,
+                (const tng_trajectory_t tng_data,
+                 const int64_t index,
                  tng_molecule_t *molecule)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -7212,8 +7215,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_of_index_get
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(tng_trajectory_t tng_data_src,
-                                                               tng_trajectory_t tng_data_dest)
+tng_function_status DECLSPECDLLEXPORT tng_molecule_system_copy(const tng_trajectory_t tng_data_src,
+                                                               const tng_trajectory_t tng_data_dest)
 {
     tng_molecule_t molecule, molecule_temp;
     tng_chain_t chain, chain_temp;
@@ -7360,9 +7363,9 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_num_chains_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_of_index_get
-                (tng_trajectory_t tng_data,
-                 tng_molecule_t molecule,
-                 int64_t index,
+                (const tng_trajectory_t tng_data,
+                 const tng_molecule_t molecule,
+                 const int64_t index,
                  tng_chain_t *chain)
 {
     (void) tng_data;
@@ -7445,10 +7448,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_atom_of_index_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
-                (tng_trajectory_t tng_data,
-                 tng_molecule_t molecule,
+                (const tng_trajectory_t tng_data,
+                 const tng_molecule_t molecule,
                  const char *name,
-                 int64_t nr,
+                 const int64_t nr,
                  tng_chain_t *chain)
 {
     int64_t i, n_chains;
@@ -7477,8 +7480,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_find
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_add
-                (tng_trajectory_t tng_data,
-                 tng_molecule_t molecule,
+                (const tng_trajectory_t tng_data,
+                 const tng_molecule_t molecule,
                  const char *name,
                  tng_chain_t *chain)
 {
@@ -7502,8 +7505,8 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_add
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
-                (tng_trajectory_t tng_data,
-                 tng_molecule_t molecule,
+                (const tng_trajectory_t tng_data,
+                 const tng_molecule_t molecule,
                  const char *name,
                  const int64_t id,
                  tng_chain_t *chain)
@@ -7547,7 +7550,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_chain_w_id_add
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_bond_add
                 (const tng_trajectory_t tng_data,
-                 tng_molecule_t molecule,
+                 const tng_molecule_t molecule,
                  const int64_t from_atom_id,
                  const int64_t to_atom_id,
                  tng_bond_t *bond)
@@ -7583,10 +7586,10 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_bond_add
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_atom_find
-                (tng_trajectory_t tng_data,
-                 tng_molecule_t molecule,
+                (const tng_trajectory_t tng_data,
+                 const tng_molecule_t molecule,
                  const char *name,
-                 int64_t id,
+                 const int64_t id,
                  tng_atom_t *atom)
 {
     int64_t i, n_atoms;
@@ -7633,8 +7636,8 @@ tng_function_status tng_chain_name_get(const tng_trajectory_t tng_data,
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_chain_name_set
-                (tng_trajectory_t tng_data,
-                 tng_chain_t chain,
+                (const tng_trajectory_t tng_data,
+                 const tng_chain_t chain,
                  const char *new_name)
 {
     unsigned int len;
@@ -7701,10 +7704,10 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_of_index_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find
-                (tng_trajectory_t tng_data,
-                 tng_chain_t chain,
+                (const tng_trajectory_t tng_data,
+                 const tng_chain_t chain,
                  const char *name,
-                 int64_t id,
+                 const int64_t id,
                  tng_residue_t *residue)
 {
     int64_t i, n_residues;
@@ -7732,8 +7735,8 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_find
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_chain_residue_add
-                (tng_trajectory_t tng_data,
-                 tng_chain_t chain,
+                (const tng_trajectory_t tng_data,
+                 const tng_chain_t chain,
                  const char *name,
                  tng_residue_t *residue)
 {
@@ -7757,8 +7760,8 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_add
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
-                (tng_trajectory_t tng_data,
-                 tng_chain_t chain,
+                (const tng_trajectory_t tng_data,
+                 const tng_chain_t chain,
                  const char *name,
                  const int64_t id,
                  tng_residue_t *residue)
@@ -7864,8 +7867,8 @@ tng_function_status tng_residue_name_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_residue_name_set(tng_trajectory_t tng_data,
-                                                           tng_residue_t residue,
+tng_function_status DECLSPECDLLEXPORT tng_residue_name_set(const tng_trajectory_t tng_data,
+                                                           const tng_residue_t residue,
                                                            const char *new_name)
 {
     unsigned int len;
@@ -7945,8 +7948,8 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_of_index_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_residue_atom_add
-                (tng_trajectory_t tng_data,
-                 tng_residue_t residue,
+                (const tng_trajectory_t tng_data,
+                 const tng_residue_t residue,
                  const char *atom_name,
                  const char *atom_type,
                  tng_atom_t *atom)
@@ -7972,8 +7975,8 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_atom_add
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_residue_atom_w_id_add
-                (tng_trajectory_t tng_data,
-                 tng_residue_t residue,
+                (const tng_trajectory_t tng_data,
+                 const tng_residue_t residue,
                  const char *atom_name,
                  const char *atom_type,
                  const int64_t id,
@@ -8057,7 +8060,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_free(const tng_trajectory_t t
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_init(const tng_trajectory_t tng_data,
-                                                        tng_molecule_t molecule)
+                                                        const tng_molecule_t molecule)
 {
     (void)tng_data;
     molecule->quaternary_str = 1;
@@ -8075,7 +8078,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_init(const tng_trajectory_t t
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_molecule_destroy(const tng_trajectory_t tng_data,
-                                                           tng_molecule_t molecule)
+                                                           const tng_molecule_t molecule)
 {
     int64_t i;
     (void)tng_data;
@@ -8141,7 +8144,7 @@ tng_function_status DECLSPECDLLEXPORT tng_molecule_name_of_particle_nr_get
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  char *name,
-                 int max_len)
+                 const int max_len)
 {
     int64_t cnt = 0, i, *molecule_cnt_list = 0;
     tng_molecule_t mol;
@@ -8302,7 +8305,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_name_of_particle_nr_get
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  char *name,
-                 int max_len)
+                 const int max_len)
 {
     int64_t cnt = 0, i, *molecule_cnt_list = 0;
     tng_molecule_t mol;
@@ -8354,7 +8357,7 @@ tng_function_status DECLSPECDLLEXPORT tng_residue_name_of_particle_nr_get
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  char *name,
-                 int max_len)
+                 const int max_len)
 {
     int64_t cnt = 0, i, *molecule_cnt_list = 0;
     tng_molecule_t mol;
@@ -8501,7 +8504,7 @@ tng_function_status DECLSPECDLLEXPORT tng_atom_name_of_particle_nr_get
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  char *name,
-                 int max_len)
+                 const int max_len)
 {
     int64_t cnt = 0, i, *molecule_cnt_list = 0;
     tng_molecule_t mol;
@@ -8549,7 +8552,7 @@ tng_function_status tng_atom_type_of_particle_nr_get
                 (const tng_trajectory_t tng_data,
                  const int64_t nr,
                  char *type,
-                 int max_len)
+                 const int max_len)
 {
     int64_t cnt = 0, i, *molecule_cnt_list = 0;
     tng_molecule_t mol;
@@ -8594,7 +8597,7 @@ tng_function_status tng_atom_type_of_particle_nr_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t num_first_particle,
                  const int64_t n_particles,
                  const int64_t *mapping_table)
@@ -8679,7 +8682,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_mapping_add
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_frame_set_particle_mapping_free(tng_trajectory_t tng_data)
+tng_function_status DECLSPECDLLEXPORT tng_frame_set_particle_mapping_free(const tng_trajectory_t tng_data)
 {
     tng_trajectory_frame_set_t frame_set;
     tng_particle_mapping_t mapping;
@@ -9229,8 +9232,9 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_destroy(tng_trajectory_t *t
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajectory_t src,
-                                                 tng_trajectory_t *dest_p)
+tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src
+                (const tng_trajectory_t src,
+                 tng_trajectory_t *dest_p)
 {
     tng_trajectory_frame_set_t frame_set;
     tng_trajectory_t dest;
@@ -9365,8 +9369,10 @@ tng_function_status DECLSPECDLLEXPORT tng_trajectory_init_from_src(tng_trajector
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_input_file_get(const tng_trajectory_t tng_data,
-                                       char *file_name, const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_input_file_get
+                (const tng_trajectory_t tng_data,
+                 char *file_name,
+                 const int max_len)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(file_name, "TNG library: file_name must not be a NULL pointer");
@@ -9381,8 +9387,9 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_get(const tng_trajectory_t 
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_input_file_set(tng_trajectory_t tng_data,
-                                                         const char *file_name)
+tng_function_status DECLSPECDLLEXPORT tng_input_file_set
+                (const tng_trajectory_t tng_data,
+                 const char *file_name)
 {
     unsigned int len;
     char *temp;
@@ -9419,8 +9426,10 @@ tng_function_status DECLSPECDLLEXPORT tng_input_file_set(tng_trajectory_t tng_da
     return(tng_input_file_init(tng_data));
 }
 
-tng_function_status tng_output_file_get(const tng_trajectory_t tng_data,
-                                       char *file_name, const int max_len)
+tng_function_status tng_output_file_get
+                (const tng_trajectory_t tng_data,
+                 char *file_name,
+                 const int max_len)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(file_name, "TNG library: file_name must not be a NULL pointer");
@@ -9435,8 +9444,9 @@ tng_function_status tng_output_file_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_output_file_set(tng_trajectory_t tng_data,
-                                                          const char *file_name)
+tng_function_status DECLSPECDLLEXPORT tng_output_file_set
+                (const tng_trajectory_t tng_data,
+                 const char *file_name)
 {
     int len;
     char *temp;
@@ -9473,7 +9483,7 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_set(tng_trajectory_t tng_d
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_output_append_file_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char *file_name)
 {
     int len;
@@ -9597,7 +9607,7 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_endianness_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_output_file_endianness_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const tng_file_endianness endianness)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -9661,7 +9671,8 @@ tng_function_status DECLSPECDLLEXPORT tng_output_file_endianness_set
 
 tng_function_status DECLSPECDLLEXPORT tng_first_program_name_get
                     (const tng_trajectory_t tng_data,
-                     char *name, const int max_len)
+                     char *name,
+                     const int max_len)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(name, "TNG library: name must not be a NULL pointer");
@@ -9676,8 +9687,9 @@ tng_function_status DECLSPECDLLEXPORT tng_first_program_name_get
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_first_program_name_set(tng_trajectory_t tng_data,
-                                                                 const char *new_name)
+tng_function_status DECLSPECDLLEXPORT tng_first_program_name_set
+                (const tng_trajectory_t tng_data,
+                 const char *new_name)
 {
     unsigned int len;
 
@@ -9725,7 +9737,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_program_name_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_last_program_name_set
-                    (tng_trajectory_t tng_data,
+                    (const tng_trajectory_t tng_data,
                      const char *new_name)
 {
     unsigned int len;
@@ -9774,7 +9786,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_user_name_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_first_user_name_set
-                    (tng_trajectory_t tng_data,
+                    (const tng_trajectory_t tng_data,
                      const char *new_name)
 {
     unsigned int len;
@@ -9825,7 +9837,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_user_name_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_last_user_name_set
-                    (tng_trajectory_t tng_data,
+                    (const tng_trajectory_t tng_data,
                      const char *new_name)
 {
     unsigned int len;
@@ -9876,7 +9888,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_first_computer_name_set
-                    (tng_trajectory_t tng_data,
+                    (const tng_trajectory_t tng_data,
                      const char *new_name)
 {
     unsigned int len;
@@ -9927,7 +9939,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_last_computer_name_set
-                    (tng_trajectory_t tng_data,
+                    (const tng_trajectory_t tng_data,
                      const char *new_name)
 {
     unsigned int len;
@@ -9979,7 +9991,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_signature_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_first_signature_set
-                    (tng_trajectory_t tng_data,
+                    (const tng_trajectory_t tng_data,
                      const char *signature)
 {
     unsigned int len;
@@ -10031,7 +10043,7 @@ tng_function_status DECLSPECDLLEXPORT tng_last_signature_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_last_signature_set
-                    (tng_trajectory_t tng_data,
+                    (const tng_trajectory_t tng_data,
                      const char *signature)
 {
     unsigned int len;
@@ -10083,7 +10095,7 @@ tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_forcefield_name_set
-                    (tng_trajectory_t tng_data,
+                    (const tng_trajectory_t tng_data,
                      const char *new_name)
 {
     unsigned int len;
@@ -10129,7 +10141,7 @@ tng_function_status DECLSPECDLLEXPORT tng_medium_stride_length_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_medium_stride_length_set
-                    (tng_trajectory_t tng_data,
+                    (const tng_trajectory_t tng_data,
                      const int64_t len)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -10156,7 +10168,7 @@ tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_long_stride_length_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t len)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -10183,7 +10195,7 @@ tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_time_per_frame_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const double time)
 {
     tng_trajectory_frame_set_t frame_set;
@@ -10290,7 +10302,7 @@ tng_function_status DECLSPECDLLEXPORT tng_compression_precision_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_compression_precision_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const double precision)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -10301,7 +10313,7 @@ tng_function_status DECLSPECDLLEXPORT tng_compression_precision_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t n)
 {
     tng_molecule_t mol;
@@ -10711,7 +10723,7 @@ tng_function_status DECLSPECDLLEXPORT tng_current_frame_set_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t nr)
 {
     int64_t long_stride_length, medium_stride_length;
@@ -11035,7 +11047,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_nr_find
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_of_frame_find
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame)
 {
     int64_t first_frame, last_frame, n_frames_per_frame_set;
@@ -11551,7 +11563,7 @@ static TNG_INLINE tng_function_status tng_particle_mapping_get_real_particle
 */
 
 static tng_function_status tng_file_headers_len_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  int64_t *len)
 {
     int64_t orig_pos;
@@ -11590,7 +11602,7 @@ static tng_function_status tng_file_headers_len_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_file_headers_read
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char hash_mode)
 {
     int64_t prev_pos = 0;
@@ -11631,7 +11643,7 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_read
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char hash_mode)
 {
     int i;
@@ -11751,9 +11763,10 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
     return(TNG_SUCCESS);
 }
 
-tng_function_status DECLSPECDLLEXPORT tng_block_read_next(tng_trajectory_t tng_data,
-                                        tng_gen_block_t block,
-                                        const char hash_mode)
+tng_function_status DECLSPECDLLEXPORT tng_block_read_next
+                (const tng_trajectory_t tng_data,
+                 const tng_gen_block_t block,
+                 const char hash_mode)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
     TNG_ASSERT(block, "TNG library: block must be initialised and must not be a NULL pointer.");
@@ -11783,7 +11796,7 @@ tng_function_status DECLSPECDLLEXPORT tng_block_read_next(tng_trajectory_t tng_d
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_read
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char hash_mode)
 {
     int64_t file_pos;
@@ -11858,7 +11871,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read
 
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_current_only_data_from_block_id
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char hash_mode,
                  const int64_t block_id)
 {
@@ -11985,7 +11998,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_current_only_data_from_
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char hash_mode)
 {
     int64_t file_pos;
@@ -12019,7 +12032,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next_only_data_from_block_id
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char hash_mode,
                  const int64_t block_id)
 {
@@ -12077,8 +12090,9 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_read_next_only_data_from_blo
     return(stat);
 }
 
-tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
-                                        const char hash_mode)
+tng_function_status tng_frame_set_write
+                (const tng_trajectory_t tng_data,
+                 const char hash_mode)
 {
     int i, j;
     tng_gen_block_t block;
@@ -12172,7 +12186,7 @@ tng_function_status tng_frame_set_write(tng_trajectory_t tng_data,
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_premature_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char hash_mode)
 {
     tng_trajectory_frame_set_t frame_set;
@@ -12191,7 +12205,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_premature_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t first_frame,
                  const int64_t n_frames)
 {
@@ -12376,7 +12390,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t first_frame,
                  const int64_t n_frames,
                  const double first_frame_time)
@@ -12400,7 +12414,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_with_time_new
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_first_frame_time_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const double first_frame_time)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -12470,7 +12484,7 @@ tng_function_status DECLSPECDLLEXPORT tng_first_frame_nr_of_next_frame_set_get
 }
 
 static tng_function_status tng_gen_data_block_add
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t id,
                  const tng_bool is_particle_data,
                  const char *block_name,
@@ -12732,7 +12746,7 @@ static tng_function_status tng_gen_data_block_add
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_data_block_add
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t id,
                  const char *block_name,
                  const char datatype,
@@ -12753,7 +12767,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_add
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t id,
                  const char *block_name,
                  const char datatype,
@@ -12779,10 +12793,10 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_block_add
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_data_block_name_get
-                (tng_trajectory_t tng_data,
-                 int64_t block_id,
+                (const tng_trajectory_t tng_data,
+                 const int64_t block_id,
                  char *name,
-                 int max_len)
+                 const int max_len)
 {
     int64_t i;
     tng_trajectory_frame_set_t frame_set;
@@ -12882,7 +12896,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_name_get
 
 tng_function_status DECLSPECDLLEXPORT tng_data_block_dependency_get
                 (const tng_trajectory_t tng_data,
-                 int64_t block_id,
+                 const int64_t block_id,
                  int *block_dependency)
 {
     int64_t i;
@@ -12955,7 +12969,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_dependency_get
 
 tng_function_status DECLSPECDLLEXPORT tng_data_block_num_values_per_frame_get
                 (const tng_trajectory_t tng_data,
-                 int64_t block_id,
+                 const int64_t block_id,
                  int64_t *n_values_per_frame)
 {
     int64_t i;
@@ -13027,7 +13041,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_block_num_values_per_frame_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_set_n_frames_of_data_block_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  int64_t *n_frames)
 {
@@ -13108,7 +13122,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_n_frames_of_data_block_get
 }
 
 static tng_function_status tng_frame_gen_data_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const int64_t block_id,
                  const tng_bool is_particle_data,
@@ -13594,7 +13608,7 @@ static tng_function_status tng_frame_gen_data_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const int64_t block_id,
                  const void *values,
@@ -13612,7 +13626,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_data_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_frame_particle_data_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const int64_t block_id,
                  const int64_t val_first_particle,
@@ -13844,9 +13858,9 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_values_free
 }
 
 static tng_function_status tng_gen_data_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
-                 tng_bool is_particle_data,
+                 const tng_bool is_particle_data,
                  union data_values ****values,
                  int64_t *n_frames,
                  int64_t *n_particles,
@@ -14118,7 +14132,7 @@ static tng_function_status tng_gen_data_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_data_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  union data_values ***values,
                  int64_t *n_frames,
@@ -14135,7 +14149,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get
 }
 
 static tng_function_status tng_gen_data_vector_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  const tng_bool is_particle_data,
                  void **values,
@@ -14308,7 +14322,7 @@ static tng_function_status tng_gen_data_vector_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_data_vector_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  void **values,
                  int64_t *n_frames,
@@ -14328,9 +14342,9 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_get
 }
 
 static tng_function_status tng_gen_data_interval_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
-                 tng_bool is_particle_data,
+                 const tng_bool is_particle_data,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
                  const char hash_mode,
@@ -14651,7 +14665,7 @@ static tng_function_status tng_gen_data_interval_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
@@ -14671,9 +14685,9 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
 }
 
 static tng_function_status tng_gen_data_vector_interval_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
-                 tng_bool is_particle_data,
+                 const tng_bool is_particle_data,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
                  const char hash_mode,
@@ -14937,7 +14951,7 @@ static tng_function_status tng_gen_data_vector_interval_get
 
 
 tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
@@ -14960,7 +14974,7 @@ tng_function_status DECLSPECDLLEXPORT tng_data_vector_interval_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  union data_values ****values,
                  int64_t *n_frames,
@@ -14979,7 +14993,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  void **values,
                  int64_t *n_frames,
@@ -15000,7 +15014,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
@@ -15022,7 +15036,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_particle_data_vector_interval_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  const int64_t start_frame_nr,
                  const int64_t end_frame_nr,
@@ -15270,7 +15284,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_close
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  double *time)
 {
@@ -15304,7 +15318,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_time_of_frame_get
 
 /*
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  int64_t *n_mols,
                  int64_t **molecule_cnt_list,
                  tng_molecule_t *mols)
@@ -15333,7 +15347,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecules_get
 */
 /*
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const char *name,
                  const int64_t cnt,
                  tng_molecule_t *mol)
@@ -15354,7 +15368,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_molecule_add
 }
 */
 tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const tng_molecule_t mol,
                  int64_t *n_particles,
                  char ***names,
@@ -15400,8 +15414,8 @@ tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_set
-                (tng_trajectory_t tng_data,
-                 tng_molecule_t mol,
+                (const tng_trajectory_t tng_data,
+                 const tng_molecule_t mol,
                  const int64_t n_particles,
                  const char **names,
                  const char **types,
@@ -15456,7 +15470,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_molecule_particles_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_read
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  float **positions, int64_t *stride_length)
 {
     int64_t n_frames, n_particles, n_values_per_frame;
@@ -15485,7 +15499,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_read
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  float **velocities, int64_t *stride_length)
 {
     int64_t n_frames, n_particles, n_values_per_frame;
@@ -15514,7 +15528,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_read
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  float **forces, int64_t *stride_length)
 {
     int64_t n_frames, n_particles, n_values_per_frame;
@@ -15543,7 +15557,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  float **box_shape,
                  int64_t *stride_length)
 {
@@ -15572,7 +15586,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  void **values,
                  char *data_type,
@@ -15736,7 +15750,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_particle_data_next_frame_read
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  void **values,
                  char *data_type,
@@ -15895,7 +15909,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_non_particle_data_next_frame_read
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_read_range
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t first_frame,
                  const int64_t last_frame,
                  float **positions,
@@ -15928,7 +15942,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read_range
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_read_range
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t first_frame,
                  const int64_t last_frame,
                  float **velocities,
@@ -15961,7 +15975,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read_range
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t first_frame,
                  const int64_t last_frame,
                  float **forces,
@@ -15994,7 +16008,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read_range
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t first_frame,
                  const int64_t last_frame,
                  float **box_shape,
@@ -16026,7 +16040,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read_range
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i,
                  const int64_t n_values_per_frame,
                  const int64_t block_id,
@@ -16167,7 +16181,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i,
                  const int64_t n_values_per_frame,
                  const int64_t block_id,
@@ -16286,7 +16300,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_interval_double_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i,
                  const int64_t n_values_per_frame,
                  const int64_t block_id,
@@ -16302,7 +16316,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write_frequency_set
                                                compression));
 }
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_interval_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -16316,7 +16330,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_interval_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_interval_double_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -16330,7 +16344,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_interval_double_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequency_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i)
 {
     fprintf(stderr, "TNG library: Using obsolete function tng_util_pos_write_frequency_set(). "
@@ -16339,7 +16353,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write_frequency_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_interval_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -16353,7 +16367,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_interval_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_interval_double_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -16367,7 +16381,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_interval_double_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_frequency_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i)
 {
     fprintf(stderr, "TNG library: Using obsolete function tng_util_vel_write_frequency_set(). "
@@ -16376,7 +16390,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write_frequency_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_write_interval_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -16390,7 +16404,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write_interval_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_write_interval_double_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -16404,7 +16418,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write_interval_double_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_write_frequency_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i)
 {
     fprintf(stderr, "TNG library: Using obsolete function tng_util_force_write_frequency_set(). "
@@ -16413,7 +16427,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write_frequency_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_interval_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -16427,7 +16441,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_interval_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_interval_double_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i)
 {
     TNG_ASSERT(tng_data, "TNG library: Trajectory container not properly setup.");
@@ -16441,7 +16455,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_interval_double_s
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_frequency_set
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t i)
 {
     fprintf(stderr, "TNG library: Using obsolete function tng_util_box_shape_write_frequency_set(). "
@@ -16450,7 +16464,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write_frequency_set
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const float *values,
                  const int64_t n_values_per_frame,
@@ -16662,7 +16676,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double *values,
                  const int64_t n_values_per_frame,
@@ -16875,7 +16889,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const float *positions)
 {
@@ -16889,7 +16903,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_double_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double *positions)
 {
@@ -16903,7 +16917,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_double_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const float *velocities)
 {
@@ -16917,7 +16931,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_double_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double *velocities)
 {
@@ -16931,7 +16945,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_double_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const float *forces)
 {
@@ -16945,7 +16959,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_double_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double *forces)
 {
@@ -16959,7 +16973,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_double_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const float *box_shape)
 {
@@ -16973,7 +16987,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_double_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double *box_shape)
 {
@@ -16987,7 +17001,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_double_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double time,
                  const float *values,
@@ -17037,7 +17051,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_double_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double time,
                  const double *values,
@@ -17087,7 +17101,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_with_time_double_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double time,
                  const float *positions)
@@ -17104,7 +17118,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_double_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double time,
                  const double *positions)
@@ -17123,7 +17137,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_with_time_double_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double time,
                  const float *velocities)
@@ -17142,7 +17156,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_double_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double time,
                  const double *velocities)
@@ -17161,7 +17175,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_with_time_double_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double time,
                  const float *forces)
@@ -17178,7 +17192,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_double_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double time,
                  const double *forces)
@@ -17196,7 +17210,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_with_time_double_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double time,
                  const float *box_shape)
@@ -17213,7 +17227,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_double_write
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t frame_nr,
                  const double time,
                  const double *box_shape)
@@ -17232,7 +17246,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_with_time_double_write
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_frame_current_compression_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  int64_t *codec_id,
                  double *factor)
@@ -17342,7 +17356,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_frame_current_compression_get
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_data_blocks_find
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  int64_t current_frame,
                  const int64_t n_requested_data_block_ids,
                  const int64_t *requested_data_block_ids,
@@ -17630,7 +17644,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
 
 /*
 tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_all_data_block_types_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  int64_t *n_data_blocks,
                  int64_t **data_block_ids,
                  char ***data_block_names,
@@ -17680,7 +17694,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_all_data_block_types_g
 }
 */
 tng_function_status DECLSPECDLLEXPORT tng_util_prepare_append_after_frame
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t prev_frame)
 {
     tng_function_status stat;
@@ -17706,7 +17720,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_prepare_append_after_frame
 }
 
 tng_function_status DECLSPECDLLEXPORT tng_util_num_frames_with_data_of_block_id_get
-                (tng_trajectory_t tng_data,
+                (const tng_trajectory_t tng_data,
                  const int64_t block_id,
                  int64_t *n_frames)
 {
