@@ -17507,10 +17507,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
         {
             data_frame = data->first_frame_with_data;
         }
-        if(data_frame >= frame_set->first_frame + frame_set->n_frames)
-        {
-            continue;
-        }
         frame_diff = data_frame - current_frame;
         if(frame_diff < 0)
         {
@@ -17597,10 +17593,6 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_next_frame_present_dat
         else
         {
             data_frame = data->first_frame_with_data;
-        }
-        if(data_frame >= frame_set->first_frame + frame_set->n_frames)
-        {
-            continue;
         }
         frame_diff = data_frame - current_frame;
         if(frame_diff < 0)
