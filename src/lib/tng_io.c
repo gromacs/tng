@@ -1,7 +1,7 @@
 /* This code is part of the tng binary trajectory format.
  *
  * Written by Magnus Lundborg
- * Copyright (c) 2012-2014, The GROMACS development team.
+ * Copyright (c) 2012-2015, The GROMACS development team.
  * Check out http://www.gromacs.org for more information.
  *
  *
@@ -16577,10 +16577,23 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
             else
             {
                 data = &tng_data->non_tr_particle_data[tng_data->
-                                                    n_particle_data_blocks - 1];
+                                                       n_particle_data_blocks - 1];
             }
             stat = tng_allocate_particle_data_mem(tng_data, data, n_frames,
                                                   stride_length, n_particles,
+                                                  n_values_per_frame);
+            if(stat != TNG_SUCCESS)
+            {
+                fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
+                       __FILE__, __LINE__);
+                return(stat);
+            }
+        }
+        /* FIXME: Here we must be able to handle modified n_particles as well. */
+        else if(n_frames > data->n_frames)
+        {
+            stat = tng_allocate_particle_data_mem(tng_data, data, n_frames,
+                                                  data->stride_length, n_particles,
                                                   n_values_per_frame);
             if(stat != TNG_SUCCESS)
             {
@@ -16640,6 +16653,18 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_write
             }
             stat = tng_allocate_data_mem(tng_data, data, n_frames,
                                          stride_length, n_values_per_frame);
+            if(stat != TNG_SUCCESS)
+            {
+                fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
+                       __FILE__, __LINE__);
+                return(stat);
+            }
+        }
+        /* FIXME: Here we must be able to handle modified n_particles as well. */
+        else if(n_frames > data->n_frames)
+        {
+            stat = tng_allocate_data_mem(tng_data, data, n_frames,
+                                         data->stride_length, n_values_per_frame);
             if(stat != TNG_SUCCESS)
             {
                 fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
@@ -16802,6 +16827,19 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
                 return(stat);
             }
         }
+        /* FIXME: Here we must be able to handle modified n_particles as well. */
+        else if(n_frames > data->n_frames)
+        {
+            stat = tng_allocate_particle_data_mem(tng_data, data, n_frames,
+                                                  data->stride_length, n_particles,
+                                                  n_values_per_frame);
+            if(stat != TNG_SUCCESS)
+            {
+                fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
+                       __FILE__, __LINE__);
+                return(stat);
+            }
+        }
 
         if(block_type_flag == TNG_TRAJECTORY_BLOCK)
         {
@@ -16853,6 +16891,18 @@ tng_function_status DECLSPECDLLEXPORT tng_util_generic_double_write
             }
             stat = tng_allocate_data_mem(tng_data, data, n_frames,
                                          stride_length, n_values_per_frame);
+            if(stat != TNG_SUCCESS)
+            {
+                fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
+                       __FILE__, __LINE__);
+                return(stat);
+            }
+        }
+        /* FIXME: Here we must be able to handle modified n_particles as well. */
+        else if(n_frames > data->n_frames)
+        {
+            stat = tng_allocate_data_mem(tng_data, data, n_frames,
+                                         data->stride_length, n_values_per_frame);
             if(stat != TNG_SUCCESS)
             {
                 fprintf(stderr, "TNG library: Error allocating particle data memory. %s: %d\n",
