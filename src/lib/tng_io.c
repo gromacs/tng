@@ -1377,7 +1377,7 @@ static tng_function_status tng_frame_set_pointers_update
         contents_start_pos = ftello(tng_data->output_file);
 
         fseeko(tng_data->output_file, block->block_contents_size - (5 *
-            sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
+               sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
 
         if(tng_data->input_endianness_swap_func_64)
         {
@@ -1402,7 +1402,6 @@ static tng_function_status tng_frame_set_pointers_update
             tng_md5_hash_update(tng_data, block, frame_set->next_frame_set_file_pos,
                                 contents_start_pos);
         }
-        fseeko(tng_data->output_file, output_file_pos, SEEK_SET);
     }
     /* Update previous frame set */
     if(frame_set->prev_frame_set_file_pos > 0)
@@ -1422,7 +1421,7 @@ static tng_function_status tng_frame_set_pointers_update
         contents_start_pos = ftello(tng_data->output_file);
 
         fseeko(tng_data->output_file, block->block_contents_size - (6 *
-            sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
+               sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
 
         if(tng_data->input_endianness_swap_func_64)
         {
@@ -1447,7 +1446,6 @@ static tng_function_status tng_frame_set_pointers_update
             tng_md5_hash_update(tng_data, block, frame_set->prev_frame_set_file_pos,
                                 contents_start_pos);
         }
-        fseeko(tng_data->output_file, output_file_pos, SEEK_SET);
     }
 
     /* Update the frame set one medium stride step after */
@@ -1469,7 +1467,7 @@ static tng_function_status tng_frame_set_pointers_update
         contents_start_pos = ftello(tng_data->output_file);
 
         fseeko(tng_data->output_file, block->block_contents_size - (3 *
-            sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
+               sizeof(int64_t) + 2 * sizeof(double)), SEEK_CUR);
 
         if(tng_data->input_endianness_swap_func_64)
         {
@@ -1918,19 +1916,15 @@ static tng_function_status tng_migrate_data_in_file
     int64_t traj_start_pos, empty_space, orig_file_pos, frame_set_length;
     tng_gen_block_t block;
     tng_function_status stat;
-    FILE *temp;
 
     if(offset <= 0)
     {
         return(TNG_SUCCESS);
     }
 
-    temp = tng_data->input_file;
-
     stat = tng_file_pos_of_subsequent_trajectory_block_get(tng_data, &traj_start_pos);
     if(stat != TNG_SUCCESS)
     {
-        tng_data->input_file = temp;
         return(stat);
     }
 
@@ -1955,19 +1949,16 @@ static tng_function_status tng_migrate_data_in_file
             fprintf(stderr, "TNG library: Cannot read block header. %s: %d\n",
                     __FILE__, __LINE__);
             tng_block_destroy(&block);
-            tng_data->input_file = temp;
             return(TNG_CRITICAL);
         }
         if(stat != TNG_SUCCESS || block->id != TNG_TRAJECTORY_FRAME_SET)
         {
-            tng_data->input_file = temp;
             tng_block_destroy(&block);
             return(TNG_FAILURE);
         }
         stat = tng_length_of_current_frame_set_contents_get(tng_data, &frame_set_length);
         if(stat != TNG_SUCCESS)
         {
-            tng_data->input_file = temp;
             tng_block_destroy(&block);
             return(stat);
         }
@@ -1976,7 +1967,6 @@ static tng_function_status tng_migrate_data_in_file
                                               hash_mode);
         if(stat != TNG_SUCCESS)
         {
-            tng_data->input_file = temp;
             tng_block_destroy(&block);
             return(stat);
         }
@@ -11647,7 +11637,7 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
                  const char hash_mode)
 {
     int i;
-    int64_t len, orig_len, tot_len = 0, data_start_pos;
+    int64_t len, orig_len, tot_len = 0, data_start_pos, temp_pos = -1;
     tng_function_status stat;
     tng_gen_block_t block;
 
@@ -11718,12 +11708,19 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
             tng_migrate_data_in_file(tng_data, orig_len+1, tot_len - orig_len, hash_mode);
         }
 
+        stat = tng_reread_frame_set_at_file_pos(tng_data, tng_data->last_trajectory_frame_set_input_file_pos);
+        if(stat == TNG_CRITICAL)
+        {
+            fprintf(stderr, "TNG library: Cannot read frame set. %s: %d\n",
+                    __FILE__, __LINE__);
+            return(TNG_CRITICAL);
+        }
+
+        /* In order to write non-trajectory data the current_trajectory_frame_set_output_file_pos
+         * must temporarily be reset */
+        temp_pos = tng_data->current_trajectory_frame_set_output_file_pos;
         tng_data->current_trajectory_frame_set_output_file_pos = -1;
     }
-
-    /* TODO: If there is already frame set data written to this file (e.g. when
-     * appending to an already existing file we might need to move frame sets to
-     * the end of the file. */
 
     if(tng_general_info_block_write(tng_data, hash_mode)
        != TNG_SUCCESS)
@@ -11759,6 +11756,13 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
     }
 
     tng_block_destroy(&block);
+
+    /* Continue writing at the end of the file. */
+    fseeko(tng_data->output_file, 0, SEEK_END);
+    if(temp_pos > 0)
+    {
+        tng_data->current_trajectory_frame_set_output_file_pos = temp_pos;
+    }
 
     return(TNG_SUCCESS);
 }
@@ -12234,8 +12238,10 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
     if(tng_data->n_trajectory_frame_sets)
     {
         frame_set->prev_frame_set_file_pos =
-        tng_data->current_trajectory_frame_set_output_file_pos;
+        tng_data->last_trajectory_frame_set_output_file_pos;
     }
+
+    frame_set->next_frame_set_file_pos = -1;
 
     tng_data->current_trajectory_frame_set_output_file_pos =
     ftello(tng_data->output_file);
