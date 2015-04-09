@@ -3080,7 +3080,7 @@ static tng_function_status tng_molecules_block_read
         if(molecule->n_residues > 0)
         {
             molecule->residues = malloc(molecule->n_residues *
-                                sizeof(struct tng_residue));
+                                        sizeof(struct tng_residue));
             if(!molecule->residues)
             {
                 fprintf(stderr, "TNG library: Cannot allocate memory (%"PRIu64" bytes). %s: %d\n",
@@ -6678,9 +6678,10 @@ static tng_function_status tng_frame_set_finalize
 // }
 */
 
-tng_function_status tng_atom_residue_get(const tng_trajectory_t tng_data,
-                                         const tng_atom_t atom,
-                                         tng_residue_t *residue)
+tng_function_status DECLSPECDLLEXPORT tng_atom_residue_get
+                (const tng_trajectory_t tng_data,
+                 const tng_atom_t atom,
+                 tng_residue_t *residue)
 {
     (void) tng_data;
 
@@ -6691,10 +6692,11 @@ tng_function_status tng_atom_residue_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_atom_name_get(const tng_trajectory_t tng_data,
-                                      const tng_atom_t atom,
-                                      char *name,
-                                      const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_atom_name_get
+                (const tng_trajectory_t tng_data,
+                 const tng_atom_t atom,
+                 char *name,
+                 const int max_len)
 {
     (void) tng_data;
     TNG_ASSERT(atom, "TNG library: atom must not be NULL");
@@ -6710,9 +6712,10 @@ tng_function_status tng_atom_name_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_atom_name_set(const tng_trajectory_t tng_data,
-                                      const tng_atom_t atom,
-                                      const char *new_name)
+tng_function_status DECLSPECDLLEXPORT tng_atom_name_set
+                (const tng_trajectory_t tng_data,
+                 const tng_atom_t atom,
+                 const char *new_name)
 {
     unsigned int len;
     (void)tng_data;
@@ -6745,10 +6748,11 @@ tng_function_status tng_atom_name_set(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_atom_type_get(const tng_trajectory_t tng_data,
-                                      const tng_atom_t atom,
-                                      char *type,
-                                      const int max_len)
+tng_function_status DECLSPECDLLEXPORT tng_atom_type_get
+                (const tng_trajectory_t tng_data,
+                 const tng_atom_t atom,
+                 char *type,
+                 const int max_len)
 {
     (void) tng_data;
     TNG_ASSERT(atom, "TNG library: atom must not be NULL");
@@ -6764,9 +6768,10 @@ tng_function_status tng_atom_type_get(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-tng_function_status tng_atom_type_set(const tng_trajectory_t tng_data,
-                                      const tng_atom_t atom,
-                                      const char *new_type)
+tng_function_status DECLSPECDLLEXPORT tng_atom_type_set
+                (const tng_trajectory_t tng_data,
+                 const tng_atom_t atom,
+                 const char *new_type)
 {
     unsigned int len;
     (void)tng_data;
@@ -6830,6 +6835,30 @@ static tng_function_status tng_atom_destroy(const tng_atom_t atom)
         atom->atom_type = 0;
     }
 
+    return(TNG_SUCCESS);
+}
+
+/**
+ * @brief Update chain->residue pointers (after new memory for
+ * molecule->residues has been allocated).
+ * @param tng_data The trajectory container containing the molecule.
+ * @param mol The molecule that contains the chains that need to be
+ * updated.
+ * @returns TNG_SUCCESS (0) if successful.
+ */
+static tng_function_status tng_molecule_chains_residue_pointers_update
+                (const tng_trajectory_t tng_data,
+                 const tng_molecule_t mol)
+{
+    tng_chain_t chain;
+    int64_t i, res_cnt = 0;
+
+    for(i = 0; i < mol->n_chains; i++)
+    {
+        chain = &mol->chains[i];
+        chain->residues = mol->residues + res_cnt;
+        res_cnt += chain->n_residues;
+    }
     return(TNG_SUCCESS);
 }
 
@@ -7814,14 +7843,7 @@ tng_function_status DECLSPECDLLEXPORT tng_chain_residue_w_id_add
 
     *residue = &molecule->residues[curr_index + chain->n_residues];
 
-    if(!chain->n_residues)
-    {
-        chain->residues = *residue;
-    }
-    else
-    {
-        chain->residues = &molecule->residues[curr_index];
-    }
+    tng_molecule_chains_residue_pointers_update(tng_data, molecule);
 
     (*residue)->name = 0;
     tng_residue_name_set(tng_data, *residue, name);
