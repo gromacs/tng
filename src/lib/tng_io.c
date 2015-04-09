@@ -10313,7 +10313,7 @@ tng_function_status DECLSPECDLLEXPORT tng_implicit_num_particles_set
     tng_function_status stat;
     int64_t diff, n_mod, n_impl;
 
-    TNG_ASSERT(n >= 0, "TNG library: The number of molecules must be >= 0");
+    TNG_ASSERT(n >= 0, "TNG library: The requested number of particles must be >= 0");
 
     diff = n - tng_data->n_particles;
 
