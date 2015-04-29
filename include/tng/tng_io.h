@@ -343,6 +343,10 @@ typedef unsigned __int64 uint64_t;
 # define PRIu64         __PRI64_PREFIX "u"
 #endif
 
+#ifndef PRIuPTR
+# define PRIuPTR         __PRIPTR_PREFIX "u"
+#endif
+
 #endif
 
 #endif /* USE_STD_INTTYPES_H */
