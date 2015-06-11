@@ -15222,26 +15222,24 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
         return(TNG_CRITICAL);
     }
 
-    if(mode == 'r' || mode == 'a')
-    {
-        tng_input_file_set(*tng_data_p, filename);
-
-        /* Read the file headers */
-        tng_file_headers_read(*tng_data_p, TNG_USE_HASH);
-
-        stat = tng_num_frame_sets_get(*tng_data_p, &(*tng_data_p)->n_trajectory_frame_sets);
-
-        if(stat != TNG_SUCCESS)
-        {
-            return(stat);
-        }
-    }
-
     if(mode == 'w')
     {
         stat = tng_output_file_set(*tng_data_p, filename);
+        return(stat);
     }
-    else if(mode == 'a')
+    tng_input_file_set(*tng_data_p, filename);
+
+    /* Read the file headers */
+    tng_file_headers_read(*tng_data_p, TNG_USE_HASH);
+
+    stat = tng_num_frame_sets_get(*tng_data_p, &(*tng_data_p)->n_trajectory_frame_sets);
+
+    if(stat != TNG_SUCCESS)
+    {
+        return(stat);
+    }
+
+    if(mode == 'a')
     {
         if((*tng_data_p)->output_file)
         {
