@@ -5754,6 +5754,13 @@ static tng_function_status tng_data_block_write(const tng_trajectory_t tng_data,
         }
     }
 
+#ifndef USE_ZLIB
+    if(data->codec_id == TNG_GZIP_COMPRESSION)
+    {
+        data->codec_id = TNG_UNCOMPRESSED;
+    }
+#endif
+
     switch(data->datatype)
     {
     case TNG_CHAR_DATA:

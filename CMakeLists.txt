@@ -29,11 +29,11 @@ check_include_file(inttypes.h   HAVE_INTTYPES_H)
 include(BuildTNG.cmake)
 tng_get_source_list(TNG_SOURCES TNG_COMPILE_DEFS)
 
-tng_set_source_properties(WITH_ZLIB ${ZLIB_FOUND})
+tng_set_source_properties(WITH_ZLIB ${TNG_BUILD_WITH_ZLIB})
 
 add_library(tng_io ${TNG_SOURCES})
 
-if (ZLIB_FOUND)
+if (TNG_BUILD_WITH_ZLIB)
   list(APPEND EXTRA_LIBRARIES ${ZLIB_LIBRARIES})
   include_directories(${ZLIB_INCLUDE_DIRS})
 endif()
