@@ -1128,21 +1128,12 @@ tng_function_status tng_test_utility_functions(tng_trajectory_t traj, const char
     }
 
     stat = tng_util_frame_current_compression_get(traj, TNG_TRAJ_POSITIONS, &codec_id, &multiplier);
-#ifdef USE_ZLIB
     if(stat != TNG_SUCCESS || codec_id != TNG_GZIP_COMPRESSION)
     {
         printf("Could not get compression. %s: %d\n",
                __FILE__, __LINE__);
         return(TNG_FAILURE);
     }
-#else
-    if(stat != TNG_SUCCESS)
-    {
-        printf("Could not get compression. %s: %d\n",
-               __FILE__, __LINE__);
-        return(TNG_FAILURE);
-    }
-#endif
     stat = tng_util_trajectory_close(&traj);
     if(stat != TNG_SUCCESS)
     {

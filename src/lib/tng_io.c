@@ -28,9 +28,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
-#ifdef USE_ZLIB
 #include <zlib.h>
-#endif
 
 #include "tng/md5.h"
 #include "compression/tng_compress.h"
@@ -4624,7 +4622,6 @@ static tng_function_status tng_uncompress(const tng_trajectory_t tng_data,
     return(TNG_SUCCESS);
 }
 
-#ifdef USE_ZLIB
 static tng_function_status tng_gzip_compress(const tng_trajectory_t tng_data,
                                              char **data, const int64_t len,
                                              int64_t *new_len)
@@ -4714,7 +4711,6 @@ static tng_function_status tng_gzip_uncompress(const tng_trajectory_t tng_data,
 
     return(TNG_SUCCESS);
 }
-#endif
 
 /**
  * @brief Allocate memory for storing particle data.
@@ -5262,16 +5258,6 @@ static tng_function_status tng_data_read(const tng_trajectory_t tng_data,
 
 /*     fprintf(stderr, "TNG library: %s\n", block->name);*/
 
-    /* This must be caught early to avoid creating a data block if not necessary. */
-#ifndef USE_ZLIB
-    if(codec_id == TNG_GZIP_COMPRESSION)
-    {
-        fprintf(stderr, "TNG library: Cannot uncompress data block. %s: %d\n", __FILE__,
-                __LINE__);
-        return(TNG_FAILURE);
-    }
-#endif
-
     switch(datatype)
     {
     case TNG_CHAR_DATA:
@@ -5463,7 +5449,6 @@ static tng_function_status tng_data_read(const tng_trajectory_t tng_data,
             }
 /*            fprintf(stderr, "TNG library: After TNG uncompression: %" PRId64 "\n", block->block_contents_size);*/
             break;
-#ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
     /*         fprintf(stderr, "TNG library: Before compression: %" PRId64 "\n", block->block_contents_size); */
             if(tng_gzip_uncompress(tng_data, &contents,
@@ -5476,7 +5461,6 @@ static tng_function_status tng_data_read(const tng_trajectory_t tng_data,
             }
     /*         fprintf(stderr, "TNG library: After compression: %" PRId64 "\n", block->block_contents_size); */
             break;
-#endif
         }
     }
     else
@@ -5725,13 +5709,6 @@ static tng_function_status tng_data_block_write(const tng_trajectory_t tng_data,
             stride_length = 1;
         }
     }
-
-#ifndef USE_ZLIB
-    if(data->codec_id == TNG_GZIP_COMPRESSION)
-    {
-        data->codec_id = TNG_UNCOMPRESSED;
-    }
-#endif
 
     switch(data->datatype)
     {
@@ -6151,7 +6128,6 @@ static tng_function_status tng_data_block_write(const tng_trajectory_t tng_data,
                 return(stat);
             }
             break;
-#ifdef USE_ZLIB
         case TNG_GZIP_COMPRESSION:
     /*         fprintf(stderr, "TNG library: Before compression: %" PRId64 "\n", block->block_contents_size); */
             stat = tng_gzip_compress(tng_data,
@@ -6170,7 +6146,6 @@ static tng_function_status tng_data_block_write(const tng_trajectory_t tng_data,
             }
     /*         fprintf(stderr, "TNG library: After compression: %" PRId64 "\n", block->block_contents_size); */
             break;
-#endif
         }
         if(block_data_len != full_data_len)
         {
