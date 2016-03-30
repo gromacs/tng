@@ -6071,7 +6071,7 @@ static tng_function_status tng_data_block_write(const tng_trajectory_t tng_data,
                         if(fabs(multiplier - 1.0) > 0.00001 ||
                         tng_data->output_endianness_swap_func_32)
                         {
-                            for(i = 0; full_data_len; i+=size)
+                            for(i = 0; i < full_data_len; i+=size)
                             {
                                 *(float *)(contents + i) *= (float)multiplier;
                                 if(tng_data->output_endianness_swap_func_32 &&
