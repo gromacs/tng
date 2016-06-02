@@ -3013,7 +3013,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_get(const tng_trajectory_t tng_da
  * opened.
  * @param block_id is the id number of the particle data block to read.
  * @param values is a pointer to a 1-dimensional array (memory unallocated), which
- * will be filled with data. The length of the array will be (n_frames * n_values_per_frame).
+ * will be filled with data. The length of the array will be
+ * (n_frames_with_data (see stride_length) * n_values_per_frame).
  * Since **values is allocated in this function it is the callers
  * responsibility to free the memory.
  * @param n_frames is set to the number of particles in the returned data. This is
@@ -3100,7 +3101,8 @@ tng_function_status DECLSPECDLLEXPORT tng_data_interval_get
  * If hash_mode == TNG_USE_HASH the md5 hash in the file will be
  * compared to the md5 hash of the read contents to ensure valid data.
  * @param values is a pointer to a 1-dimensional array (memory unallocated), which
- * will be filled with data. The length of the array will be (n_frames * n_values_per_frame).
+ * will be filled with data. The length of the array will be
+ * (n_frames_with_data (see stride_length) * n_values_per_frame).
  * Since **values is allocated in this function it is the callers
  * responsibility to free the memory.
  * @param stride_length is set to the stride length (writing interval) of
@@ -3189,7 +3191,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_get
  * @param block_id is the id number of the particle data block to read.
  * @param values is a pointer to a 1-dimensional array (memory unallocated), which
  * will be filled with data. The length of the array will be
- * (n_frames * n_particles * n_values_per_frame).
+ * (n_frames_with_data (see stride_length) * n_particles * n_values_per_frame).
  * Since **values is allocated in this function it is the callers
  * responsibility to free the memory.
  * @param n_frames is set to the number of frames in the returned data. This is
@@ -3293,7 +3295,7 @@ tng_function_status DECLSPECDLLEXPORT tng_particle_data_interval_get
  * compared to the md5 hash of the read contents to ensure valid data.
  * @param values is a pointer to a 1-dimensional array (memory unallocated), which
  * will be filled with data. The length of the array will be
- * (n_frames * n_particles * n_values_per_frame).
+ * (n_frames_with_data (see stride_length) * n_particles * n_values_per_frame).
  * Since **values is allocated in this function it is the callers
  * responsibility to free the memory.
  * @param stride_length is set to the stride length (writing interval) of

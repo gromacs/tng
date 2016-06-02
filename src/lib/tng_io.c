@@ -15467,6 +15467,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_pos_read
                                                  &n_values_per_frame,
                                                  &type);
 
+    if(stat == TNG_SUCCESS && type != TNG_FLOAT_DATA)
+    {
+        return(TNG_FAILURE);
+    }
+
     return(stat);
 }
 
@@ -15495,6 +15500,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_vel_read
                                                  stride_length,
                                                  &n_values_per_frame,
                                                  &type);
+
+    if(stat == TNG_SUCCESS && type != TNG_FLOAT_DATA)
+    {
+        return(TNG_FAILURE);
+    }
 
     return(stat);
 }
@@ -15525,6 +15535,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_force_read
                                                  &n_values_per_frame,
                                                  &type);
 
+    if(stat == TNG_SUCCESS && type != TNG_FLOAT_DATA)
+    {
+        return(TNG_FAILURE);
+    }
+
     return(stat);
 }
 
@@ -15553,6 +15568,11 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
                                         stride_length,
                                         &n_values_per_frame,
                                         &type);
+
+    if(stat == TNG_SUCCESS && type != TNG_FLOAT_DATA)
+    {
+        return(TNG_FAILURE);
+    }
 
     return(stat);
 }
