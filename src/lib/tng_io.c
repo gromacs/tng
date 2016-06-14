@@ -256,16 +256,16 @@ struct tng_trajectory {
     FILE *output_file;
     /** Function to swap 32 bit values to and from the endianness of the
      * input file */
-    tng_function_status (*input_endianness_swap_func_32)(const tng_trajectory_t, int32_t *);
+    tng_function_status (*input_endianness_swap_func_32)(const tng_trajectory_t, uint32_t *);
     /** Function to swap 64 bit values to and from the endianness of the
      * input file */
-    tng_function_status (*input_endianness_swap_func_64)(const tng_trajectory_t, int64_t *);
+    tng_function_status (*input_endianness_swap_func_64)(const tng_trajectory_t, uint64_t *);
     /** Function to swap 32 bit values to and from the endianness of the
      * input file */
-    tng_function_status (*output_endianness_swap_func_32)(const tng_trajectory_t, int32_t *);
+    tng_function_status (*output_endianness_swap_func_32)(const tng_trajectory_t, uint32_t *);
     /** Function to swap 64 bit values to and from the endianness of the
      * input file */
-    tng_function_status (*output_endianness_swap_func_64)(const tng_trajectory_t, int64_t *);
+    tng_function_status (*output_endianness_swap_func_64)(const tng_trajectory_t, uint64_t *);
     /** The endianness of 32 bit values of the current computer */
     char endianness_32;
     /** The endianness of 64 bit values of the current computer */
@@ -400,7 +400,7 @@ static TNG_INLINE int64_t tng_max_i64(const int64_t a, const int64_t b)
  * byte order is not recognised.
  */
 static tng_function_status tng_swap_byte_order_big_endian_32
-                (const tng_trajectory_t tng_data, int32_t *v)
+                (const tng_trajectory_t tng_data, uint32_t *v)
 {
     switch(tng_data->endianness_32)
     {
@@ -439,7 +439,7 @@ static tng_function_status tng_swap_byte_order_big_endian_32
  * byte order is not recognised.
  */
 static tng_function_status tng_swap_byte_order_big_endian_64
-                (const tng_trajectory_t tng_data, int64_t *v)
+                (const tng_trajectory_t tng_data, uint64_t *v)
 {
     switch(tng_data->endianness_64)
     {
@@ -492,7 +492,7 @@ static tng_function_status tng_swap_byte_order_big_endian_64
  * byte order is not recognised.
  */
 static tng_function_status tng_swap_byte_order_little_endian_32
-                (const tng_trajectory_t tng_data, int32_t *v)
+                (const tng_trajectory_t tng_data, uint32_t *v)
 {
     switch(tng_data->endianness_32)
     {
@@ -531,7 +531,7 @@ static tng_function_status tng_swap_byte_order_little_endian_32
  * byte order is not recognised.
  */
 static tng_function_status tng_swap_byte_order_little_endian_64
-                (const tng_trajectory_t tng_data, int64_t *v)
+                (const tng_trajectory_t tng_data, uint64_t *v)
 {
     switch(tng_data->endianness_64)
     {
@@ -705,7 +705,7 @@ static TNG_INLINE tng_function_status tng_file_input_numerical
     {
     case 8:
         if(tng_data->input_endianness_swap_func_64 &&
-           tng_data->input_endianness_swap_func_64(tng_data, (int64_t *)dest) != TNG_SUCCESS)
+           tng_data->input_endianness_swap_func_64(tng_data, (uint64_t *)dest) != TNG_SUCCESS)
         {
             fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, line_nr);
@@ -713,7 +713,7 @@ static TNG_INLINE tng_function_status tng_file_input_numerical
         break;
     case 4:
         if(tng_data->input_endianness_swap_func_32 &&
-           tng_data->input_endianness_swap_func_32(tng_data, (int32_t *)dest) != TNG_SUCCESS)
+           tng_data->input_endianness_swap_func_32(tng_data, (uint32_t *)dest) != TNG_SUCCESS)
         {
             fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                     __FILE__, line_nr);
@@ -747,13 +747,13 @@ static TNG_INLINE tng_function_status tng_file_output_numerical
                  md5_state_t *md5_state,
                  const int line_nr)
 {
-    int32_t temp_i32;
-    int64_t temp_i64;
+    uint32_t temp_i32;
+    uint64_t temp_i64;
 
     switch(len)
     {
         case 8:
-            temp_i64 = *((int64_t *)src);
+            temp_i64 = *((uint64_t *)src);
             if(tng_data->output_endianness_swap_func_64 &&
             tng_data->output_endianness_swap_func_64(tng_data, &temp_i64) != TNG_SUCCESS)
             {
@@ -771,7 +771,7 @@ static TNG_INLINE tng_function_status tng_file_output_numerical
             }
             break;
         case 4:
-            temp_i32 = *((int32_t *)src);
+            temp_i32 = *((uint32_t *)src);
             if(tng_data->output_endianness_swap_func_32 &&
             tng_data->output_endianness_swap_func_32(tng_data, &temp_i32) != TNG_SUCCESS)
             {
@@ -1098,7 +1098,7 @@ static tng_function_status tng_block_header_read
     }
 
     if(tng_data->input_endianness_swap_func_64 &&
-       tng_data->input_endianness_swap_func_64(tng_data, &block->header_contents_size) != TNG_SUCCESS)
+       tng_data->input_endianness_swap_func_64(tng_data, (uint64_t *)&block->header_contents_size) != TNG_SUCCESS)
     {
         fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
                 __FILE__, __LINE__);
@@ -1238,7 +1238,7 @@ static tng_function_status tng_header_pointers_update
 {
     tng_gen_block_t block;
     FILE *temp = tng_data->input_file;
-    int64_t output_file_pos, pos, contents_start_pos;
+    uint64_t output_file_pos, pos, contents_start_pos;
 
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
@@ -1337,7 +1337,7 @@ static tng_function_status tng_frame_set_pointers_update
     tng_gen_block_t block;
     tng_trajectory_frame_set_t frame_set;
     FILE *temp = tng_data->input_file;
-    int64_t pos, output_file_pos, contents_start_pos;
+    uint64_t pos, output_file_pos, contents_start_pos;
 
     if(tng_output_file_init(tng_data) != TNG_SUCCESS)
     {
@@ -5579,7 +5579,7 @@ static tng_function_status tng_data_read(const tng_trajectory_t tng_data,
                     for(i = 0; i < full_data_len; i+=size)
                     {
                         if(tng_data->input_endianness_swap_func_32(tng_data,
-                            (int32_t *)((char *)data->values + i))
+                            (uint32_t *)((char *)data->values + i))
                             != TNG_SUCCESS)
                         {
                             fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
@@ -5595,7 +5595,7 @@ static tng_function_status tng_data_read(const tng_trajectory_t tng_data,
                     for(i = 0; i < full_data_len; i+=size)
                     {
                         if(tng_data->input_endianness_swap_func_64(tng_data,
-                            (int64_t *)((char *)data->values + i))
+                            (uint64_t *)((char *)data->values + i))
                             != TNG_SUCCESS)
                         {
                             fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
@@ -6005,7 +6005,7 @@ static tng_function_status tng_data_block_write(const tng_trajectory_t tng_data,
                             for(i = 0; i < full_data_len; i+=size)
                             {
                                 if(tng_data->output_endianness_swap_func_32(tng_data,
-                                (int32_t *)(contents + i))
+                                (uint32_t *)(contents + i))
                                 != TNG_SUCCESS)
                                 {
                                     fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
@@ -6025,7 +6025,7 @@ static tng_function_status tng_data_block_write(const tng_trajectory_t tng_data,
                                 *(float *)(contents + i) *= (float)multiplier;
                                 if(tng_data->output_endianness_swap_func_32 &&
                                 tng_data->output_endianness_swap_func_32(tng_data,
-                                (int32_t *)(contents + i))
+                                (uint32_t *)(contents + i))
                                 != TNG_SUCCESS)
                                 {
                                     fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
@@ -6041,7 +6041,7 @@ static tng_function_status tng_data_block_write(const tng_trajectory_t tng_data,
                         for(i = 0; i < full_data_len; i+=size)
                         {
                             if(tng_data->output_endianness_swap_func_64(tng_data,
-                            (int64_t *)(contents + i))
+                            (uint64_t *)(contents + i))
                             != TNG_SUCCESS)
                             {
                                 fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
@@ -6058,7 +6058,7 @@ static tng_function_status tng_data_block_write(const tng_trajectory_t tng_data,
                             for(i = 0; i < full_data_len; i+=size)
                             {
                                 if(tng_data->output_endianness_swap_func_64(tng_data,
-                                (int64_t *)(contents + i))
+                                (uint64_t *)(contents + i))
                                 != TNG_SUCCESS)
                                 {
                                     fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
@@ -6078,7 +6078,7 @@ static tng_function_status tng_data_block_write(const tng_trajectory_t tng_data,
                                 *(double *)(contents + i) *= multiplier;
                                 if(tng_data->output_endianness_swap_func_64 &&
                                 tng_data->output_endianness_swap_func_64(tng_data,
-                                (int64_t *)(contents + i))
+                                (uint64_t *)(contents + i))
                                 != TNG_SUCCESS)
                                 {
                                     fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
@@ -12268,7 +12268,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
             if(tng_data->input_endianness_swap_func_64)
             {
                 if(tng_data->input_endianness_swap_func_64(tng_data,
-                   &frame_set->medium_stride_prev_frame_set_file_pos)
+                   (uint64_t *)&frame_set->medium_stride_prev_frame_set_file_pos)
                     != TNG_SUCCESS)
                 {
                     fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
@@ -12326,7 +12326,7 @@ tng_function_status DECLSPECDLLEXPORT tng_frame_set_new
                     if(tng_data->input_endianness_swap_func_64)
                     {
                         if(tng_data->input_endianness_swap_func_64(tng_data,
-                           &frame_set->long_stride_prev_frame_set_file_pos)
+                           (uint64_t *)&frame_set->long_stride_prev_frame_set_file_pos)
                             != TNG_SUCCESS)
                         {
                             fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
@@ -13528,7 +13528,7 @@ static tng_function_status tng_frame_gen_data_write
         for(i = 0; i < write_n_particles * n_values_per_frame; i++)
         {
             if(tng_data->output_endianness_swap_func_64(tng_data,
-                (int64_t *) copy+i)
+                (uint64_t *) copy+i)
                 != TNG_SUCCESS)
             {
                 fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
@@ -13547,7 +13547,7 @@ static tng_function_status tng_frame_gen_data_write
         for(i = 0; i < write_n_particles * n_values_per_frame; i++)
         {
             if(tng_data->output_endianness_swap_func_32(tng_data,
-                (int32_t *) copy+i)
+                (uint32_t *) copy+i)
                 != TNG_SUCCESS)
             {
                 fprintf(stderr, "TNG library: Cannot swap byte order. %s: %d\n",
