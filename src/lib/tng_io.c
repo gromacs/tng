@@ -1804,6 +1804,10 @@ static tng_function_status tng_frame_set_complete_migrate
     }
 
     tng_data->current_trajectory_frame_set_output_file_pos = new_pos;
+    if(tng_data->input_file == tng_data->output_file)
+    {
+        tng_data->current_trajectory_frame_set_input_file_pos = new_pos;
+    }
 
     tng_frame_set_pointers_update(tng_data, hash_mode);
 
@@ -11679,6 +11683,7 @@ tng_function_status DECLSPECDLLEXPORT tng_file_headers_write
         if(tot_len > orig_len)
         {
             tng_migrate_data_in_file(tng_data, orig_len+1, tot_len - orig_len, hash_mode);
+            tng_data->last_trajectory_frame_set_input_file_pos = tng_data->last_trajectory_frame_set_output_file_pos;
         }
 
         stat = tng_reread_frame_set_at_file_pos(tng_data, tng_data->last_trajectory_frame_set_input_file_pos);
@@ -15222,6 +15227,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_trajectory_open
         tng_output_append_file_set(*tng_data_p, filename);
 
         fseeko((*tng_data_p)->output_file, 0, SEEK_END);
+
+        (*tng_data_p)->output_endianness_swap_func_32 = (*tng_data_p)->input_endianness_swap_func_32;
+        (*tng_data_p)->output_endianness_swap_func_64 = (*tng_data_p)->input_endianness_swap_func_64;
     }
 
     return(stat);
