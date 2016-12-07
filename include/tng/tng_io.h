@@ -3591,8 +3591,9 @@ tng_function_status DECLSPECDLLEXPORT tng_util_box_shape_read
  * @param tng_data is the trajectory to read from.
  * @param block_id is the ID number of the block containing the data of interest.
  * @param values will be set to point at a 1-dimensional array containing the
- * requested data. The variable may point at already allocated memory or be a
- * NULL pointer. The memory must be freed afterwards.
+ * requested data. The variable may point at already allocated memory (which will
+ * be reallocated with realloc()), or be a
+ * NULL pointer. The calling code must free the memory afterwards.
  * @param data_type will be pointing to a character indicating the size of the
  * data of the returned values, e.g. TNG_INT_DATA, TNG_FLOAT_DATA or TNG_DOUBLE_DATA.
  * @param retrieved_frame_number will be pointing at the frame number of the
@@ -4818,7 +4819,7 @@ tng_function_status DECLSPECDLLEXPORT tng_util_frame_current_compression_get
  * @param data_block_ids_in_next_frame is set to an array (of length
  * n_data_blocks_in_next_frame) that lists the data block IDs with data for
  * next_frame. It must be pointing at NULL or previously allocated memory.
- * Memory for the array is allocated by this function.
+ * Memory for the array is reallocated by this function using realloc().
  * The memory must be freed by the client afterwards or
  * there will be a memory leak.
  * @pre \code tng_data != 0 \endcode The trajectory container (tng_data)
