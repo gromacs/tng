@@ -1,7 +1,7 @@
 /* This code is part of the tng binary trajectory format.
  *
  * Written by Magnus Lundborg
- * Copyright (c) 2012-2014, The GROMACS development team.
+ * Copyright (c) 2012-2017, The GROMACS development team.
  * Check out http://www.gromacs.org for more information.
  *
  *
@@ -438,6 +438,7 @@ typedef enum {TNG_NON_TRAJECTORY_BLOCK, TNG_TRAJECTORY_BLOCK} tng_block_type;
 #define TNG_TRAJ_ANISOTROPIC_B_FACTORS  0x0000000010000007LL
 #define TNG_TRAJ_OCCUPANCY              0x0000000010000008LL
 #define TNG_TRAJ_GENERAL_COMMENTS       0x0000000010000009LL
+#define TNG_TRAJ_MASSES                 0x0000000010000010LL
 /** @} */
 
 
