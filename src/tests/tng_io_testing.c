@@ -1275,7 +1275,7 @@ tng_function_status tng_test_copy_container(tng_trajectory_t traj, const char ha
 
 int main()
 {
-    tng_trajectory_t traj;
+    tng_trajectory_t traj = 0;
     char time_str[TNG_MAX_DATE_STR_LEN];
     char version_str[TNG_MAX_STR_LEN];
     char hash_mode = TNG_USE_HASH;
