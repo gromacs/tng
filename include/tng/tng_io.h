@@ -75,6 +75,14 @@
  * See git log for full revision history.
  *
  * Revisions
+ * 
+ * v. 1.8 - Added GROMACS energy block IDs.
+ *        - Rewritten build system for the main library.
+ *        - Added block ID for atom (or generic particle) mass.
+ *        - Fixed bugs, such as:
+ *           - Do not switch endianness when reading and writing TNG compressed data.
+ *           - Update pointers to residues in the chain when writing multiple chains in one molecule.
+ *           - Update frame set pointers when appending to file.
  *
  * v. 1.7 - Fifth stable release of the API
  *
